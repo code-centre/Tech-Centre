@@ -275,7 +275,7 @@ export default function AcademicOffer() {
 								</div>
 							</div>
 							<footer className="pt-0 flex justify-center">
-								<Link href={`/cursos/${programa?.slug}`}>
+								<Link href={`/programas-academicos/${programa?.slug}`}>
 									<button className={buttonStyle}>
 										Ver detalles del curso
 									</button>
