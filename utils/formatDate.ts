@@ -1,10 +1,10 @@
 export function formatDate(dateToFormat: string) {
-  const dateCourse = new Date(`${dateToFormat}T00:00:00`)
-  const formattedDate = dateCourse.toLocaleDateString('es-MX', {
+  const dateCourse = new Date(`${dateToFormat}T00:00:00-05:00`); 
+  const formattedDate = dateCourse.toLocaleDateString('es-CO', {
     day: '2-digit',
-    month: 'long'
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'America/Bogota'
   });
-  const dateParts = formattedDate.split('-');
-  const finalDate = `${Number(dateParts[0])} de ${dateParts[1]}`;
-  return finalDate
+  return formattedDate;
 }

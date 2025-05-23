@@ -14,6 +14,8 @@ import Link from 'next/link'
 export default function AcademicOffer() {
 	const [areaFiltrada, setAreaFiltrada] = useState("todos")
 	const [nivelFiltrado, setNivelFiltrado] = useState("todos")
+	const [mostrarTodos, setMostrarTodos] = useState(false)
+	const [showAll, setShowAll] = useState(false);
 	const [programasEducativosSnapshot, loading, error] = useCollection(
 		query(collection(db, 'programs'),
 			where('status', '==', 'Publicado'))
@@ -32,8 +34,13 @@ export default function AcademicOffer() {
 		: []
 
 	console.log(cursosCortosEducativos);
-
-	const educativos = [...programasEducativos, ...cursosCortosEducativos]
+    const cortosFuturos = cursosCortosEducativos.filter((curso) => {
+		const fechaActual = new Date();
+		const fechaCurso = new Date(curso.date);
+		return fechaCurso > fechaActual;
+	});
+	const educativos = [...programasEducativos, ...cortosFuturos]
+	const displayedEducativos = showAll ? educativos : educativos.slice(0, 6);
 
 	// const getPriceDisplay = () => {
 	// 	const ticketsPrice = cursosCortosEducativos
@@ -65,19 +72,18 @@ export default function AcademicOffer() {
 	// 	return cumpleNivel && cumpleArea
 	// })
 
-	const buttonStyle = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 px-4 py-2 bg-white hover:bg-gray-200 text-black mb-8 mx-6 flex-1"
 	return (
-		<section id="oferta-academica" className="py-20 px-4 bg-black text-zinc-200">
+		<section id="oferta-academica" className="py-24 px-4 bg-gradient-to-b from-black via-zinc-900 to-black text-zinc-200">
 			<div className="max-w-7xl mx-auto">
-				<div className="text-center mb-16">
-					<span className="inline-block px-4 py-1 rounded-full bg-zinc-800 text-zinc-300 font-medium mb-4">
+				<div className="text-center mb-20">
+					<span className="inline-block px-6 py-2 rounded-full bg-purple-700/20 text-purple-300 font-semibold mb-5 tracking-wide shadow-lg">
 						Oferta Académica
 					</span>
-					<h2 className="text-3xl md:text-4xl font-bold mb-4">
+					<h2 className="text-4xl md:text-5xl font-extrabold mb-5 text-white drop-shadow-lg">
 						Cursos diseñados para el mercado laboral actual
 					</h2>
-					<p className="max-w-2xl mx-auto text-lg">
-						Programas con enfoque práctico y orientados a resultados, diseñados por expertos de la industria.
+					<p className="max-w-2xl mx-auto text-xl text-zinc-300">
+						Programas con enfoque práctico y orientados al aprendizaje experiencial, diseñados por expertos de la industria.
 					</p>
 				</div>
 
@@ -205,11 +211,11 @@ export default function AcademicOffer() {
 				)} */}
 
 				{/* Programas filtrados */}
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-					{educativos.slice(0, 6).map((programa) => (
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+					{displayedEducativos.map((programa) => (
 						<div
 							key={programa.id}
-							className="bg-zinc-900 border-0 shadow-lg overflow-hidden hover:shadow-xl transition-shadow group rounded-lg"
+							className="bg-zinc-900 border border-zinc-800 shadow-xl hover:shadow-2xl transition-shadow group rounded-2xl overflow-hidden flex flex-col h-full relative"
 						>
 							<div className="relative">
 								<Image
@@ -217,19 +223,17 @@ export default function AcademicOffer() {
 									alt={programa.name || "Imagen del curso"}
 									width={600}
 									height={400}
-									className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+									className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-300 border-b-4 border-purple-600"
 								/>
-								<div className="w-full bg-zinc-800"></div>
-								<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+								<div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 								<div
 									className={`
-                    absolute bottom-4 left-4 px-3 py-1
-									rounded-full text-sm
-                    ${programa.category === "cloud" ? "bg-blue-500 hover:bg-blue-600" : ""}
-                    ${programa.category === "Desarrollo Web" ? "bg-yellow-500 text-black hover:bg-yellow-600" : ""}
-                    ${programa.category === "web" ? "bg-purple-600 hover:bg-purple-700" : ""}
-					${programa.type === "taller" ? "bg-yellow-600 hover:bg-purple-700" : ""}
-                  `}
+										absolute top-4 left-4 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-md
+										${programa.category === "cloud" ? "bg-blue-500/90 text-white" : ""}
+										${programa.category === "Desarrollo Web" ? "bg-yellow-400/90 text-black" : ""}
+										${programa.category === "web" ? "bg-purple-600/90 text-white" : ""}
+										${programa.type === "taller" ? "bg-yellow-600/90 text-white" : ""}
+									`}
 								>
 									{programa.category === "cloud"
 										? "Avanzado"
@@ -238,46 +242,49 @@ export default function AcademicOffer() {
 											: "Básico"
 									}
 								</div>
-								{/* <div
-									className="absolute bottom-4 right-4 px-3 py-1 rounded-full text-sm bg-gray-800 hover:bg-gray-900"
-								>
-									{areas.find((a) => a.id === programa.area)?.nombre}
-								</div> */}
 							</div>
-							<header className="flex flex-col space-y-1.5 p-6 pb-2 h-35">
-								<div className="flex justify-between items-center text-white">
+							<header className="flex flex-col space-y-2 p-6 pb-2 h-35">
+								<div className="flex justify-between items-center text-white mb-2">
 									<div className="flex items-center gap-1">
 										{/* <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /> */}
 										{/* <span className="font-bold">{programa.rating}</span>
 										<span className="text-gray-500 text-sm">({programa.estudiantes.toLocaleString()})</span> */}
 									</div>
-									<div className="flex items-center gap-1 text-gray-500 text-sm">
+									<div className="flex items-center gap-2 text-purple-400 text-sm font-semibold">
 										<Clock className="h-4 w-4" />
-										<span>{programa.duration || formatDate(programa.date)}</span>
+										<span>
+											{programa.duration ||
+												formatDate(programa.date)
+											}
+										</span>
 									</div>
 								</div>
-								<h3 className="text-xl mt-2 text-white font-bold">{programa.name || programa.title}</h3>
+								<h3 className="text-2xl mt-2 text-white font-extrabold leading-tight group-hover:text-purple-400 transition-colors duration-200 line-clamp-2 break-words min-h-[60px]">
+									{programa.name || programa.title}
+								</h3>
 							</header>
-							<div className="p-6 pt-2 h-45">
-								<p className="text-gray-400 mb-4 line-clamp-4 overflow-hidden">{programa.shortDescription || HTMLReactParser(programa.description)}</p>
+							<div className="p-6 pt-2 flex-1 flex flex-col justify-between">
+								<p className="text-zinc-300 mb-4 line-clamp-4 overflow-hidden text-base min-h-[80px]">
+									{programa.shortDescription || HTMLReactParser(programa.description)}
+								</p>
 								<div className="flex items-center gap-3 mb-4">
 									{/* <div className="size-10 rounded-full bg-gray-400"></div> */}
 									{programa.type !== 'taller' && (
 										<div>
-											<p className="font-medium text-white">{programa.teacher}</p>
-											<p className="text-sm text-gray-500">Profesor</p>
+											<p className="font-semibold text-white text-base">{programa.teacher}</p>
+											<p className="text-xs text-zinc-400">Profesor</p>
 										</div>
 									)}
 								</div>
-								<div className="flex items-center gap-2 text-sm text-gray-500">
-									<Zap className="h-4 w-4 text-white" />
+								<div className="flex items-center gap-2 text-sm text-purple-300 font-medium">
+									{/* <Zap className="h-4 w-4 text-purple-400" /> */}
 									{/* <span>Próxima clase: {getPriceDisplay()}</span> */}
 								</div>
 							</div>
-							<footer className="pt-0 flex justify-center">
+							<footer className="pt-0 flex justify-center pb-6">
 								<Link href={`/programas-academicos/${programa?.slug}`}>
-									<button className={buttonStyle}>
-										Ver detalles del curso
+									<button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-lg py-4 px-10 cursor-pointer rounded-xl shadow-xl transition duration-300 font-bold tracking-wide">
+										{programa.type === "taller" ? "Ver curso corto" : "Ver diplomado"}
 									</button>
 								</Link>
 							</footer>
@@ -299,11 +306,15 @@ export default function AcademicOffer() {
 						</button>
 					</div>
 				)}
-
-				<div className="mt-12 text-center">
-					<button className="bg-purple-600 hover:bg-purple-700 text-white text-lg py-6 px-8 cursor-pointer rounded-lg shadow-lg transition duration-300">
-						Ver todos los cursos
-					</button>
+				<div className="mt-16 text-center">
+					{educativos.length > 6 && (
+						<button
+							className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-lg py-6 px-10 cursor-pointer rounded-xl shadow-xl transition duration-300 font-bold tracking-wide"
+							onClick={() => setShowAll((prev) => !prev)}
+						>
+							{showAll ? "Ver menos" : "Ver todos los cursos"}
+						</button>
+					)}
 				</div>
 			</div>
 		</section>
