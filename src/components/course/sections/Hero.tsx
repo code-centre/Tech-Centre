@@ -70,14 +70,14 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
       {
         newDetail
           ? <>
-            <section className="max-w-6xl mx-auto w-full bg-black text-zinc-200 overflow-hidden rounded-xl grid grid-cols-1 lg:grid-cols-[1.5fr_2fr] items-center relative p-4 md:p-10 gap-5 lg:h-[500px] shadow-lg border border-zinc-800">
+            <section className="max-w-6xl mx-auto w-full bg-gradient-to-br from-zinc-900 via-black to-zinc-900 text-zinc-200 overflow-hidden rounded-2xl grid grid-cols-1 lg:grid-cols-[1.5fr_2fr] items-center relative p-4 md:p-10 gap-5 lg:h-[500px] shadow-2xl border border-zinc-800">
               {
                 user?.rol === 'admin' &&
                 <div className='absolute top-10 right-5 z-10'>
                   {
                     updateStatus
                       ? <div className='flex gap-2'>
-                        <select defaultValue={course.status} onChange={(e) => setContentStatus(e.target.value)} className='px-3 py-2 rounded-md border bg-zinc-900 text-zinc-200' name="" id="">
+                        <select defaultValue={course.status} onChange={(e) => setContentStatus(e.target.value)} className='px-3 py-2 rounded-md border bg-zinc-900/90 text-zinc-200 shadow-lg' name="" id="">
                           <option value="Borrador">Borrador</option>
                           <option value="Publicado">Publicado</option>
                         </select>
@@ -87,7 +87,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                         }} />
                       </div>
                       : <div className='flex gap-2 items-center'>
-                        <p className="bg-green-600 text-white border px-2 py-1 text-sm rounded-md font-semibold">{course.status}</p>
+                        <p className="bg-gradient-to-r from-green-600 to-green-500 text-white border px-3 py-1.5 text-sm rounded-full font-semibold shadow-lg">{course.status}</p>
                         <ButtonToEdit startEditing={setUpdateStatus} />
                       </div>
                   }
@@ -95,8 +95,14 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
               }
               <div className="flex flex-col gap-5 z-10">
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-4 w-fit -top-7 left-0 right-0 bg-zinc-800/60 px-4 py-2 rounded-lg">
-                    <Image src="/calendar.png" width={25} height={25} alt="" />
+                  <div className="flex items-center gap-4 w-fit -top-7 left-0 right-0 bg-zinc-800/80 backdrop-blur-sm px-5 py-3 rounded-xl shadow-lg border border-zinc-700/50">
+                    <Image 
+                      src="/calendar.png" 
+                      width={25} 
+                      height={25} 
+                      alt="Icono de calendario"
+                      className="min-w-[25px]"
+                    />
                     <div className="flex flex-col gap-1">
                       <p className="leading-tight font-bold text-base text-zinc-100">
                         Inscripciones Abiertas
@@ -110,7 +116,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                                   setContentDate(e.target.value)
                                 }}
                                 defaultValue={course.startDate}
-                                className='px-2 rounded-md py-1 bg-zinc-900 text-zinc-200 border border-zinc-700' type="date" name="" id=""
+                                className='px-3 rounded-md py-2 bg-zinc-900 text-zinc-200 border border-zinc-700 shadow-lg' type="date" name="" id=""
                               />
                               <ContainerButtonsEdit
                                 setFinishEdit={setUpdateDate}
@@ -120,7 +126,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                                 }}
                               />
                             </div>
-                            : <span className='ml-2 capitalize'>{formatDate(course.startDate)}</span>
+                            : <span className='ml-2 capitalize font-medium text-blue-500'>{formatDate(course.startDate)}</span>
                         }
                       </p>
                     </div>
@@ -130,14 +136,14 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                     <ButtonToEdit startEditing={setUpdateDate} />
                   }
                 </div>
-                <div>
-                  <p className="lg:text-4xl text-3xl font-semibold drop-shadow-md text-shadow text-zinc-100">
+                <div className="px-1">
+                  <p className="lg:text-4xl text-3xl font-semibold drop-shadow-lg text-shadow text-zinc-100 mb-2">
                     {course.type} en
                   </p>
                   {
                     updateName ?
                       <div className="flex flex-col gap-2 my-2">
-                        <input onChange={(e) => setContentName(e.target.value)} defaultValue={course.name} className="border w-full p-2 text-4xl font-bold rounded-md bg-zinc-900 text-zinc-100" />
+                        <input onChange={(e) => setContentName(e.target.value)} defaultValue={course.name} className="border-2 border-purple-500/30 w-full p-3 text-4xl font-bold rounded-lg bg-zinc-900/80 text-zinc-100 shadow-lg" />
                         <ContainerButtonsEdit
                           setFinishEdit={setUpdateName}
                           onSave={() => {
@@ -147,7 +153,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                       </div>
                       :
                       <div className="flex items-center gap-2">
-                        <h1 className="lg:text-5xl text-3xl font-semibold max-w-lg leading- text-zinc-500">
+                        <h1 className="lg:text-5xl text-3xl font-bold max-w-lg leading-tight bg-gradient-to-r from-white to-blue-600 bg-clip-text text-transparent drop-shadow-md">
                           {course.name}
                         </h1>
                         {
@@ -159,14 +165,14 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                   {
                     updateSubtitle
                       ? <div className="flex flex-col gap-2 my-2">
-                        <textarea onChange={(e) => setContentSubtitle(e.target.value)} defaultValue={course.subtitle} className="border w-full p-2 text-2xl font-bold rounded-md bg-zinc-900 text-zinc-100" />
+                        <textarea onChange={(e) => setContentSubtitle(e.target.value)} defaultValue={course.subtitle} className="border-2 border-purple-500/30 w-full p-3 text-2xl font-bold rounded-lg bg-zinc-900/80 text-zinc-100 shadow-lg" />
                         <ContainerButtonsEdit setFinishEdit={setUpdateSubtitle} onSave={() => {
                           setUpdateSubtitle(false)
                           saveChanges('subtitle', contentSubtitle)
                         }} />
                       </div>
                       : <div className="flex items-center gap-2">
-                        <h2 className="lg:text-3xl text-xl font-medium inline-block max-w-lg text-zinc-300">
+                        <h2 className="lg:text-3xl text-xl font-medium inline-block max-w-lg text-zinc-300 mt-2">
                           {course.subtitle}
                         </h2>
                         {
@@ -185,7 +191,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                         loop
                         playsInline
                         src={videoPortada || course.heroVideo}
-                        className='h-[250px] lg:h-[320px] rounded-md lg:rounded-2xl mask w-full object-cover border border-zinc-800'
+                        className='h-[250px] lg:h-[320px] rounded-xl lg:rounded-2xl mask w-full object-cover border-2 border-blue-600/20 shadow-xl shadow-blue-900/10'
                         controls
                         muted
                         autoPlay
@@ -194,7 +200,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                     :
                     <Image
                       src="/sunday-corona.png"
-                      className="hidden lg:flex lg:flex-col object-cover mask w-[210px] lg:w-[310px] mx-auto border border-zinc-800"
+                      className="hidden lg:flex lg:flex-col object-cover mask w-[210px] lg:w-[310px] mx-auto border-2 border-purple-600/20 shadow-xl shadow-purple-900/10 rounded-xl"
                       alt="Sunday - asesora educativa"
                       width={250}
                       height={300}

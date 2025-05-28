@@ -33,7 +33,7 @@ export default function AcademicOffer() {
 		: []
 
 	console.log(cursosCortosEducativos);
-    const cortosFuturos = cursosCortosEducativos.filter((curso) => {
+	const cortosFuturos = cursosCortosEducativos.filter((curso) => {
 		const fechaActual = new Date();
 		const fechaCurso = new Date(curso.date);
 		return fechaCurso > fechaActual;
@@ -72,18 +72,19 @@ export default function AcademicOffer() {
 	// })
 
 	return (
-		<section id="oferta-academica" className="py-24 px-4 bg-gradient-to-b from-black via-zinc-900 to-black text-zinc-200">
-			<div className="max-w-7xl mx-auto">				<div className="text-center mb-20">
-					<span className="inline-block px-6 py-2 rounded-full bg-blue-700/20 text-blue-300 font-semibold mb-5 tracking-wide shadow-lg">
-						Oferta Académica
-					</span>
-					<h2 className="text-4xl md:text-5xl font-extrabold mb-5 text-white drop-shadow-lg">
-						Cursos diseñados para el mercado laboral actual
-					</h2>
-					<p className="max-w-2xl mx-auto text-xl text-zinc-300">
-						Programas con enfoque práctico y orientados al aprendizaje experiencial, diseñados por expertos de la industria.
-					</p>
-				</div>
+		<section id="oferta-academica" className="py-15 px-4 bg-gradient-to-b from-black via-zinc-900 to-black text-zinc-200">
+			<div className="max-w-7xl mx-auto">				
+				<div className="text-center mb-20">
+				<span className="inline-block px-6 py-2 rounded-full bg-blue-500 text-white font-semibold mb-5 tracking-wide shadow-lg">
+					Oferta académica
+				</span>
+				<h2 className="text-4xl md:text-5xl font-extrabold mb-5 text-white drop-shadow-lg">
+					Cursos diseñados para el mercado laboral actual
+				</h2>
+				<p className="max-w-2xl mx-auto text-xl text-zinc-300">
+					Programas con enfoque práctico y orientados al aprendizaje experiencial, diseñados por expertos de la industria.
+				</p>
+			</div>
 
 				{/* Filtros */}
 				{/* <div className="mb-12 space-y-6">
@@ -224,12 +225,13 @@ export default function AcademicOffer() {
 									className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-300 border-b-4 border-blue-600"
 								/>
 								<div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-								<div									className={`
+								<div
+									className={`
 										absolute top-4 left-4 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-md
-										${programa.category === "cloud" ? "bg-blue-500/90 text-white" : ""}
+										${programa.category === "cloud" ? "bg-purple-500/90 text-white" : ""}
 										${programa.category === "Desarrollo Web" ? "bg-blue-400/90 text-white" : ""}
 										${programa.category === "web" ? "bg-blue-600/90 text-white" : ""}
-										${programa.type === "taller" ? "bg-blue-600/90 text-white" : ""}
+										${programa.type === "taller" ? "bg-yellow-600 text-white" : ""}
 									`}
 								>
 									{programa.category === "cloud"
@@ -246,7 +248,8 @@ export default function AcademicOffer() {
 										{/* <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /> */}
 										{/* <span className="font-bold">{programa.rating}</span>
 										<span className="text-gray-500 text-sm">({programa.estudiantes.toLocaleString()})</span> */}
-									</div>									<div className="flex items-center gap-2 text-blue-400 text-sm font-semibold">
+									</div>
+									<div className="flex items-center gap-2 text-blue-400 text-sm font-semibold">
 										<Clock className="h-4 w-4" />
 										<span>
 											{programa.duration ||
@@ -254,7 +257,8 @@ export default function AcademicOffer() {
 											}
 										</span>
 									</div>
-								</div>								<h3 className="text-2xl mt-2 text-white font-extrabold leading-tight group-hover:text-blue-400 transition-colors duration-200 line-clamp-2 break-words min-h-[60px]">
+								</div>
+								<h3 className="text-2xl mt-2 text-white font-extrabold leading-tight group-hover:text-blue-400 transition-colors duration-200 line-clamp-2 break-words min-h-[60px]">
 									{programa.name || programa.title}
 								</h3>
 							</header>
@@ -265,29 +269,30 @@ export default function AcademicOffer() {
 								<div className="flex items-center gap-3 mb-4">
 									{/* <div className="size-10 rounded-full bg-gray-400"></div> */}
 									{programa.type !== 'taller' && (
-										<div>
-											<p className="font-semibold text-white text-base">{programa.teacher}</p>
-											<p className="text-xs text-zinc-400">Profesor</p>
+										<div className="flex flex-col justify-center">
+											<p className="font-bold text-lg text-blue-400 leading-tight">{programa.teacher}</p>
+											<p className="text-xs text-blue-100 tracking-wide mt-1">Profesor</p>
 										</div>
 									)}
-								</div>								<div className="flex items-center gap-2 text-sm text-blue-300 font-medium">
+								</div><div className="flex items-center gap-2 text-sm text-blue-300 font-medium">
 									{/* <Zap className="h-4 w-4 text-blue-400" /> */}
 									{/* <span>Próxima clase: {getPriceDisplay()}</span> */}
 								</div>
 							</div>
 							<footer className="pt-0 flex justify-center pb-6">
-								<Link href={`/programas-academicos/${programa?.slug}`}>									<button className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white text-lg py-4 px-10 cursor-pointer rounded-xl shadow-xl transition duration-300 font-bold tracking-wide">
-										{programa.type === "taller" ? "Ver curso corto" : "Ver diplomado"}
-									</button>
+								<Link href={`/programas-academicos/${programa?.slug}`}>									
+								<button className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white text-lg py-4 px-10 cursor-pointer rounded-xl shadow-xl transition duration-300 font-bold tracking-wide">
+									{programa.type === "taller" ? "Ver curso corto" : "Ver diplomado"}
+								</button>
 								</Link>
 							</footer>
 						</div>
 					))}
 				</div>
-
 				{programasEducativos.length === 0 && (
 					<div className="text-center py-12 bg-white rounded-lg shadow">
-						<p className="text-gray-500">No hay cursos disponibles para los filtros seleccionados.</p>							<button
+						<p className="text-gray-500">No hay cursos disponibles para los filtros seleccionados.</p>						
+							<button
 							className="text-blue-600 mt-2"
 							onClick={() => {
 								setNivelFiltrado("todos")
@@ -299,12 +304,12 @@ export default function AcademicOffer() {
 					</div>
 				)}
 				<div className="mt-16 text-center">
-					{educativos.length > 6 && (						<button
-							className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white text-lg py-6 px-10 cursor-pointer rounded-xl shadow-xl transition duration-300 font-bold tracking-wide"
-							onClick={() => setShowAll((prev) => !prev)}
-						>
-							{showAll ? "Ver menos" : "Ver todos los cursos"}
-						</button>
+					{educativos.length > 6 && (<button
+						className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white text-lg py-6 px-10 cursor-pointer rounded-xl shadow-xl transition duration-300 font-bold tracking-wide"
+						onClick={() => setShowAll((prev) => !prev)}
+					>
+						{showAll ? "Ver menos" : "Ver todos los cursos"}
+					</button>
 					)}
 				</div>
 			</div>

@@ -19,35 +19,16 @@ export default function Header() {
                     </Link>
                 </div>
                 <nav className="hidden md:flex items-center gap-6">
-                    <Link href="#quienes-somos" className="hover:text-gray-300 transition-colors">
-                        Quiénes Somos
+                    <Link href="#quienes-somos" className="hover:text-blue-400 hover:translate-y hover:scale-105 transition-transform duration-300 ease-in-out">
+                        Quiénes somos
                     </Link>
-                    <Link href="#oferta-academica" className="hover:text-gray-300 transition-colors">
-                        Oferta Académica
+                    <Link href="#oferta-academica" className="hover:text-blue-400 hover:translate-y hover:scale-105 transition-transform duration-300 ease-in-out">
+                        Oferta académica
                     </Link>
-                    <Link href="#testimonios" className="hover:text-gray-300 transition-colors">
+                    <Link href="#testimonios" className="hover:text-blue-400 hover:translate-y hover:scale-105 transition-transform duration-300 ease-in-out">
                         Testimonios
                     </Link>
-                    <button className="bg-white py-2 px-6 rounded-md hover:bg-gray-200 text-black">Inscríbete ahora</button>
                 </nav>
-                <button className="md:hidden text-white">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-menu"
-                    >
-                        <line x1="4" x2="20" y1="12" y2="12" />
-                        <line x1="4" x2="20" y1="6" y2="6" />
-                        <line x1="4" x2="20" y1="18" y2="18" />
-                    </svg>
-                </button>
             </div>
         </header>
     )
