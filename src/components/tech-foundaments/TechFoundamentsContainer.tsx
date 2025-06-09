@@ -40,7 +40,7 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   const [teacher, setTeacher] = useState<any[]>([])
   const [profesorData, setProfesorData] = useState<any[]>([])
   const eventsQuery = query(collection(db, "events"),
-    where("type", "==", "taller"),
+    where("type", "==", "curso especializado"),
     where("status", "==", "published"),
     where("slug", "==", slug))
   const [value, loading, error] = useCollection(eventsQuery)

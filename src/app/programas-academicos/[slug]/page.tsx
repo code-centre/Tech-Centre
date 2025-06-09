@@ -31,7 +31,7 @@ export default function DetailCourse({ params }: Props) {
         const eventsQuery = query(
           collection(db, "events"),
           where("slug", "==", params.slug),
-          where("type", "==", "taller"),
+          where("type", "==", "curso especializado"),
           where("status", "==", "published"),
         )
         const eventsSnapshot = await getDocs(eventsQuery)

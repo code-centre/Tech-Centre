@@ -22,7 +22,7 @@ export default function AcademicOffer() {
 	const [cursosCortos, loadingCursosCortos, errorCursosCortos] = useCollection(
 		query(collection(db, 'events'),
 			where('status', '==', 'published'),
-			where('type', '==', 'taller'))
+			where('type', '==', 'curso especializado'),)
 	)
 
 	const programasEducativos = programasEducativosSnapshot
@@ -231,13 +231,13 @@ export default function AcademicOffer() {
 										${programa.category === "cloud" ? "bg-purple-500/90 text-white" : ""}
 										${programa.category === "Desarrollo Web" ? "bg-blue-400/90 text-white" : ""}
 										${programa.category === "web" ? "bg-blue-600/90 text-white" : ""}
-										${programa.type === "taller" ? "bg-yellow-600 text-white" : ""}
+										${programa.type === "curso especializado" ? "bg-yellow-600 text-white" : ""}
 									`}
 								>
 									{programa.category === "cloud"
 										? "Avanzado"
-										: programa.type === "taller"
-											? "Curso Corto"
+										: programa.type === "curso especializado"
+											? "Curso especializado"
 											: "Básico"
 									}
 								</div>
@@ -268,7 +268,7 @@ export default function AcademicOffer() {
 								</p>
 								<div className="flex items-center gap-3 mb-4">
 									{/* <div className="size-10 rounded-full bg-gray-400"></div> */}
-									{programa.type !== 'taller' && (
+									{programa.type !== 'curso especializado' && (
 										<div className="flex flex-col justify-center">
 											<p className="font-bold text-lg text-blue-400 leading-tight">{programa.teacher}</p>
 											<p className="text-xs text-blue-100 tracking-wide mt-1">Profesor</p>
@@ -282,7 +282,7 @@ export default function AcademicOffer() {
 							<footer className="pt-0 flex justify-center pb-6">
 								<Link href={`/programas-academicos/${programa?.slug}`}>									
 								<button className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white text-lg py-4 px-10 cursor-pointer rounded-xl shadow-xl transition duration-300 font-bold tracking-wide">
-									{programa.type === "taller" ? "Ver curso corto" : "Ver diplomado"}
+									{programa.type === "curso especializado" ? "Ver curso especializado" : "Ver diplomado"}
 								</button>
 								</Link>
 							</footer>
