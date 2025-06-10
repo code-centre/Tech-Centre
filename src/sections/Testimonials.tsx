@@ -31,7 +31,7 @@ const videos = [
 ];
 
 interface Props {
-  backgroundColor: string
+  backgroundColor?: string
 }
 
 export default function Testimonials({ backgroundColor }: Props) {
