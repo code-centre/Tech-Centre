@@ -16,5 +16,8 @@ module.exports = {
       },
     },
   },
-  plugins: [],
-}
+  plugins: [
+    require('tailwind-scrollbar'),
+    require('@midudev/tailwind-animations') // 👈 Agregado aquí
+  ],
+};

@@ -3,11 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { EditIcon, InfoIcon } from "../Icons";
-import { formatDate } from "@/utils/formatDate";
+import { formatDate } from "../../../utils/formatDate";
 import { ImageUpIcon } from "lucide-react";
 import FileUpload from "../FileUpload";
-import useUserStore from "@/store/useUserStore";
-
+import useUserStore from "../../../store/useUserStore";
 interface Props {
   course: any;
 }
