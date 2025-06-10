@@ -52,9 +52,9 @@ export default function AcademicOffer() {
 
 	return (
 		<section id="oferta-academica" className="py-15 px-4 text-zinc-200">
-			<div className=" mx-auto">				
-				<div className="text-center mb-20">
-				<h2 className="text-4xl md:text-5xl font-extrabold text-black drop-shadow-lg">
+			<div className="mx-auto">				
+				<div className="text-center mb-10">
+				<h2 className="text-4xl md:text-5xl font-extrabold mb-5 text-black drop-shadow-lg">
 					Cursos diseñados para el mercado laboral actual
 				</h2>
 				<p className="max-w-2xl mx-auto text-xl text-zinc-600">
