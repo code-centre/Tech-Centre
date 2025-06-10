@@ -4,7 +4,6 @@ import Image from 'next/image'
 import useUserStore from '../../store/useUserStore'
 import { useState, useEffect } from 'react'
 
-
 export default function Header() {
     const [userOn, setUserOn] = useState(false)
     const { user } = useUserStore() as { user: User | null };
@@ -21,7 +20,7 @@ export default function Header() {
     }
 
     return (
-        <header className="bg-black border-b border-zinc-800 fixed w-full z-20">
+        <header className="bg-white border-zinc-800 fixed shadow-2xl w-full z-20">
             <div className="max-w-7xl mx-auto px-4 lg:px-0 py-4 flex justify-between items-center">
                 <div className="flex items-center gap-2">
                     <Link href="/" className="flex items-center">
