@@ -27,11 +27,13 @@ export function WhoWeAre() {
         console.error("Error playing video:", error);
       });
     }
-  }, []);
+  }, []); 
+  
   return (
-    <div className="relative text-white overflow-hidden py-16 mask-t-from-98%">
-      {/* Fade effect at the top (to blend with previous section) */}
-      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black to-transparent z-10"></div>
+    <div className="relative text-white overflow-hidden py-16">
+      {/* Sección con efecto de máscara para transición */}      {/* Overlay de fondo con el gradiente de transición directamente aplicado */}
+      <div className="absolute inset-0 w-full h-full" >
+      </div>
       {/* Video background */}
       <div className="absolute inset-0 w-full h-full">
         <video
@@ -44,8 +46,8 @@ export function WhoWeAre() {
         >
           <source src="https://firebasestorage.googleapis.com/v0/b/codigo-abierto-effc8.firebasestorage.app/o/video-seccion-techcentre.mp4?alt=media&token=e331c5a6-6f62-4075-b915-9453237007db" type="video/mp4" />
         </video>
-        {/* Dark overlay to ensure text remains readable */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/70"></div>
+        {/* Dark overlay para legibilidad del texto */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60"></div>
       </div>
 
       {/* Content */}
@@ -139,11 +141,8 @@ export function WhoWeAre() {
               Compromiso con la calidad y el éxito de nuestros estudiantes.
             </p>
           </div>
-        </div> */}
-      </div>
-
-      {/* Fade effect at the bottom for transition to next section */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black to-transparent z-10"></div>
+        </div> */}      </div>
+      {/* Simplified approach with single gradient */}
     </div>
   )
 }
