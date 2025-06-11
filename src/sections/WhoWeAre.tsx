@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import {
   BookOpenIcon,
@@ -5,13 +6,53 @@ import {
   TrendingUpIcon,
   AwardIcon,
 } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { CircleCheckBig, MapPin } from 'lucide-react'
+import Image from 'next/image'
+
+const differents = [
+  "Profesores activos en la industria que comparten experiencias reales",
+  "Enfoque 100% práctico con proyectos basados en casos reales",
+  "Grupos pequeños para atención personalizada",
+  "Networking con profesionales y empresas del sector",
+  "Bolsa de empleo exclusiva para estudiantes y egresados"
+];
+
 export function WhoWeAre() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(error => {
+        console.error("Error playing video:", error);
+      });
+    }
+  }, []);
   return (
-    <div className="bg-white py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative text-white overflow-hidden py-16 mask-t-from-98%">
+      {/* Fade effect at the top (to blend with previous section) */}
+      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black to-transparent z-10"></div>
+      {/* Video background */}
+      <div className="absolute inset-0 w-full h-full">
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          loop
+          className="w-full h-full object-cover"
+        >
+          <source src="https://firebasestorage.googleapis.com/v0/b/codigo-abierto-effc8.firebasestorage.app/o/video-seccion-techcentre.mp4?alt=media&token=e331c5a6-6f62-4075-b915-9453237007db" type="video/mp4" />
+        </video>
+        {/* Dark overlay to ensure text remains readable */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/70"></div>
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900">Quiénes Somos</h2>
-          <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-white">Sobre Tech Centre</h2>
+          <p className="mt-4 text-xl text-gray-200 max-w-3xl mx-auto">
             Somos más que un centro de formación tecnológica. Somos un
             ecosistema de aprendizaje donde la innovación y el talento se
             encuentran.
@@ -19,80 +60,90 @@ export function WhoWeAre() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
           <div>
-            <img
-              src="https://uploadthingy.s3.us-west-1.amazonaws.com/gmoziLLVVhrjeVc4NEM2ch/image.png"
+            <h3 className="text-2xl font-bold mb-6 text-white">¿Qué nos hace diferentes?</h3>
+            <ul className="list-disc list-inside text-gray-200 mb-10">
+              {differents.map((item, index) => (
+                <div key={index} className="mb-2 py-3">
+                  <CircleCheckBig className="inline-block mr-2 text-green-500" />
+                  {item}
+                </div>
+              ))}
+            </ul>
+            <div className="bg-white rounded-lg p-6 shadow-lg">
+              <div className="flex items-center mb-4">
+                <div className="bg-blueApp rounded-full p-3 mr-4">
+                  <MapPin className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-blueApp">Nuestra ubicación</h4>
+                  <p className="text-gray-600 text-sm">Cra. 50 #72-126, Centro Histórico, Barranquilla, Atlántico</p>
+                  <a href="https://www.google.com/maps/search/?api=1&query=Tech+Centre&query_place_id=ChIJv01Wyvot9I4RUtzmOXikbpM" className="text-blueApp text-sm hover:underline" target="_blank" rel="noopener noreferrer">Cómo llegar</a>
+                </div>
+              </div>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3916.538907882707!2d-74.8045491!3d10.9981343!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8ef42d0ad033385b%3A0x326de6a0f5244065!2sCra.%2050%20%2372-126%2C%20Nte.%20Centro%20Historico%2C%20Barranquilla%2C%20Atl%C3%A1ntico!5e0!3m2!1ses-419!2sco!4v1736454294702!5m2!1ses-419!2sco"
+                height="300"
+                width="500"
+                className="border-none rounded-lg w-full"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+          </div>
+          <div>
+            <Image
+              src="/techcentre-hero.jpg"
+              width={700}
+              height={700}
               alt="Equipo de Tech Centre"
               className="rounded-lg shadow-xl w-full h-[400px] object-cover"
             />
           </div>
-          <div>
-            <h3 className="text-2xl font-bold mb-6">Nuestra Historia</h3>
-            <p className="text-gray-600 mb-6">
-              Fundado en 2020, Tech Centre nació con la misión de transformar la
-              educación tecnológica en la región. Comenzamos con un pequeño
-              grupo de estudiantes apasionados y hoy somos el referente en
-              formación tech de la Costa Caribe.
-            </p>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="font-bold text-3xl text-blue-600">3+</div>
-                <div className="text-gray-600">Años de experiencia</div>
-              </div>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="font-bold text-3xl text-blue-600">98%</div>
-                <div className="text-gray-600">Satisfacción estudiantes</div>
-              </div>
-            </div>
-          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           <div className="text-center">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BookOpenIcon className="h-8 w-8 text-blue-600" />
+            <div className="bg-blue-800 bg-opacity-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <BookOpenIcon className="h-8 w-8 text-blue-300" />
             </div>
-            <h4 className="text-xl font-bold mb-2">Innovación Educativa</h4>
-            <p className="text-gray-600">
+            <h4 className="text-xl font-bold mb-2 text-white">Innovación Educativa</h4>
+            <p className="text-gray-200">
               Metodologías actualizadas y contenido práctico adaptado al
               mercado.
             </p>
           </div>
           <div className="text-center">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <UsersIcon className="h-8 w-8 text-blue-600" />
+            <div className="bg-blue-800 bg-opacity-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <UsersIcon className="h-8 w-8 text-blue-300" />
             </div>
-            <h4 className="text-xl font-bold mb-2">Comunidad Activa</h4>
-            <p className="text-gray-600">
+            <h4 className="text-xl font-bold mb-2 text-white">Comunidad Activa</h4>
+            <p className="text-gray-200">
               Red de profesionales y estudiantes comprometidos con la
               tecnología.
             </p>
           </div>
           <div className="text-center">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <TrendingUpIcon className="h-8 w-8 text-blue-600" />
+            <div className="bg-blue-800 bg-opacity-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <TrendingUpIcon className="h-8 w-8 text-blue-300" />
             </div>
-            <h4 className="text-xl font-bold mb-2">Crecimiento Continuo</h4>
-            <p className="text-gray-600">
+            <h4 className="text-xl font-bold mb-2 text-white">Crecimiento Continuo</h4>
+            <p className="text-gray-200">
               Programas diseñados para impulsar tu desarrollo profesional.
             </p>
           </div>
           <div className="text-center">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AwardIcon className="h-8 w-8 text-blue-600" />
+            <div className="bg-blue-800 bg-opacity-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AwardIcon className="h-8 w-8 text-blue-300" />
             </div>
-            <h4 className="text-xl font-bold mb-2">Excelencia</h4>
-            <p className="text-gray-600">
+            <h4 className="text-xl font-bold mb-2 text-white">Excelencia</h4>
+            <p className="text-gray-200">
               Compromiso con la calidad y el éxito de nuestros estudiantes.
             </p>
           </div>
-        </div>
-        <div className="bg-blue-600 rounded-lg p-8 text-white text-center">
-          <h3 className="text-2xl font-bold mb-4">Nuestra Misión</h3>
-          <p className="text-xl max-w-3xl mx-auto">
-            Formar profesionales tecnológicos de alto nivel, impulsando la
-            innovación y el desarrollo digital en la región Caribe colombiana.
-          </p>
-        </div>
+        </div> */}
       </div>
+
+      {/* Fade effect at the bottom for transition to next section */}
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black to-transparent z-10"></div>
     </div>
   )
 }

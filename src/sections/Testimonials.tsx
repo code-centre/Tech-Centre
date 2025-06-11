@@ -48,8 +48,6 @@ export default function Testimonials({ backgroundColor }: Props) {
       )
     );
   };
-
-
   return (
     <div className={`${backgroundColor}`}>
       <Wrapper styles="max-w-6xl flex flex-col gap-14 w-full py-14">

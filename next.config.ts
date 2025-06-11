@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+     domains: [
+      'th3.googleusercontent.com',
+      'lh3.googleusercontent.com', 
+    ],
   }
 };
 

@@ -26,7 +26,7 @@ export function Hero() {
           loop
           className="w-full h-full object-cover"
         >
-          <source src="/portada-techCentre.mp4" type="video/mp4" />
+          <source src="https://firebasestorage.googleapis.com/v0/b/codigo-abierto-effc8.firebasestorage.app/o/video-portada-techcenter2.mp4?alt=media&token=be98970b-1806-4aa8-a77a-240200892f29" type="video/mp4" />
         </video>
         {/* Overlay to ensure text remains readable */}
       </div>
@@ -34,10 +34,10 @@ export function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
-            <div className="inline-flex items-center px-4 py-1 rounded-full bg-blue-800/50 backdrop-blur-sm text-white mb-6">
+            {/* <div className="inline-flex items-center px-4 py-1 rounded-full bg-blue-800/50 backdrop-blur-sm text-white mb-6">
               <CalendarIcon className="h-4 w-4 mr-2" />
               <span>Inscripciones abiertas</span>
-            </div>
+            </div> */}
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
               Transforma tu futuro con habilidades tech
             </h1>
@@ -48,13 +48,13 @@ export function Hero() {
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <a
                 href="#cursos"
-                className="px-8 py-3 text-center bg-white text-blue-700 font-medium rounded-md hover:bg-blue-50 transition-colors"
+                className="px-8 py-3 text-center bg-white text-blueApp font-medium rounded-md hover:bg-blue-50 transition-colors"
               >
                 Ver cursos
               </a>
               <a
                 href="#contacto"
-                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medium rounded-md hover:bg-white hover:text-blue-700 transition-colors"
+                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medium rounded-md hover:bg-white hover:text-blueApp transition-colors"
               >
                 Contáctanos
               </a>
@@ -83,7 +83,7 @@ export function Hero() {
           </div>
         </div>
       </div>
-      <div className="relative z-10 bg-blue-800/80 backdrop-blur-sm py-5">
+      <div className="relative z-10 bg-blueApp backdrop-blur-sm py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="p-4">

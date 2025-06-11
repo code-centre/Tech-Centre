@@ -10,6 +10,10 @@
   --color-foreground: var(--foreground);
   --font-league-spartan: var(--font-league-spartan);
   --font-poppins: var(--font-poppins);
+  --color-lightBlue: #e1f3fe;
+  --color-blueApp: #00a1f9;
+  --color-grayApp: #dbdbdb;
+  --color-darkBlue: #0d47a1;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,6 +22,22 @@
     /* --background: #0a0a0a; */
     /* --foreground: #ededed; */
   }
+}
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap, 1rem)));
+  }
+}
+
+.animate-scroll {
+  animation: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
+}
+
+.scroller {
+  mask: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
 }
 
 body {

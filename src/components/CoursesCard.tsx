@@ -44,16 +44,16 @@ export function CourseCard({
       <div className="relative">
         <div
           className={`absolute top-4 left-4 ${level === 'BÁSICO'
-              ? 'bg-blue-600'
-              : level === 'AVANZADO'
-                ? 'bg-purple-600'
-                : 'bg-yellow-500'
+              ? 'bg-blueApp'
+              : level === 'INTERMEDIO'
+                ? 'bg-yellow-500'
+                : 'bg-blueApp'
             } text-white text-xs font-bold px-3 py-1 rounded-full z-10`}
         >
           {level}
         </div>
         {isShort && (
-          <div className="absolute top-4 right-4 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+          <div className="absolute top-4 right-4 bg-darkBlue text-white text-xs font-bold px-3 py-1 rounded-full z-10">
             CURSO ESPECIALIZADO
           </div>
         )}
@@ -97,9 +97,9 @@ export function CourseCard({
         )}
         <Link
           href={`/programas-academicos/${slug}`}
-          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transform hover:scale-105 transition-all duration-200"
+          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blueApp hover:bg-blue-700 transform hover:scale-105 transition-all duration-200"
         >
-          {isShort ? 'Ver curso corto' : 'Ver detalles'}
+          {isShort ? 'Ver curso especializado' : 'Ver diplomado'}
         </Link>
       </div>
     </div>

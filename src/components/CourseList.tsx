@@ -10,7 +10,7 @@ interface CourseListProps {
 
 export function CourseList({ diplomados, cursosCortos, showHeader = true }: CourseListProps) {
   return (
-    <div id="cursos" className= "py-16">
+    <div id="cursos">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {showHeader && (
           <div className="text-center mb-12">
@@ -34,7 +34,7 @@ export function CourseList({ diplomados, cursosCortos, showHeader = true }: Cour
                   date={diplomado.startDate}
                   description={diplomado.description}
                   image={diplomado.image}
-                  level={diplomado.level.toString()}
+                  level={diplomado.level.toString().toUpperCase()}
                   duration={diplomado.duration}
                   instructor={diplomado.teacher.join(", ")}
                   slug={diplomado.slug}
@@ -48,7 +48,8 @@ export function CourseList({ diplomados, cursosCortos, showHeader = true }: Cour
             <h3 className="text-2xl font-bold text-gray-900 mb-6">
               Cursos especializados
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">              {cursosCortos.map((curso) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">             
+               {cursosCortos.map((curso) => (
                 <CourseCard
                   key={curso.id}
                   title={curso.title}

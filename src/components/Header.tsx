@@ -106,9 +106,9 @@ export default function Header() {
             <div className="relative group">
               <button
                 onClick={() => toggleDropdown("cursos")}
-                className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 group"
+                className="flex items-center space-x-2 text-gray-700 hover:text-blueApp font-medium transition-all duration-200 group"
               >
-                <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blue-600 after:transition-all group-hover:after:w-full">
+                <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full">
                   Cursos Especializados
                 </span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
@@ -129,7 +129,7 @@ export default function Header() {
                           <Link
                             key={course.id}
                             href={`/programas-academicos/${course.slug}`}
-                            className="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-all duration-200 animate-fade-in-up"
+                            className="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
                             style={{ animationDelay: `${index * 50}ms` }}
                             onClick={closeDropdowns}
                           >
@@ -147,9 +147,9 @@ export default function Header() {
             <div className="relative group">
               <button
                 onClick={() => toggleDropdown("diplomados")}
-                className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 group"
+                className="flex items-center space-x-2 text-gray-700 hover:text-blueApp font-medium transition-all duration-200 group"
               >
-                <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blue-600 after:transition-all group-hover:after:w-full">
+                <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full">
                   Diplomados
                 </span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
@@ -170,7 +170,7 @@ export default function Header() {
                           <Link
                             key={diploma.id}
                             href={`/programas-academicos/${diploma.slug}`}
-                            className="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-all duration-200 animate-fade-in-up"
+                            className="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
                             style={{ animationDelay: `${index * 50}ms` }}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -190,13 +190,13 @@ export default function Header() {
            
             <Link
               href="/empresas"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blue-600 after:transition-all hover:after:w-full"
+              className="text-gray-700 hover:text-blueApp font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all hover:after:w-full"
             >
               Empresas
             </Link>
             <Link
               href="/comunidades"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blue-600 after:transition-all hover:after:w-full"
+              className="text-gray-700 hover:text-blueApp font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all hover:after:w-full"
             >
               Comunidades
             </Link>
@@ -211,16 +211,16 @@ export default function Header() {
               <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
                 Iniciar sesión
               </span>
-              <div className="absolute inset-0 bg-blue-600 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+              <div className="absolute inset-0 bg-blueApp transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
             </Link>
             
             <Link
               href="/registro"
-              className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blue-600 
+              className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blueApp hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
               rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 
               hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 opacity-0 
+              <span className="absolute inset-0 bg-blueApp opacity-0 
                 group-hover:opacity-100 transition-opacity duration-300"></span>
               <span className="relative">
                 Registrarse
