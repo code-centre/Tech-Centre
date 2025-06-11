@@ -5,7 +5,7 @@ import { ArrowDown, DownloadIcon } from "@/components/Icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "@/firebase";
+import {auth, db} from "@/firebase/config";
 import BannerPromotion from "@/components/slug/BannerPromotion";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { collection } from "firebase/firestore";
