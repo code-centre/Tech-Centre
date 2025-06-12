@@ -66,3 +66,17 @@ body {
 .font-poppins {
   font-family: var(--font-poppins, Arial, Helvetica, sans-serif);
 }
+
+@layer components {
+  .course-section {
+    @apply py-12 border-b border-gray-200 last:border-0;
+  }
+  
+  .section-title {
+    @apply text-2xl font-bold text-gray-900 mb-6;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:scale-[1.02];
+  }
+}
