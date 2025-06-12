@@ -55,10 +55,11 @@ export default function AcademicOffer() {
 			<div className="mx-auto">				
 				<div className="text-center mb-10">
 				<h2 className="text-4xl md:text-5xl font-extrabold mb-5 text-black drop-shadow-lg">
-					Cursos diseñados para el mercado laboral actual
+					Programas educativos 
 				</h2>
+				<h2 className="text-4xl md:text-5xl font-extrabold mb-5 text-black drop-shadow-lg">diseñados para el mercado laboral actual</h2>
 				<p className="max-w-2xl mx-auto text-xl text-zinc-600">
-					Programas con enfoque práctico y orientados al aprendizaje experiencial, diseñados por expertos de la industria.
+					 Enfoque práctico y orientados al aprendizaje experiencial, diseñados por expertos de la industria.
 				</p>
 			</div>
 				{/* Programas filtrados */}

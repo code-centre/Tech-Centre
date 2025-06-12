@@ -6,6 +6,7 @@ import FormInfo from "@/components/course/FormInfo";
 import { useRouter } from "next/navigation";
 import Hero from "./sections/Hero";
 import EsentialDetail from "./EsentialDetail";
+import Image from "next/image";
 
 interface Props {
   slug: string
@@ -104,30 +105,36 @@ export default function DetailCourseComponent({ slug }: Props) {
   };
 
   return (
-    <main className={`min-h-screen relative overflow-hidden pb-20`}>
-      <img className="absolute -z-10 opacity-25" src="/background.webp" />
-      {/* <section className="w-full h-screen bg-opacity-35 bg-cover bg-no-repeat"> */}
-      {
-        isLoading
-        &&
-        <div className="flex justify-center items-center h-screen">
-          <div className="loader"></div>
-        </div>
-      }
+    <main className="min-h-screen bg-white">
+      {/* Background Image with proper sizing */}
+      <div className="fixed inset-0">
+        <Image
+          src="/SmokeBg.webp"
+          alt="Background pattern"
+          fill
+          className="object-cover opacity-20"
+          priority
+        />
+      </div>
 
-      {
-        !isLoading && course &&
-        <div className="flex flex-col gap-10 pt-20 z-10 backdrop-blur-sm">
-          <Hero course={course} newDetail={true} saveChanges={saveChanges} />
-          {/*  */}
-          <EsentialDetail saveChanges={saveChanges} course={course} newDetail={true} />
+      {isLoading ? (
+        <div className="flex justify-center items-center h-screen">
+          <div className="w-12 h-12 rounded-full border-4 border-blueApp border-t-transparent animate-spin" />
         </div>
-      }
-      {/* {
-        openModal &&
-        <FormInfo setOpenModal={setOpenModal} />
-      } */}
-      {/* </section> */}
+      ) : course ? (
+        <div className="relative flex flex-col gap-10 pt-20 pb-20">
+          <Hero 
+            course={course} 
+            newDetail={true} 
+            saveChanges={saveChanges} 
+          />
+          <EsentialDetail 
+            saveChanges={saveChanges} 
+            course={course} 
+            newDetail={true} 
+          />
+        </div>
+      ) : null}
     </main>
   );
 }

@@ -50,7 +50,7 @@ export function Hero() {
                 href="#cursos"
                 className="px-8 py-3 text-center bg-white text-blueApp font-medium rounded-md hover:bg-blue-50 transition-colors"
               >
-                Ver cursos
+                Ver programas académicos
               </a>
               <a
                 href="#contacto"
@@ -87,15 +87,15 @@ export function Hero() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="p-4">
-              <div className="font-bold text-3xl">25+</div>
-              <div className="text-blue-200">Cursos</div>
+              <div className="font-bold text-3xl">10+</div>
+              <div className="text-blue-200">Cursos y Diplomados</div>
             </div>
             <div className="p-4">
-              <div className="font-bold text-3xl">1500+</div>
+              <div className="font-bold text-3xl">100+</div>
               <div className="text-blue-200">Estudiantes</div>
             </div>
             <div className="p-4">
-              <div className="font-bold text-3xl">30+</div>
+              <div className="font-bold text-3xl">20+</div>
               <div className="text-blue-200">Expertos</div>
             </div>
             <div className="p-4">
