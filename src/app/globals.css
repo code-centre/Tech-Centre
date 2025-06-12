@@ -85,3 +85,8 @@ html {
     @apply transition-all duration-300 hover:shadow-lg hover:scale-[1.02];
   }
 }
+
+/* En globals.css */
+section[id], div[id] {
+  scroll-margin-top: 100px; /* Navbar height + padding */
+}

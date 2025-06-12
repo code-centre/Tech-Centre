@@ -102,27 +102,24 @@ export default function DetailCourseComponent({ slug }: Props) {
     } catch (error) {
       console.error(`Error actualizando ${propertyName}:`, error);
     }
-  };
-
-  return (
-    <main className="min-h-screen bg-white">
+  };  return (
+    <main className="min-h-scree relative">
       {/* Background Image with proper sizing */}
-      <div className="fixed inset-0">
+      {/* <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
           src="/SmokeBg.webp"
           alt="Background pattern"
           fill
-          className="object-cover opacity-20"
+          className="object-cover opacity-30"
           priority
         />
-      </div>
-
+      </div>       */}
       {isLoading ? (
-        <div className="flex justify-center items-center h-screen">
+        <div className="relative z-10 flex justify-center items-center h-screen">
           <div className="w-12 h-12 rounded-full border-4 border-blueApp border-t-transparent animate-spin" />
-        </div>
-      ) : course ? (
-        <div className="relative flex flex-col gap-10 pt-20 pb-20">
+        </div>) 
+        : course ? (
+        <div className="relative z-10 flex flex-col gap-10 pt-20 pb-20">
           <Hero 
             course={course} 
             newDetail={true} 

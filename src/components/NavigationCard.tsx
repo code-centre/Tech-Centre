@@ -1,0 +1,148 @@
+"use client";
+import { formatPrice } from "../../utils/formatCurrency";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+
+interface NavigationItem {
+  id: string;
+  label: string;
+}
+
+const navigationItems: NavigationItem[] = [
+  { id: "aprenderas", label: "¿Qué aprenderé?" },
+  { id: "para-quien", label: "¿A quién va dirigido?" },
+  // { id: "certificacion", label: "Certificación Oficial" },
+  { id: "programa", label: "Programa" },
+  { id: "precios", label: "Precios y medios de pago" },
+  { id: "fechas", label: "Fechas y horarios" },
+  // { id: "salida", label: "Salida laboral y testimonios" },
+  { id: "preguntas", label: "Preguntas Frecuentes" },
+];
+
+interface NavigationCardProps {
+  activeSection?: string;
+  onSectionClick?: (sectionId: string) => void;
+  courseData?: {
+    price?: number;
+    installments?: number;
+    installmentPrice?: number;
+    currency?: string;
+    discount?: number;
+    name?: string;
+  };
+}
+
+export default function NavigationCard({
+  activeSection,
+  onSectionClick,
+  courseData
+}: NavigationCardProps) {
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  const handleSectionClick = (sectionId: string) => {
+    if (onSectionClick) {
+      onSectionClick(sectionId);
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
+  if (isMobile) return null;
+
+  return (
+    <div className="sticky top-4 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden max-w-sm w-full">
+      <div className="relative p-6 text-white overflow-hidden">
+        {/* Background image */}
+        <Image
+          src="/SmokeBg.webp"
+          alt="Background"
+          fill
+          className="object-cover -z-10"
+        />
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/80 to-purple-900/80 -z-5"></div>
+
+        <div className="relative z-10">
+          <h3 className="text-lg font-semibold mb-4 tracking-wide">MENÚ</h3>
+
+          <nav className="space-y-2">
+            {navigationItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleSectionClick(item.id)}
+                className={`w-full text-left py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group hover:bg-white/10 ${activeSection === item.id
+                    ? 'bg-white/20 text-white shadow-md'
+                    : 'text-white/90 hover:text-white'
+                  }`}
+              >
+                <span className="text-sm font-medium">{item.label}</span>
+                <svg
+                  className={`w-4 h-4 transition-all duration-200 ${activeSection === item.id
+                      ? 'text-white transform rotate-90'
+                      : 'text-white/70 group-hover:text-white group-hover:translate-x-1'
+                    }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      <div className="p-6 bg-gradient-to-br from-gray-50 to-white">
+        <div className="text-center">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium mb-3">
+            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+            ESTE CURSO
+          </div>          {courseData?.discount ? (
+            <div className="text-3xl font-bold text-gray-900 mb-2 flex flex-col items-center justify-center">
+              <span>¡Precio en oferta!</span>
+              {formatPrice(courseData?.discount || 0)}
+            </div>
+          ) : (
+            <div className="text-3xl font-bold text-gray-900 mb-2 flex flex-col items-center justify-center">
+              <span>Precio</span>
+              {formatPrice(courseData?.price || 0, courseData?.currency || "COP")}
+            </div>
+          )}
+          <div className="text-sm text-gray-600 mb-4">
+            {courseData?.installments && courseData?.installmentPrice
+              ? `Hasta ${courseData.installments} cuotas de ${formatPrice(courseData.installmentPrice, courseData.currency)}`
+              : courseData?.discount 
+                ? `Hasta 8 cuotas de ${formatPrice(Math.round((courseData.discount) / 8), courseData?.currency || "COP")}`
+                : `Hasta 8 cuotas de ${formatPrice(Math.round((courseData?.price || 0) / 8), courseData?.currency || "COP")}`
+            }
+          </div>
+
+          <button className="text-sm text-blue-600 mb-6 cursor-pointer hover:text-blue-800 transition-colors font-medium">
+            Ver medios de pago →
+          </button>
+
+          <button className="w-full bg-blueApp text-white py-4 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+            <span>Comprar diplomado</span>            
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

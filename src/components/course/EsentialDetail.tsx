@@ -8,6 +8,7 @@ import SpecificInfo from './sections/SpecificInfo'
 import Faqs from './sections/Faqs'
 import Syllabus from './sections/Syllabus'
 import SwiperComponent from './SwiperComponent'
+import { GraduationCap, CalendarClock, Network, Clock  } from 'lucide-react';
 
 interface Props {
   course: Program,
@@ -24,21 +25,39 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
     <div className="bg-white/80 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Hero Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-12 mb-16">
+        <div className="flex gap-12 mb-16">
           {/* Main Content */}
-          <div className="space-y-8">
-            <div className="space-y-4 bg-white/90 backdrop-blur-sm p-6 rounded-xl border border-blue-100/20 shadow-lg">
-              <h1 className="text-4xl font-bold text-gray-900">
-                {course.name}
-              </h1>
-              <div className="flex items-center space-x-4 text-sm">
-                <span className="px-3 py-1 rounded-full bg-blueApp/10 text-blueApp font-medium
-                  backdrop-blur-sm border border-blueApp/20">
-                  {course.type}
-                </span>
-                <span className="text-gray-600">
-                  {course.duration} horas
-                </span>
+          <div className="space-y-8">           
+             <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl border border-blue-100/20 shadow-lg">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="flex flex-col items-center text-center p-4 bg-blue-50/50 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
+                  <div className="w-12 h-12 bg-blueApp/10 rounded-full flex items-center justify-center mb-3">
+                    <GraduationCap className="w-6 h-6 text-blueApp"/>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 mb-1">Tipo de curso</span>
+                  <span className="text-xs text-gray-500 font-semibold">{course.type}</span>
+                </div>
+                <div className="flex flex-col items-center text-center p-4 bg-blue-50/50 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
+                  <div className="w-12 h-12 bg-blueApp/10 rounded-full flex items-center justify-center mb-3">
+                    <CalendarClock className="w-6 h-6 text-blueApp"/>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 mb-1">Duración</span>
+                  <span className="text-xs text-gray-500 font-semibold">{course.duration}</span>
+                </div>
+                <div className="flex flex-col items-center text-center p-4 bg-blue-50/50 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
+                  <div className="w-12 h-12 bg-blueApp/10 rounded-full flex items-center justify-center mb-3">
+                    <Network className="w-6 h-6 text-blueApp"/>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 mb-1">Dificultad</span>
+                  <span className="text-xs text-gray-500 font-semibold">{course.level}</span>
+                </div>
+                <div className="flex flex-col items-center text-center p-4 bg-blue-50/50 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
+                  <div className="w-12 h-12 bg-blueApp/10 rounded-full flex items-center justify-center mb-3">
+                    <Clock className="w-6 h-6 text-blueApp"/>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 mb-1">Dedicación</span>
+                  <span className="text-xs text-gray-500 font-semibold">{course.hours || 'Por definir'}</span>
+                </div>
               </div>
               {user?.rol === 'admin' && (
                 <ButtonToEdit startEditing={setUpdateDetails} />
@@ -77,21 +96,17 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
             )}
           </div>
 
-          {/* Course Info Card with sticky positioning */}
-          <div className="lg:sticky lg:top-24 h-fit">
-            <SpecificInfo saveChanges={saveChanges} course={course} />
-          </div>
         </div>
 
         {/* Course Content Sections */}
-        <div className="space-y-16">
+        <div className="space-y-16" id='aprenderas'>
           {/* Learning Path Section with glassmorphism */}
           <section className="bg-gradient-to-br from-white/80 to-lightBlue/30 backdrop-blur-sm 
             rounded-2xl p-8 border border-blue-100/20 shadow-lg">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Lo que aprenderás
             </h2>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-1 gap-4">
               {course.benefits.map((benefit, index) => (
                 <div key={index} className="flex items-start space-x-3 bg-white/50 backdrop-blur-sm 
                   p-4 rounded-lg border border-blue-100/10 hover:bg-white/70 transition-all duration-300">
@@ -108,7 +123,7 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
           </section>
 
           {/* Target Audience with glassmorphism */}
-          <section className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl border border-blue-100/20 shadow-lg">
+          <section className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl border border-blue-100/20 shadow-lg" id='para-quien'>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               ¿Para quién es este {course.type.toLowerCase()}?
             </h2>
@@ -118,7 +133,7 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
                   p-4 rounded-lg border border-blue-200/20 hover:bg-blue-50/70 transition-all duration-300">
                   <div className="flex-shrink-0 w-6 h-6 text-blueApp">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
@@ -129,8 +144,15 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
           </section>
 
           {/* Syllabus and FAQs maintain their own styling through their components */}
-          <Syllabus saveChanges={saveChanges} course={course} />
-          <Faqs saveChanges={saveChanges} course={course} />
+          <div id='programa'>
+            <Syllabus saveChanges={saveChanges} course={course} />
+          </div>
+          <div className="flex justify-center" id='precios'>
+            <SpecificInfo saveChanges={saveChanges} course={course} />
+          </div>
+          <div id='preguntas'>
+            <Faqs saveChanges={saveChanges} course={course} />
+          </div>
         </div>
       </div>
     </div>

@@ -3,6 +3,13 @@ import React, { useState } from 'react'
 import ContainerButtonsEdit from '../ContainerButtonsEdit'
 import ButtonToEdit from '../ButtonToEdit'
 import Link from 'next/link'
+import {
+  ClockIcon,
+  BookOpenIcon,
+  PencilIcon,
+  MessageCircleIcon,
+  UsersIcon,
+} from 'lucide-react'
 
 interface Props {
   course: Program,
@@ -34,22 +41,34 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
   const addDaySchedule = () => {
     setSchedule([...schedule, { day: "", time: "", modality: "" }]);
   };
-
   return (
-    <div className="flex flex-col gap-4 w-full font-medium bg-white rounded-xl p-6 
-      border border-gray-200 shadow-lg divide-y divide-gray-100">
+    <div className="max-w-xl w-full bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+      {/* Header with gradient */}
+      <div className="bg-gradient-to-r from-blueApp to-blue-500 p-6 text-white">
+        <h2 className="text-xl font-bold mb-1">{course.type} en {course.name}</h2>
+      </div>
       
-      {/* Course basic info */}
-      <div className="space-y-4 pb-4">
-        <div className="flex justify-between items-center">
-          <p className="text-gray-600">Modalidad</p>
-          <span className="px-3 py-1 bg-lightBlue text-blueApp rounded-full text-sm font-medium">
+      {/* Course details */}
+      <div className="p-6 space-y-4">
+        <div className="flex items-center justify-between py-2 border-b border-gray-100">
+          <div className="flex items-center gap-2 text-gray-700">
+            <div className="bg-blue-100 p-1.5 rounded-md">
+              <ClockIcon size={18} className="text-blue-600" />
+            </div>
+            <span className="font-medium">Modalidad</span>
+          </div>
+          <div className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
             Presencial
-          </span>
+          </div>
         </div>
 
-        <div className="flex justify-between items-center">
-          <p className="text-gray-600">Duración</p>
+        <div className="flex items-center justify-between py-2 border-b border-gray-100">
+          <div className="flex items-center gap-2 text-gray-700">
+            <div className="bg-blue-100 p-1.5 rounded-md">
+              <ClockIcon size={18} className="text-blue-600" />
+            </div>
+            <span className="font-medium">Duración</span>
+          </div>
           {updateDuration ? (
             <div className="flex flex-col gap-2">
               <input 
@@ -69,18 +88,22 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
               />
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <p className="text-gray-800 font-semibold">{course.duration}</p>
+            <div className="flex items-center gap-1">
+              <span className="font-semibold text-gray-800">{course.duration}</span>
               {user?.rol === 'admin' && (
-                <ButtonToEdit startEditing={setUpdateDuration} />
+                <PencilIcon size={14} className="text-blue-500 cursor-pointer" onClick={() => setUpdateDuration(true)} />
               )}
             </div>
           )}
         </div>
 
-        {/* Level selector */}
-        <div className="flex justify-between items-center">
-          <p className="text-gray-600">Nivel</p>
+        <div className="flex items-center justify-between py-2 border-b border-gray-100">
+          <div className="flex items-center gap-2 text-gray-700">
+            <div className="bg-blue-100 p-1.5 rounded-md">
+              <BookOpenIcon size={18} className="text-blue-600" />
+            </div>
+            <span className="font-medium">Nivel</span>
+          </div>
           {updateLevel ? (
             <div className="flex flex-col gap-2">
               <select 
@@ -103,95 +126,170 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
               />
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-gray-800 font-semibold">{course?.level}</span>
+            <div className="flex items-center gap-1">
+              <span className="font-semibold text-gray-800">{course?.level}</span>
               {user?.rol === 'admin' && (
-                <ButtonToEdit startEditing={setUpdateLevel} />
+                <PencilIcon size={14} className="text-blue-500 cursor-pointer" onClick={() => setUpdateLevel(true)} />
               )}
             </div>
           )}
         </div>
-      </div>
 
-      {/* Price section */}
-      <div className="space-y-4 py-4">
-        <div className="flex justify-between items-center">
-          <p className="text-gray-600">Precio regular</p>
-          {updatePrice ? (
-            <div className="flex flex-col gap-2">
+        {/* Pricing section */}
+        <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-gray-500 text-sm">Precio regular</span>
+            {updatePrice ? (
+              <div className="flex flex-col gap-2">                
               <input
-                type="text"
-                onChange={(e) => setContentPrice(Number(e.target.value))}
-                defaultValue={contentPrice}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-blueApp font-semibold
-                  focus:outline-none focus:ring-2 focus:ring-blueApp/20 focus:border-blueApp
-                  transition-all duration-200"
-              />
-              <ContainerButtonsEdit
-                setFinishEdit={setUpdatePrice}
-                onSave={() => {
-                  setUpdatePrice(false)
-                  saveChanges('price', contentPrice)
-                }}
-              />
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <p className="text-blueApp font-bold text-lg">
-                ${Number(course.price)?.toLocaleString()}
-              </p>
-              {user?.rol === 'admin' && (
-                <ButtonToEdit startEditing={setUpdatePrice} />
+                  type="text"
+                  onChange={(e) => setContentPrice(Number(e.target.value))}
+                  defaultValue={contentPrice.toString()}
+                  className="px-3 py-2 border border-gray-200 rounded-lg text-blueApp font-semibold
+                    focus:outline-none focus:ring-2 focus:ring-blueApp/20 focus:border-blueApp
+                    transition-all duration-200"
+                />
+                <ContainerButtonsEdit
+                  setFinishEdit={setUpdatePrice}
+                  onSave={() => {
+                    setUpdatePrice(false)
+                    saveChanges('price', contentPrice)
+                  }}
+                />
+              </div>
+            ) : (
+              course.discount ? (
+                <div className="flex items-center gap-1">
+                  <span className="text-gray-500 line-through">
+                    ${Number(course.price)?.toLocaleString()}
+                  </span>
+                  {user?.rol === 'admin' && (
+                    <PencilIcon size={14} className="text-blue-500 cursor-pointer" onClick={() => setUpdatePrice(true)} />
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-gray-500">
+                    ${Number(course.price)?.toLocaleString()}
+                  </span>
+                  {user?.rol === 'admin' && (
+                    <PencilIcon size={14} className="text-blue-500 cursor-pointer" onClick={() => setUpdatePrice(true)} />
+                  )}
+                </div>
+              )
+            )}
+          </div>
+          
+          {course.discount && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="font-medium text-gray-700">Precio oferta</span>
+                <div className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                  -{Math.round(((Number(course.price) - Number(course.discount)) / Number(course.price)) * 100)}%
+                </div>
+              </div>
+              {updateDiscount ? (
+                <div className="flex flex-col gap-2">                 
+                 <input
+                    type="text"
+                    onChange={(e) => setContentDiscount(Number(e.target.value))}
+                    defaultValue={contentDiscount?.toString() || ''}
+                    className="px-3 py-2 border border-gray-200 rounded-lg text-blue-600 font-bold
+                      focus:outline-none focus:ring-2 focus:ring-blueApp/20 focus:border-blueApp
+                      transition-all duration-200"
+                  />
+                  <ContainerButtonsEdit
+                    setFinishEdit={setUpdateDiscount}
+                    onSave={() => {
+                      setUpdateDiscount(false)
+                      saveChanges('discount', contentDiscount)
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="font-bold text-xl text-blue-600">
+                    ${Number(course.discount)?.toLocaleString()}
+                  </span>
+                  {user?.rol === 'admin' && (
+                    <PencilIcon size={14} className="text-blue-500 cursor-pointer" onClick={() => setUpdateDiscount(true)} />
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </div>
+          )}        
+          </div>
 
-        {course.discount && (
-          <div className="flex justify-between items-center">
-            <p className="text-gray-600">Precio oferta</p>
-            <div className="flex items-center gap-2">
-              <p className="text-blueApp font-bold text-lg">
-                ${Number(course.discount)?.toLocaleString()}
-              </p>
-              {user?.rol === 'admin' && (
-                <ButtonToEdit startEditing={setUpdateDiscount} />
-              )}
+        {/* Payment options section */}
+        <div className="mt-4 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="bg-blue-100 p-1.5 rounded-md">
+              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </div>
+            <span className="font-semibold text-blue-800">Opciones de Pago</span>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-center justify-between py-2 px-3 bg-white rounded-md shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm font-medium text-gray-700">4 cuotas</span>
+              </div>
+              <div className="text-right">
+                <span className="font-bold text-blue-600">
+                  ${Math.round((course.discount || course.price) / 4).toLocaleString()}
+                </span>
+                <span className="text-xs text-gray-500 ml-1">c/u</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between py-2 px-3 bg-white rounded-md shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-sm font-medium text-gray-700">8 cuotas</span>
+              </div>
+              <div className="text-right">
+                <span className="font-bold text-blue-600">
+                  ${Math.round((course.discount || course.price) / 8).toLocaleString()}
+                </span>
+                <span className="text-xs text-gray-500 ml-1">c/u</span>
+              </div>
             </div>
           </div>
-        )}
-      </div>
+          
+          <div className="mt-3 pt-2 border-t border-blue-100">
+            <p className="text-xs text-blue-700 text-center">
+              💳 Acepta todas las tarjetas de crédito
+            </p>
+          </div>
+        </div>
 
-      {/* Action buttons */}
-      <div className="space-y-3 pt-4">
+        {/* Call to action buttons */}
         <Link
           href={`/checkout?slug=${course.slug}&program=${true}`}
-          className="block w-full px-6 py-3 bg-blueApp text-white font-medium rounded-lg
-            text-center hover:bg-darkBlue transform transition-all duration-300
-            hover:shadow-lg active:scale-[0.98]"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition-colors mt-4 block text-center"
         >
           Inscribirme ahora
         </Link>
-
+        
         <a
           href="https://api.whatsapp.com/send?phone=573005523872"
           target="_blank"
           rel="noopener noreferrer"
-          className="block w-full px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg
-            text-center hover:bg-gray-200 transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"
         >
-          <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-          </svg>
+          <MessageCircleIcon size={18} className="text-green-600" />
           Hablar con un asesor
         </a>
-
+        
         {user?.rol === 'admin' && (
           <Link
             href={`/cursos/${course.slug}/inscritos`}
-            className="block w-full px-6 py-3 bg-green-600 text-white font-medium rounded-lg
-              text-center hover:bg-green-700 transition-all duration-300"
+            className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
           >
+            <UsersIcon size={18} />
             Ver inscritos
           </Link>
         )}

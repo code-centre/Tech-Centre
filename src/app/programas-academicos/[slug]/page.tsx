@@ -52,18 +52,30 @@ export default function DetailCourse({ params }: Props) {
     checkContentType()
   }, [params.slug])
 
-  return (
-    <section className="min-h-screen py-20 px-4 bg-black text-zinc-200">
-      <div className="max-w-7xl mx-auto">
-        {contentType === "program" && <DetailCourseComponent slug={params.slug} />}
-        {contentType === "event" && <TechFoundamentsContainer slug={params.slug} />}
-        {contentType === "not-found" && (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold mb-4">Contenido no encontrado</h2>
-            <p className="text-xl">No se encontró información para este programa o taller.</p>
-          </div>
-        )}
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
-    </section>
+    )
+  }
+
+  return (
+    <>
+      {contentType === "program" && (
+          <DetailCourseComponent slug={params.slug} />
+      )}
+      {contentType === "event" && (
+          <TechFoundamentsContainer slug={params.slug} />
+      )}
+      {contentType === "not-found" && (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center py-20">
+            <h2 className="text-2xl font-bold mb-4 text-gray-900">Contenido no encontrado</h2>
+            <p className="text-xl text-gray-600">No se encontró información para este programa o taller.</p>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
