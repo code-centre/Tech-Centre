@@ -57,7 +57,7 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
             </div>
             <span className="font-medium">Modalidad</span>
           </div>
-          <div className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+          <div className="bg-blue-50 text-blueApp px-3 py-1 rounded-full text-sm font-medium">
             Presencial
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
                 </div>
               ) : (
                 <div className="flex items-center gap-1">
-                  <span className="font-bold text-xl text-blue-600">
+                  <span className="font-bold text-xl text-blueApp">
                     ${Number(course.discount)?.toLocaleString()}
                   </span>
                   {user?.rol === 'admin' && (
@@ -228,7 +228,7 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
             </div>
-            <span className="font-semibold text-blue-800">Opciones de Pago</span>
+            <span className="font-semibold text-blueApp">Opciones de Pago</span>
           </div>
           
           <div className="space-y-2">
@@ -238,7 +238,7 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
                 <span className="text-sm font-medium text-gray-700">4 cuotas</span>
               </div>
               <div className="text-right">
-                <span className="font-bold text-blue-600">
+                <span className="font-bold text-blueApp">
                   ${Math.round((course.discount || course.price) / 4).toLocaleString()}
                 </span>
                 <span className="text-xs text-gray-500 ml-1">c/u</span>
@@ -251,7 +251,7 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
                 <span className="text-sm font-medium text-gray-700">8 cuotas</span>
               </div>
               <div className="text-right">
-                <span className="font-bold text-blue-600">
+                <span className="font-bold text-blueApp">
                   ${Math.round((course.discount || course.price) / 8).toLocaleString()}
                 </span>
                 <span className="text-xs text-gray-500 ml-1">c/u</span>
@@ -260,7 +260,7 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
           </div>
           
           <div className="mt-3 pt-2 border-t border-blue-100">
-            <p className="text-xs text-blue-700 text-center">
+            <p className="text-xs text-blueApp text-center">
               💳 Acepta todas las tarjetas de crédito
             </p>
           </div>
@@ -269,7 +269,7 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
         {/* Call to action buttons */}
         <Link
           href={`/checkout?slug=${course.slug}&program=${true}`}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition-colors mt-4 block text-center"
+          className="w-full bg-blueApp hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition-colors mt-4 block text-center"
         >
           Inscribirme ahora
         </Link>

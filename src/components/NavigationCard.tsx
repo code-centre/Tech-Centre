@@ -2,21 +2,23 @@
 import { formatPrice } from "../../utils/formatCurrency";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { Book, Calendar, Users, CreditCard, HelpCircle, Star } from "lucide-react";
 
 interface NavigationItem {
   id: string;
   label: string;
+  icon?: React.ReactNode;
 }
 
 const navigationItems: NavigationItem[] = [
-  { id: "aprenderas", label: "¿Qué aprenderé?" },
-  { id: "para-quien", label: "¿A quién va dirigido?" },
+  { id: "aprenderas", label: "¿Qué aprenderé?", icon: <Book className="w-4 h-4 mr-2" /> },
+  { id: "para-quien", label: "¿A quién va dirigido?", icon: <Users className="w-4 h-4 mr-2" /> },
   // { id: "certificacion", label: "Certificación Oficial" },
-  { id: "programa", label: "Programa" },
-  { id: "precios", label: "Precios y medios de pago" },
-  { id: "beneficios", label: "Beneficios" },
+  { id: "programa", label: "Programa", icon: <Calendar className="w-4 h-4 mr-2" /> },
+  { id: "precios", label: "Precios y medios de pago", icon: <CreditCard className="w-4 h-4 mr-2" /> },
+  { id: "beneficios", label: "Beneficios", icon: <Star className="w-4 h-4 mr-2" /> },
   // { id: "salida", label: "Salida laboral y testimonios" },
-  { id: "preguntas", label: "Preguntas Frecuentes" },
+  { id: "preguntas", label: "Preguntas Frecuentes", icon: <HelpCircle className="w-4 h-4 mr-2" /> },
 ];
 
 interface NavigationCardProps {
@@ -84,11 +86,14 @@ export default function NavigationCard({
                 key={item.id}
                 onClick={() => handleSectionClick(item.id)}
                 className={`w-full text-left py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-between group hover:bg-white/10 ${activeSection === item.id
-                    ? 'bg-white/20 text-white shadow-md'
+                    ? 'bg-white/20 text-white shadow-md cursor-pointer'
                     : 'text-white/90 hover:text-white'
                   }`}
               >
+                <div className="flex items-center">
+                  {item.icon}
                 <span className="text-sm font-medium">{item.label}</span>
+                </div>
                 <svg
                   className={`w-4 h-4 transition-all duration-200 ${activeSection === item.id
                       ? 'text-white transform rotate-90'
