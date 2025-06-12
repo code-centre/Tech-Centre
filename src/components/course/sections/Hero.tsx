@@ -11,6 +11,7 @@ import { useUploadFile } from "react-firebase-hooks/storage";
 import { db, storage } from '../../../../firebase'
 import { doc, updateDoc } from 'firebase/firestore'
 import UploadHeroVideo from '../UploadHeroVideo'
+import { Calendar } from 'lucide-react';
 
 interface Props {
   course: Program,
@@ -70,7 +71,9 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
       {
         newDetail
           ? <>
-            <section className="max-w-6xl mx-auto w-full bg-gradient-to-br from-zinc-900 via-black to-zinc-900 text-zinc-200 overflow-hidden rounded-2xl grid grid-cols-1 lg:grid-cols-[1.5fr_2fr] items-center relative p-4 md:p-10 gap-5 lg:h-[500px] shadow-2xl border border-zinc-800">
+            <section className="max-w-6xl mx-auto w-full bg-gradient-to-br from-slate-50 via-sky-100/90 to-blue-200 text-gray-800 overflow-hidden rounded-3xl grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr] items-center relative p-6 md:p-12 gap-8 lg:h-[520px] shadow-2xl border border-sky-200/30 backdrop-blur-sm">
+              <div className="absolute inset-0 bg-gradient-to-r from-sky-300/10 to-blue-300/10 rounded-3xl"></div>
+              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-400/15 via-transparent to-transparent rounded-3xl"></div>
               {
                 user?.rol === 'admin' &&
                 <div className='absolute top-10 right-5 z-10'>
@@ -96,13 +99,14 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
               <div className="flex flex-col gap-5 z-10">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-4 w-fit -top-7 left-0 right-0 bg-zinc-800/80 backdrop-blur-sm px-5 py-3 rounded-xl shadow-lg border border-zinc-700/50">
-                    <Image 
+                    {/* <Image 
                       src="/calendar.png" 
                       width={25} 
                       height={25} 
                       alt="Icono de calendario"
                       className="min-w-[25px]"
-                    />
+                    /> */}
+                    <Calendar className="w-6 h-6 text-blueApp" />
                     <div className="flex flex-col gap-1">
                       <p className="leading-tight font-bold text-base text-zinc-100">
                         Inscripciones Abiertas
@@ -126,7 +130,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                                 }}
                               />
                             </div>
-                            : <span className='ml-2 capitalize font-medium text-blue-500'>{formatDate(course.startDate)}</span>
+                            : <span className='ml-2 capitalize font-medium text-blueApp'>{formatDate(course.startDate)}</span>
                         }
                       </p>
                     </div>
@@ -137,7 +141,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                   }
                 </div>
                 <div className="px-1">
-                  <p className="lg:text-4xl text-3xl font-semibold drop-shadow-lg text-shadow text-zinc-100 mb-2">
+                  <p className="lg:text-4xl text-3xl font-semibold drop-shadow-lg text-shadow text-gray-600 mb-2">
                     {course.type} en
                   </p>
                   {
@@ -153,7 +157,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                       </div>
                       :
                       <div className="flex items-center gap-2">
-                        <h1 className="lg:text-5xl text-3xl font-bold max-w-lg leading-tight bg-gradient-to-r from-white to-blue-600 bg-clip-text text-transparent drop-shadow-md">
+                        <h1 className="lg:text-5xl text-3xl font-bold max-w-lg leading-tight bg-gradient-to-r from-gray-600 to-gray-800 bg-clip-text text-transparent drop-shadow-md">
                           {course.name}
                         </h1>
                         {
@@ -172,7 +176,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                         }} />
                       </div>
                       : <div className="flex items-center gap-2">
-                        <h2 className="lg:text-3xl text-xl font-medium inline-block max-w-lg text-zinc-300 mt-2">
+                        <h2 className="lg:text-3xl text-xl font-medium inline-block max-w-lg text-gray-500 mt-2">
                           {course.subtitle}
                         </h2>
                         {

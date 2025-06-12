@@ -20,8 +20,8 @@ export default function Benefits({ course, saveChanges }: Props) {
   };
 
   return (
-    <section className="bg-black min-h-[50vh]">
-      <div className="max-w-6xl mx-auto  grid grid-cols-1 lg:grid-cols-[2.5fr_1.5fr] gap-10 py-5 items-center px-4">
+    <section className="min-h-[50vh]">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 gap-10 py-5 items-center px-4">
         <div className="flex flex-col gap-6 lg:gap-10">
           <h2 className="text-3xl lg:text-5xl font-bold text-blue-500 text-balance">¿Cuales son los beneficios de tomar <span className="text-black">este diplomado?</span></h2>
           <p className="text-lg font-semibold">Somos pioneros en inteligencia artificial y
@@ -61,7 +61,7 @@ export default function Benefits({ course, saveChanges }: Props) {
           }
         </div>
         {/* <img className="hidden lg:block mask" src="/image-benefits.png" alt="" /> */}
-        <Image width={405} height={520} className="hidden lg:block mask" src="/image-benefits.png" alt="" />
+        {/* <Image width={405} height={520} className="hidden lg:block mask" src="/image-benefits.png" alt="" /> */}
       </div>
     </section>
   )

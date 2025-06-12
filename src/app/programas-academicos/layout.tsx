@@ -15,7 +15,6 @@ export default function ProgramasAcademicosLayout({
   const [activeSection, setActiveSection] = useState<string>("");
   const pathname = usePathname();
 
-  // Extraer el slug de la URL
   const slug = pathname.split('/').pop();
 
   useEffect(() => {
@@ -23,7 +22,6 @@ export default function ProgramasAcademicosLayout({
 
     async function fetchCourseData() {
       try {
-        // Buscar en programs
         const programsQuery = query(collection(db, "programs"), where("slug", "==", slug));
         const programsSnapshot = await getDocs(programsQuery);
 
@@ -32,8 +30,6 @@ export default function ProgramasAcademicosLayout({
           setCourseData({ id: courseDoc.id, ...courseDoc.data() });
           return;
         }
-
-        // Buscar en events si no se encuentra en programs
         const eventsQuery = query(
           collection(db, "events"),
           where("slug", "==", slug),
@@ -53,23 +49,33 @@ export default function ProgramasAcademicosLayout({
 
     fetchCourseData();
   }, [slug]);
-
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll = () => {      
       const sections = [
-        'modalidad', 'certificacion', 'programa', 'precios', 
-        'fechas', 'salida', 'preguntas'
+        'aprenderas', 'para-quien', 'programa', 'precios', 
+        'beneficios', 'preguntas'
       ];
       
-      for (const section of sections) {
+      let currentSection = '';
+      let closestDistance = Infinity;
+      
+      sections.forEach(section => {
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
-          if (rect.top <= 100 && rect.bottom >= 100) {
-            setActiveSection(section);
-            break;
+          const distance = Math.abs(rect.top - 100);
+          
+          if (rect.top <= 200 && rect.bottom >= 0) {
+            if (distance < closestDistance) {
+              closestDistance = distance;
+              currentSection = section;
+            }
           }
         }
+      });
+      
+      if (currentSection) {
+        setActiveSection(currentSection);
       }
     };
 
@@ -85,12 +91,13 @@ export default function ProgramasAcademicosLayout({
   };
 
   return (
-    <div className="flex gap-8 max-w-7xl mx-auto px-4">
-      <main className="flex-1">
+    <div className="flex mx-auto px-4">
+      <main>
         {children}
       </main>
       <aside className="w-80 flex-shrink-0 mt-20">
-        <div className="sticky top-24">          <NavigationCard 
+        <div className="sticky top-24">          
+          <NavigationCard 
             activeSection={activeSection}
             onSectionClick={handleSectionClick}
             courseData={{

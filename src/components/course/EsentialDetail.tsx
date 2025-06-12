@@ -23,7 +23,7 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
 
   return (
     <div className="bg-white/80 backdrop-blur-sm">
-      <div className="max-w-6xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-10 px-4 py-12">
         {/* Hero Section */}
         <div className="flex gap-12 mb-16">
           {/* Main Content */}
@@ -149,6 +149,9 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
           </div>
           <div className="flex justify-center" id='precios'>
             <SpecificInfo saveChanges={saveChanges} course={course} />
+          </div>
+          <div id='beneficios'>
+            <Benefits saveChanges={saveChanges} course={course} />
           </div>
           <div id='preguntas'>
             <Faqs saveChanges={saveChanges} course={course} />

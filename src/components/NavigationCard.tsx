@@ -14,7 +14,7 @@ const navigationItems: NavigationItem[] = [
   // { id: "certificacion", label: "Certificación Oficial" },
   { id: "programa", label: "Programa" },
   { id: "precios", label: "Precios y medios de pago" },
-  { id: "fechas", label: "Fechas y horarios" },
+  { id: "beneficios", label: "Beneficios" },
   // { id: "salida", label: "Salida laboral y testimonios" },
   { id: "preguntas", label: "Preguntas Frecuentes" },
 ];
