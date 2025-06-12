@@ -54,7 +54,7 @@ export function Hero() {
               </a>
               <a
                 href="#contacto"
-                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medium rounded-md hover:bg-white hover:text-blueApp transition-colors"
+                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-blueApp transition-colors"
               >
                 Contáctanos
               </a>
@@ -67,10 +67,10 @@ export function Hero() {
               <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
               
               {/* Marco con borde brillante */}
-              <div className="p-1 bg-gradient-to-r from-blue-400 via-blue-100 to-indigo-400 rounded-lg rotate-1 shadow-2xl">
-                <div className="p-1 bg-gradient-to-r from-indigo-500 via-blue-300 to-blue-600 rounded-lg -rotate-2">
+              <div className="p-1 bg-gradient-to-r from-blueApp via-blue-100 to-blueApp rounded-lg rotate-1 shadow-2xl">
+                <div className="p-1 bg-gradient-to-r from-lightBlue via-blue-300 to-blueApp rounded-lg -rotate-2">
                   <Image
-                    src="/techcentre-hero.jpg"
+                    src="/hero-image.jpg"
                     width={800}
                     height={400}
                     alt="Estudiantes aprendiendo tecnología"

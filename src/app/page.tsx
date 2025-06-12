@@ -9,10 +9,12 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <AcademicOffer />
+      <div id= "programs">
+        <AcademicOffer />
+      </div>
       <Testimonials />
       <Reviews />
-      <WhoWeAre/>
+      <WhoWeAre />
     </>
   );
 }

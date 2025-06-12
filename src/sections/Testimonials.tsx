@@ -6,7 +6,7 @@ import Wrapper from '../components/Wrapper';
 const videos = [
   {
     id: 1,
-    srcVideo: "https://www.youtube.com/embed/KDGmtr5C310",
+    srcVideo: "https://www.youtube.com/embed/1ngtV0IR9yc",
     highlight: true,
     cover: "/grupo-de-3-miniatura.jpg",
   },
@@ -28,6 +28,11 @@ const videos = [
     highlight: false,
     cover: "/python-miniatura.jpg",
   },
+  {
+    id: 5,
+    srcVideo: "https://www.youtube.com/embed/ripgd4E7gRI",
+    highlight: false,
+    cover: "/alumnos-miniatura.png",}
 ];
 
 interface Props {
@@ -102,10 +107,10 @@ export default function Testimonials({ backgroundColor }: Props) {
           <div className=" self-center flex flex-col gap-4">
             <div>
               <h2 className="text-2xl md:text-4xl font-semibold">
-                Sábados de Fundamentos Tech
+                Escucha los testimonios
               </h2>
               <h3 className="text-4xl md:text-5xl font-semibold text-blue-500">
-                Inscripciones abiertas
+                De personas que cambiaron sus vidas
               </h3>
             </div>
             <p className="text-lg">
@@ -113,16 +118,16 @@ export default function Testimonials({ backgroundColor }: Props) {
               llevas dentro.
             </p>
             <div>
-              <p className="text-2xl font-bold">¡Clases todos los sábados!</p>
+              <p className="text-2xl font-bold">¡Qué esperas!</p>
               <div className="h-1 border-b  my-3"></div>
               <p className="text-lg">Cupos limitados</p>
             </div>
 
             <Link
               href="/#programs"
-              className="bg-[#00a1f9] hover:bg-blue-500 py-2 px-5 text-center text-white uppercase rounded-md"
+              className="bg-[#00a1f9] hover:bg-blue-500 py-2 px-5 text-center text-white uppercase rounded-md transition-colors duration-300 font-semibold"
             >
-              Inscríbete
+              ¡Inscríbete ya!
             </Link>
           </div>
         </section>

@@ -66,3 +66,8 @@ body {
 .font-poppins {
   font-family: var(--font-poppins, Arial, Helvetica, sans-serif);
 }
+
+/* Scroll suave para toda la aplicación */
+html {
+  scroll-behavior: smooth;
+}
