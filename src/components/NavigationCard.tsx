@@ -25,6 +25,8 @@ interface NavigationCardProps {
   activeSection?: string;
   onSectionClick?: (sectionId: string) => void;
   courseData?: {
+    title: string;
+    type?: string;
     price?: number;
     installments?: number;
     installmentPrice?: number;
@@ -41,6 +43,13 @@ export default function NavigationCard({
 }: NavigationCardProps) {
 
   const [isMobile, setIsMobile] = useState(false);
+  const [isShort, setIsShort] = useState(false);
+
+  useEffect(() => {
+    if (courseData?.type === "curso especializado" || courseData?.type === "curso corto") {
+      setIsShort(true);
+    }
+  }, [courseData]);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -61,6 +70,7 @@ export default function NavigationCard({
       }
     }
   };
+  console.log(courseData?.type);
 
   if (isMobile) return null;
   return (
@@ -114,7 +124,15 @@ export default function NavigationCard({
         <div className="text-center">
           <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium mb-3">
             <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
-            ESTE CURSO
+            {isShort ? (
+              <span className="font-semibold">
+                ESTE CURSO ESPECIALIZADO
+              </span>
+            ) : (
+              <span className="font-semibold">
+                ESTE DIPLOMADO
+              </span>
+            )}
           </div>          {
             courseData?.discount ? (
               <div className="text-3xl font-bold text-white mb-2 flex flex-col items-center justify-center">
@@ -139,7 +157,11 @@ export default function NavigationCard({
             Ver medios de pago →
           </button>
           <button className="w-full bg-white text-blueApp py-4 px-6 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
-            <span>Comprar diplomado</span>
+            {isShort ? (
+              <span>Comprar curso especializado</span>
+            ) : (
+              <span>Comprar diplomado</span>
+            )}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

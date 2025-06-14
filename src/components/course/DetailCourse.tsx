@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Hero from "./sections/Hero";
 import EsentialDetail from "./EsentialDetail";
 import Image from "next/image";
+import Loader from "../Loader";
 
 interface Props {
   slug: string
@@ -102,7 +103,7 @@ export default function DetailCourseComponent({ slug }: Props) {
     } catch (error) {
       console.error(`Error actualizando ${propertyName}:`, error);
     }
-  };  return (
+  }; return (
     <main className="min-h-screen relative">
       {/* Background Image with proper sizing */}
       {/* <div className="fixed inset-0 z-0 pointer-events-none">
@@ -115,23 +116,22 @@ export default function DetailCourseComponent({ slug }: Props) {
         />
       </div>       */}
       {isLoading ? (
-        <div className="relative z-10 flex justify-center items-center h-screen">
-          <div className="w-12 h-12 rounded-full border-4 border-blueApp border-t-transparent animate-spin" />
-        </div>) 
+        <Loader />
+      )
         : course ? (
-        <div className="relative z-10 flex flex-col gap-10 pt-20 pb-20">
-          <Hero 
-            course={course} 
-            newDetail={true} 
-            saveChanges={saveChanges} 
-          />
-          <EsentialDetail 
-            saveChanges={saveChanges} 
-            course={course} 
-            newDetail={true} 
-          />
-        </div>
-      ) : null}
+          <div className="relative z-10 flex flex-col gap-10 pt-20 pb-20">
+            <Hero
+              course={course}
+              newDetail={true}
+              saveChanges={saveChanges}
+            />
+            <EsentialDetail
+              saveChanges={saveChanges}
+              course={course}
+              newDetail={true}
+            />
+          </div>
+        ) : null}
     </main>
   );
 }

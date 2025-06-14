@@ -49,6 +49,8 @@ export default function ProgramasAcademicosLayout({
 
     fetchCourseData();
   }, [slug]);
+  console.log("Course Data:", courseData);
+
   useEffect(() => {
     const handleScroll = () => {      
       const sections = [
@@ -101,7 +103,9 @@ export default function ProgramasAcademicosLayout({
             activeSection={activeSection}
             onSectionClick={handleSectionClick}
             courseData={{
-              price: courseData?.price || 0,
+              title: courseData?.title || courseData?.name,
+              type: courseData?.type,
+              price: courseData?.price || courseData?.tickets[0].price,
               discount: courseData?.discount,
               installments: 8,
               installmentPrice: courseData?.discount 

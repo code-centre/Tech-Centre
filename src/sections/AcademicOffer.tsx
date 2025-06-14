@@ -43,11 +43,13 @@ export default function AcademicOffer() {
 
 
 
-	if (loading) return <div className="text-center flex flex-row gap-2 rounded-lg shadow p-2 bg-background">
-		<CardLoader />
-		<CardLoader />
-		<CardLoader />
-	</div>
+	if (loading) return (
+		<div className="text-center flex flex-row gap-2 rounded-lg shadow p-2 bg-background">
+			<CardLoader />
+			<CardLoader />
+			<CardLoader />
+		</div>
+	);
 
 	return (
 		<section id="oferta-academica" className="py-15 px-4 text-white bg-background">
