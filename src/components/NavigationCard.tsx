@@ -46,7 +46,7 @@ export default function NavigationCard({
   const [isShort, setIsShort] = useState(false);
 
   useEffect(() => {
-    if (courseData?.type === "curso especializado" || courseData?.type === "curso corto") {
+    if (courseData?.type === "curso especializado") {
       setIsShort(true);
     }
   }, [courseData]);
@@ -145,14 +145,25 @@ export default function NavigationCard({
                 {formatPrice(courseData?.price || 0, courseData?.currency || "COP")}
               </div>
             )}
-          <div className="text-sm text-white/80 mb-4">
-            {courseData?.installments && courseData?.installmentPrice
-              ? `Hasta ${courseData.installments} cuotas de ${formatPrice(courseData.installmentPrice, courseData.currency)}`
-              : courseData?.discount
-                ? `Hasta 8 cuotas de ${formatPrice(Math.round((courseData.discount) / 8), courseData?.currency || "COP")}`
-                : `Hasta 8 cuotas de ${formatPrice(Math.round((courseData?.price || 0) / 8), courseData?.currency || "COP")}`
-            }
-          </div>
+          {isShort ? (
+            <div className="text-sm text-white/80 mb-4">
+              {courseData?.installments && courseData?.installmentPrice
+                ? `Hasta ${courseData.installments} cuotas de ${formatPrice(courseData.installmentPrice, courseData.currency)}`
+                : courseData?.discount
+                  ? `Hasta 2 cuotas de ${formatPrice(Math.round((courseData.discount) / 2), courseData?.currency || "COP")}`
+                  : `Hasta 2 cuotas de ${formatPrice(Math.round((courseData?.price || 0) / 2), courseData?.currency || "COP")}`
+              }
+            </div>
+          ) : (
+            <div className="text-sm text-white/80 mb-4">
+              {courseData?.installments && courseData?.installmentPrice
+                ? `Hasta ${courseData.installments} cuotas de ${formatPrice(courseData.installmentPrice, courseData.currency)}`
+                : courseData?.discount
+                  ? `Hasta ${isShort ? 2 : 8} cuotas de ${formatPrice(Math.round((courseData.discount) / (isShort ? 2 : 8)), courseData?.currency || "COP")}`
+                  : `Hasta ${isShort ? 2 : 8} cuotas de ${formatPrice(Math.round((courseData?.price || 0) / (isShort ? 2 : 8)), courseData?.currency || "COP")}`
+              }
+            </div>)}
+
           <button className="text-sm text-blue-200 mb-6 cursor-pointer hover:text-white transition-colors font-medium">
             Ver medios de pago →
           </button>
