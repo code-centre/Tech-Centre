@@ -24,6 +24,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [mobileDropdown, setMobileDropdown] = useState<string | null>(null)
+  const [isMobileView, setIsMobileView] = useState(false)
   const { user } = useUserStore() as { user: User | null }
   
 
@@ -77,13 +78,30 @@ export default function Header() {
   console.log("Diplomas:", diplomasInfo)
   console.log("Cursos especializados:", specializedCoursesInfo)
 
-  // Add a function to check if we're on mobile
-  const isMobile = () => {
-    return window.innerWidth < 1024; // 1024px is the 'lg' breakpoint in Tailwind
-  }
+  // Use useEffect for client-side operations
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth < 1024)
+    }
 
+    // Only run on client side
+    if (typeof window !== 'undefined') {
+      // Initial check
+      handleResize()
+      
+      // Add event listener
+      window.addEventListener('resize', handleResize)
+      
+      // Cleanup
+      return () => window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  // Update mobile dropdown toggle
   const toggleMobileDropdown = (dropdown: string) => {
-    setMobileDropdown(mobileDropdown === dropdown ? null : dropdown)
+    if (typeof window !== 'undefined') {
+      setMobileDropdown(mobileDropdown === dropdown ? null : dropdown)
+    }
   }
 
   return (
@@ -369,7 +387,7 @@ export default function Header() {
       </div>
 
       {/* Backdrop */}
-      {(isMenuOpen || (isMobile() && mobileDropdown)) && (
+      {(isMenuOpen || (isMobileView && mobileDropdown)) && (
         <div 
           className="fixed inset-0 bg-black/10 transition-opacity duration-200 ease-in-out z-40" 
           onClick={() => {

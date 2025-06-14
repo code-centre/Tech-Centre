@@ -9,7 +9,7 @@ interface Props {
   saveChanges: (propertyName: string, content: any, index?: number) => void
 }
 
-export default function Benefits({ course, saveChanges }: Props) {
+export default function   Benefits({ course, saveChanges }: Props) {
   const { user } = useUserStore()
   const [updateBenefits, setUpdateBenefits] = useState(false)
   const [benefits, setBenefits] = useState(course.benefits)
