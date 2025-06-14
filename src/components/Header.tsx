@@ -156,7 +156,8 @@ export default function Header() {
 
 
             {/* Diplomados Dropdown */}
-            <div className="relative group">              <button className="flex items-center space-x-2 text-white hover:text-blueApp 
+            <div className="relative group">             
+               <button className="flex items-center space-x-2 text-white hover:text-blueApp 
                 font-medium transition-all duration-200 group">
                 <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
                   after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full">
@@ -207,12 +208,14 @@ export default function Header() {
             </div>
 
 
-            <Link              href="/empresas"
+            <Link             
+             href="/empresas"
               className="text-white hover:text-blueApp font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all hover:after:w-full"
             >
               Empresas
             </Link>
-            <Link              href="/comunidades"
+            <Link             
+             href="/comunidades"
               className="text-white hover:text-blueApp font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all hover:after:w-full"
             >
               Comunidades
