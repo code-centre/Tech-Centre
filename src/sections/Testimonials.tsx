@@ -106,21 +106,21 @@ export default function Testimonials({ backgroundColor }: Props) {
           </div>
           <div className=" self-center flex flex-col gap-4">
             <div>
-              <h2 className="text-2xl md:text-4xl font-semibold">
+              <h2 className="text-2xl md:text-4xl font-semibold text-white">
                 Escucha los testimonios
               </h2>
-              <h3 className="text-4xl md:text-5xl font-semibold text-blue-500">
+              <h3 className="text-4xl md:text-5xl font-semibold text-blueApp">
                 De personas que cambiaron sus vidas
               </h3>
             </div>
-            <p className="text-lg">
+            <p className="text-lg text-white">
               No dejes pasar esta oportunidad y despierta al genio tech que
               llevas dentro.
             </p>
             <div>
-              <p className="text-2xl font-bold">¡Qué esperas!</p>
+              <p className="text-2xl font-bold text-blueApp">¡Qué esperas!</p>
               <div className="h-1 border-b  my-3"></div>
-              <p className="text-lg">Cupos limitados</p>
+              <p className="text-lg text-white">Cupos limitados</p>
             </div>
 
             <Link

@@ -50,14 +50,14 @@ export default function AcademicOffer() {
 	</div>
 
 	return (
-		<section id="oferta-academica" className="py-15 px-4 text-zinc-200 bg-background">
+		<section id="oferta-academica" className="py-15 px-4 text-white bg-background">
 			<div className="mx-auto">				
 				<div className="text-center mb-10">
-				<h2 className="text-4xl md:text-5xl font-extrabold mb-5 text-black drop-shadow-lg">
+				<h2 className="text-4xl md:text-5xl font-extrabold mb-5 drop-shadow-lg">
 					Programas educativos 
 				</h2>
-				<h2 className="text-4xl md:text-5xl font-extrabold mb-5 text-black drop-shadow-lg">diseñados para el mercado laboral actual</h2>
-				<p className="max-w-2xl mx-auto text-xl text-zinc-600">
+				<h2 className="text-4xl md:text-5xl font-extrabold mb-5 drop-shadow-lg">diseñados para el mercado laboral actual</h2>
+				<p className="max-w-2xl mx-auto text-xl">
 					 Enfoque práctico y orientados al aprendizaje experiencial, diseñados por expertos de la industria.
 				</p>
 			</div>

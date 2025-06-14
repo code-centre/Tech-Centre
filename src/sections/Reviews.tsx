@@ -49,11 +49,11 @@ const GoogleReviews = ({ placeId, maxReviews = 5 }: GoogleReviewsProps) => {
   if (error) return <div className="text-center py-10 text-red-500">{error}</div>;
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900">Lo que dicen nuestros estudiantes</h2>
-          <p className="mt-4 text-lg text-gray-600">
+          <h2 className="text-3xl font-bold text-blueApp">Lo que dicen nuestros estudiantes</h2>
+          <p className="mt-4 text-lg text-white">
             Conoce las experiencias de quienes ya han transformado su carrera con nosotros
           </p>
         </div>
@@ -67,13 +67,13 @@ const GoogleReviews = ({ placeId, maxReviews = 5 }: GoogleReviewsProps) => {
             {reviews.map((review, index) => (
               <div
                 key={index}
-                className="bg-bgCard w-[350px] p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                className="bg-zinc-900 w-[350px] p-6 rounded-lg shadow-lg hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center justify-center mb-4">
-                  <div className="text-4xl font-bold text-blue-500">&ldquo;</div>
+                  <div className="text-4xl font-bold text-blueApp">&ldquo;</div>
                 </div>
 
-                <p className="text-gray-700 text-center mb-6 italic">
+                <p className="text-white text-center mb-6 italic">
                   "{review.text.length > 150
                     ? `${review.text.substring(0, 150)}...`
                     : review.text}"
@@ -90,7 +90,7 @@ const GoogleReviews = ({ placeId, maxReviews = 5 }: GoogleReviewsProps) => {
                     />
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">{review.author_name}</h4>
+                    <h4 className="font-medium text-blueApp">{review.author_name}</h4>
                     <div className="flex items-center mt-1">
                       {[...Array(5)].map((_, i) => (
                         <svg
