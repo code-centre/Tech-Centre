@@ -27,12 +27,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
+    <html lang="en">       
+     <body
         className={`${leagueSpartan.variable} ${poppins.variable} antialiased`}
       >
         <Header />
-        {children}
+        <main className="pt-0">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>

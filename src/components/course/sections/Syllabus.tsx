@@ -40,7 +40,7 @@ export default function Syllabus({ course, saveChanges }: Props) {
     <Wrapper styles="w-full max-w-6xl mx-auto">
       <div className="flex flex-col gap-2">
         <div className="flex justify-between mb-6">
-          <h2 className="text-3xl font-bold text-gray-900">Temario</h2>
+          <h2 className="text-3xl font-bold text-white">Temario</h2>
           {course.pdf && (
             <a
               href={course.pdf}
@@ -72,7 +72,7 @@ export default function Syllabus({ course, saveChanges }: Props) {
                   />
                 ) : (
                   <div className="flex gap-2 items-center">
-                    <h3 className="text-xl text-gray-800">{item.module}</h3>
+                    <h3 className="text-xl text-white">{item.module}</h3>
                   </div>
                 )}
                 <div className="flex gap-2 items-center">
@@ -102,7 +102,7 @@ export default function Syllabus({ course, saveChanges }: Props) {
                         type="text"
                       />
                     ) : (
-                      <li className="text-gray-700">{topic}</li>
+                      <li className="text-white">{topic}</li>
                     )}
                   </div>
                 ))}

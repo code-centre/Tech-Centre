@@ -49,7 +49,7 @@ const GoogleReviews = ({ placeId, maxReviews = 5 }: GoogleReviewsProps) => {
   if (error) return <div className="text-center py-10 text-red-500">{error}</div>;
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900">Lo que dicen nuestros estudiantes</h2>
@@ -67,7 +67,7 @@ const GoogleReviews = ({ placeId, maxReviews = 5 }: GoogleReviewsProps) => {
             {reviews.map((review, index) => (
               <div
                 key={index}
-                className="bg-gray-50 w-[350px] p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                className="bg-bgCard w-[350px] p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center justify-center mb-4">
                   <div className="text-4xl font-bold text-blue-500">&ldquo;</div>

@@ -40,7 +40,7 @@ export function CourseCard({
   }, [isShort])
 
   return (
-    <div className="bg-white rounded-lg shadow-xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+    <div className="bg-bgCard rounded-lg shadow-xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
       <div className="relative">
         <div
           className={`absolute top-4 left-4 ${level === 'BÁSICO'

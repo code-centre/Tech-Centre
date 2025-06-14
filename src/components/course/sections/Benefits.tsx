@@ -23,8 +23,8 @@ export default function Benefits({ course, saveChanges }: Props) {
     <section className="min-h-[50vh]">
       <div className="max-w-6xl mx-auto grid grid-cols-1 gap-10 py-5 items-center px-4">
         <div className="flex flex-col gap-6 lg:gap-10">
-          <h2 className="text-3xl lg:text-5xl font-bold text-blue-500 text-balance">¿Cuales son los beneficios de tomar <span className="text-black">este diplomado?</span></h2>
-          <p className="text-lg font-semibold">Somos pioneros en inteligencia artificial y
+          <h2 className="text-3xl lg:text-5xl font-bold text-blueApp text-balance">¿Cuales son los beneficios de tomar <span className="text-white">este diplomado?</span></h2>
+          <p className="text-lg font-semibold text-white">Somos pioneros en inteligencia artificial y
             tecnologías de vanguardia en la Costa. </p>
           <ul className="list-disc marker:text-[#00A1F9]  pl-8 flex flex-col gap-5  ">
             {benefits.map((benefit: any, i: number) => (
@@ -44,7 +44,7 @@ export default function Benefits({ course, saveChanges }: Props) {
                           setEditingBenefitIndex(null)
                         }} />
                     </div>
-                    : <div className="flex items-center gap-2" key={benefit}>
+                    : <div className="flex items-center gap-2 text-white" key={benefit}>
                       <li key={i}>{benefit}</li>
 
                       {

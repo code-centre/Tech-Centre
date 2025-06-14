@@ -33,7 +33,6 @@ export default function AcademicOffer() {
 		? cursosCortos.docs.map(doc => ({ ...(doc.data() as any), id: doc.id }))
 		: []
 
-	console.log(cursosCortosEducativos);
 	const cortosFuturos = cursosCortosEducativos.filter((curso) => {
 		const fechaActual = new Date();
 		const fechaCurso = new Date(curso.date);
@@ -44,14 +43,14 @@ export default function AcademicOffer() {
 
 
 
-	if (loading) return <div className="text-center flex flex-row gap-2 rounded-lg shadow p-2">
+	if (loading) return <div className="text-center flex flex-row gap-2 rounded-lg shadow p-2 bg-background">
 		<CardLoader />
 		<CardLoader />
 		<CardLoader />
 	</div>
 
 	return (
-		<section id="oferta-academica" className="py-15 px-4 text-zinc-200">
+		<section id="oferta-academica" className="py-15 px-4 text-zinc-200 bg-background">
 			<div className="mx-auto">				
 				<div className="text-center mb-10">
 				<h2 className="text-4xl md:text-5xl font-extrabold mb-5 text-black drop-shadow-lg">

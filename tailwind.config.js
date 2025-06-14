@@ -5,8 +5,16 @@ module.exports = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  theme: {
-    extend: {
+  theme: {    extend: {
+      colors: {
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        blueApp: 'var(--color-blueApp)',
+        grayApp: 'var(--color-grayApp)',
+        lightBlue: 'var(--color-lightBlue)',
+        darkBlue: 'var(--color-darkBlue)',
+        bgCard: 'var(--color-bgCard)',
+      },
       fontFamily: {
         'sans': ['var(--font-poppins)', 'sans-serif'],
         'league-spartan': ['var(--font-league-spartan)', 'sans-serif'],

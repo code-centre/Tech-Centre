@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #1f1c1b;
   --foreground: #171717;
+  --background-card:#393432;
 }
 
 @theme inline {
@@ -11,6 +12,7 @@
   --font-league-spartan: var(--font-league-spartan);
   --font-poppins: var(--font-poppins);
   --color-lightBlue: #e1f3fe;
+  --color-bgCard: var(--background-card);
   --color-blueApp: #00a1f9;
   --color-grayApp: #dbdbdb;
   --color-darkBlue: #0d47a1;
@@ -30,7 +32,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #ffffff;
+    --background: #1f1c1b;
     /* --background: #0a0a0a; */
     /* --foreground: #ededed; */
   }
@@ -53,9 +55,8 @@
 }
 
 body {
-  /* background: var(--background); */
-  /* color: var(--foreground); */
-  background-color: #ffffff;
+  background-color: var(--background);
+  color: var(--foreground);
   font-family: var(--font-poppins, Arial, Helvetica, sans-serif);
 }
 

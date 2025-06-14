@@ -103,7 +103,7 @@ export default function DetailCourseComponent({ slug }: Props) {
       console.error(`Error actualizando ${propertyName}:`, error);
     }
   };  return (
-    <main className="min-h-scree relative">
+    <main className="min-h-screen relative">
       {/* Background Image with proper sizing */}
       {/* <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
