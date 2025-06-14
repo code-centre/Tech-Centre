@@ -26,7 +26,7 @@ export default function Header() {
   const [mobileDropdown, setMobileDropdown] = useState<string | null>(null)
   const [isMobileView, setIsMobileView] = useState(false)
   const { user } = useUserStore() as { user: User | null }
-  
+
 
   useEffect(() => {
     if (user) {
@@ -104,11 +104,11 @@ export default function Header() {
     }
   }
 
-  return (
-    <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 w-full z-50 shadow-sm">
+  return (   
+     <header className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm shadow-lg">
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
         <div className="flex justify-between items-center h-16">
-      
+
           <Link href="/" className="flex-shrink-0">
             <Image
               src="/tech-center-logos/Logo-horizontal-azul.png"
@@ -119,12 +119,12 @@ export default function Header() {
             />
           </Link>
 
-         
+
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-8">
-            {/* Cursos Especializados Dropdown */}
+            {/* Cursos Especializados Dropdown */}            
             <div className="relative group">
-              <button className="flex items-center space-x-2 text-gray-700 hover:text-blueApp 
+              <button className="flex items-center space-x-2 text-white hover:text-blueApp 
                 font-medium transition-all duration-200 group">
                 <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
                   after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full">
@@ -134,8 +134,8 @@ export default function Header() {
               </button>
 
               <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-80 bg-white/95 backdrop-blur-sm rounded-xl 
-                shadow-lg border border-gray-100 py-3 transition-all duration-200">
+                absolute top-full left-0 mt-2 w-80 bg-white/80 backdrop-blur-md rounded-xl 
+                shadow-lg border border-white/20 py-3 transition-all duration-200">
                 <div className="px-4 py-2">
                   <Link
                     href="/#cursos"
@@ -172,10 +172,10 @@ export default function Header() {
               </div>
             </div>
 
-            
+
             {/* Diplomados Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center space-x-2 text-gray-700 hover:text-blueApp 
+            <div className="relative group">             
+               <button className="flex items-center space-x-2 text-white hover:text-blueApp 
                 font-medium transition-all duration-200 group">
                 <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
                   after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full">
@@ -185,8 +185,8 @@ export default function Header() {
               </button>
 
               <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-80 bg-white/95 backdrop-blur-sm rounded-xl 
-                shadow-lg border border-gray-100 py-3 transition-all duration-200">
+                absolute top-full left-0 mt-2 w-80 bg-white/80 backdrop-blur-md rounded-xl 
+                shadow-lg border border-white/20 py-3 transition-all duration-200">
                 <div className="px-4 py-2">
                   <Link
                     href="/#cursos"
@@ -225,61 +225,58 @@ export default function Header() {
               </div>
             </div>
 
-           
-            <Link
-              href="/empresas"
-              className="text-gray-700 hover:text-blueApp font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all hover:after:w-full"
+
+            <Link             
+             href="/empresas"
+              className="text-white hover:text-blueApp font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all hover:after:w-full"
             >
               Empresas
             </Link>
-            <Link
-              href="/comunidades"
-              className="text-gray-700 hover:text-blueApp font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all hover:after:w-full"
+            <Link             
+             href="/comunidades"
+              className="text-white hover:text-blueApp font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all hover:after:w-full"
             >
               Comunidades
             </Link>
           </nav>
-
-         
+          <Link
+            href="/registro"
+            className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blueApp hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+              rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 
+              hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
+          >
+            <span className="absolute inset-0 bg-blueApp opacity-0 
+                group-hover:opacity-100 transition-opacity duration-300"></span>
+            <span className="relative">
+              Registrarse
+            </span>
+            <svg
+              className="w-4 h-4 ml-2 -mr-1 transition-transform duration-300 transform hover:translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </Link>
           <div className="hidden lg:flex items-center space-x-6 animate-fade-in animate-delay-300">
             <Link
               href="/iniciar-sesion"
-              className="relative px-4 py-2 text-gray-700 font-medium group overflow-hidden"
+              className="relative px-4 py-2 text-white font-medium group overflow-hidden"
             >
               <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
                 Iniciar sesión
               </span>
               <div className="absolute inset-0 bg-blueApp transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
             </Link>
-            
-            <Link
-              href="/registro"
-              className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blueApp hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-              rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 
-              hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
-            >
-              <span className="absolute inset-0 bg-blueApp opacity-0 
-                group-hover:opacity-100 transition-opacity duration-300"></span>
-              <span className="relative">
-                Registrarse
-              </span>
-              <svg 
-                className="w-4 h-4 ml-2 -mr-1 transition-transform duration-300 transform hover:translate-x-1" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M13 7l5 5m0 0l-5 5m5-5H6" 
-                />
-              </svg>
-            </Link>
           </div>
 
-          
+
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="lg:hidden p-2 hover:animate-pulse hover:animate-once"
@@ -290,14 +287,11 @@ export default function Header() {
               <Menu className="w-6 h-6 animate-fade-in animate-duration-200" />
             )}
           </button>
-        </div>
-
-     
-        {isMenuOpen && (
-          <div className="lg:hidden fixed inset-x-0 top-16 bg-white/95 backdrop-blur-sm 
-            border-t border-gray-200 z-50 animate-slide-in-down animate-duration-200">
+        </div>        {isMenuOpen && (
+          <div className="lg:hidden fixed inset-x-0 top-16 bg-white/80 backdrop-blur-md 
+            border-t border-white/20 z-50 animate-slide-in-down animate-duration-200">
             <div className="px-4 py-2 divide-y divide-gray-100">
-            
+
               <div className="py-2">
                 <button
                   onClick={() => toggleMobileDropdown("cursos-mobile")}
@@ -305,10 +299,10 @@ export default function Header() {
                 >
                   <span>Cursos Especializados</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-300 
-                    ${mobileDropdown === "cursos-mobile" ? "rotate-180" : ""}`} 
+                    ${mobileDropdown === "cursos-mobile" ? "rotate-180" : ""}`}
                   />
                 </button>
-                
+
                 {mobileDropdown === "cursos-mobile" && (
                   <div className="mt-2 pl-4 animate-fade-in animate-duration-200">
                     <Link
@@ -359,10 +353,10 @@ export default function Header() {
                 >
                   <span>Diplomados</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-300 
-                    ${mobileDropdown === "diplomados-mobile" ? "rotate-180" : ""}`} 
+                    ${mobileDropdown === "diplomados-mobile" ? "rotate-180" : ""}`}
                   />
                 </button>
-                
+
                 {mobileDropdown === "diplomados-mobile" && (
                   <div className="mt-2 pl-4 animate-fade-in animate-duration-200">
                     {diplomasInfo.map((diploma) => (
@@ -380,16 +374,22 @@ export default function Header() {
                 )}
               </div>
 
-            
+
             </div>
           </div>
         )}
       </div>
 
       {/* Backdrop */}
+<<<<<<< HEAD
       {(isMenuOpen || (isMobileView && mobileDropdown)) && (
         <div 
           className="fixed inset-0 bg-black/10 transition-opacity duration-200 ease-in-out z-40" 
+=======
+      {(isMenuOpen || (isMobile() && mobileDropdown)) && (
+        <div
+          className="fixed inset-0 bg-black/10 transition-opacity duration-200 ease-in-out z-40"
+>>>>>>> b4cb7ede309ee78f9ed42e1e57aefddb071128d9
           onClick={() => {
             setIsMenuOpen(false)
             setMobileDropdown(null)

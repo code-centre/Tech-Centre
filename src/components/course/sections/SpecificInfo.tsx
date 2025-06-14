@@ -40,34 +40,33 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
 
   const addDaySchedule = () => {
     setSchedule([...schedule, { day: "", time: "", modality: "" }]);
-  };
-  return (
-    <div className="max-w-xl w-full bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+  };  return (
+    <div className="max-w-xl w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
       {/* Header with gradient */}
-      <div className="bg-gradient-to-r from-blueApp to-blue-500 p-6 text-white">
-        <h2 className="text-xl font-bold mb-1">{course.type} en {course.name}</h2>
+      <div className="bg-gradient-to-br from-bgCard via-zinc-700 to-zinc-900 p-6 text-white">
+        <h2 className="text-2xl font-bold mb-1 tracking-tight">{course.type} en {course.name}</h2>
       </div>
       
       {/* Course details */}
-      <div className="p-6 space-y-4">
-        <div className="flex items-center justify-between py-2 border-b border-gray-100">
-          <div className="flex items-center gap-2 text-gray-700">
-            <div className="bg-blue-100 p-1.5 rounded-md">
-              <ClockIcon size={18} className="text-blue-600" />
+      <div className="p-6 space-y-5">
+        <div className="flex items-center justify-between py-3 border-b border-zinc-700/50 group hover:border-zinc-600/70 transition-all">
+          <div className="flex items-center gap-3 text-gray-700">
+            <div className="bg-zinc-900 p-2 rounded-lg shadow-inner border border-zinc-800 group-hover:border-blueApp/30 transition-all">
+              <ClockIcon size={18} className="text-blueApp" />
             </div>
-            <span className="font-medium">Modalidad</span>
+            <span className="font-medium text-white text-base">Modalidad</span>
           </div>
-          <div className="bg-blue-50 text-blueApp px-3 py-1 rounded-full text-sm font-medium">
+          <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-blueApp/20 transition-colors">
             Presencial
           </div>
         </div>
 
-        <div className="flex items-center justify-between py-2 border-b border-gray-100">
-          <div className="flex items-center gap-2 text-gray-700">
-            <div className="bg-blue-100 p-1.5 rounded-md">
-              <ClockIcon size={18} className="text-blue-600" />
+        <div className="flex items-center justify-between py-3 border-b border-zinc-700/50 group hover:border-zinc-600/70 transition-all">
+          <div className="flex items-center gap-3 text-gray-700">
+            <div className="bg-zinc-900 p-2 rounded-lg shadow-inner border border-zinc-800 group-hover:border-blueApp/30 transition-all">
+              <ClockIcon size={18} className="text-blueApp" />
             </div>
-            <span className="font-medium">Duración</span>
+            <span className="font-medium text-white text-base">Duración</span>
           </div>
           {updateDuration ? (
             <div className="flex flex-col gap-2">
@@ -75,7 +74,7 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
                 type="text"
                 onChange={(e) => setContentDuration(e.target.value)}
                 defaultValue={course.duration}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-gray-800
+                className="px-3 py-2 border border-zinc-700 rounded-lg text-white bg-zinc-800
                   focus:outline-none focus:ring-2 focus:ring-blueApp/20 focus:border-blueApp
                   transition-all duration-200"
               />
@@ -89,27 +88,27 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
             </div>
           ) : (
             <div className="flex items-center gap-1">
-              <span className="font-semibold text-gray-800">{course.duration}</span>
+              <span className="font-semibold text-white">{course.duration}</span>
               {user?.rol === 'admin' && (
-                <PencilIcon size={14} className="text-blue-500 cursor-pointer" onClick={() => setUpdateDuration(true)} />
+                <PencilIcon size={14} className="text-blueApp cursor-pointer hover:text-blue-400 transition-colors" onClick={() => setUpdateDuration(true)} />
               )}
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-between py-2 border-b border-gray-100">
-          <div className="flex items-center gap-2 text-gray-700">
-            <div className="bg-blue-100 p-1.5 rounded-md">
-              <BookOpenIcon size={18} className="text-blue-600" />
+        <div className="flex items-center justify-between py-3 border-b border-zinc-700/50 group hover:border-zinc-600/70 transition-all">
+          <div className="flex items-center gap-3 text-gray-700">
+            <div className="bg-zinc-900 p-2 rounded-lg shadow-inner border border-zinc-800 group-hover:border-blueApp/30 transition-all">
+              <BookOpenIcon size={18} className="text-blueApp" />
             </div>
-            <span className="font-medium">Nivel</span>
+            <span className="font-medium text-white text-base">Nivel</span>
           </div>
           {updateLevel ? (
             <div className="flex flex-col gap-2">
               <select 
                 defaultValue={contentLevel} 
                 onChange={(e) => setContentLevel(e.target.value as LevelProgram)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-gray-800
+                className="px-3 py-2 border border-zinc-700 rounded-lg text-white bg-zinc-800
                   focus:outline-none focus:ring-2 focus:ring-blueApp/20 focus:border-blueApp
                   transition-all duration-200"
               >
@@ -127,26 +126,25 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
             </div>
           ) : (
             <div className="flex items-center gap-1">
-              <span className="font-semibold text-gray-800">{course?.level}</span>
+              <span className="font-semibold text-white">{course?.level}</span>
               {user?.rol === 'admin' && (
-                <PencilIcon size={14} className="text-blue-500 cursor-pointer" onClick={() => setUpdateLevel(true)} />
+                <PencilIcon size={14} className="text-blueApp cursor-pointer hover:text-blue-400 transition-colors" onClick={() => setUpdateLevel(true)} />
               )}
             </div>
           )}
-        </div>
-
-        {/* Pricing section */}
-        <div className="mt-6 bg-gray-50 p-4 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-500 text-sm">Precio regular</span>
+        </div>       
+         {/* Pricing section */}
+        <div className="mt-6 bg-zinc-900 p-5 rounded-xl shadow-lg border border-zinc-800/40 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-white text-sm font-medium tracking-wide">Precio regular</span>
             {updatePrice ? (
               <div className="flex flex-col gap-2">                
               <input
                   type="text"
                   onChange={(e) => setContentPrice(Number(e.target.value))}
                   defaultValue={contentPrice.toString()}
-                  className="px-3 py-2 border border-gray-200 rounded-lg text-blueApp font-semibold
-                    focus:outline-none focus:ring-2 focus:ring-blueApp/20 focus:border-blueApp
+                  className="px-3 py-2 border border-zinc-700 rounded-lg text-blueApp font-semibold
+                    focus:outline-none focus:ring-2 focus:ring-blueApp/30 focus:border-blueApp bg-zinc-800
                     transition-all duration-200"
                 />
                 <ContainerButtonsEdit
@@ -160,20 +158,20 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
             ) : (
               course.discount ? (
                 <div className="flex items-center gap-1">
-                  <span className="text-gray-500 line-through">
+                  <span className="text-gray-400 line-through text-base">
                     ${Number(course.price)?.toLocaleString()}
                   </span>
                   {user?.rol === 'admin' && (
-                    <PencilIcon size={14} className="text-blue-500 cursor-pointer" onClick={() => setUpdatePrice(true)} />
+                    <PencilIcon size={14} className="text-blueApp cursor-pointer hover:text-blue-400 transition-colors" onClick={() => setUpdatePrice(true)} />
                   )}
                 </div>
               ) : (
                 <div className="flex items-center gap-1">
-                  <span className="text-gray-500">
+                  <span className="text-white text-lg font-bold">
                     ${Number(course.price)?.toLocaleString()}
                   </span>
                   {user?.rol === 'admin' && (
-                    <PencilIcon size={14} className="text-blue-500 cursor-pointer" onClick={() => setUpdatePrice(true)} />
+                    <PencilIcon size={14} className="text-blueApp cursor-pointer hover:text-blue-400 transition-colors" onClick={() => setUpdatePrice(true)} />
                   )}
                 </div>
               )
@@ -181,10 +179,10 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
           </div>
           
           {course.discount && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <span className="font-medium text-gray-700">Precio oferta</span>
-                <div className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">
+            <div className="flex items-center justify-between py-2 px-3 bg-zinc-800/70 rounded-lg border border-zinc-700/30 shadow-inner mb-2">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-gray-300">Precio oferta</span>
+                <div className="bg-green-900/70 text-green-300 text-xs px-2.5 py-0.5 rounded-full font-medium border border-green-700/30">
                   -{Math.round(((Number(course.price) - Number(course.discount)) / Number(course.price)) * 100)}%
                 </div>
               </div>
@@ -194,8 +192,8 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
                     type="text"
                     onChange={(e) => setContentDiscount(Number(e.target.value))}
                     defaultValue={contentDiscount?.toString() || ''}
-                    className="px-3 py-2 border border-gray-200 rounded-lg text-blue-600 font-bold
-                      focus:outline-none focus:ring-2 focus:ring-blueApp/20 focus:border-blueApp
+                    className="px-3 py-2 border border-zinc-700 rounded-lg text-blueApp font-semibold
+                      focus:outline-none focus:ring-2 focus:ring-blueApp/30 focus:border-blueApp bg-zinc-800
                       transition-all duration-200"
                   />
                   <ContainerButtonsEdit
@@ -212,87 +210,102 @@ export default function SpecificInfo({ course, saveChanges }: Props) {
                     ${Number(course.discount)?.toLocaleString()}
                   </span>
                   {user?.rol === 'admin' && (
-                    <PencilIcon size={14} className="text-blue-500 cursor-pointer" onClick={() => setUpdateDiscount(true)} />
+                    <PencilIcon size={14} className="text-blueApp cursor-pointer hover:text-blue-400 transition-colors" onClick={() => setUpdateDiscount(true)} />
                   )}
                 </div>
               )}
             </div>
           )}        
-          </div>
+        </div>
 
         {/* Payment options section */}
-        <div className="mt-4 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="bg-blue-100 p-1.5 rounded-md">
-              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="mt-5 bg-zinc-900/90 p-5 rounded-xl shadow-lg border border-zinc-800/40 relative overflow-hidden group">
+          {/* Línea decorativa */}
+          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blueApp"></div>
+          
+          {/* Efecto decorativo */}
+          <div className="absolute -right-10 -top-10 w-24 h-24 rounded-full bg-blueApp/5 blur-2xl group-hover:bg-blueApp/10 transition-all duration-700"></div>
+          
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-zinc-800 p-2 rounded-lg shadow-inner border border-zinc-700/40">
+              <svg className="w-4 h-4 text-blueApp" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
             </div>
-            <span className="font-semibold text-blueApp">Opciones de Pago</span>
+            <span className="font-semibold text-white tracking-wide">Opciones de Pago</span>
           </div>
           
-          <div className="space-y-2">
-            <div className="flex items-center justify-between py-2 px-3 bg-white rounded-md shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm font-medium text-gray-700">4 cuotas</span>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between py-2.5 px-4 bg-zinc-800/80 hover:bg-zinc-800 rounded-lg shadow-sm border border-zinc-700/20 transition-colors duration-200">
+              <div className="flex items-center gap-3">
+                <div className="w-2.5 h-2.5 bg-green-500 rounded-full"></div>
+                <span className="text-sm font-medium text-gray-200">4 cuotas</span>
               </div>
               <div className="text-right">
                 <span className="font-bold text-blueApp">
                   ${Math.round((course.discount || course.price) / 4).toLocaleString()}
                 </span>
-                <span className="text-xs text-gray-500 ml-1">c/u</span>
+                <span className="text-xs text-gray-400 ml-1">c/u</span>
               </div>
             </div>
             
-            <div className="flex items-center justify-between py-2 px-3 bg-white rounded-md shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-sm font-medium text-gray-700">8 cuotas</span>
+            <div className="flex items-center justify-between py-2.5 px-4 bg-zinc-800/80 hover:bg-zinc-800 rounded-lg shadow-sm border border-zinc-700/20 transition-colors duration-200">
+              <div className="flex items-center gap-3">
+                <div className="w-2.5 h-2.5 bg-blueApp rounded-full"></div>
+                <span className="text-sm font-medium text-gray-200">8 cuotas</span>
               </div>
               <div className="text-right">
                 <span className="font-bold text-blueApp">
                   ${Math.round((course.discount || course.price) / 8).toLocaleString()}
                 </span>
-                <span className="text-xs text-gray-500 ml-1">c/u</span>
+                <span className="text-xs text-gray-400 ml-1">c/u</span>
               </div>
             </div>
           </div>
           
-          <div className="mt-3 pt-2 border-t border-blue-100">
-            <p className="text-xs text-blueApp text-center">
+          <div className="mt-4 pt-3 border-t border-zinc-700/30">
+            <p className="text-xs text-blueApp text-center font-medium">
               💳 Acepta todas las tarjetas de crédito
             </p>
           </div>
-        </div>
-
+        </div>        
         {/* Call to action buttons */}
-        <Link
-          href={`/checkout?slug=${course.slug}&program=${true}`}
-          className="w-full bg-blueApp hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition-colors mt-4 block text-center"
-        >
-          Inscribirme ahora
-        </Link>
-        
-        <a
-          href="https://api.whatsapp.com/send?phone=573005523872"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"
-        >
-          <MessageCircleIcon size={18} className="text-green-600" />
-          Hablar con un asesor
-        </a>
-        
-        {user?.rol === 'admin' && (
+        <div className="mt-6 space-y-3">
           <Link
-            href={`/cursos/${course.slug}/inscritos`}
-            className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+            href={`/checkout?slug=${course.slug}&program=${true}`}
+            className="w-full bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp 
+              text-white font-medium py-3.5 px-5 rounded-xl transition-all duration-300 block text-center
+              shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 border border-blue-500/30
+              transform hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm"
           >
-            <UsersIcon size={18} />
-            Ver inscritos
+            Inscribirme ahora
           </Link>
-        )}
+          
+          <a
+            href="https://api.whatsapp.com/send?phone=573005523872"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-3 bg-zinc-800 border border-zinc-700/50 
+              hover:bg-zinc-800/80 text-white font-medium py-3.5 px-5 rounded-xl transition-all duration-300
+              shadow-md hover:shadow-lg active:shadow-sm transform hover:-translate-y-0.5 active:translate-y-0"
+          >
+            <MessageCircleIcon size={20} className="text-green-500" />
+            Hablar con un asesor
+          </a>
+          
+          {user?.rol === 'admin' && (
+            <Link
+              href={`/cursos/${course.slug}/inscritos`}
+              className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-green-600 to-green-700
+                hover:from-green-700 hover:to-green-600 text-white font-medium py-3.5 px-5 rounded-xl 
+                transition-all duration-300 shadow-md shadow-green-900/20 hover:shadow-green-900/30
+                border border-green-600/30 transform hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm"
+            >
+              <UsersIcon size={20} />
+              Ver inscritos
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   )

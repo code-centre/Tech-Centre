@@ -26,7 +26,7 @@ export default function Faqs({ course, saveChanges }: Props) {
     <Wrapper styles="flex flex-col gap-2 w-full max-w-6xl mx-auto">
       {course.faqs.length > 0 && (
         <>
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Preguntas Frecuentes</h2>
+          <h2 className="text-3xl font-bold text-white mb-6">Preguntas Frecuentes</h2>
           {faqs.map((item: any, i: number) => (
             <div key={i} className="mt-5 animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
               {editingFAQIndex === i ? (
@@ -67,7 +67,7 @@ export default function Faqs({ course, saveChanges }: Props) {
               ) : (
                 <details className="group border-b border-grayApp pb-4">
                   <summary className="flex justify-between items-center font-medium cursor-pointer list-none py-2">
-                    <h3 className="text-xl text-gray-800 font-semibold pr-8">
+                    <h3 className="text-xl text-white font-semibold pr-8">
                       {item.question}
                     </h3>
                     <div className="flex gap-2 items-center">
@@ -79,7 +79,7 @@ export default function Faqs({ course, saveChanges }: Props) {
                       )}
                     </div>
                   </summary>
-                  <div className="mt-4 text-gray-600 leading-relaxed pl-1">
+                  <div className="mt-4 text-white leading-relaxed pl-1">
                     {item.answer}
                   </div>
                 </details>

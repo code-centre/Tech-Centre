@@ -13,6 +13,7 @@ export default function ProgramasAcademicosLayout({
 }) {
   const [courseData, setCourseData] = useState<any>(null);
   const [activeSection, setActiveSection] = useState<string>("");
+  const [isShort, setIsShort] = useState<boolean>(false);
   const pathname = usePathname();
 
   const slug = pathname.split('/').pop();
@@ -40,7 +41,12 @@ export default function ProgramasAcademicosLayout({
 
         if (!eventsSnapshot.empty) {
           const eventDoc = eventsSnapshot.docs[0];
-          setCourseData({ id: eventDoc.id, ...eventDoc.data() });
+          const eventData = eventDoc.data();
+          setCourseData({ id: eventDoc.id, ...eventData });
+          
+          if(eventData?.type === "curso especializado") {
+            setIsShort(true);
+          }
         }
       } catch (error) {
         console.error("Error fetching course data:", error);
@@ -49,6 +55,7 @@ export default function ProgramasAcademicosLayout({
 
     fetchCourseData();
   }, [slug]);
+
   useEffect(() => {
     const handleScroll = () => {      
       const sections = [
@@ -101,13 +108,15 @@ export default function ProgramasAcademicosLayout({
             activeSection={activeSection}
             onSectionClick={handleSectionClick}
             courseData={{
-              price: courseData?.price || 0,
+              title: courseData?.title || courseData?.name,              
+              type: courseData?.type,
+              price: courseData?.price || courseData?.tickets[0].price,
               discount: courseData?.discount,
-              installments: 8,
+              installments: isShort ? 2 : 8,
               installmentPrice: courseData?.discount 
-                ? Math.round(courseData.discount / 8) 
+                ? Math.round(courseData.discount / (isShort ? 2 : 8)) 
                 : courseData?.price 
-                  ? Math.round(courseData.price / 8) 
+                  ? Math.round(courseData.price / (isShort ? 2 : 8)) 
                   : undefined,
               currency: courseData?.currency || "COP",
               name: courseData?.name || courseData?.title

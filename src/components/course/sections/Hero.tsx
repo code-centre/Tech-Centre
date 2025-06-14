@@ -71,9 +71,9 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
       {
         newDetail
           ? <>
-            <section className="max-w-6xl mx-auto w-full bg-gradient-to-br from-slate-50 via-sky-100/90 to-blue-200 text-gray-800 overflow-hidden rounded-3xl grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr] items-center relative p-6 md:p-12 gap-8 lg:h-[520px] shadow-2xl border border-sky-200/30 backdrop-blur-sm">
-              <div className="absolute inset-0 bg-gradient-to-r from-sky-300/10 to-blue-300/10 rounded-3xl"></div>
-              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-400/15 via-transparent to-transparent rounded-3xl"></div>
+            <section className="max-w-6xl mx-auto w-full bg-gradient-to-br from-bgCard via-zinc-700 to-zinc-900 text-gray-800 overflow-hidden rounded-3xl grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr] items-center relative p-6 md:p-12 gap-8 lg:h-[520px] shadow-2xl border border-white/30 backdrop-blur-sm">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-300/10 to-purple-300/10 rounded-3xl"></div>
+              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/15 via-transparent to-transparent rounded-3xl"></div>
               {
                 user?.rol === 'admin' &&
                 <div className='absolute top-10 right-5 z-10'>
@@ -141,7 +141,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                   }
                 </div>
                 <div className="px-1">
-                  <p className="lg:text-4xl text-3xl font-semibold drop-shadow-lg text-shadow text-gray-600 mb-2">
+                  <p className="lg:text-4xl text-3xl font-semibold drop-shadow-lg text-shadow text-white mb-2">
                     {course.type} en
                   </p>
                   {
@@ -157,7 +157,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                       </div>
                       :
                       <div className="flex items-center gap-2">
-                        <h1 className="lg:text-5xl text-3xl font-bold max-w-lg leading-tight bg-gradient-to-r from-gray-600 to-gray-800 bg-clip-text text-transparent drop-shadow-md">
+                        <h1 className="lg:text-5xl text-3xl font-bold max-w-lg leading-tight bg-gradient-to-r from-blueApp to-lightBlue bg-clip-text text-transparent drop-shadow-md">
                           {course.name}
                         </h1>
                         {
@@ -176,7 +176,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                         }} />
                       </div>
                       : <div className="flex items-center gap-2">
-                        <h2 className="lg:text-3xl text-xl font-medium inline-block max-w-lg text-gray-500 mt-2">
+                        <h2 className="lg:text-3xl text-xl font-medium inline-block max-w-lg text-white mt-2">
                           {course.subtitle}
                         </h2>
                         {
@@ -195,7 +195,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                         loop
                         playsInline
                         src={videoPortada || course.heroVideo}
-                        className='h-[250px] lg:h-[320px] rounded-xl lg:rounded-2xl mask w-full object-cover border-2 border-blue-600/20 shadow-xl shadow-blue-900/10'
+                        className='h-[250px] lg:h-[320px] rounded-xl lg:rounded-2xl mask w-full object-cover border-2 border-blueApp/20 shadow-xl shadow-blue-900/10'
                         controls
                         muted
                         autoPlay

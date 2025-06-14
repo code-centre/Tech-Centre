@@ -83,7 +83,7 @@ export function Hero() {
           </div>
         </div>
       </div>
-      <div className="relative z-10 bg-blueApp backdrop-blur-sm py-5">
+      <div className="relative z-10 bg-transparent backdrop-blur-sm py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="p-4">

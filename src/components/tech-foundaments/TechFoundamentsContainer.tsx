@@ -120,8 +120,6 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   // //   }
   // // }, [profesor])
 
-  console.log('teacher', teacher);
-  console.log('profesorData', profesorData);
 
   const description = techs.length > 0 ? techs[0].description : '';
 
