@@ -1,36 +1,86 @@
 'use client'
 import { Badge, Clock, Code, Database, Palette, Star, TrendingUp, Zap, ZapIcon } from 'lucide-react'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useCollection } from 'react-firebase-hooks/firestore'
 import { db } from '../../firebase'
-import { collection, query, where } from 'firebase/firestore'
+import { collection, query, where, Query, DocumentData } from 'firebase/firestore'
 import CardLoader from '../components/loaders-skeletons/CardLoader'
 import { formatDate } from '../../utils/formatDate'
 import HTMLReactParser from 'html-react-parser'
 import Link from 'next/link'
 import { CourseList } from '@/components/CourseList'
+import useUserStore from '../../store/useUserStore'
 
 export default function AcademicOffer() {
 	const [areaFiltrada, setAreaFiltrada] = useState("todos")
 	const [nivelFiltrado, setNivelFiltrado] = useState("todos")
 	const [mostrarTodos, setMostrarTodos] = useState(false)
 	const [showAll, setShowAll] = useState(false);
-	const [programasEducativosSnapshot, loading, error] = useCollection(
-		query(collection(db, 'programs'),
-			where('status', '==', 'Publicado'))
-	)
-	const [cursosCortos, loadingCursosCortos, errorCursosCortos] = useCollection(
+	const { user } = useUserStore();
+	const isAdmin = user?.rol === 'admin';
+	
+	// Queries dinámicas basadas en el rol del usuario
+	const [programasQuery, setProgramasQuery] = useState<Query<DocumentData>>(
+		query(collection(db, 'programs'), where('status', '==', 'Publicado'))
+	);
+	
+	const [cursosQuery, setCursosQuery] = useState<Query<DocumentData>>(
 		query(collection(db, 'events'),
 			where('status', '==', 'published'),
-			where('type', '==', 'curso especializado'),)
-	)
-
+			where('type', '==', 'curso especializado'))
+	);
+	
+	useEffect(() => {
+		if (isAdmin) {
+			setProgramasQuery(
+				query(collection(db, 'programs'), 
+					where('status', 'in', ['Publicado', 'Borrador']))
+			);
+			
+			setCursosQuery(
+				query(collection(db, 'events'),
+					where('status', 'in', ['published', 'draft']),
+					where('type', '==', 'curso especializado'))
+			);
+		} else {
+			setProgramasQuery(
+				query(collection(db, 'programs'), 
+					where('status', '==', 'Publicado'))
+			);
+			
+			setCursosQuery(
+				query(collection(db, 'events'),
+					where('status', '==', 'published'),
+					where('type', '==', 'curso especializado'))
+			);
+		}
+	}, [isAdmin]);
+	
+	// Usar las queries dinámicas
+	const [programasEducativosSnapshot, loading, error] = useCollection(programasQuery);
+	const [cursosCortos, loadingCursosCortos, errorCursosCortos] = useCollection(cursosQuery);
 	const programasEducativos = programasEducativosSnapshot
-		? programasEducativosSnapshot.docs.map(doc => ({ ...(doc.data() as Program), id: doc.id }))
+		? programasEducativosSnapshot.docs.map(doc => {
+			const data = doc.data() as Program;
+			return { 
+				...data, 
+				id: doc.id,
+				// Añadir una propiedad para indicar si es un borrador
+				isDraft: data.status === 'Borrador'
+			}
+		})
 		: []
 	const cursosCortosEducativos = cursosCortos
-		? cursosCortos.docs.map(doc => ({ ...(doc.data() as any), id: doc.id }))
+		? cursosCortos.docs.map(doc => {
+			const data = doc.data() as any;
+			return { 
+				...data, 
+				id: doc.id,
+				// Añadir una propiedad para indicar si es un borrador
+				isDraft: data.status === 'draft'
+			}
+		})
 		: []
 
 	const cortosFuturos = cursosCortosEducativos.filter((curso) => {
@@ -62,6 +112,13 @@ export default function AcademicOffer() {
 				<p className="max-w-2xl mx-auto text-xl">
 					 Enfoque práctico y orientados al aprendizaje experiencial, diseñados por expertos de la industria.
 				</p>
+				
+				{isAdmin && (
+					<div className="mt-4 bg-amber-100 border border-amber-400 text-amber-800 px-4 py-3 rounded relative max-w-2xl mx-auto">
+						<strong className="font-bold">Modo administrador:</strong>
+						<span className="block sm:inline"> Estás viendo tanto cursos publicados como borradores.</span>
+					</div>
+				)}
 			</div>
 				{/* Programas filtrados */}
 				<CourseList

@@ -94,6 +94,7 @@ interface EventFCA {
   date: string
   description: string
   details: string
+  level: string,
   id: string,
   location: Location
   heroImage: string

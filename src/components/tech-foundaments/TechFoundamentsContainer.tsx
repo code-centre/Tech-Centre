@@ -41,7 +41,7 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   const [profesorData, setProfesorData] = useState<any[]>([])
   const eventsQuery = query(collection(db, "events"),
     where("type", "==", "curso especializado"),
-    where("status", "==", "published"),
+    where("status", "in", ["published", "draft"]),
     where("slug", "==", slug))
   const [value, loading, error] = useCollection(eventsQuery)
 
@@ -104,45 +104,50 @@ export default function TechFoundamentsContainer({ slug }: Props) {
     fetchSpeakerDetails()
   }, [teacher])
 
-  //   const [profesor, profesorLoading, profesorError ] = useCollection(
-  //   query(collection(db, "speakers"), where("id", "==", teacher[0]?.speakerId))
-  // )
-  // // useEffect(() => {
-  // //   if (profesor) {
-  // //     const data = profesor.docs.map((doc) => {
-  // //       const docData = doc.data()
-  // //       return {
-  // //         ...docData,
-  // //         id: doc.id,
-  // //       }
-  // //     }) as any[]
-  // //     setProfesorData(data)
-  // //   }
-  // // }, [profesor])
-
-
   const description = techs.length > 0 ? techs[0].description : '';
-
+  const eventId = techs.length > 0 ? techs[0].id : undefined;
+  
+  // Logs para depuración
+  console.log('TechFoundamentsContainer - id del evento disponible:', eventId);
+  console.log('TechFoundamentsContainer - techs array:', techs);
+  
   return (
-    <div className="bg-gradient-to-b from-black via-zinc-900 to-black text-white min-h-screen w-full">
+    <div className="text-white w-full mt-20 ml-10">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <Hero date={techs.length > 0 ? String(techs[0].date) : ''} title={techs.length > 0 ? techs[0].title : ''} subtitle={techs.length > 0 ? techs[0].subtitle : ''} heroImage={techs.length > 0 ? techs[0].heroImage : ''} />
-        <Description description={description} />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-12">
-          <div className="lg:col-span-2 flex flex-col gap-8">
+        <Hero 
+        date={techs.length > 0 ? String(techs[0].date) : ''} 
+        title={techs.length > 0 ? techs[0].title : ''} subtitle={techs.length > 0 ? techs[0].subtitle : ''} 
+        heroImage={techs.length > 0 ? techs[0].heroImage : ''} />        <Description
+          description={description}
+          eventId={eventId}
+        />
+        <div className="grid grid-cols-1 gap-10 mt-12">
+          <div id= "" className="lg:col-span-2 flex flex-col gap-8">
             {techs.length > 0 && techs[0].location && (
-              <LocationContainer location={techs[0].location} />
-            )}
-            <div className="bg-zinc-900 rounded-2xl shadow-xl border border-zinc-800 p-8">
-              <Details details={techs[0]?.details}/>
+              <LocationContainer 
+              location={techs[0].location} />
+            )}            
+            <div id="aprenderas" className="bg-transparent">
+              <Details 
+                details={techs[0]?.details}
+                eventId={eventId}
+                saveChanges={(propertyName, content) => {
+                  // Aquí iría la lógica para guardar cambios si se implementa
+                  console.log("Guardando cambios:", propertyName, content);
+                }}
+              />
             </div>
           </div>
-          <div className="lg:col-span-1 flex flex-col gap-8">
-            <div className="bg-zinc-900 rounded-2xl shadow-xl border border-zinc-800 p-8">
+          <div className="flex flex-col gap-8">
+            <div className="justify-center flex items-center p-8">
               <Professor speakers={profesorData} />
-            </div>
-            <div className="bg-zinc-900 rounded-2xl shadow-xl border border-zinc-800 p-8">
-              <Tickets tickets={techs[0]?.tickets || []} />
+          </div>            
+            <div id="precios" className="flex items-center justify-center p-8">             
+               <Tickets 
+                tickets={techs[0]?.tickets || []} 
+                eventId={eventId} 
+                eventSlug={slug}
+              />
             </div>
           </div>
         </div>

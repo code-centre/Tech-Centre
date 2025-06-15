@@ -20,6 +20,8 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
   const [updateDetails, setUpdateDetails] = useState(false)
   const [contentUpdateDetails, setContentUpdateDetails] = useState(course.description)
   const { user } = useUserStore()
+  console.log(user);
+  
 
   return (
     <div className="bg-background backdrop-blur-sm">

@@ -1,6 +1,35 @@
 import React from 'react'
 import { CourseCard } from './CoursesCard'
 
+// Interfaces actualizadas que incluyen isDraft
+interface Program {
+  id: string
+  name: string
+  startDate?: string
+  description?: string
+  image?: string
+  level?: string
+  duration?: string
+  teacher?: string[]
+  slug: string
+  status?: string
+  isDraft?: boolean
+  [key: string]: any
+}
+
+interface EventFCA {
+  id: string
+  title?: string
+  description?: string
+  heroImage?: string
+  date?: string
+  slug?: string
+  status?: string
+  type?: string
+  isDraft?: boolean
+  [key: string]: any
+}
+
 interface CourseListProps {
   diplomados: Program[]
   cursosCortos: EventFCA[]
@@ -25,8 +54,7 @@ export function CourseList({ diplomados, cursosCortos, showHeader = true }: Cour
         )}
           {diplomados.length > 0 && (
           <div className="mb-12">
-            <h3 className="text-2xl font-bold text-white   mb-6">Diplomados</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">              
+            <h3 className="text-2xl font-bold text-white   mb-6">Diplomados</h3>            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">              
               {diplomados.map((diplomado) => (
                 <CourseCard
                   key={diplomado.id}
@@ -34,10 +62,11 @@ export function CourseList({ diplomados, cursosCortos, showHeader = true }: Cour
                   date={diplomado.startDate}
                   description={diplomado.description}
                   image={diplomado.image}
-                  level={diplomado.level.toString().toUpperCase()}
+                  level={(diplomado.level || '').toString().toUpperCase()}
                   duration={diplomado.duration}
-                  instructor={diplomado.teacher.join(", ")}
+                  instructor={(diplomado.teacher || []).join(", ")}
                   slug={diplomado.slug}
+                  isDraft={diplomado.isDraft}
                 />
               ))}
             </div>
@@ -48,8 +77,7 @@ export function CourseList({ diplomados, cursosCortos, showHeader = true }: Cour
             <h3 className="text-2xl font-bold text-white mb-6">
               Cursos especializados
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">             
-               {cursosCortos.map((curso) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">               {cursosCortos.map((curso) => (
                 <CourseCard
                   key={curso.id}
                   title={curso.title}
@@ -59,6 +87,7 @@ export function CourseList({ diplomados, cursosCortos, showHeader = true }: Cour
                   date={curso.date}
                   isShort={true}
                   slug={curso.slug}
+                  isDraft={curso.isDraft}
                 />
               ))}
             </div>
