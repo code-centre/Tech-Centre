@@ -84,9 +84,14 @@ export default function AcademicOffer() {
 		: []
 
 	const cortosFuturos = cursosCortosEducativos.filter((curso) => {
-		const fechaActual = new Date();
+		// Obtener la fecha actual en Colombia
+		const fechaActual = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+		fechaActual.setHours(0, 0, 0, 0);
+		
 		const fechaCurso = new Date(curso.date);
-		return fechaCurso > fechaActual;
+		fechaCurso.setHours(0, 0, 0, 0);
+		
+		return fechaCurso >= fechaActual;
 	});
 	const educativos = [...programasEducativos, ...cortosFuturos]
 	const displayedEducativos = showAll ? educativos : educativos.slice(0, 6);

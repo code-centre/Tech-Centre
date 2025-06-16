@@ -35,11 +35,14 @@ export function Footer({slug, programasEducativos = [], cortosFuturos = []}: Foo
   // Filtrar cursos futuros
   const cortosFuturosFromDB = cursosCortosFromDB.filter((curso) => {
     const fechaActual = new Date();
+    fechaActual.setHours(0, 0, 0, 0);
+    
     const fechaCurso = new Date(curso.date);
-    return fechaCurso > fechaActual;
+    fechaCurso.setHours(0, 0, 0, 0);
+    
+    return fechaCurso >= fechaActual;
   });
   
-  // Combinamos datos de props (si los hay) y datos de consulta directa
   const academicosFromProps = [...programasEducativos, ...cortosFuturos];
   const academicos = academicosFromProps.length > 0 
     ? academicosFromProps 

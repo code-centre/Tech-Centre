@@ -4,13 +4,11 @@ import { Book, ListChecks, Check, LightbulbIcon, EditIcon, Code, BrainCircuit, L
 import HTMLReactParser from 'html-react-parser/lib/index'
 import useUserStore from '../../../store/useUserStore'
 import Editor from '../Editor'
-import { db } from '../../../firebase'
-import { doc, updateDoc } from 'firebase/firestore'
 
 interface Props {
   details?: string
   eventId?: string
-  saveChanges?: (propertyName: string, content: any) => void
+  saveChanges?: (content: string) => Promise<{success: boolean, error?: string}>
 }
 
 export default function Details({ details, eventId, saveChanges }: Props) {
@@ -27,12 +25,12 @@ export default function Details({ details, eventId, saveChanges }: Props) {
     if (details) {
       setContent(details);
     }
-  }, [eventId]);
+  }, [details]);
   
   const handleSave = async () => {
-    if (!eventId) {
-      console.error("No se puede guardar sin un ID de evento");
-      setError("No se puede guardar: ID de evento faltante");
+    if (!saveChanges) {
+      console.error("No hay función de guardado disponible");
+      setError("No se puede guardar: Función de guardado no disponible");
       return;
     }
     
@@ -40,17 +38,13 @@ export default function Details({ details, eventId, saveChanges }: Props) {
       setIsSaving(true);
       setError('');
       
-      const eventDocRef = doc(db, "events", eventId);
-      await updateDoc(eventDocRef, {
-        details: content,
-        updatedAt: new Date().toISOString()
-      });
+      const result = await saveChanges(content);
       
-      if (saveChanges) {
-        saveChanges('details', content);
+      if (result.success) {
+        setIsEditing(false);
+      } else {
+        setError(result.error || "Error al guardar los detalles");
       }
-      
-      setIsEditing(false);
     } catch (error) {
       console.error("Error al actualizar los detalles:", error);
       setError("Ocurrió un error al guardar los cambios");

@@ -73,8 +73,7 @@ export function Professor({ speakers = [] }: { speakers?: Speaker[] }) {
                   </div>
                   <div>
                     <p className="text-white">
-                      Ingeniero Mecatrónico con especialidad en gestión y buenas
-                      practicas en proyectos y calidad de Software
+                      {speaker.occupation}
                     </p>
                   </div>
                 </div>

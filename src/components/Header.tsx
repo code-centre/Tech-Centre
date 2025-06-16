@@ -70,8 +70,12 @@ export default function Header() {
     .filter((course) => {
 
       const fechaActual = new Date()
+      fechaActual.setHours(0, 0, 0, 0);
+      
       const fechaCurso = new Date(course.date)
-      return fechaCurso > fechaActual && course.status === "published"
+      fechaCurso.setHours(0, 0, 0, 0);
+      
+      return fechaCurso >= fechaActual && course.status === "published"
     }) || []
 
   console.log("Diplomas:", diplomasInfo)
