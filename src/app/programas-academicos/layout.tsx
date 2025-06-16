@@ -35,7 +35,7 @@ export default function ProgramasAcademicosLayout({
           collection(db, "events"),
           where("slug", "==", slug),
           where("type", "==", "curso especializado"),
-          where("status", "==", "published")
+          where("status", "in", ["published", "draft"])
         );
         const eventsSnapshot = await getDocs(eventsQuery);
 

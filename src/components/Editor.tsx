@@ -56,7 +56,7 @@ const Editor: React.FC<EditorComponentProps> = ({ value, onChange, onSave, onCan
   }, [onChange])
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 text-black">
       <JoditEditor
         ref={editorRef}
         value={value}

@@ -25,8 +25,8 @@ export function Hero({ title, subtitle, date, heroImage }: Props) {
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
       {/* Content */}
       <div className="relative z-10 flex flex-col justify-center h-full w-full lg:w-1/2 px-6 py-10">
-        <div className="inline-flex items-center rounded-lg px-4 py-2 mb-8 bg-[#151e2e]/90">
-          <CalendarIcon className="w-5 h-5 mr-2 text-white" />
+        <div className="inline-flex w-60 items-center rounded-lg px-4 py-2 mb-8 bg-zinc-800/90">
+          <CalendarIcon className="w-5 h-5 mr-2 text-blueApp" />
           <span className="text-sm text-white font-medium">
             {new Date(date).toLocaleDateString('es-CO', {
               year: 'numeric',

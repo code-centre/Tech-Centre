@@ -6,32 +6,69 @@ import Image from 'next/image'
 import { formatDate } from '../../utils/formatDate'
 import { useEffect, useState } from 'react'
 
+interface EventFCA {
+  id: string
+  title?: string
+  name?: string
+  description?: string
+  image?: string
+  level?: string
+  duration?: string
+  instructor?: string
+  heroImage?: string
+  date?: string
+  slug?: string
+  status?: string
+  type?: string
+  [key: string]: any // Para cualquier otra propiedad que pueda tener el objeto
+}
+
 interface CourseCardProps {
-  title: string
-  description: string
-  image: string
-  level: string
+  title?: string
+  description?: string
+  image?: string
+  level?: string
   duration?: string
   instructor?: string
   heroImage?: string
   date?: string
   isShort?: boolean
-  slug: string
+  slug?: string
+  eventData?: EventFCA
+  isDraft?: boolean
 }
 
 export function CourseCard({
-  title,
-  description,
-  image,
-  level,
-  duration,
-  heroImage,
-  instructor,
-  date,
-  isShort,
-  slug,
+  title: propTitle,
+  description: propDescription,
+  image: propImage,
+  level: propLevel,
+  duration: propDuration,
+  heroImage: propHeroImage,
+  instructor: propInstructor,
+  date: propDate,
+  isShort: propIsShort,  slug: propSlug,
+  eventData,
+  isDraft: propIsDraft,
 }: CourseCardProps) {
   const [short, setShort] = useState(false)
+  
+  const title = eventData?.title || eventData?.name || propTitle || '';
+  const description = eventData?.description || propDescription || '';
+  const image = eventData?.image || propImage || '';
+  const level = eventData?.level || propLevel || 'BÁSICO';
+  const duration = eventData?.duration || propDuration || '';
+  const instructor = eventData?.instructor || propInstructor || '';
+  const heroImage = eventData?.heroImage || propHeroImage || '';
+  const date = eventData?.date || propDate || '';
+  const slug = eventData?.slug || propSlug || '';
+  const isShort = propIsShort || (eventData?.type === 'curso especializado');
+  
+
+  const isDraftStatus = propIsDraft || 
+                        eventData?.isDraft || 
+                        eventData?.status === 'draft' || 
+                        eventData?.status === 'Borrador';
 
   useEffect(() => {
     if (isShort) {
@@ -50,18 +87,26 @@ export function CourseCard({
             } text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-lg backdrop-blur-sm border border-white/10`}
         >
           {level}
-        </div>
+        </div>        
         {isShort && (
           <div className="absolute top-4 right-4 bg-gradient-to-r from-darkBlue to-blue-900 text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-lg backdrop-blur-sm border border-white/10">
             CURSO ESPECIALIZADO
           </div>
         )}
+        {isDraftStatus && (
+          <div className="absolute bottom-4 left-0 right-0 mx-auto w-max bg-amber-600 text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-lg backdrop-blur-sm border border-white/10 flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            BORRADOR
+          </div>
+        )}
         <div className="relative overflow-hidden">
           <Image
-            src={image}
+            src={image || '/placeholder.jpg'} 
             width={500}
             height={300}
-            alt={title}
+            alt={title || 'Curso'}
             className="w-full h-52 object-cover transition-transform duration-700 group-hover:scale-110"
           />
           {/* Overlay gradient para mejor legibilidad */}
@@ -76,9 +121,11 @@ export function CourseCard({
             </div>
             {formatDate(date)}
           </div>
-        )}
+        )}        
         <h3 className="text-xl font-bold text-white mb-1 line-clamp-2 group-hover:text-blueApp transition-colors duration-300">{title}</h3>
-        <div className="text-gray-300 mb-2 line-clamp-3 text-sm leading-relaxed">{HTMLReactParser(description)}</div>
+        <div className="text-gray-300 mb-2 line-clamp-3 text-sm leading-relaxed">
+          {typeof description === 'string' ? HTMLReactParser(description) : ''}
+        </div>
         {!isShort && (
           <div className="flex items-center text-gray-300 text-sm">
             <div className="bg-zinc-800 p-1.5 rounded-full mr-2 shadow-inner border border-zinc-700/40">

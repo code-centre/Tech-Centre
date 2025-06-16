@@ -20,7 +20,10 @@ export default function DetailCourse({ params }: Props) {
   useEffect(() => {
     async function checkContentType() {
       try {
-        const programsQuery = query(collection(db, "programs"), where("slug", "==", params.slug))
+        const programsQuery = query(
+          collection(db, "programs"),
+          where("slug", "==", params.slug)
+        )
         const programsSnapshot = await getDocs(programsQuery)
 
         if (!programsSnapshot.empty) {
@@ -33,7 +36,7 @@ export default function DetailCourse({ params }: Props) {
           collection(db, "events"),
           where("slug", "==", params.slug),
           where("type", "==", "curso especializado"),
-          where("status", "==", "published"),
+          where("status", "in", ["published", "draft"]),
         )
         const eventsSnapshot = await getDocs(eventsQuery)
 

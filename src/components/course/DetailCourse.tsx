@@ -8,6 +8,7 @@ import Hero from "./sections/Hero";
 import EsentialDetail from "./EsentialDetail";
 import Image from "next/image";
 import Loader from "../Loader";
+import useUserStore from "../../../store/useUserStore";
 
 interface Props {
   slug: string
@@ -16,6 +17,7 @@ interface Props {
 export default function DetailCourseComponent({ slug }: Props) {
   const [isLoading, setIsLoading] = useState(true)
   const [course, setCourse] = useState<any>(null);
+  const { user } = useUserStore();
 
   useEffect(() => {
     const q = query(collection(db, "programs"), where("slug", "==", slug));
