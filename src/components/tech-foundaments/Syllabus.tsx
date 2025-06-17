@@ -1,282 +1,157 @@
-'use client'
-import React, { useState } from 'react'
-import { BookOpen, EditIcon, Loader2, PlusCircle, Trash2 } from 'lucide-react'
-import HTMLReactParser from 'html-react-parser/lib/index'
-import Editor from '../Editor'
-import useUserStore from '../../../store/useUserStore'
-
-interface SyllabusModule {
-  id: string
-  title: string
-  content: string
-}
+import Editor from '@/components/Editor';
+import { ArrowDown, DownloadIcon } from 'lucide-react';
+// import Wrapper from '@/components/Wrapper';
+import Wrapper from '../Wrapper';
+import useUserStore from '../../../store/useUserStore';
+import React, { useState, useEffect } from 'react'
+import ButtonToEdit from '@/components/course/ButtonToEdit';
+import ContainerButtonsEdit from '@/components/course/ContainerButtonsEdit';
 
 interface Props {
-  syllabus?: SyllabusModule[]
-  eventId?: string
-  saveChanges?: (syllabus: SyllabusModule[]) => Promise<{success: boolean, error?: string}>
+  shortCourse: EventFCA,
+  saveChanges: (propertyName: string, content: any, index?: number) => void
 }
 
-export default function Syllabus({ syllabus = [], eventId, saveChanges }: Props) {
-  const [isEditing, setIsEditing] = useState<string | boolean>(false)
-  const [editingModule, setEditingModule] = useState<SyllabusModule | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState('')
+export default function Syllabus({ shortCourse, saveChanges }: Props) {
   const { user } = useUserStore()
+  const [updateSyllabus, setUpdateSyllabus] = useState(false)
+  const [updateModuleTitle, setUpdateModuleTitle] = useState(false)
+  const [syllabus, setSyllabus] = useState(shortCourse?.syllabus || [])
+  const [contentModuleTitle, setContentModuleTitle] = useState<string>('')
+  const [contentModuleTopic, setContentModuleTopic] = useState<string>('')
+  const [editingModuleIndex, setEditingModuleIndex] = useState<number | null | boolean>(null);
+  const [updateModuleTopic, setUpdateModuleTopic] = useState(false)
+  const [editingTopicIndex, setEditingTopicIndex] = useState<number | null | boolean>(null);  const [editedTopics, setEditedTopics] = useState<Record<number, string>>({});
   
-  const isAdmin = user?.rol === 'admin'
-  const hasSyllabus = syllabus && syllabus.length > 0
+  useEffect(() => {
+    if (shortCourse?.syllabus) {
+      setSyllabus(shortCourse.syllabus);
+    }
+  }, [shortCourse?.syllabus]);
 
-  const handleAddNew = () => {
-    const newId = `module-${Date.now()}`
-    setEditingModule({
-      id: newId,
-      title: '',
-      content: ''
-    })
-    setIsEditing('new')
-  }
-  
-  const handleEdit = (moduleId: string) => {
-    const module = syllabus.find(m => m.id === moduleId)
-    if (module) {
-      setEditingModule(module)
-      setIsEditing(moduleId)
-    }
-  }
-  
-  const handleSave = async () => {
-    if (!saveChanges || !editingModule) {
-      console.error("No hay función de guardado disponible o no hay módulo para guardar")
-      setError("No se puede guardar: Datos incompletos")
-      return
-    }
-    
-    try {
-      setIsSaving(true)
-      setError('')
-      
-      // Crear una copia actualizada del array de syllabus
-      let updatedSyllabus: SyllabusModule[]
-      
-      if (isEditing === 'new') {
-        // Añadir el nuevo módulo
-        updatedSyllabus = [...syllabus, editingModule]
-      } else {
-        // Actualizar un módulo existente
-        updatedSyllabus = syllabus.map(module => 
-          module.id === editingModule.id ? editingModule : module
-        )
-      }
-      
-      const result = await saveChanges(updatedSyllabus)
-      
-      if (result.success) {
-        setIsEditing(false)
-        setEditingModule(null)
-      } else {
-        setError(result.error || "Error al guardar el syllabus")
-      }
-    } catch (error) {
-      console.error("Error al guardar el syllabus:", error)
-      setError("Ocurrió un error inesperado")
-    } finally {
-      setIsSaving(false)
-    }
-  }
-  
-  const handleDelete = async (moduleId: string) => {
-    if (!saveChanges) {
-      console.error("No hay función de guardado disponible")
-      setError("No se puede eliminar: Función de guardado no disponible")
-      return
-    }
-    
-    try {
-      setIsSaving(true)
-      setError('')
-      
-      // Filtrar el módulo a eliminar
-      const updatedSyllabus = syllabus.filter(module => module.id !== moduleId)
-      
-      const result = await saveChanges(updatedSyllabus)
-      
-      if (!result.success) {
-        setError(result.error || "Error al eliminar el módulo")
-      }
-    } catch (error) {
-      console.error("Error al eliminar el módulo:", error)
-      setError("Ocurrió un error inesperado")
-    } finally {
-      setIsSaving(false)
-    }
-  }
-  
-  const moveModule = async (moduleId: string, direction: 'up' | 'down') => {
-    if (!saveChanges) {
-      console.error("No hay función de guardado disponible")
-      return
-    }
-    
-    const currentIndex = syllabus.findIndex(module => module.id === moduleId)
-    if (currentIndex === -1) return
-    
-    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
-    if (newIndex < 0 || newIndex >= syllabus.length) return
-    
-    try {
-      setIsSaving(true)
-      setError('')
-      
-      const updatedSyllabus = [...syllabus]
-      const temp = updatedSyllabus[currentIndex]
-      updatedSyllabus[currentIndex] = updatedSyllabus[newIndex]
-      updatedSyllabus[newIndex] = temp
-      
-      const result = await saveChanges(updatedSyllabus)
-      
-      if (!result.success) {
-        setError(result.error || `Error al mover el módulo ${direction === 'up' ? 'arriba' : 'abajo'}`)
-      }
-    } catch (error) {
-      console.error(`Error al mover el módulo ${direction === 'up' ? 'arriba' : 'abajo'}:`, error)
-      setError("Ocurrió un error inesperado")
-    } finally {
-      setIsSaving(false)
-    }
-  }
+  const addModules = () => {
+    if (!syllabus) {
+      setSyllabus([{ module: "", topics: [""] }]);
+    } else {
+      setSyllabus([...syllabus, { module: "", topics: [""] }]);
+    };
+    setEditingModuleIndex(syllabus.length);
+  };
 
-  return (
-    <div className="max-w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
-      {/* Header */}
-      <div className="p-6 text-white flex justify-between items-center">
-        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <BookOpen className="text-blueApp" size={24} />
-          Temario del curso
-        </h2>
-        {isAdmin && !isEditing && (
-          <button 
-            onClick={handleAddNew}
-            className="bg-blueApp hover:bg-blue-600 transition-colors p-2 rounded-full"
-          >
-            <PlusCircle className="w-4 h-4 text-white" />
-          </button>
-        )}
-      </div>
-      
-      {/* Contenido */}      
-      <div className="p-6">       
-         {typeof isEditing === 'string' ? (
-          <div className="space-y-4">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Título del módulo
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-md p-2 text-white"
-                  value={editingModule?.title || ''}
-                  onChange={e => setEditingModule(prev => prev ? {...prev, title: e.target.value} : null)}
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Contenido del módulo
-                </label>
-                <Editor
-                  value={editingModule?.content || ''}
-                  onChange={(content) => setEditingModule(prev => prev ? {...prev, content} : null)}
-                  onSave={handleSave}
-                  onCancel={() => {
-                    setIsEditing(false)
-                    setEditingModule(null)
-                  }}
-                />
-              </div>
-            </div>
-            
-            {error && (
-              <div className="p-2 bg-red-900/50 text-red-200 rounded-lg text-sm">
-                {error}
-              </div>
+    const addTopicModule = (index: number) => {
+      const newSyllabus = [...syllabus]
+      const syllabusToUpdate = newSyllabus[index].topics.push('')
+      setSyllabus(newSyllabus);
+
+    };
+
+    return (
+      <Wrapper styles="w-full max-w-6xl mx-auto">
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between mb-6">
+            <h2 className="text-3xl font-bold text-white">Temario</h2>
+            {shortCourse.pdf && (
+              <a
+                href={shortCourse.pdf}
+                download
+                className="border border-blueApp text-blueApp hover:bg-blueApp hover:text-white
+                transition-colors duration-300 flex items-center gap-1 px-4 py-1
+                rounded-full uppercase text-sm font-semibold"
+              >
+                Descargar <DownloadIcon />
+              </a>
             )}
           </div>
-        ): isSaving ? (
-          <div className="flex justify-center items-center py-10">
-            <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
-            <span className="ml-2 text-blue-500">Guardando cambios...</span>
-          </div>
-        ) : hasSyllabus ? (
-          <div className="space-y-8">
-            {syllabus.map((module, index) => (
-              <div key={module.id} className="border-b border-zinc-700 pb-6 last:border-0">
-                <div className="flex justify-between items-start">
-                  <h3 className="text-xl font-medium text-blueApp mb-3">
-                    Módulo {index + 1}: {module.title}
-                  </h3>
-                  {isAdmin && (
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => moveModule(module.id, 'up')} 
-                        disabled={index === 0}
-                        className={`text-gray-400 ${index > 0 ? 'hover:text-white' : 'opacity-50'}`}
-                      >
-                        ↑
-                      </button>
-                      <button
-                        onClick={() => moveModule(module.id, 'down')} 
-                        disabled={index === syllabus.length - 1}
-                        className={`text-gray-400 ${index < syllabus.length - 1 ? 'hover:text-white' : 'opacity-50'}`}
-                      >
-                        ↓
-                      </button>
-                      <button
-                        onClick={() => handleEdit(module.id)} 
-                        className="text-blue-500 hover:text-blue-400"
-                      >
-                        <EditIcon className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(module.id)} 
-                        className="text-red-500 hover:text-red-400"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+
+          <div className="flex flex-col gap-2">
+            {syllabus?.map((item: any, i: number) => (
+              <details key={i} className="group border-b border-grayApp pb-4">
+                <summary className="flex justify-between items-center font-medium cursor-pointer list-none">
+                  {editingModuleIndex === i ? (
+                    <input
+                      onChange={(e) => setSyllabus(prevOptions => {
+                        const newOptions = [...prevOptions];
+                        newOptions[i].module = e.target.value;
+                        return newOptions;
+                      })}
+                      className="border border-grayApp px-2 py-1 rounded-md w-full
+                      focus:border-blueApp focus:ring-2 focus:ring-blueApp/20
+                      transition-all duration-200"
+                      defaultValue={item.module}
+                    />
+                  ) : (
+                    <div className="flex gap-2 items-center">
+                      <h3 className="text-xl text-white">{item.module}</h3>
                     </div>
                   )}
-                </div>
-                <div className="text-gray-300 prose prose-invert max-w-none">
-                  {HTMLReactParser(module.content || '')}
-                </div>
-              </div>
+                  <div className="flex gap-2 items-center">
+                    <span className="group-open:rotate-180 transition-transform duration-300 text-blueApp">
+                      <ArrowDown />
+                    </span>
+                    {user?.rol === "admin" && (
+                      <ButtonToEdit startEditing={() => setEditingModuleIndex(i)} />
+                    )}
+                  </div>
+                </summary>
+
+                <ul className="list-disc marker:text-blueApp pl-5 flex flex-col gap-2 mt-2">
+                  {item.topics.map((topic: string, j: number) => (
+                    <div key={j} className="flex items-center gap-2">
+                      {editingModuleIndex === i ? (
+                        <input
+                          onChange={(e) => setSyllabus(prevOptions => {
+                            const newOptions = [...prevOptions];
+                            newOptions[i].topics[j] = e.target.value;
+                            return newOptions;
+                          })}
+                          className="border border-grayApp px-2 py-1 rounded-md w-full
+                          focus:border-blueApp focus:ring-2 focus:ring-blueApp/20
+                          transition-all duration-200"
+                          defaultValue={topic}
+                          type="text"
+                        />
+                      ) : (
+                        <li className="text-white">{topic}</li>
+                      )}
+                    </div>
+                  ))}
+                </ul>
+
+                {editingModuleIndex === i && (
+                  <div className="flex flex-col gap-3 mt-2">
+                    <button
+                      onClick={() => addTopicModule(i)}
+                      className="bg-blueApp text-white px-2 py-2 rounded-md 
+                      hover:bg-darkBlue transition-colors duration-300"
+                    >
+                      Agregar tema
+                    </button>
+                    <ContainerButtonsEdit
+                      onSave={() => {
+                        setEditingModuleIndex(false);
+                        const updatedTopics = item.topics.map((t: string, index: number) =>
+                          editedTopics[index] !== undefined ? editedTopics[index] : t
+                        );
+                        saveChanges('syllabus', syllabus);
+                      }}
+                      setFinishEdit={setEditingModuleIndex}
+                    />
+                  </div>
+                )}
+              </details>
             ))}
-            {error && (
-              <div className="p-2 mt-4 bg-red-900/50 text-red-200 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
           </div>
-        ) : (
-          <div className="py-8 text-center">
-            <div className="flex flex-col items-center gap-4">
-              <BookOpen className="h-12 w-12 text-zinc-500" />
-              <p className="text-zinc-400 text-lg">
-                Aún no hay información sobre el temario de este curso.
-              </p>
-              {isAdmin && (
-                <button 
-                  onClick={handleAddNew}
-                  className="mt-2 px-4 py-2 bg-blueApp hover:bg-blue-600 text-white rounded-lg transition-colors"
-                >
-                  Añadir temario
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+
+          {user?.rol === 'admin' && (
+            <button
+              onClick={addModules}
+              className="bg-blueApp text-white px-5 py-1.5 rounded-md mx-auto mt-3
+              hover:bg-darkBlue transition-colors duration-300 font-semibold w-fit"
+            >
+              Agregar
+            </button>
+          )}
+        </div>
+      </Wrapper>
+    );
+  }

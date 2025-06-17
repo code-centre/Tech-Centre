@@ -296,7 +296,7 @@ export default function SpeakersCreationModal({ eventId, onClose, onAddSpeaker, 
           </div>
           <button 
             onClick={onClose} 
-            className="h-8 w-8 rounded-full bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-white transition-colors"
+            className="h-8 w-8 rounded-full bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-white transition-colors cursor-pointer z-10"
           >
             <X className="w-5 h-5" />
           </button>

@@ -1,121 +1,79 @@
-'use client'
-import React, { useState } from 'react'
-import { GiftIcon, EditIcon, Loader2 } from 'lucide-react'
-import HTMLReactParser from 'html-react-parser/lib/index'
-import Editor from '../Editor'
-import useUserStore from '../../../store/useUserStore'
+import useUserStore from '../../../store/useUserStore';
+import React, { use, useState, useEffect } from 'react'
+import ContainerButtonsEdit from '../course/ContainerButtonsEdit';
+import ButtonToEdit from '../course/ButtonToEdit';
+import Image from 'next/image';
 
 interface Props {
-  benefits?: string
-  eventId?: string
-  saveChanges?: (content: string) => Promise<{success: boolean, error?: string}>
+  shortCourse: EventFCA,
+  saveChanges: (propertyName: string, content: any, index?: number) => void
 }
 
-export default function Benefits({ benefits, eventId, saveChanges }: Props) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [content, setContent] = useState(benefits || '')
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState('')
+export default function Benefits({ shortCourse, saveChanges }: Props) {
   const { user } = useUserStore()
-  
-  const isAdmin = user?.rol === 'admin'
-  const hasBenefits = benefits && benefits.trim() !== ''
-  
-  const handleSave = async () => {
-    if (!saveChanges) {
-      console.error("No hay función de guardado disponible")
-      setError("No se puede guardar: Función de guardado no disponible")
-      return
+  const [updateBenefits, setUpdateBenefits] = useState(false)
+  const [benefits, setBenefits] = useState(shortCourse.benefits || [])
+  const [content, setContent] = useState("");
+  const [editingBenefitIndex, setEditingBenefitIndex] = useState<number | null | boolean>(null);
+
+  useEffect(() => {
+    if (shortCourse?.benefits) {
+      setBenefits(shortCourse.benefits);
     }
-    
-    try {
-      setIsSaving(true)
-      setError('')
-      
-      const result = await saveChanges(content)
-      
-      if (result.success) {
-        setIsEditing(false)
-      } else {
-        setError(result.error || "Error al guardar los beneficios")
-      }
-    } catch (error) {
-      console.error("Error al guardar los beneficios:", error)
-      setError("Ocurrió un error inesperado")
-    } finally {
-      setIsSaving(false)
+  }, [shortCourse?.benefits]);
+
+  const addNewBenefit = () => {
+    if (!benefits) {
+      setBenefits([""]);
+    } else {
+      setBenefits([...benefits, ""]);
     }
-  }
+  };
 
   return (
-    <div className="max-w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
-      {/* Header with gradient */}
-      <div className="p-6 text-white flex justify-between items-center">
-        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <GiftIcon className="text-blueApp" size={24} />
-          Beneficios del curso
-        </h2>
-        {isAdmin && !isEditing && (
-          <button 
-            onClick={() => setIsEditing(true)}
-            className="bg-blueApp hover:bg-blue-600 transition-colors p-2 rounded-full"
-          >
-            <EditIcon className="w-4 h-4 text-white" />
-          </button>
-        )}
+    <section className="min-h-[50vh]">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 gap-10 py-5 items-center px-4">
+        <div className="flex flex-col gap-6 lg:gap-10">
+          <h2 className="text-3xl lg:text-5xl font-bold text-blueApp text-balance">¿Cuales son los beneficios de tomar <span className="text-white">este diplomado?</span></h2>
+          <p className="text-lg font-semibold text-white">Somos pioneros en inteligencia artificial y
+            tecnologías de vanguardia en la Costa. </p>
+          <ul className="list-disc marker:text-[#00A1F9]  pl-8 flex flex-col gap-5  ">
+            {benefits.map((benefit: any, i: number) => (
+              <>
+                {
+                  editingBenefitIndex === i
+                    ? <div className="flex flex-col gap-2">
+                      <textarea onChange={(e) => setBenefits(prevOptions => {
+                        const newOptions = [...prevOptions];
+                        newOptions[i] = e.target.value;
+                        return newOptions;
+                      })} defaultValue={benefit} className="border p-2"></textarea>
+                      <ContainerButtonsEdit
+                        setFinishEdit={setEditingBenefitIndex}
+                        onSave={() => {
+                          saveChanges('benefits', benefits)
+                          setEditingBenefitIndex(null)
+                        }} />
+                    </div>
+                    : <div className="flex items-center gap-2 text-white" key={benefit}>
+                      <li key={i}>{benefit}</li>
+
+                      {
+                        user?.rol === 'admin' &&
+                        <ButtonToEdit startEditing={() => setEditingBenefitIndex(i)} />
+                      }
+                    </div>
+                }
+              </>
+            ))}
+          </ul>
+          {user?.rol === 'admin' &&
+            <button onClick={addNewBenefit} className='bg-blueApp px-5 font-semibold rounded-md mx-auto py-1 text-white w-fit'>Agregar</button>
+          }
+        </div>
+        {/* <img className="hidden lg:block mask" src="/image-benefits.png" alt="" /> */}
+        {/* <Image width={405} height={520} className="hidden lg:block mask" src="/image-benefits.png" alt="" /> */}
       </div>
-      
-      {/* Contenido */}      
-      <div className="p-6">       
-         {isEditing ? (
-          <div className="space-y-4">
-            <Editor
-              value={content}
-              onChange={(newContent) => setContent(newContent)}
-              onSave={handleSave}
-              onCancel={() => setIsEditing(false)}
-            />
-            {error && (
-              <div className="p-2 bg-red-900/50 text-red-200 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-          </div>
-        ): isSaving ? (
-          <div className="flex justify-center items-center py-10">
-            <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
-            <span className="ml-2 text-blue-500">Guardando beneficios...</span>
-          </div>
-        ) : hasBenefits ? (
-          <div className="prose prose-invert max-w-none">
-            <div className="text-gray-300 leading-relaxed prose-headings:text-blueApp prose-a:text-blue-400">
-              {HTMLReactParser(benefits || '')}
-            </div>
-            {error && (
-              <div className="p-2 mt-4 bg-red-900/50 text-red-200 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="py-8 text-center">
-            <div className="flex flex-col items-center gap-4">
-              <GiftIcon className="h-12 w-12 text-zinc-500" />
-              <p className="text-zinc-400 text-lg">
-                Aún no hay información sobre los beneficios de este curso.
-              </p>
-              {isAdmin && (
-                <button 
-                  onClick={() => setIsEditing(true)}
-                  className="mt-2 px-4 py-2 bg-blueApp hover:bg-blue-600 text-white rounded-lg transition-colors"
-                >
-                  Añadir beneficios
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+    </section>
   )
 }

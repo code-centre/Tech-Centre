@@ -103,7 +103,10 @@ interface EventFCA {
   startHour: string
   status: string
   subtitle: string
+  pdf: string
   tickets: Ticket[]
+  syllabus: Syllabus[]
+  benefits: Array<string>
   title: string
   type: string
 }
