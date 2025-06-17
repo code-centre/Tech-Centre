@@ -363,7 +363,7 @@ export default function TechFoundamentsContainer({ slug }: Props) {
                 <GraduationCap className="w-6 h-6 text-blueApp" />
               </div>
               <span className="text-sm font-medium text-white mb-1">Tipo de curso</span>
-              <span className="text-xs text-white font-semibold">{shortCourse?.type}</span>
+              <span className="text-xs text-white font-semibold">{shortCourse?.type.charAt(0).toUpperCase() + shortCourse?.type.slice(1)}</span>
             </div>
             <div className="flex flex-col items-center text-center p-4 bg-zinc-600 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
               <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center mb-3">
