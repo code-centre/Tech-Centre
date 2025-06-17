@@ -22,10 +22,9 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
   const { user } = useUserStore()
   console.log(user);
   
-
   return (
-    <div className="bg-background backdrop-blur-sm">
-      <div className="max-w-7xl mx-10 px-4 py-12">
+    <div className="bg-background backdrop-blur-sm overflow-x-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
         <div className="flex gap-12 mb-16">
           {/* Main Content */}

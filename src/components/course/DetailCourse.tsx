@@ -106,7 +106,7 @@ export default function DetailCourseComponent({ slug }: Props) {
       console.error(`Error actualizando ${propertyName}:`, error);
     }
   }; return (
-    <main className="relative mt-20 mx-15">
+    <main className="relative mt-20 lg:mx-15">
       {/* Background Image with proper sizing */}
       {/* <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
