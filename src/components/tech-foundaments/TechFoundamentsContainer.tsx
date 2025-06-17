@@ -6,7 +6,7 @@ import { Description } from './Description'
 import { Tickets } from './Tickets'
 import { useCollection } from 'react-firebase-hooks/firestore'
 import { db } from '../../../firebase'
-import { where, collection, query, getDocs, doc, updateDoc, serverTimestamp, onSnapshot, getDoc, deleteDoc} from 'firebase/firestore'
+import { where, collection, query, getDocs, doc, updateDoc, serverTimestamp, onSnapshot, getDoc, deleteDoc } from 'firebase/firestore'
 import LocationContainer from './LocationContainer'
 import Details from './Details'
 import Benefits from './Benefits'
@@ -15,6 +15,7 @@ import Syllabus from './Syllabus'
 import { ProfessorContainer } from './ProfessorContainer'
 import { useRouter } from 'next/navigation'
 import { log } from 'console'
+import { GraduationCap, CalendarClock, Network, Clock } from 'lucide-react';
 
 interface Props {
   slug: string
@@ -96,11 +97,11 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   useEffect(() => {
     const loadTickets = async () => {
       if (!shortCourse?.id) return;
-      
+
       try {
         const eventDocRef = doc(db, "events", shortCourse.id);
         const eventSnap = await getDoc(eventDocRef);
-        
+
         if (eventSnap.exists()) {
           const eventData = eventSnap.data();
           const ticketsData = (eventData?.tickets || []).map((ticket: any) => ({
@@ -112,7 +113,7 @@ export default function TechFoundamentsContainer({ slug }: Props) {
             type: ticket.type ?? 'general',
             description: ticket.description ?? '',
           }));
-          
+
           console.log("Tickets cargados:", ticketsData);
           setTickets(ticketsData);
         }
@@ -120,7 +121,7 @@ export default function TechFoundamentsContainer({ slug }: Props) {
         console.error("Error al cargar tickets:", error);
       }
     };
-    
+
     loadTickets();
   }, [shortCourse]);
 
@@ -138,9 +139,9 @@ export default function TechFoundamentsContainer({ slug }: Props) {
       console.error("No se encontró el ID del curso");
       return;
     }
-      const eventsDocRef = doc(db, "events", currentId);
+    const eventsDocRef = doc(db, "events", currentId);
     const programSnapshot = await getDoc(eventsDocRef);
-    
+
     // Actualizar tickets solo si estamos modificando la propiedad tickets
     if (propertyName === 'tickets') {
       const ticketsSnapshot = (programSnapshot.data()?.tickets || []).map((ticket: any) => ({
@@ -202,149 +203,150 @@ export default function TechFoundamentsContainer({ slug }: Props) {
     } catch (error) {
       console.error(`Error actualizando ${propertyName}:`, error);
     }
-  }; [shortCourse]
+  };[shortCourse]
 
- const eventId = shortCourse?.id || ''
+  const eventId = shortCourse?.id || ''
 
- const saveSpeakersData = async (speakers: any[]) => {
-  if (!eventId) {
-    console.error("No se encontró el ID del evento");
-    return { success: false, error: "No se encontró el ID del evento" };
-  }
-  
-  try {
-    const speakersRef = collection(db, "events", eventId, "speakers");
-    const updateTeachers = speakers.map(async (speaker) => {
-      try {
-        const speakerDocRef = doc(speakersRef, speaker.id);
-        await updateDoc(speakerDocRef, {
-          ...speaker,
-          updatedAt: serverTimestamp(),
-        });
-      }
-      catch (error) {
-        console.error("Error actualizando el profesor:", error);
-        throw error;
-      }
-    })
-    await Promise.all(updateTeachers);
-    return { success: true };
-  } catch (error) {
-    console.error("Error actualizando speakers:", error);
-    return { success: false, error: "Error actualizando speakers" };  }
-};
-
-const handleDeleteSpeaker = async (speakerId: string) => {
-  if (!shortCourse?.id) {
-    console.error("No se encontró el ID del evento");
-    return;
-  }
-  try {
-    const speakerDocRef = doc(db, "events", shortCourse.id, "speakers", speakerId);
-    await deleteDoc(speakerDocRef);
-    setTeacher(prevTeachers => prevTeachers.filter(t => t.id !== speakerId));
-    setProfesorData(prevSpeakers => prevSpeakers.filter(speaker => speaker.id !== speakerId));
-  } catch (error) {
-    console.error("Error eliminando el speaker:", error);
-  }
-}
-
-// Función para guardar cambios en los tickets
-const saveTicketData = async (updatedTicket: any, oldTicket?: any) => {
-  if (!shortCourse?.id) {
-    console.error("No se encontró el ID del evento");
-    return { success: false, error: "No se encontró el ID del evento" };
-  }
-
-  try {
-    const eventDocRef = doc(db, "events", shortCourse.id);
-    const eventSnap = await getDoc(eventDocRef);
-    
-    if (!eventSnap.exists()) {
-      console.error("El evento no existe");
-      return { success: false, error: "El evento no existe" };
+  const saveSpeakersData = async (speakers: any[]) => {
+    if (!eventId) {
+      console.error("No se encontró el ID del evento");
+      return { success: false, error: "No se encontró el ID del evento" };
     }
 
-    const eventData = eventSnap.data();
-    let updatedTickets = [...(eventData.tickets || [])];
-    
-    if (oldTicket) {
-      // Si tenemos un ticket anterior, lo reemplazamos con el actualizado
-      const index = updatedTickets.findIndex(t => 
-        t.title === oldTicket.title && 
-        t.price === oldTicket.price && 
-        t.type === oldTicket.type
-      );
-      
-      if (index !== -1) {
-        updatedTickets[index] = updatedTicket;
+    try {
+      const speakersRef = collection(db, "events", eventId, "speakers");
+      const updateTeachers = speakers.map(async (speaker) => {
+        try {
+          const speakerDocRef = doc(speakersRef, speaker.id);
+          await updateDoc(speakerDocRef, {
+            ...speaker,
+            updatedAt: serverTimestamp(),
+          });
+        }
+        catch (error) {
+          console.error("Error actualizando el profesor:", error);
+          throw error;
+        }
+      })
+      await Promise.all(updateTeachers);
+      return { success: true };
+    } catch (error) {
+      console.error("Error actualizando speakers:", error);
+      return { success: false, error: "Error actualizando speakers" };
+    }
+  };
+
+  const handleDeleteSpeaker = async (speakerId: string) => {
+    if (!shortCourse?.id) {
+      console.error("No se encontró el ID del evento");
+      return;
+    }
+    try {
+      const speakerDocRef = doc(db, "events", shortCourse.id, "speakers", speakerId);
+      await deleteDoc(speakerDocRef);
+      setTeacher(prevTeachers => prevTeachers.filter(t => t.id !== speakerId));
+      setProfesorData(prevSpeakers => prevSpeakers.filter(speaker => speaker.id !== speakerId));
+    } catch (error) {
+      console.error("Error eliminando el speaker:", error);
+    }
+  }
+
+  // Función para guardar cambios en los tickets
+  const saveTicketData = async (updatedTicket: any, oldTicket?: any) => {
+    if (!shortCourse?.id) {
+      console.error("No se encontró el ID del evento");
+      return { success: false, error: "No se encontró el ID del evento" };
+    }
+
+    try {
+      const eventDocRef = doc(db, "events", shortCourse.id);
+      const eventSnap = await getDoc(eventDocRef);
+
+      if (!eventSnap.exists()) {
+        console.error("El evento no existe");
+        return { success: false, error: "El evento no existe" };
+      }
+
+      const eventData = eventSnap.data();
+      let updatedTickets = [...(eventData.tickets || [])];
+
+      if (oldTicket) {
+        // Si tenemos un ticket anterior, lo reemplazamos con el actualizado
+        const index = updatedTickets.findIndex(t =>
+          t.title === oldTicket.title &&
+          t.price === oldTicket.price &&
+          t.type === oldTicket.type
+        );
+
+        if (index !== -1) {
+          updatedTickets[index] = updatedTicket;
+        } else {
+          console.error("No se encontró el ticket a actualizar");
+          return { success: false, error: "No se encontró el ticket a actualizar" };
+        }
       } else {
-        console.error("No se encontró el ticket a actualizar");
-        return { success: false, error: "No se encontró el ticket a actualizar" };
+        // Si no hay ticket anterior, agregamos uno nuevo
+        updatedTickets.push(updatedTicket);
       }
-    } else {
-      // Si no hay ticket anterior, agregamos uno nuevo
-      updatedTickets.push(updatedTicket);
+
+      await updateDoc(eventDocRef, {
+        tickets: updatedTickets,
+        updatedAt: serverTimestamp()
+      });
+
+      // Actualizar el estado local de tickets
+      setTickets(updatedTickets);
+
+      console.log("Ticket actualizado/creado correctamente:", updatedTicket);
+      return { success: true };
+
+    } catch (error) {
+      console.error("Error actualizando el ticket:", error);
+      return { success: false, error: "Error actualizando el ticket" };
     }
-    
-    await updateDoc(eventDocRef, {
-      tickets: updatedTickets,
-      updatedAt: serverTimestamp()
-    });
-    
-    // Actualizar el estado local de tickets
-    setTickets(updatedTickets);
-    
-    console.log("Ticket actualizado/creado correctamente:", updatedTicket);
-    return { success: true };
-    
-  } catch (error) {
-    console.error("Error actualizando el ticket:", error);
-    return { success: false, error: "Error actualizando el ticket" };
-  }
-};
+  };
 
-// Función para eliminar un ticket
-const deleteTicketData = async (ticketToDelete: any) => {
-  if (!shortCourse?.id) {
-    console.error("No se encontró el ID del evento");
-    return { success: false, error: "No se encontró el ID del evento" };
-  }
-
-  try {
-    const eventDocRef = doc(db, "events", shortCourse.id);
-    const eventSnap = await getDoc(eventDocRef);
-    
-    if (!eventSnap.exists()) {
-      console.error("El evento no existe");
-      return { success: false, error: "El evento no existe" };
+  // Función para eliminar un ticket
+  const deleteTicketData = async (ticketToDelete: any) => {
+    if (!shortCourse?.id) {
+      console.error("No se encontró el ID del evento");
+      return { success: false, error: "No se encontró el ID del evento" };
     }
 
-    const eventData = eventSnap.data();
-    const updatedTickets = (eventData.tickets || []).filter((ticket: any) => 
-      ticket.title !== ticketToDelete.title || 
-      ticket.price !== ticketToDelete.price || 
-      ticket.type !== ticketToDelete.type
-    );
-    
-    await updateDoc(eventDocRef, {
-      tickets: updatedTickets,
-      updatedAt: serverTimestamp()
-    });
-    
-    // Actualizar el estado local de tickets
-    setTickets(updatedTickets);
-    
-    console.log("Ticket eliminado correctamente");
-    return { success: true };
-    
-  } catch (error) {
-    console.error("Error eliminando el ticket:", error);
-    return { success: false, error: "Error eliminando el ticket" };
-  }
-};
+    try {
+      const eventDocRef = doc(db, "events", shortCourse.id);
+      const eventSnap = await getDoc(eventDocRef);
 
-return (
+      if (!eventSnap.exists()) {
+        console.error("El evento no existe");
+        return { success: false, error: "El evento no existe" };
+      }
+
+      const eventData = eventSnap.data();
+      const updatedTickets = (eventData.tickets || []).filter((ticket: any) =>
+        ticket.title !== ticketToDelete.title ||
+        ticket.price !== ticketToDelete.price ||
+        ticket.type !== ticketToDelete.type
+      );
+
+      await updateDoc(eventDocRef, {
+        tickets: updatedTickets,
+        updatedAt: serverTimestamp()
+      });
+
+      // Actualizar el estado local de tickets
+      setTickets(updatedTickets);
+
+      console.log("Ticket eliminado correctamente");
+      return { success: true };
+
+    } catch (error) {
+      console.error("Error eliminando el ticket:", error);
+      return { success: false, error: "Error eliminando el ticket" };
+    }
+  };
+
+  return (
     <div className="text-white w-full mt-20 mx-20">
       <main className="max-w-7xl flex flex-col mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <Hero
@@ -353,25 +355,73 @@ return (
           subtitle={shortCourse?.subtitle || ''}
           heroImage={shortCourse?.heroImage || ''}
           saveChanges={saveChanges}
-        />        
+        />
+        <div className="bg-bgCard backdrop-blur-sm p-8 rounded-2xl border border-blue-100/20 shadow-lg">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="flex flex-col items-center text-center p-4 bg-zinc-600 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
+              <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center mb-3">
+                <GraduationCap className="w-6 h-6 text-blueApp" />
+              </div>
+              <span className="text-sm font-medium text-white mb-1">Tipo de curso</span>
+              <span className="text-xs text-white font-semibold">{shortCourse?.type}</span>
+            </div>
+            <div className="flex flex-col items-center text-center p-4 bg-zinc-600 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
+              <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center mb-3">
+                <CalendarClock className="w-6 h-6 text-blueApp" />
+              </div>
+              <span className="text-sm font-medium text-white mb-1">Duración</span>
+              <span className="text-xs text-white font-semibold">{shortCourse?.duration || 'Por definir'}</span>
+            </div>
+            <div className="flex flex-col items-center text-center p-4 bg-zinc-600 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
+              <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center mb-3">
+                <Network className="w-6 h-6 text-blueApp" />
+              </div>
+              <span className="text-sm font-medium text-white mb-1">Dificultad</span>
+              <span className="text-xs text-white font-semibold">
+                {shortCourse?.level || 'Básico'}
+              </span>
+            </div>
+            <div className="flex flex-col items-center text-center p-4 bg-zinc-600 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
+              <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center mb-3">
+                <Clock className="w-6 h-6 text-blueApp" />
+              </div>
+              <span className="text-sm font-medium text-white mb-1">Dedicación</span>
+              <span className="text-xs text-white font-semibold">{shortCourse?.hours || 'Por definir'}</span>
+            </div>
+          </div>
+          {shortCourse?.user?.rol === 'admin' && (
+            <div className="mt-4">
+              <button
+                onClick={() => saveChanges('name', shortCourse?.title)}
+                className="px-4 py-2 bg-blueApp text-white rounded-lg hover:bg-blueApp/80 transition-colors"
+              >
+                Guardar Cambios
+              </button>
+            </div>
+          )}
+        </div>
         <Description
-        saveChanges={saveChanges}
-        shortCourse={shortCourse || {}}
+          saveChanges={saveChanges}
+          shortCourse={shortCourse || {}}
         />
         <div className="gap-10 mt-12">
           <div className="flex flex-col gap-8">
-            {shortCourse && (
-              <LocationContainer
-                location={shortCourse?.location || ''}
-              />
-            )}
-            <div id="aprenderas" className="bg-transparent">             
-               <Details
+
+            <div id="aprenderas" className="bg-transparent">
+              <Details
                 shortCourse={shortCourse || {}}
                 saveChanges={saveChanges}
-              />  
-            </div>            
-            <div id="syllabus" className="bg-transparent">
+              />
+            </div>
+            <div className="justify-center flex items-center w-full">
+              <ProfessorContainer
+                speakers={profesorData}
+                eventId={eventId}
+                saveSpeakers={saveSpeakersData}
+                onDeleteSpeaker={handleDeleteSpeaker}
+              />
+            </div>
+            <div id="programa" className="bg-transparent">
               <Syllabus
                 shortCourse={shortCourse || {}}
                 saveChanges={saveChanges}
@@ -379,21 +429,7 @@ return (
             </div>
           </div>
           <div className="flex flex-col gap-8">
-            <div className="justify-center flex items-center w-full">
-              <ProfessorContainer
-                speakers={profesorData}
-                eventId={eventId}
-                saveSpeakers={saveSpeakersData}
-                onDeleteSpeaker={handleDeleteSpeaker} 
-              />
-            </div>
-            <div id="benefits" className="bg-transparent">
-              <Benefits
-                shortCourse={shortCourse || {}}
-                saveChanges={saveChanges}
-              />
-            </div>
-            <div id="precios" className="flex items-center justify-center p-8">              
+            <div id="precios" className="flex items-center justify-center p-8">
               <Tickets
                 tickets={tickets || []}
                 eventId={eventId}
@@ -403,11 +439,22 @@ return (
                 saveChanges={saveChanges}
               />
             </div>
-            <div id="faqs" className="bg-transparent">
+            <div id="beneficios" className="bg-transparent">
+              <Benefits
+                shortCourse={shortCourse || {}}
+                saveChanges={saveChanges}
+              />
+            </div>
+            <div id="preguntas" className="bg-transparent">
               <FAQs
                 shortCourse={shortCourse || {}}
                 saveChanges={saveChanges}
               />
+              {shortCourse && (
+                <LocationContainer
+                  location={shortCourse?.location || ''}
+                />
+              )}
             </div>
           </div>
         </div>
