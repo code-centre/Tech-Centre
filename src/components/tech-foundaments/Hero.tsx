@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import { CalendarIcon, EditIcon } from 'lucide-react'
 import Image from 'next/image'
+import useUserStore from '../../../store/useUserStore'
 
 interface Props {
   title: string
@@ -17,6 +18,7 @@ export function Hero({ title, subtitle, date, heroImage, saveChanges }: Props) {
   const [heroTitle, setHeroTitle] =  useState(title || '')
   const [heroSubtitle, setHeroSubtitle] = useState(subtitle || '')
   const [heroDate, setHeroDate] = useState(date || '')
+  const { user } = useUserStore()
   
   useEffect(() => {
     setHeroTitle(title || '');
@@ -39,7 +41,7 @@ export function Hero({ title, subtitle, date, heroImage, saveChanges }: Props) {
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
       {/* Content */}
       <div className="relative z-10 flex flex-col justify-center h-full w-full lg:w-1/2 px-6 py-10">        
-      <div className="inline-flex items-center rounded-lg px-4 py-2 mb-8 bg-zinc-800/90">
+      <div className="inline-flex items-center rounded-lg px-4 py-2 mb-8 bg-zinc-800/90 w-60">
           <CalendarIcon className="w-5 h-5 mr-2 text-blueApp" />
           {isEditingDate ? (
             <div className="flex items-center">
@@ -81,7 +83,7 @@ export function Hero({ title, subtitle, date, heroImage, saveChanges }: Props) {
                   day: 'numeric',
                 }) : 'Fecha no establecida'}
               </span>
-              {saveChanges && (
+              {saveChanges && user?.rol === 'admin' && (
                 <button 
                   className="ml-2 bg-blue-600 p-1 rounded hover:bg-blue-700"
                   onClick={() => setIsEditingDate(true)}
@@ -131,7 +133,7 @@ export function Hero({ title, subtitle, date, heroImage, saveChanges }: Props) {
             <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg flex-grow">
               {title || 'Sin título'}
             </h1>
-            {saveChanges && (
+            {saveChanges && user?.rol === 'admin' && (
               <button
                 className="ml-3 bg-blue-600 p-2 rounded hover:bg-blue-700 self-start"
                 onClick={() => setIsEditingTitle(true)}
@@ -140,7 +142,8 @@ export function Hero({ title, subtitle, date, heroImage, saveChanges }: Props) {
               </button>
             )}
           </div>
-        )}        {isEditingSubtitle ? (
+        )}        
+        {isEditingSubtitle ? (
           <div className="flex flex-col mb-4">
             <input
               type="text"
@@ -179,7 +182,7 @@ export function Hero({ title, subtitle, date, heroImage, saveChanges }: Props) {
             <h2 className="text-2xl md:text-3xl font-medium text-white drop-shadow flex-grow">
               {subtitle || 'Sin subtítulo'}
             </h2>
-            {saveChanges && (
+            {saveChanges && user?.rol === 'admin' && (
               <button
                 className="ml-3 bg-blue-600 p-2 rounded hover:bg-blue-700 self-start"
                 onClick={() => setIsEditingSubtitle(true)}

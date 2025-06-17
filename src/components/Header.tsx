@@ -71,10 +71,10 @@ export default function Header() {
 
       const fechaActual = new Date()
       fechaActual.setHours(0, 0, 0, 0);
-      
+
       const fechaCurso = new Date(course.date)
       fechaCurso.setHours(0, 0, 0, 0);
-      
+
       return fechaCurso >= fechaActual && course.status === "published"
     }) || []
 
@@ -236,7 +236,7 @@ export default function Header() {
                   <div className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200">
                     <div className="flex flex-col">
                       <span className="text-white font-medium text-sm group-hover:text-blue-100 transition-colors">
-                        Hola, { user.name }
+                        Hola, {user.name}
                       </span>
                       <span className="text-xs text-white/80 group-hover:text-blue-200 transition-colors">
                         Ver perfil
@@ -256,41 +256,43 @@ export default function Header() {
             </div>
           ) : (
             <>
-              <Link
-                href="/registro"
-                className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blueApp hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+              <div className="gap-0 flex items-center justify-end space-x-4 lg:space-x-6">
+                <Link
+                  href="/registro"
+                  className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blueApp hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                   rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300
                   hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
-              >
-                <span className="absolute inset-0 bg-blueApp opacity-0 
+                >
+                  <span className="absolute inset-0 bg-blueApp opacity-0 
                       group-hover:opacity-100 transition-opacity duration-300"></span>
-                <span className="relative">
-                  Registrarse
-                </span>
-                <svg
-                  className="w-4 h-4 ml-2 -mr-1 transition-transform duration-300 transform hover:translate-x-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </Link>
-              <div className="hidden lg:flex items-center space-x-6 animate-fade-in animate-delay-300">
-                <Link
-                  href="/iniciar-sesion"
-                  className="relative px-4 py-2 text-white font-medium group overflow-hidden"
-                >
-                  <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
-                    Iniciar sesión
+                  <span className="relative">
+                    Registrarse
                   </span>
-                  <div className="absolute inset-0 bg-blueApp transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
+                  <svg
+                    className="w-4 h-4 ml-2 -mr-1 transition-transform duration-300 transform hover:translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
                 </Link>
+                <div className="hidden lg:flex items-center space-x-6 animate-fade-in animate-delay-300">
+                  <Link
+                    href="/iniciar-sesion"
+                    className="relative px-4 py-2 text-white font-medium group overflow-hidden"
+                  >
+                    <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
+                      Iniciar sesión
+                    </span>
+                    <div className="absolute inset-0 bg-blueApp transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
+                  </Link>
+                </div>
               </div>
             </>
           )}

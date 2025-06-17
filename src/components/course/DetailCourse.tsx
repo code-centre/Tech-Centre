@@ -106,7 +106,7 @@ export default function DetailCourseComponent({ slug }: Props) {
       console.error(`Error actualizando ${propertyName}:`, error);
     }
   }; return (
-    <main className="min-h-screen relative">
+    <main className="relative mt-20 mx-15">
       {/* Background Image with proper sizing */}
       {/* <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
@@ -121,7 +121,7 @@ export default function DetailCourseComponent({ slug }: Props) {
         <Loader />
       )
         : course ? (
-          <div className="relative z-10 flex flex-col gap-10 pt-20 pb-20">
+          <div className="relative z-10 flex flex-col gap-10 pb-20">
             <Hero
               course={course}
               newDetail={true}

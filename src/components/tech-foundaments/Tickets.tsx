@@ -3,6 +3,7 @@ import { ClockIcon, BookOpenIcon, MessageCircleIcon, CalendarIcon, MapPinIcon, E
 import Link from 'next/link'
 import PaymentEventCard from './PaymentEventCard'
 import PricingCardCreationModal from './PricingCardCreationModal'
+import useUserStore from '../../../store/useUserStore';
 
 interface Ticket {
   type: string
@@ -38,6 +39,7 @@ export function Tickets({ tickets, eventId, eventSlug, saveChanges, saveTicketDa
   const [editedDescription, setEditedDescription] = useState('');
   const [editedPrice, setEditedPrice] = useState(0);
   const [editedBenefits, setEditedBenefits] = useState<string[]>([]);
+  const { user } = useUserStore();
   
 useEffect(() => {
   if(tickets && tickets.length > 0)
@@ -64,7 +66,8 @@ useEffect(() => {
   if (!tickets || tickets.length === 0) {
     return (
       <div className="p-6 text-center text-white bg-zinc-800 rounded-xl flex flex-col items-center">
-        <p className="mb-4">No hay tickets disponibles para este evento.</p>        {eventId && saveTicketData && (
+        <p className="mb-4">No hay tickets disponibles para este evento.</p>       
+         {eventId && saveTicketData && (
           <button 
             onClick={() => openTicketModal(true)}
             className="flex items-center gap-2 px-4 py-2 bg-blueApp hover:bg-blue-600 text-white rounded-md transition-colors"
@@ -74,7 +77,7 @@ useEffect(() => {
           </button>
         )}
       </div>
-    );
+    );  
   }
 
   const currentTicket = tickets[selectedTicket];
@@ -125,7 +128,7 @@ useEffect(() => {
       ) : (
         <div className="w-full items-center flex justify-center flex-col">
           <div className="flex justify-between items-center mb-4">
-            {eventId && (
+            {eventId && user?.rol === 'admin' && (
               <button 
                 onClick={toggleEditMode}
                 className="px-4 py-2 bg-zinc-800 text-white rounded-md hover:bg-zinc-700 transition-colors"
@@ -133,7 +136,7 @@ useEffect(() => {
                 Ver todos los tickets
               </button>
             )}
-            {eventId && saveTicketData && (
+            {eventId && saveTicketData && user?.rol === 'admin' && (
               <div className="flex gap-2">
                 <button 
                   onClick={handleCreateTicket}
@@ -156,11 +159,11 @@ useEffect(() => {
           <div className="max-w-xl w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
             {/* Header with gradient */}            
             <div className="bg-gradient-to-br from-bgCard via-zinc-700 to-zinc-900 p-6 text-white">
-              {isEditingTitle && saveChanges ? (
+              {isEditingTitle && saveChanges && user?.rol === 'admin' ? (
                 <div className="flex flex-col mb-2">
                   <input
                     type="text"
-                    value={editedTitle}
+                    value={editedTitle} 
                     onChange={(e) => setEditedTitle(e.target.value)}
                     className="text-xl font-bold bg-zinc-800/80 text-white px-3 py-2 rounded mb-2"
                     placeholder="Título del ticket"
@@ -204,7 +207,7 @@ useEffect(() => {
                   <h2 className="text-2xl font-bold mb-1 tracking-tight flex-grow">
                     {currentTicket.ticketName || currentTicket.title || currentTicket.name || 'Sin título'}
                   </h2>
-                  {saveChanges && (
+                  {saveChanges && user?.rol === 'admin' && (
                     <button
                       className="ml-3 bg-blue-600 p-1 rounded hover:bg-blue-700 self-start"
                       onClick={() => setIsEditingTitle(true)}
@@ -254,7 +257,7 @@ useEffect(() => {
                   </div>
                   <span className="font-medium text-white text-base">Tipo</span>
                 </div>
-                {isEditingType && saveChanges ? (
+                {isEditingType && saveChanges && user?.rol === 'admin' ? (
                   <div className="flex items-center">
                     <input 
                       type="text" 
@@ -298,7 +301,7 @@ useEffect(() => {
                     <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-blueApp/20 transition-colors">
                       {currentTicket?.type || "General"}
                     </div>
-                    {saveChanges && (
+                    {saveChanges && user?.rol === 'admin' && (
                       <button 
                         className="ml-2 bg-blue-600 p-1 rounded hover:bg-blue-700"
                         onClick={() => setIsEditingType(true)}
@@ -356,7 +359,7 @@ useEffect(() => {
                     <p className="text-white text-sm leading-relaxed flex-grow">
                       {currentTicket.description || 'Sin descripción'}
                     </p>
-                    {saveChanges && (
+                    {saveChanges && user?.rol === 'admin' && (
                       <button
                         className="ml-3 bg-blue-600 p-1 rounded hover:bg-blue-700 self-start"
                         onClick={() => setIsEditingDescription(true)}
@@ -371,7 +374,7 @@ useEffect(() => {
               <div className="py-3 border-b border-zinc-700/50">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-medium text-white">Lo que incluye:</h3>
-                  {saveChanges && (
+                  {saveChanges && user?.rol === 'admin' && (
                     <button 
                       className="ml-2 bg-blue-600 p-1 rounded hover:bg-blue-700"
                       onClick={() => setIsEditingBenefits(true)}
@@ -518,7 +521,7 @@ useEffect(() => {
                           ${Number(currentTicket.price)?.toLocaleString()}
                         </span>
                       </div>
-                      {saveChanges && (
+                      {saveChanges && user?.rol === 'admin' && (
                         <button 
                           className="ml-2 bg-blue-600 p-1 rounded hover:bg-blue-700"
                           onClick={() => setIsEditingPrice(true)}
@@ -592,7 +595,8 @@ useEffect(() => {
                   <MessageCircleIcon size={20} className="text-green-500" />
                   Hablar con un asesor
                 </a>
-              </div>            </div>
+              </div>            
+            </div>
           </div>
         </div>
       )}

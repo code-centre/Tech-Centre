@@ -207,6 +207,16 @@ export default function TechFoundamentsContainer({ slug }: Props) {
 
   const eventId = shortCourse?.id || ''
 
+  const handleLocationUpdate = async (locationData: any) => {
+    try {
+      await saveChanges('location', locationData);
+      return { success: true };
+    } catch (error) {
+      console.error("Error al actualizar la ubicación:", error);
+      return { success: false, error: "Error al actualizar la ubicación" };
+    }
+  };
+
   const saveSpeakersData = async (speakers: any[]) => {
     if (!eventId) {
       console.error("No se encontró el ID del evento");
@@ -347,8 +357,8 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   };
 
   return (
-    <div className="text-white w-full mt-20 mx-20">
-      <main className="max-w-7xl flex flex-col mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+    <div className="text-white w-full mt-20 mx-20 gap-10">
+      <main className="max-w-7xl flex flex-col mx-auto px-4 sm:px-6 lg:px-8 pb-20 gap-8">
         <Hero
           date={shortCourse?.date || ''}
           title={shortCourse?.title || ''}
@@ -363,7 +373,7 @@ export default function TechFoundamentsContainer({ slug }: Props) {
                 <GraduationCap className="w-6 h-6 text-blueApp" />
               </div>
               <span className="text-sm font-medium text-white mb-1">Tipo de curso</span>
-              <span className="text-xs text-white font-semibold">{shortCourse?.type.charAt(0).toUpperCase() + shortCourse?.type.slice(1)}</span>
+              <span className='text-sm'>{shortCourse?.type?.charAt(0).toUpperCase() + shortCourse?.type?.slice(1)}</span>
             </div>
             <div className="flex flex-col items-center text-center p-4 bg-zinc-600 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
               <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center mb-3">
@@ -444,17 +454,19 @@ export default function TechFoundamentsContainer({ slug }: Props) {
                 shortCourse={shortCourse || {}}
                 saveChanges={saveChanges}
               />
-            </div>
+            </div>            
+            {shortCourse && (
+              <LocationContainer
+                location={shortCourse?.location || ''}
+                eventId={eventId}
+                saveChanges={handleLocationUpdate}
+              />
+            )}
             <div id="preguntas" className="bg-transparent">
               <FAQs
                 shortCourse={shortCourse || {}}
                 saveChanges={saveChanges}
               />
-              {shortCourse && (
-                <LocationContainer
-                  location={shortCourse?.location || ''}
-                />
-              )}
             </div>
           </div>
         </div>
