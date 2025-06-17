@@ -4,6 +4,8 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
+import { CursorProvider } from "@/components/animate-ui/components/cursor";
+
 const leagueSpartan = League_Spartan({
   variable: "--font-league-spartan",
   subsets: ["latin"],
@@ -27,15 +29,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">       
-     <body
-        className={`${leagueSpartan.variable} ${poppins.variable} antialiased`}
-      >
-        <Header />
-        <main className="pt-0">
-          {children}
-        </main>
-        <Footer />
+    <html lang="en">
+      <body className={`${leagueSpartan.variable} ${poppins.variable} antialiased`}>
+        {/* Aquí metemos el CursorProvider y el Follow */}
+        <CursorProvider>
+          <Header />
+          <main className="pt-0">{children}</main>
+          <Footer />
+        </CursorProvider>
+
       </body>
     </html>
   );
