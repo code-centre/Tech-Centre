@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react"
-import { GraduationCap, UserPlus, Pencil } from "lucide-react"
+import { GraduationCap, UserPlus, Pencil, CodeIcon } from "lucide-react"
 import Image from "next/image"
 import useUserStore from "../../../store/useUserStore"
 import SpeakersCreationModal from "./ProfessorCreationModal"
@@ -70,10 +70,10 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
   }
   
   return (
-    <div className="max-w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
+    <div className="w-[50%] bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
       {/* Header with gradient */}
       <div className="p-6 text-white flex justify-between items-center">
-        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h2 className="text-2xl font-bold tracking-tight flex items-center text-center gap-2">
           <GraduationCap className="text-blueApp" size={24} />
           Profesor{speakers.length > 1 ? 'es' : ''}
         </h2>
@@ -151,12 +151,12 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
               </div>
 
               {/* Contenido - información del profesor */}
-              <div className="px-6 pt-16 pb-6 flex flex-col items-center">
+              <div className="px-3 pt-16 pb-6 flex flex-col items-center text-center">
                 {/* Especialidad/Ocupación con ícono */}
                 {speaker.occupation && (
-                  <div className="flex mb-6">
-                    <div className="mr-4 mt-1">
-                      <GraduationCap className="w-8 h-8 text-blue-400" />
+                  <div className="flex mb-6 flex justify-center items-center text-center gap-3 bg-zinc-800 rounded-lg px-4 py-2 w-full border border-zinc-700/30">
+                    <div className="text-2xl font-bold tracking-tight flex items-center text-center gap-2">
+                      <GraduationCap className="w-10 h-10 text-blue-400" />
                     </div>
                     <div>
                       <p className="text-white">{speaker.occupation}</p>
@@ -166,7 +166,8 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
 
                 {/* Especialidad */}
                 {speaker.speciality && (
-                  <div className="bg-zinc-800 rounded-lg px-4 py-2 w-full mb-4 flex items-center gap-3 border border-zinc-700/30">
+                  <div className="text-2xl font-bold tracking-tight flex items-center text-center gap-2">
+                    <CodeIcon className="w-8 h-8 text-blue-400" />
                     <p className="text-gray-300 text-sm">{speaker.speciality}</p>
                   </div>
                 )}

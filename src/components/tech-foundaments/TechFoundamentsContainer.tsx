@@ -345,7 +345,7 @@ const deleteTicketData = async (ticketToDelete: any) => {
 };
 
 return (
-    <div className="text-white w-full mt-20 mx-20">
+    <div className="text-white w-full mt-20 mx-20 gap-10">
       <main className="max-w-7xl flex flex-col mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <Hero
           date={shortCourse?.date || ''}
