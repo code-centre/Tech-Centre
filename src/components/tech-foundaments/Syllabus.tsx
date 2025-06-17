@@ -81,7 +81,7 @@ export default function Syllabus({ shortCourse, saveChanges }: Props) {
                     />
                   ) : (
                     <div className="flex gap-2 items-center">
-                      <h3 className="text-xl text-white">{item.module}</h3>
+                      <h3 className="text-xl text-white">{i+1}.{item.module}</h3>
                     </div>
                   )}
                   <div className="flex gap-2 items-center">

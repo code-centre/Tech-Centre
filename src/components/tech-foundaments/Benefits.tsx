@@ -61,6 +61,7 @@ export default function Benefits({ shortCourse, saveChanges, type = "curso" }: P
                   </div>
                 ) : (
                   <>
+                    <div className='bg-blueApp rounded-full w-3 h-3 flex-shrink-0'></div>
                     <span>{benefit}</span>
                     {user?.rol === 'admin' && (
                       <ButtonToEdit startEditing={() => setEditingBenefitIndex(i)} />

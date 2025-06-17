@@ -78,7 +78,7 @@ export default function Faqs({ shortCourse, saveChanges }: Props) {
                   <details className="group border-b border-grayApp pb-4">
                     <summary className="flex justify-between items-center font-medium cursor-pointer list-none py-2">
                       <h3 className="text-xl text-white font-semibold pr-8">
-                        {item.question}
+                        {i+1}.{item.question}
                       </h3>
                       <div className="flex gap-2 items-center">
                         <span className="text-blueApp transform group-open:rotate-180 transition-transform duration-300">
