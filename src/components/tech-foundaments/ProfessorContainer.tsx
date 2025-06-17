@@ -32,15 +32,15 @@ interface Props {
   speakers?: Speaker[]
   eventId?: string
   saveSpeakers?: (speakers: Speaker[]) => Promise<{success: boolean, error?: string}>
+  onDeleteSpeaker?: (speakerId: string) => Promise<void>
 }
 
-export function ProfessorContainer({ speakers = [], eventId, saveSpeakers }: Props) {
+export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDeleteSpeaker }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { user } = useUserStore()
   
   const isAdmin = user?.rol === 'admin'
-  
-  const handleAddSpeaker = async (newSpeaker: Speaker, talks: Talk[]) => {
+    const handleAddSpeaker = async (newSpeaker: Speaker, talks: Talk[]) => {
     if (!saveSpeakers || !speakers) {
       console.error("No hay función de guardado disponible")
       return
@@ -54,6 +54,18 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers }: Pro
       await saveSpeakers(updatedSpeakers)
     } catch (error) {
       console.error("Error al guardar el profesor:", error)
+    }
+  }
+  
+  const handleDeleteSpeaker = async (speakerId: string) => {
+    if (!onDeleteSpeaker) {
+      console.error("No hay función para eliminar disponible")
+      return
+    }
+    try {
+      await onDeleteSpeaker(speakerId)
+    } catch (error) {
+      console.error("Error al eliminar el profesor:", error)
     }
   }
   
@@ -108,17 +120,33 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers }: Pro
                 <div className="absolute top-3 left-0 right-0 text-center z-10">
                   <h3 className="font-bold text-lg text-white shadow-sm">{speaker.firstName || 'Nombre no disponible'} {speaker.lastName || ''}</h3>
                 </div>
-                
-                {/* Botón de edición (solo para admin) */}
+                  {/* Botones de acción (solo para admin) */}
                 {isAdmin && (
-                  <button 
-                    onClick={() => {
-                      setIsModalOpen(true)
-                    }}
-                    className="absolute top-3 right-3 z-20 bg-blueApp hover:bg-blue-600 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  >
-                    <Pencil className="h-3 w-3 text-white" />
-                  </button>
+                  <div className="absolute top-3 right-3 z-20 flex gap-2">
+                    {/* Botón de edición */}
+                    <button 
+                      onClick={() => {
+                        setIsModalOpen(true)
+                      }}
+                      className="bg-blueApp hover:bg-blue-600 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    >
+                      <Pencil className="h-3 w-3 text-white" />
+                    </button>
+                      {/* Botón de eliminar */}
+                    {onDeleteSpeaker && (
+                      <button 
+                        onClick={() => handleDeleteSpeaker(speaker.id)}
+                        className="bg-red-600 hover:bg-red-700 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 6h18"></path>
+                          <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
 

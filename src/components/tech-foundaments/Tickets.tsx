@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import { ClockIcon, BookOpenIcon, MessageCircleIcon, CalendarIcon, MapPinIcon, EditIcon, PlusCircle } from 'lucide-react'
 import Link from 'next/link'
 import PaymentEventCard from './PaymentEventCard'
@@ -19,28 +19,54 @@ interface EventFCA {
   eventId?: string
   eventSlug?: string
   ticketName?: string
+  saveChanges?: (propertyName: string, content: any, index?: number) => void
   saveTicketData?: (updatedTicket: Ticket, oldTicket?: Ticket) => Promise<{success: boolean, error?: string}>
   deleteTicketData?: (ticketToDelete: Ticket) => Promise<{success: boolean, error?: string}>
 }
 
-export function Tickets({ tickets, eventId, eventSlug, saveTicketData, deleteTicketData }: EventFCA) {
-  const [selectedTicket, setSelectedTicket] = useState(0);
+export function Tickets({ tickets, eventId, eventSlug, saveChanges, saveTicketData, deleteTicketData }: EventFCA) {  const [selectedTicket, setSelectedTicket] = useState(0);
   const [showEditMode, setShowEditMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ticketToEdit, setTicketToEdit] = useState<Ticket | null>(null);
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [ticketToEdit, setTicketToEdit] = useState<Ticket | null>(null);  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingType, setIsEditingType] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [isEditingBenefits, setIsEditingBenefits] = useState(false);
+  const [editedTitle, setEditedTitle] = useState('');
+  const [editedType, setEditedType] = useState('');
+  const [editedDescription, setEditedDescription] = useState('');
+  const [editedPrice, setEditedPrice] = useState(0);
+  const [editedBenefits, setEditedBenefits] = useState<string[]>([]);
+  
+useEffect(() => {
+  if(tickets && tickets.length > 0)
+    setSelectedTicket(0)
+  }, [tickets]);
+
+  useEffect(() => {
+    if (tickets && tickets.length > 0 && tickets[selectedTicket]) {
+      const ticket = tickets[selectedTicket];
+      setEditedTitle(ticket.title || '');
+      setEditedType(ticket.type || 'General');
+      setEditedDescription(ticket.description || '');
+      setEditedPrice(ticket.price || 0);
+      setEditedBenefits(ticket.benefits || []);
+    }
+  }, [tickets, selectedTicket]);
+  
+  useEffect(() => {
+    if (isModalOpen && (!tickets || tickets.length === 0) && !isCreatingNew) {
+      setIsModalOpen(false);
+    }
+  }, [isModalOpen, tickets, isCreatingNew]);
 
   if (!tickets || tickets.length === 0) {
     return (
       <div className="p-6 text-center text-white bg-zinc-800 rounded-xl flex flex-col items-center">
-        <p className="mb-4">No hay tickets disponibles para este evento.</p>
-        {eventId && saveTicketData && (
+        <p className="mb-4">No hay tickets disponibles para este evento.</p>        {eventId && saveTicketData && (
           <button 
-            onClick={() => {
-              setTicketToEdit(null);
-              setIsCreatingNew(true);
-              setIsModalOpen(true);
-            }}
+            onClick={() => openTicketModal(true)}
             className="flex items-center gap-2 px-4 py-2 bg-blueApp hover:bg-blue-600 text-white rounded-md transition-colors"
           >
             <PlusCircle size={20} />
@@ -52,34 +78,32 @@ export function Tickets({ tickets, eventId, eventSlug, saveTicketData, deleteTic
   }
 
   const currentTicket = tickets[selectedTicket];
-  console.log("Current Ticket:", currentTicket);
 
-  // Función para alternar entre vista normal y modo de edición
   const toggleEditMode = () => {
     setShowEditMode(!showEditMode);
   };
-  
-  // Función para editar un ticket específico
+
   const handleEditTicket = () => {
     if (currentTicket && eventId) {
-      setTicketToEdit(currentTicket);
-      setIsCreatingNew(false);
-      setIsModalOpen(true);
+      openTicketModal(false, currentTicket);
     }
   };
-  
-  // Función para crear un nuevo ticket
+
   const handleCreateTicket = () => {
-    setTicketToEdit(null);
-    setIsCreatingNew(true);
-    setIsModalOpen(true);
+    openTicketModal(true);
   };
-  
-  // Función para cerrar el modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setTicketToEdit(null);
     setIsCreatingNew(false);
+  };
+  
+  const openTicketModal = (isCreating: boolean, ticketData: Ticket | null = null) => {
+    if (!eventId || !saveTicketData) return;
+    
+    setTicketToEdit(ticketData);
+    setIsCreatingNew(isCreating);
+    setIsModalOpen(true);
   };
   
   return (
@@ -99,7 +123,7 @@ export function Tickets({ tickets, eventId, eventSlug, saveTicketData, deleteTic
           />
         </div>
       ) : (
-        <div className="w-full">
+        <div className="w-full items-center flex justify-center flex-col">
           <div className="flex justify-between items-center mb-4">
             {eventId && (
               <button 
@@ -130,9 +154,66 @@ export function Tickets({ tickets, eventId, eventSlug, saveTicketData, deleteTic
           </div>
           
           <div className="max-w-xl w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
-            {/* Header with gradient */}
+            {/* Header with gradient */}            
             <div className="bg-gradient-to-br from-bgCard via-zinc-700 to-zinc-900 p-6 text-white">
-              <h2 className="text-2xl font-bold mb-1 tracking-tight">{currentTicket.ticketName}</h2>
+              {isEditingTitle && saveChanges ? (
+                <div className="flex flex-col mb-2">
+                  <input
+                    type="text"
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    className="text-xl font-bold bg-zinc-800/80 text-white px-3 py-2 rounded mb-2"
+                    placeholder="Título del ticket"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      className="bg-green-600 p-1 rounded hover:bg-green-700 text-white flex items-center"
+                      onClick={() => {
+                        if (saveChanges && tickets && tickets[selectedTicket]) {
+                          const updatedTickets = [...tickets];
+                          updatedTickets[selectedTicket] = {
+                            ...updatedTickets[selectedTicket],
+                            title: editedTitle,
+                            name: editedTitle,
+                            ticketName: editedTitle
+                          };
+                          saveChanges('tickets', updatedTickets);
+                        }
+                        setIsEditingTitle(false);
+                      }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Guardar
+                    </button>
+                    <button
+                      className="bg-red-600 p-1 rounded hover:bg-red-700 text-white flex items-center"
+                      onClick={() => {
+                        if (tickets && tickets[selectedTicket]) {
+                          setEditedTitle(tickets[selectedTicket].title || tickets[selectedTicket].ticketName || '');
+                        }
+                        setIsEditingTitle(false);
+                      }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start">
+                  <h2 className="text-2xl font-bold mb-1 tracking-tight flex-grow">
+                    {currentTicket.ticketName || currentTicket.title || currentTicket.name || 'Sin título'}
+                  </h2>
+                  {saveChanges && (
+                    <button
+                      className="ml-3 bg-blue-600 p-1 rounded hover:bg-blue-700 self-start"
+                      onClick={() => setIsEditingTitle(true)}
+                    >
+                      <EditIcon className="w-4 h-4 text-white" />
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Ticket selection tabs if more than one */}
@@ -165,51 +246,288 @@ export function Tickets({ tickets, eventId, eventSlug, saveTicketData, deleteTic
                 <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-blueApp/20 transition-colors">
                   Presencial
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between py-3 border-b border-zinc-700/50 group hover:border-zinc-600/70 transition-all">
+              </div>             
+               <div className="flex items-center justify-between py-3 border-b border-zinc-700/50 group hover:border-zinc-600/70 transition-all">
                 <div className="flex items-center gap-3 text-gray-700">
                   <div className="bg-zinc-900 p-2 rounded-lg shadow-inner border border-zinc-800 group-hover:border-blueApp/30 transition-all">
                     <ClockIcon size={18} className="text-blueApp" />
                   </div>
                   <span className="font-medium text-white text-base">Tipo</span>
                 </div>
-                <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-blueApp/20 transition-colors">
-                  {currentTicket?.type || "General"}
+                {isEditingType && saveChanges ? (
+                  <div className="flex items-center">
+                    <input 
+                      type="text" 
+                      value={editedType}
+                      onChange={(e) => setEditedType(e.target.value)}
+                      className="bg-zinc-700 text-white px-2 py-1 rounded mr-2 text-sm"
+                      placeholder="Tipo del ticket"
+                    />
+                    <div className="flex gap-1">
+                      <button 
+                        className="bg-green-600 p-1 rounded hover:bg-green-700"
+                        onClick={() => {
+                          if (saveChanges && tickets && tickets[selectedTicket]) {
+                            const updatedTickets = [...tickets];
+                            updatedTickets[selectedTicket] = {
+                              ...updatedTickets[selectedTicket],
+                              type: editedType
+                            };
+                            saveChanges('tickets', updatedTickets);
+                          }
+                          setIsEditingType(false);
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </button>
+                      <button 
+                        className="bg-red-600 p-1 rounded hover:bg-red-700"
+                        onClick={() => {
+                          if (tickets && tickets[selectedTicket]) {
+                            setEditedType(tickets[selectedTicket].type || 'General');
+                          }
+                          setIsEditingType(false);
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center">
+                    <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-blueApp/20 transition-colors">
+                      {currentTicket?.type || "General"}
+                    </div>
+                    {saveChanges && (
+                      <button 
+                        className="ml-2 bg-blue-600 p-1 rounded hover:bg-blue-700"
+                        onClick={() => setIsEditingType(true)}
+                      >
+                        <EditIcon className="w-4 h-4 text-white" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>              
+              {/* Descripción si existe */}
+              <div className="py-3 border-b border-zinc-700/50">
+                {isEditingDescription && saveChanges ? (
+                  <div className="flex flex-col mb-2">
+                    <textarea
+                      value={editedDescription}
+                      onChange={(e) => setEditedDescription(e.target.value)}
+                      className="text-sm bg-zinc-800/80 text-white px-3 py-2 rounded mb-2 min-h-[80px]"
+                      placeholder="Descripción del ticket"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        className="bg-green-600 p-1 rounded hover:bg-green-700 text-white flex items-center"
+                        onClick={() => {
+                          if (saveChanges && tickets && tickets[selectedTicket]) {
+                            const updatedTickets = [...tickets];
+                            updatedTickets[selectedTicket] = {
+                              ...updatedTickets[selectedTicket],
+                              description: editedDescription
+                            };
+                            saveChanges('tickets', updatedTickets);
+                          }
+                          setIsEditingDescription(false);
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        Guardar
+                      </button>
+                      <button
+                        className="bg-red-600 p-1 rounded hover:bg-red-700 text-white flex items-center"
+                        onClick={() => {
+                          if (tickets && tickets[selectedTicket]) {
+                            setEditedDescription(tickets[selectedTicket].description || '');
+                          }
+                          setIsEditingDescription(false);
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-start">
+                    <p className="text-white text-sm leading-relaxed flex-grow">
+                      {currentTicket.description || 'Sin descripción'}
+                    </p>
+                    {saveChanges && (
+                      <button
+                        className="ml-3 bg-blue-600 p-1 rounded hover:bg-blue-700 self-start"
+                        onClick={() => setIsEditingDescription(true)}
+                      >
+                        <EditIcon className="w-4 h-4 text-white" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>             
+               {/* Beneficios */}
+              <div className="py-3 border-b border-zinc-700/50">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-medium text-white">Lo que incluye:</h3>
+                  {saveChanges && (
+                    <button 
+                      className="ml-2 bg-blue-600 p-1 rounded hover:bg-blue-700"
+                      onClick={() => setIsEditingBenefits(true)}
+                    >
+                      <EditIcon className="w-4 h-4 text-white" />
+                    </button>
+                  )}
                 </div>
+                
+                {isEditingBenefits && saveChanges ? (
+                  <div className="flex flex-col mb-2">
+                    <div className="space-y-2 mb-3">
+                      {editedBenefits.map((benefit, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={benefit}
+                            onChange={(e) => {
+                              const newBenefits = [...editedBenefits];
+                              newBenefits[index] = e.target.value;
+                              setEditedBenefits(newBenefits);
+                            }}
+                            className="bg-zinc-800/80 text-white px-3 py-2 rounded flex-grow text-sm"
+                            placeholder={`Beneficio ${index + 1}`}
+                          />
+                          <button
+                            className="bg-red-600 p-1 rounded hover:bg-red-700"
+                            onClick={() => {
+                              const newBenefits = [...editedBenefits];
+                              newBenefits.splice(index, 1);
+                              setEditedBenefits(newBenefits);
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <button
+                      className="bg-zinc-800 p-2 rounded hover:bg-zinc-700 text-white flex items-center justify-center mb-3"
+                      onClick={() => setEditedBenefits([...editedBenefits, ''])}
+                    >
+                      <PlusCircle size={16} className="mr-2" />
+                      Agregar beneficio
+                    </button>
+                    
+                    <div className="flex gap-2">
+                      <button
+                        className="bg-green-600 p-1 rounded hover:bg-green-700 text-white flex items-center"
+                        onClick={() => {
+                          if (saveChanges && tickets && tickets[selectedTicket]) {
+                            const updatedTickets = [...tickets];
+                            updatedTickets[selectedTicket] = {
+                              ...updatedTickets[selectedTicket],
+                              benefits: editedBenefits.filter(b => b.trim() !== '')
+                            };
+                            saveChanges('tickets', updatedTickets);
+                          }
+                          setIsEditingBenefits(false);
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        Guardar
+                      </button>
+                      <button
+                        className="bg-red-600 p-1 rounded hover:bg-red-700 text-white flex items-center"
+                        onClick={() => {
+                          if (tickets && tickets[selectedTicket]) {
+                            setEditedBenefits(tickets[selectedTicket].benefits || []);
+                          }
+                          setIsEditingBenefits(false);
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <ul className="space-y-2">
+                    {currentTicket.benefits && currentTicket.benefits.length > 0 ? (
+                      currentTicket.benefits.map((benefit, i) => (
+                        <li key={i} className="flex items-start gap-2 text-gray-300 text-sm">
+                          <span className="text-blueApp mt-0.5">✓</span>
+                          <span>{benefit}</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-gray-400 text-sm">No hay beneficios especificados</li>
+                    )}
+                  </ul>
+                )}
               </div>
 
-              {/* Descripción si existe */}
-              {currentTicket.description && (
-                <div className="py-3 border-b border-zinc-700/50">
-                  <p className="text-white text-sm leading-relaxed">{currentTicket.description}</p>
-                </div>
-              )}
-
-              {/* Beneficios */}
-              {currentTicket.benefits && currentTicket.benefits.length > 0 && (
-                <div className="py-3 border-b border-zinc-700/50">
-                  <h3 className="font-medium text-white mb-3">Lo que incluye:</h3>
-                  <ul className="space-y-2">
-                    {currentTicket.benefits.map((benefit, i) => (
-                      <li key={i} className="flex items-start gap-2 text-gray-300 text-sm">
-                        <span className="text-blueApp mt-0.5">✓</span>
-                        <span>{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
               {/* Pricing section */}
-              <div className="mt-6 bg-zinc-900 p-5 rounded-xl shadow-lg border border-zinc-800/40 backdrop-blur-sm">
-                <div className="flex items-center justify-between mb-3">
+              <div className="mt-6 bg-zinc-900 p-5 rounded-xl shadow-lg border border-zinc-800/40 backdrop-blur-sm">                
+              <div className="flex items-center justify-between mb-3">
                   <span className="text-white text-sm font-medium tracking-wide">Precio regular</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-white text-lg font-bold">
-                      ${Number(currentTicket.price)?.toLocaleString()}
-                    </span>
-                  </div>
+                  
+                  {isEditingPrice && saveChanges ? (
+                    <div className="flex items-center">
+                      <input 
+                        type="number" 
+                        value={editedPrice}
+                        onChange={(e) => setEditedPrice(Number(e.target.value))}
+                        className="bg-zinc-700 text-white px-2 py-1 rounded mr-2 text-sm w-32"
+                        placeholder="Precio"
+                      />
+                      <div className="flex gap-1">
+                        <button 
+                          className="bg-green-600 p-1 rounded hover:bg-green-700"
+                          onClick={() => {
+                            if (saveChanges && tickets && tickets[selectedTicket]) {
+                              const updatedTickets = [...tickets];
+                              updatedTickets[selectedTicket] = {
+                                ...updatedTickets[selectedTicket],
+                                price: editedPrice
+                              };
+                              saveChanges('tickets', updatedTickets);
+                            }
+                            setIsEditingPrice(false);
+                          }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </button>
+                        <button 
+                          className="bg-red-600 p-1 rounded hover:bg-red-700"
+                          onClick={() => {
+                            if (tickets && tickets[selectedTicket]) {
+                              setEditedPrice(tickets[selectedTicket].price || 0);
+                            }
+                            setIsEditingPrice(false);
+                          }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <div className="flex items-center gap-1">
+                        <span className="text-white text-lg font-bold">
+                          ${Number(currentTicket.price)?.toLocaleString()}
+                        </span>
+                      </div>
+                      {saveChanges && (
+                        <button 
+                          className="ml-2 bg-blue-600 p-1 rounded hover:bg-blue-700"
+                          onClick={() => setIsEditingPrice(true)}
+                        >
+                          <EditIcon className="w-4 h-4 text-white" />
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

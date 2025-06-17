@@ -99,7 +99,7 @@ export default function PaymentEventCard({ eventId, saveTicketData, deleteTicket
             No hay tickets agregados. Crea un ticket con el botón de arriba.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="gap-6">
             {organizedTickets.map((ticket: Ticket, index: number) => (
               <PricingCard
                 key={index}

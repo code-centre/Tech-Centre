@@ -6,52 +6,26 @@ import useUserStore from '../../../store/useUserStore'
 import Editor from '../Editor'
 
 interface Props {
-  details?: string
-  eventId?: string
-  saveChanges?: (content: string) => Promise<{success: boolean, error?: string}>
+  shortCourse: EventFCA,
+  saveChanges: (propertyName: string, content: any, index?: number) => void
 }
 
-export default function Details({ details, eventId, saveChanges }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [content, setContent] = useState(details || '');
+export default function Details({ shortCourse, saveChanges }: Props) {
+  const [isEditing, setIsEditing] = useState(false);  const [content, setContent] = useState(shortCourse?.details || '');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  const [hasDetails, setHasDetails] = useState(false);
   const { user } = useUserStore();
-  
-  const isAdmin = user?.rol === 'admin';
-  
-  const hasDetails = details && details.trim() !== '';
+
   useEffect(() => {
-    if (details) {
-      setContent(details);
+    if (shortCourse?.details && shortCourse.details.trim() !== '') {
+      setHasDetails(true);
+    } else {
+      setHasDetails(false);
     }
-  }, [details]);
-  
-  const handleSave = async () => {
-    if (!saveChanges) {
-      console.error("No hay función de guardado disponible");
-      setError("No se puede guardar: Función de guardado no disponible");
-      return;
-    }
-    
-    try {
-      setIsSaving(true);
-      setError('');
-      
-      const result = await saveChanges(content);
-      
-      if (result.success) {
-        setIsEditing(false);
-      } else {
-        setError(result.error || "Error al guardar los detalles");
-      }
-    } catch (error) {
-      console.error("Error al actualizar los detalles:", error);
-      setError("Ocurrió un error al guardar los cambios");
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  }, [shortCourse?.details]);
+
+  const isAdmin = user?.rol === 'admin';
 
   return (
     <div className="max-w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
@@ -62,7 +36,7 @@ export default function Details({ details, eventId, saveChanges }: Props) {
           ¿Qué aprenderás?
         </h2>
         {isAdmin && !isEditing && (
-          <button 
+          <button
             onClick={() => setIsEditing(true)}
             className="bg-blueApp hover:bg-blue-600 transition-colors p-2 rounded-full"
           >
@@ -70,15 +44,20 @@ export default function Details({ details, eventId, saveChanges }: Props) {
           </button>
         )}
       </div>
-      
-      {/* Contenido */}      
-      <div className="p-6">       
-         {isEditing ? (
+
+      {/* Contenido */}
+      <div className="p-6">
+        {isEditing ? (
           <div className="space-y-4">
             <Editor
-              value={details || ''}
-              onChange={(content) => setContent(content)}
-              onSave={handleSave}
+              value={shortCourse?.details || ''}
+              onChange={(content) => setContent(content)}              onSave={() => {
+                saveChanges('details', content);
+                setIsEditing(false);
+                if (content && content.trim() !== '') {
+                  setHasDetails(true);
+                }
+              }}
               onCancel={() => setIsEditing(false)}
             />
             {error && (
@@ -87,7 +66,7 @@ export default function Details({ details, eventId, saveChanges }: Props) {
               </div>
             )}
           </div>
-        ): isSaving ? (
+        ) : isSaving ? (
           <div className="flex justify-center items-center py-10">
             <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
             <span className="ml-2 text-blue-500">Guardando cambios...</span>
@@ -95,7 +74,7 @@ export default function Details({ details, eventId, saveChanges }: Props) {
         ) : hasDetails ? (
           <div className="prose prose-invert max-w-none">
             <div className="text-gray-300 leading-relaxed prose-headings:text-blueApp prose-a:text-blue-400">
-              {HTMLReactParser(details || '')}
+              {HTMLReactParser(shortCourse?.details || '')}
             </div>
             {error && (
               <div className="p-2 mt-4 bg-red-900/50 text-red-200 rounded-lg text-sm">
@@ -111,7 +90,7 @@ export default function Details({ details, eventId, saveChanges }: Props) {
                 Aún no hay información detallada sobre el contenido del curso.
               </p>
               {isAdmin && (
-                <button 
+                <button
                   onClick={() => setIsEditing(true)}
                   className="mt-2 px-4 py-2 bg-blueApp hover:bg-blue-600 text-white rounded-lg transition-colors"
                 >
@@ -121,7 +100,7 @@ export default function Details({ details, eventId, saveChanges }: Props) {
             </div>
           </div>
         )}
-        
+
         {/* Beneficios adicionales */}
         {hasDetails && (
           <div className="mt-8 pt-6">
