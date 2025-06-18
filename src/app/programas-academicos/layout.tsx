@@ -58,7 +58,7 @@ export default function ProgramasAcademicosLayout({
   }, [slug]);
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768); // Cambia el valor según el breakpoint deseado
+      setIsMobile(window.innerWidth < 900); // Cambia el valor según el breakpoint deseado
     };
 
     // Ejecutar al inicio

@@ -299,7 +299,7 @@ useEffect(() => {
                 ) : (
                   <div className="flex items-center">
                     <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-blueApp/20 transition-colors">
-                      {currentTicket?.type || "General"}
+                      {currentTicket?.type.charAt(0).toUpperCase() + currentTicket?.type.slice(1) || "General"}
                     </div>
                     {saveChanges && user?.rol === 'admin' && (
                       <button 

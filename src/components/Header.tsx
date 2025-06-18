@@ -368,16 +368,16 @@ export default function Header() {
             className="lg:hidden p-2 hover:animate-pulse hover:animate-once"
           >
             {isMenuOpen ? (
-              <X className="w-6 h-6 animate-fade-in animate-duration-200" />
+              <X className="w-6 h-6 animate-fade-in animate-duration-200 text-white" />
             ) : (
-              <Menu className="w-6 h-6 animate-fade-in animate-duration-200" />
+              <Menu className="w-6 h-6 animate-fade-in animate-duration-200 text-white" />
             )}
           </button>
         </div>
         <div
           ref={mobileMenuRef}
           onClick={(e) => e.stopPropagation()} // Prevent clicks within the menu from closing it
-          className={`lg:hidden fixed inset-x-0 top-16 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 shadow-lg transition-all duration-300 ease-in-out ${isMenuOpen
+          className={`lg:hidden fixed inset-x-0 top-16 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-600 z-50 shadow-lg transition-all duration-300 ease-in-out ${isMenuOpen
               ? "opacity-100 translate-y-0"
               : "opacity-0 -translate-y-4 pointer-events-none"
             }`}
@@ -387,7 +387,7 @@ export default function Header() {
             <div className="py-2">
               <button
                 onClick={() => toggleMobileDropdown("cursos-mobile")}
-                className="flex items-center justify-between w-full py-3 text-gray-800 font-semibold hover:text-blueApp transition-colors duration-200"
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
               >
                 <span>Cursos Especializados</span>
                 <ChevronDown
@@ -403,7 +403,7 @@ export default function Header() {
                 <div className="mt-2 pl-4 space-y-2 transform transition-transform duration-300">
                   <Link
                     href="/#cursos"
-                    className="block py-2 text-sm font-medium text-blueApp hover:underline transition-colors duration-200"
+                    className="block py-2 text-sm font-medium text-white hover:underline transition-colors duration-200"
                     onClick={(e) => {
                       if (window.location.pathname === "/") {
                         e.preventDefault()
@@ -424,7 +424,7 @@ export default function Header() {
                       <Link
                         key={course.id}
                         href={`/programas-academicos/${course.slug}`}
-                        className="block py-2 text-sm text-gray-700 hover:text-blueApp transition-colors duration-200 transform hover:translate-x-1"
+                        className="block py-2 text-sm text-white hover:text-blueApp transition-colors duration-200 transform hover:translate-x-1"
                         onClick={() => {
                           setIsMenuOpen(false)
                           setMobileDropdown(null)
@@ -448,13 +448,14 @@ export default function Header() {
             <div className="py-2">
               <button
                 onClick={() => toggleMobileDropdown("diplomados-mobile")}
-                className="flex items-center justify-between w-full py-3 text-gray-800 font-semibold hover:text-blueApp transition-colors duration-200"
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
               >
                 <span>Diplomados</span>
                 <ChevronDown
                   className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "diplomados-mobile" ? "rotate-180" : ""}`}
                 />
-              </button>                <div
+              </button>                
+              <div
                 className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "diplomados-mobile"
                     ? "max-h-[500px] opacity-100"
                     : "max-h-0 opacity-0"
@@ -463,7 +464,7 @@ export default function Header() {
                 <div className="mt-2 pl-4 space-y-2 transform transition-transform duration-300">
                   <Link
                     href="/#cursos"
-                    className="block py-2 text-sm font-medium text-blueApp hover:underline transition-colors duration-200"
+                    className="block py-2 text-sm font-medium text-white hover:underline transition-colors duration-200"
                     onClick={(e) => {
                       if (window.location.pathname === "/") {
                         e.preventDefault()
@@ -484,7 +485,7 @@ export default function Header() {
                       <Link
                         key={diploma.id}
                         href={`/programas-academicos/${diploma.slug}`}
-                        className="block py-2 text-sm text-gray-700 hover:text-blueApp transition-colors duration-200 transform hover:translate-x-1"
+                        className="block py-2 text-sm text-white hover:text-blueApp transition-colors duration-200 transform hover:translate-x-1"
                         onClick={() => {
                           setIsMenuOpen(false)
                           setMobileDropdown(null)
@@ -508,7 +509,7 @@ export default function Header() {
             <div className="py-2">
               <Link
                 href="/empresas"
-                className="block py-3 text-gray-800 font-semibold hover:text-blueApp transition-colors duration-200"
+                className="block py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Empresas
@@ -518,7 +519,7 @@ export default function Header() {
             <div className="py-2">
               <Link
                 href="/comunidades"
-                className="block py-3 text-gray-800 font-semibold hover:text-blueApp transition-colors duration-200"
+                className="block py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Comunidades
