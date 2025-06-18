@@ -15,7 +15,7 @@ import Syllabus from './Syllabus'
 import { ProfessorContainer } from './ProfessorContainer'
 import { useRouter } from 'next/navigation'
 import { log } from 'console'
-import { GraduationCap, CalendarClock, Network, Clock } from 'lucide-react';
+import { GraduationCap, CalendarClock, Network, Clock, ChevronDown } from 'lucide-react';
 
 interface Props {
   slug: string
@@ -29,6 +29,8 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   const [profesorData, setProfesorData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -355,10 +357,9 @@ export default function TechFoundamentsContainer({ slug }: Props) {
       return { success: false, error: "Error eliminando el ticket" };
     }
   };
-
   return (
-    <div className="text-white w-full mt-20 mx-20 gap-10">
-      <main className="max-w-7xl flex flex-col mx-auto px-4 sm:px-6 lg:px-8 pb-20 gap-8">
+    <div className="text-white w-full mt-20 lg:mx-20 overflow-x-hidden">
+      <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8 pb-20 gap-8">
         <Hero
           date={shortCourse?.date || ''}
           title={shortCourse?.title || ''}

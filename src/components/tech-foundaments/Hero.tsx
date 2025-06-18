@@ -26,8 +26,7 @@ export function Hero({ title, subtitle, date, heroImage, saveChanges }: Props) {
     setHeroDate(date || '');
   }, [title, subtitle, date]);
 
-  return (
-    <section className="relative w-full min-h-[350px] lg:min-h-[420px] flex items-stretch overflow-hidden rounded-xl mb-8">
+  return (    <section className="relative w-full min-h-[350px] lg:min-h-[420px] flex items-stretch overflow-hidden rounded-xl mb-8">
       {/* BG image */}
       <div
         className="absolute inset-0 w-full h-full"
@@ -40,7 +39,7 @@ export function Hero({ title, subtitle, date, heroImage, saveChanges }: Props) {
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
       {/* Content */}
-      <div className="relative z-10 flex flex-col justify-center h-full w-full lg:w-1/2 px-6 py-10">        
+      <div className="relative z-10 flex flex-col justify-center h-full w-full lg:w-1/2 px-6 py-10 max-w-full">   
       <div className="inline-flex items-center rounded-lg px-4 py-2 mb-8 bg-zinc-800/90 w-60">
           <CalendarIcon className="w-5 h-5 mr-2 text-blueApp" />
           {isEditingDate ? (

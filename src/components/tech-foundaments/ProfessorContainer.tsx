@@ -68,12 +68,11 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
       console.error("Error al eliminar el profesor:", error)
     }
   }
-  
-  return (
-    <div className="w-[50%] bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
+    return (
+    <div className="w-full md:w-[80%] lg:w-[50%] bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
       {/* Header with gradient */}
-      <div className="p-6 text-white flex justify-between items-center">
-        <h2 className="text-2xl font-bold tracking-tight flex items-center text-center gap-2">
+      <div className="p-4 md:p-6 text-white flex justify-between items-center">
+        <h2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center text-center gap-2">
           <GraduationCap className="text-blueApp" size={24} />
           Profesor{speakers.length > 1 ? 'es' : ''}
         </h2>
@@ -85,9 +84,8 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
             <UserPlus className="w-4 h-4 text-white" />
           </button>
         )}
-      </div>
-
-      <div className="p-6">
+      </div>      
+      <div className="p-4 md:p-6">
         {speakers.length > 0 ? (
           speakers.map((speaker) => (
             <div
@@ -99,12 +97,12 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
                 {/* Gradiente superior para mejorar legibilidad del nombre */}
                 <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent z-10"></div>
 
-                {/* Fondo de cabecera */}
-                <div className="h-60 bg-gradient-to-r from-zinc-800 to-zinc-900"></div>
+                {/* Fondo de cabecera */}                
+                <div className="h-40 sm:h-50 md:h-60 bg-gradient-to-r from-zinc-800 to-zinc-900"></div>
 
                 {/* Foto del profesor */}
-                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
-                  <div className="w-60 h-60 rounded-full overflow-hidden border-2 border-blueApp shadow-lg shadow-black/30 group-hover:border-blue-400 transition-all">
+                <div className="absolute -bottom-8 md:-bottom-12 left-1/2 transform -translate-x-1/2">
+                  <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-60 lg:h-60 rounded-full overflow-hidden border-2 border-blueApp shadow-lg shadow-black/30 group-hover:border-blue-400 transition-all">
                     <Image
                       width={200}
                       height={200}
@@ -118,27 +116,27 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
 
                 {/* Nombre del profesor posicionado en la parte superior */}
                 <div className="absolute top-3 left-0 right-0 text-center z-10">
-                  <h3 className="font-bold text-lg text-white shadow-sm">{speaker.firstName || 'Nombre no disponible'} {speaker.lastName || ''}</h3>
+                  <h3 className="font-bold text-base md:text-lg text-white shadow-sm">{speaker.firstName || 'Nombre no disponible'} {speaker.lastName || ''}</h3>
                 </div>
-                  {/* Botones de acción (solo para admin) */}
-                {isAdmin && (
-                  <div className="absolute top-3 right-3 z-20 flex gap-2">
+                  {/* Botones de acción (solo para admin) */}               
+                   {isAdmin && (
+                  <div className="absolute top-2 md:top-3 right-2 md:right-3 z-20 flex gap-1 md:gap-2">
                     {/* Botón de edición */}
                     <button 
                       onClick={() => {
                         setIsModalOpen(true)
                       }}
-                      className="bg-blueApp hover:bg-blue-600 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      className="bg-blueApp hover:bg-blue-600 p-1 md:p-1.5 rounded-full opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     >
-                      <Pencil className="h-3 w-3 text-white" />
+                      <Pencil className="h-2.5 w-2.5 md:h-3 md:w-3 text-white" />
                     </button>
                       {/* Botón de eliminar */}
                     {onDeleteSpeaker && (
                       <button 
                         onClick={() => handleDeleteSpeaker(speaker.id)}
-                        className="bg-red-600 hover:bg-red-700 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        className="bg-red-600 hover:bg-red-700 p-1 md:p-1.5 rounded-full opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 md:h-3 md:w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M3 6h18"></path>
                           <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
                           <line x1="10" y1="11" x2="10" y2="17"></line>
@@ -150,42 +148,40 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
                 )}
               </div>
 
-              {/* Contenido - información del profesor */}
-              <div className="px-3 pt-16 pb-6 flex flex-col items-center text-center">
+              {/* Contenido - información del profesor */}             
+               <div className="px-3 pt-12 sm:pt-14 md:pt-16 pb-4 md:pb-6 flex flex-col items-center text-center">
                 {/* Especialidad/Ocupación con ícono */}
                 {speaker.occupation && (
-                  <div className="flex mb-6 flex justify-center items-center text-center gap-3 bg-zinc-800 rounded-lg px-4 py-2 w-full border border-zinc-700/30">
-                    <div className="text-2xl font-bold tracking-tight flex items-center text-center gap-2">
-                      <GraduationCap className="w-10 h-10 text-blue-400" />
+                  <div className="flex mb-4 md:mb-6 flex justify-center items-center text-center gap-2 md:gap-3 bg-zinc-800 rounded-lg px-3 md:px-4 py-2 w-full border border-zinc-700/30">
+                    <div className="text-xl md:text-2xl font-bold tracking-tight flex items-center text-center gap-2">
+                      <GraduationCap className="w-6 h-6 md:w-10 md:h-10 text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-white">{speaker.occupation}</p>
+                      <p className="text-white text-sm md:text-base">{speaker.occupation}</p>
                     </div>
                   </div>
-                )}
-
+                )}                
                 {/* Especialidad */}
                 {speaker.speciality && (
-                  <div className="text-2xl font-bold tracking-tight flex items-center text-center gap-2">
-                    <CodeIcon className="w-8 h-8 text-blue-400" />
-                    <p className="text-gray-300 text-sm">{speaker.speciality}</p>
+                  <div className="text-xl md:text-2xl font-bold tracking-tight flex items-center text-center gap-2">
+                    <CodeIcon className="w-6 h-6 md:w-8 md:h-8 text-blue-400" />
+                    <p className="text-gray-300 text-xs md:text-sm">{speaker.speciality}</p>
                   </div>
                 )}
 
                 {/* Bio o descripción si existe */}
                 {speaker.bio && (
-                  <div className="bg-zinc-800/70 w-full rounded-lg p-4 mb-4 border border-zinc-700/20">
-                    <p className="text-gray-300 text-sm leading-relaxed">{speaker.bio}</p>
+                  <div className="bg-zinc-800/70 w-full rounded-lg p-3 md:p-4 mb-3 md:mb-4 border border-zinc-700/20">
+                    <p className="text-gray-300 text-xs md:text-sm leading-relaxed">{speaker.bio}</p>
                   </div>
-                )}
-
-                {/* LinkedIn si existe */}
+                )}               
+                 {/* LinkedIn si existe */}
                 {speaker.linkedin && (
                   <a
                     href={speaker.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 mt-2 text-sm text-blueApp hover:text-blue-400 transition-colors"
+                    className="flex items-center justify-center gap-2 mt-2 text-xs md:text-sm text-blueApp hover:text-blue-400 transition-colors"
                   >
                     <span>Ver perfil profesional</span>
                   </a>
@@ -193,17 +189,17 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
               </div>
             </div>
           ))
-        ) : (
-          <div className="py-8 text-center">
-            <div className="flex flex-col items-center gap-4">
-              <GraduationCap className="h-12 w-12 text-zinc-500" />
-              <p className="text-zinc-400 text-lg">
+        ) : (          
+        <div className="py-4 md:py-8 text-center">
+            <div className="flex flex-col items-center gap-2 md:gap-4">
+              <GraduationCap className="h-8 w-8 md:h-12 md:w-12 text-zinc-500" />
+              <p className="text-zinc-400 text-base md:text-lg">
                 Aún no hay profesores asignados a este curso.
               </p>
               {isAdmin && (
                 <button 
                   onClick={() => setIsModalOpen(true)}
-                  className="mt-2 px-4 py-2 bg-blueApp hover:bg-blue-600 text-white rounded-lg transition-colors"
+                  className="mt-2 px-3 py-1.5 md:px-4 md:py-2 bg-blueApp hover:bg-blue-600 text-white text-sm md:text-base rounded-lg transition-colors"
                 >
                   Añadir profesor
                 </button>

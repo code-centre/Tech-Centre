@@ -14,6 +14,7 @@ export default function ProgramasAcademicosLayout({
   const [courseData, setCourseData] = useState<any>(null);
   const [activeSection, setActiveSection] = useState<string>("");
   const [isShort, setIsShort] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   const pathname = usePathname();
 
   const slug = pathname.split('/').pop();
@@ -43,8 +44,8 @@ export default function ProgramasAcademicosLayout({
           const eventDoc = eventsSnapshot.docs[0];
           const eventData = eventDoc.data();
           setCourseData({ id: eventDoc.id, ...eventData });
-          
-          if(eventData?.type === "curso especializado") {
+
+          if (eventData?.type === "curso especializado") {
             setIsShort(true);
           }
         }
@@ -55,23 +56,37 @@ export default function ProgramasAcademicosLayout({
 
     fetchCourseData();
   }, [slug]);
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 900); // Cambia el valor según el breakpoint deseado
+    };
+
+    // Ejecutar al inicio
+    checkScreenSize();
+
+    // Agregar listener para cambios de tamaño
+    window.addEventListener("resize", checkScreenSize);
+
+    // Cleanup listener
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   useEffect(() => {
-    const handleScroll = () => {      
+    const handleScroll = () => {
       const sections = [
-        'aprenderas', 'para-quien', 'programa', 'precios', 
+        'aprenderas', 'para-quien', 'programa', 'precios',
         'beneficios', 'preguntas'
       ];
-      
+
       let currentSection = '';
       let closestDistance = Infinity;
-      
+
       sections.forEach(section => {
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
           const distance = Math.abs(rect.top - 100);
-          
+
           if (rect.top <= 200 && rect.bottom >= 0) {
             if (distance < closestDistance) {
               closestDistance = distance;
@@ -80,7 +95,7 @@ export default function ProgramasAcademicosLayout({
           }
         }
       });
-      
+
       if (currentSection) {
         setActiveSection(currentSection);
       }
@@ -98,32 +113,41 @@ export default function ProgramasAcademicosLayout({
   };
 
   return (
-    <div className="flex mx-auto px-4">
-      <main>
-        {children}
-      </main>
-      <aside className="w-80 flex-shrink-0 mt-20">
-        <div className="sticky top-24">          
-          <NavigationCard 
-            activeSection={activeSection}
-            onSectionClick={handleSectionClick}
-            courseData={{
-              title: courseData?.title || courseData?.name,              
-              type: courseData?.type,
-              price: courseData?.price || courseData?.tickets[0].price,
-              discount: courseData?.discount,
-              installments: isShort ? 2 : 8,
-              installmentPrice: courseData?.discount 
-                ? Math.round(courseData.discount / (isShort ? 2 : 8)) 
-                : courseData?.price 
-                  ? Math.round(courseData.price / (isShort ? 2 : 8)) 
-                  : undefined,
-              currency: courseData?.currency || "COP",
-              name: courseData?.name || courseData?.title
-            }}
-          />
-        </div>
-      </aside>
-    </div>
+    <>
+      <div className="flex mx-auto px-4 h-fit">
+        <main>
+          {children}
+        </main>
+        {!isMobile ? (
+          <>
+            <aside className="w-80 flex-shrink-0 mt-20">
+              <div className="sticky top-24">
+                <NavigationCard
+                  activeSection={activeSection}
+                  onSectionClick={handleSectionClick}
+                  courseData={{
+                    title: courseData?.title || courseData?.name,
+                    type: courseData?.type,
+                    price: courseData?.price || courseData?.tickets[0].price,
+                    discount: courseData?.discount,
+                    installments: isShort ? 2 : 8,
+                    installmentPrice: courseData?.discount
+                      ? Math.round(courseData.discount / (isShort ? 2 : 8))
+                      : courseData?.price
+                        ? Math.round(courseData.price / (isShort ? 2 : 8))
+                        : undefined,
+                    currency: courseData?.currency || "COP",
+                    name: courseData?.name || courseData?.title
+                  }}
+                />
+              </div>
+            </aside>
+          </>
+        ) : (
+          null
+        )}
+      </div>
+
+    </>
   );
 }
