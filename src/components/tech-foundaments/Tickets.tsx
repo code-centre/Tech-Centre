@@ -127,7 +127,7 @@ useEffect(() => {
         </div>
       ) : (
         <div className="w-full items-center flex justify-center flex-col">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-4 w-full">
             {eventId && user?.rol === 'admin' && (
               <button 
                 onClick={toggleEditMode}
@@ -136,24 +136,26 @@ useEffect(() => {
                 Ver todos los tickets
               </button>
             )}
-            {eventId && saveTicketData && user?.rol === 'admin' && (
-              <div className="flex gap-2">
-                <button 
-                  onClick={handleCreateTicket}
-                  className="flex items-center gap-2 px-3 py-1 bg-blueApp hover:bg-blue-600 text-white text-sm rounded-md transition-colors"
-                >
-                  <PlusCircle size={16} />
-                  <span>Nuevo Ticket</span>
-                </button>
-                <button 
-                  onClick={handleEditTicket}
-                  className="flex items-center gap-2 px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-white text-sm rounded-md transition-colors"
-                >
-                  <EditIcon size={16} />
-                  <span>Editar</span>
-                </button>
-              </div>
-            )}
+            <div className="flex gap-4 ml-auto">
+              {eventId && saveTicketData && user?.rol === 'admin' && (
+                <>
+                  <button 
+                    onClick={handleCreateTicket}
+                    className="flex items-center gap-2 px-3 py-1 bg-blueApp hover:bg-blue-600 text-white text-sm rounded-md transition-colors"
+                  >
+                    <PlusCircle size={14} />
+                    <span>Nuevo Ticket</span>
+                  </button>
+                  <button 
+                    onClick={handleEditTicket}
+                    className="flex items-center gap-2 px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-white text-sm rounded-md transition-colors"
+                  >
+                    <EditIcon size={16} />
+                    <span>Editar</span>
+                  </button>
+                </>
+              )}
+            </div>
           </div>
           
           <div className="max-w-xl w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
