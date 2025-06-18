@@ -359,7 +359,7 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   };
   return (
     <div className="text-white w-full mt-20 lg:mx-20 overflow-x-hidden">
-      <main className="max-w-7xl flex flex-col mx-auto sm:px-2 lg:px-8 pb-20 gap-8">
+      <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8 pb-20 gap-8">
         <Hero
           date={shortCourse?.date || ''}
           title={shortCourse?.title || ''}

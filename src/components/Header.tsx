@@ -2,11 +2,11 @@
 import Link from "next/link"
 import Image from "next/image"
 import useUserStore from "../../store/useUserStore"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useCollection } from "react-firebase-hooks/firestore"
 import { db } from "../../firebase"
 import { collection, query, where } from "firebase/firestore"
-import { ChevronDown, Menu, X, Globe, Moon, Sun, ChevronRight } from "lucide-react"
+import { ChevronDown, Menu, X, ChevronRight } from "lucide-react"
 import type { User } from "firebase/auth"
 
 interface Course {
@@ -22,16 +22,35 @@ interface Course {
 export default function Header() {
   const [userOn, setUserOn] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState(false)
   const [mobileDropdown, setMobileDropdown] = useState<string | null>(null)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
   const { user, setUser } = useUserStore() as { user: User | null; setUser: (user: User | null) => void }
-
 
   useEffect(() => {
     if (user) {
       setUserOn(true)
     }
   }, [user])
+
+  // Click outside handler for mobile dropdowns
+  const handleClickOutside = useCallback((event: MouseEvent | TouchEvent) => {
+    if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+      setIsMenuOpen(false)
+      setMobileDropdown(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isMenuOpen || mobileDropdown) {
+      document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener("touchstart", handleClickOutside)
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside)
+        document.removeEventListener("touchstart", handleClickOutside)
+      }
+    }
+  }, [isMenuOpen, mobileDropdown, handleClickOutside])
 
   const handleLogOut = () => {
     setUser(null)
@@ -62,29 +81,45 @@ export default function Header() {
       ...(doc.data() as Omit<Diploma, "id">),
     })) || []
 
-  const specializedCoursesInfo = specializedCourses?.docs
-    .map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    } as Course))
-    .filter((course) => {
+  const specializedCoursesInfo =
+    specializedCourses?.docs
+      .map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          }) as Course,
+      )
+      .filter((course) => {
+        const fechaActual = new Date()
+        fechaActual.setHours(0, 0, 0, 0)
 
-      const fechaActual = new Date()
-      fechaActual.setHours(0, 0, 0, 0);
+        const fechaCurso = new Date(course.date)
+        fechaCurso.setHours(0, 0, 0, 0)
 
-      const fechaCurso = new Date(course.date)
-      fechaCurso.setHours(0, 0, 0, 0);
-
-      return fechaCurso >= fechaActual && course.status === "published"
-    }) || []
+        return fechaCurso >= fechaActual && course.status === "published"
+      }) || []
 
   console.log("Diplomas:", diplomasInfo)
   console.log("Cursos especializados:", specializedCoursesInfo)
+  // State to check if we're on mobile
+  const [isMobile, setIsMobile] = useState(false)
 
-  // Add a function to check if we're on mobile
-  const isMobile = () => {
-    return window.innerWidth < 1024; // 1024px is the 'lg' breakpoint in Tailwind
-  }
+  // Effect to update isMobile state based on window size
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 1024) // 1024px is the 'lg' breakpoint in Tailwind
+    }
+
+    // Check on first render
+    checkIsMobile()
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkIsMobile)
+
+    // Clean up
+    return () => window.removeEventListener('resize', checkIsMobile)
+  }, [])
 
   const toggleMobileDropdown = (dropdown: string) => {
     setMobileDropdown(mobileDropdown === dropdown ? null : dropdown)
@@ -94,7 +129,6 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm shadow-lg">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center h-16">
-
           <Link href="/" className="flex-shrink-0">
             <Image
               src="/tech-center-logos/Logo-horizontal-azul.png"
@@ -105,32 +139,37 @@ export default function Header() {
             />
           </Link>
 
-
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-8">
             {/* Cursos Especializados Dropdown */}
             <div className="relative group">
-              <button className="flex items-center space-x-2 text-white hover:text-blueApp 
-                font-medium transition-all duration-200 group">
-                <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full">
+              <button
+                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                font-medium transition-all duration-200 group"
+              >
+                <span
+                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                >
                   Cursos Especializados
                 </span>
                 <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
               </button>
 
-              <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
+              <div
+                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
                 absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
-                shadow-lg border border-white/20 py-3 transition-all duration-200">
+                shadow-lg border border-white/20 py-3 transition-all duration-200"
+              >
                 <div className="px-4 py-2">
                   <Link
                     href="/#cursos"
                     className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
                       rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
                     onClick={(e) => {
-                      if (window.location.pathname === '/') {
-                        e.preventDefault();
-                        document.getElementById('cursos')?.scrollIntoView({ behavior: 'smooth' });
+                      if (window.location.pathname === "/") {
+                        e.preventDefault()
+                        document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
                       }
                     }}
                   >
@@ -158,30 +197,35 @@ export default function Header() {
               </div>
             </div>
 
-
             {/* Diplomados Dropdown */}
             <div className="relative group">
-              <button className="flex items-center space-x-2 text-white hover:text-blueApp 
-                font-medium transition-all duration-200 group">
-                <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full">
+              <button
+                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                font-medium transition-all duration-200 group"
+              >
+                <span
+                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                >
                   Diplomados
                 </span>
                 <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
               </button>
 
-              <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
+              <div
+                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
                 absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
-                shadow-lg border border-white/20 py-3 transition-all duration-200">
+                shadow-lg border border-white/20 py-3 transition-all duration-200"
+              >
                 <div className="px-4 py-2">
                   <Link
                     href="/#cursos"
                     className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
                       rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
                     onClick={(e) => {
-                      if (window.location.pathname === '/') {
-                        e.preventDefault();
-                        document.getElementById('cursos')?.scrollIntoView({ behavior: 'smooth' });
+                      if (window.location.pathname === "/") {
+                        e.preventDefault()
+                        document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
                       }
                     }}
                   >
@@ -192,8 +236,10 @@ export default function Header() {
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
                     </div>
                   ) : (
-                    <div className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin 
-                      scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40">
+                    <div
+                      className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin 
+                      scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40"
+                    >
                       {diplomasInfo.map((diploma, index) => (
                         <Link
                           key={diploma.id}
@@ -210,7 +256,6 @@ export default function Header() {
                 </div>
               </div>
             </div>
-
 
             <Link
               href="/empresas"
@@ -234,10 +279,9 @@ export default function Header() {
                 </div>
                 <Link href={"/perfil"} className="group relative">
                   <div className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200">
-                    <div className="flex flex-col">
-                      <span className="text-white font-medium text-sm group-hover:text-blue-100 transition-colors">
-                        Hola, {user.name}
-                      </span>
+                    <div className="flex flex-col">                      <span className="text-white font-medium text-sm group-hover:text-blue-100 transition-colors">
+                      Hola, {user.displayName || user.email?.split('@')[0]}
+                    </span>
                       <span className="text-xs text-white/80 group-hover:text-blue-200 transition-colors">
                         Ver perfil
                       </span>
@@ -250,38 +294,55 @@ export default function Header() {
                 onClick={handleLogOut}
                 className="px-4 py-2 text-white bg-red-500 hover:to-red-300 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center cursor-pointer hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="mr-2"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
                 Cerrar Sesión
               </button>
             </div>
           ) : (
             <>
               <div className="gap-0 flex items-center justify-end space-x-4 lg:space-x-6">
-                <Link
-                  href="/registro"
-                  className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blueApp hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                {!isMobile && (
+                  <Link
+                    href="/registro"
+                    className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blueApp hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                   rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300
                   hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
-                >
-                  <span className="absolute inset-0 bg-blueApp opacity-0 
-                      group-hover:opacity-100 transition-opacity duration-300"></span>
-                  <span className="relative">
-                    Registrarse
-                  </span>
-                  <svg
-                    className="w-4 h-4 ml-2 -mr-1 transition-transform duration-300 transform hover:translate-x-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    />
-                  </svg>
-                </Link>
+                    <span className="absolute inset-0 bg-blueApp opacity-0 
+                      group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="relative">
+                      Registrarse
+                    </span>
+                    <svg
+                      className="w-4 h-4 ml-2 -mr-1 transition-transform duration-300 transform hover:translate-x-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
+                  </Link>
+                )}
                 <div className="hidden lg:flex items-center space-x-6 animate-fade-in animate-delay-300">
                   <Link
                     href="/iniciar-sesion"
@@ -296,10 +357,14 @@ export default function Header() {
               </div>
             </>
           )}
-
-
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent click from propagating to the backdrop
+              e.preventDefault(); // Prevent default action
+              requestAnimationFrame(() => {
+                setIsMenuOpen(!isMenuOpen);
+              });
+            }}
             className="lg:hidden p-2 hover:animate-pulse hover:animate-once"
           >
             {isMenuOpen ? (
@@ -309,113 +374,242 @@ export default function Header() {
             )}
           </button>
         </div>
-        {
-          isMenuOpen && (
-            <div className="lg:hidden fixed inset-x-0 top-16 bg-white/80 backdrop-blur-md 
-            border-t border-white/20 z-50 animate-slide-in-down animate-duration-200">
-              <div className="px-4 py-2 divide-y divide-gray-100">
-
-                <div className="py-2">
-                  <button
-                    onClick={() => toggleMobileDropdown("cursos-mobile")}
-                    className="flex items-center justify-between w-full py-2 text-gray-700 font-medium"
+        <div
+          ref={mobileMenuRef}
+          onClick={(e) => e.stopPropagation()} // Prevent clicks within the menu from closing it
+          className={`lg:hidden fixed inset-x-0 top-16 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 shadow-lg transition-all duration-300 ease-in-out ${isMenuOpen
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 -translate-y-4 pointer-events-none"
+            }`}
+        >
+          <div className="px-4 py-4 divide-y divide-gray-300">
+            {/* Cursos Especializados Mobile Dropdown */}
+            <div className="py-2">
+              <button
+                onClick={() => toggleMobileDropdown("cursos-mobile")}
+                className="flex items-center justify-between w-full py-3 text-gray-800 font-semibold hover:text-blueApp transition-colors duration-200"
+              >
+                <span>Cursos Especializados</span>
+                <ChevronDown
+                  className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "cursos-mobile" ? "rotate-180" : ""}`}
+                />
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "cursos-mobile"
+                    ? "max-h-[500px] opacity-100"
+                    : "max-h-0 opacity-0"
+                  }`}
+              >
+                <div className="mt-2 pl-4 space-y-2 transform transition-transform duration-300">
+                  <Link
+                    href="/#cursos"
+                    className="block py-2 text-sm font-medium text-blueApp hover:underline transition-colors duration-200"
+                    onClick={(e) => {
+                      if (window.location.pathname === "/") {
+                        e.preventDefault()
+                        document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
+                      }
+                      setIsMenuOpen(false)
+                      setMobileDropdown(null)
+                    }}
                   >
-                    <span>Cursos Especializados</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 
-                    ${mobileDropdown === "cursos-mobile" ? "rotate-180" : ""}`}
-                    />
-                  </button>
-
-                  {mobileDropdown === "cursos-mobile" && (
-                    <div className="mt-2 pl-4 animate-fade-in animate-duration-200">
+                    Toda nuestra oferta académica
+                  </Link>
+                  {loading ? (
+                    <div className="flex justify-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
+                    </div>
+                  ) : (
+                    specializedCoursesInfo.map((course, index) => (
                       <Link
-                        href="/#cursos"
-                        className="block py-2 text-sm font-medium text-blueApp border-b border-gray-100 mb-2"
-                        onClick={(e) => {
-                          if (window.location.pathname === '/') {
-                            e.preventDefault();
-                            document.getElementById('cursos')?.scrollIntoView({ behavior: 'smooth' });
-                          }
-                          setIsMenuOpen(false);
-                          setMobileDropdown(null);
+                        key={course.id}
+                        href={`/programas-academicos/${course.slug}`}
+                        className="block py-2 text-sm text-gray-700 hover:text-blueApp transition-colors duration-200 transform hover:translate-x-1"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
+                        style={{
+                          animationDelay: `${index * 50}ms`,
+                          opacity: mobileDropdown === "cursos-mobile" ? 1 : 0,
+                          transform: mobileDropdown === "cursos-mobile" ? "translateY(0)" : "translateY(-10px)",
+                          transition: "all 0.3s ease-out",
                         }}
                       >
-                        Toda nuestra oferta académica
+                        {course.title || course.name}
                       </Link>
-                      {loading ? (
-                        <div className="flex justify-center py-4">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {specializedCoursesInfo.map((course) => (
-                            <Link
-                              key={course.id}
-                              href={`/programas-academicos/${course.slug}`}
-                              className="block py-2 text-sm text-gray-600 hover:text-blueApp 
-                              transition-colors duration-200"
-                              onClick={() => {
-                                setIsMenuOpen(false)
-                                setMobileDropdown(null)
-                              }}
-                            >
-                              {course.title || course.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    ))
                   )}
                 </div>
-
-                {/* Diplomados Mobile Dropdown */}
-                <div className="py-2">
-                  <button
-                    onClick={() => toggleMobileDropdown("diplomados-mobile")}
-                    className="flex items-center justify-between w-full py-2 text-gray-700 font-medium"
-                  >
-                    <span>Diplomados</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 
-                    ${mobileDropdown === "diplomados-mobile" ? "rotate-180" : ""}`}
-                    />
-                  </button>
-
-                  {mobileDropdown === "diplomados-mobile" && (
-                    <div className="mt-2 pl-4 animate-fade-in animate-duration-200">
-                      {diplomasInfo.map((diploma) => (
-                        <Link
-                          key={diploma.id}
-                          href={`/programas-academicos/${diploma.slug}`}
-                          className="block py-2 text-sm text-gray-600 hover:text-blueApp 
-                          transition-colors duration-200"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {diploma.title || diploma.name}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-
               </div>
             </div>
-          )
-        }
-      </div >
 
+            {/* Diplomados Mobile Dropdown */}
+            <div className="py-2">
+              <button
+                onClick={() => toggleMobileDropdown("diplomados-mobile")}
+                className="flex items-center justify-between w-full py-3 text-gray-800 font-semibold hover:text-blueApp transition-colors duration-200"
+              >
+                <span>Diplomados</span>
+                <ChevronDown
+                  className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "diplomados-mobile" ? "rotate-180" : ""}`}
+                />
+              </button>                <div
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "diplomados-mobile"
+                    ? "max-h-[500px] opacity-100"
+                    : "max-h-0 opacity-0"
+                  }`}
+              >
+                <div className="mt-2 pl-4 space-y-2 transform transition-transform duration-300">
+                  <Link
+                    href="/#cursos"
+                    className="block py-2 text-sm font-medium text-blueApp hover:underline transition-colors duration-200"
+                    onClick={(e) => {
+                      if (window.location.pathname === "/") {
+                        e.preventDefault()
+                        document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
+                      }
+                      setIsMenuOpen(false)
+                      setMobileDropdown(null)
+                    }}
+                  >
+                    Toda nuestra oferta académica
+                  </Link>
+                  {loadingDiploma ? (
+                    <div className="flex justify-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
+                    </div>
+                  ) : (
+                    diplomasInfo.map((diploma, index) => (
+                      <Link
+                        key={diploma.id}
+                        href={`/programas-academicos/${diploma.slug}`}
+                        className="block py-2 text-sm text-gray-700 hover:text-blueApp transition-colors duration-200 transform hover:translate-x-1"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
+                        style={{
+                          animationDelay: `${index * 50}ms`,
+                          opacity: mobileDropdown === "diplomados-mobile" ? 1 : 0,
+                          transform: mobileDropdown === "diplomados-mobile" ? "translateY(0)" : "translateY(-10px)",
+                          transition: "all 0.3s ease-out",
+                        }}
+                      >
+                        {diploma.title || diploma.name}
+                      </Link>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Other Navigation Links */}
+            <div className="py-2">
+              <Link
+                href="/empresas"
+                className="block py-3 text-gray-800 font-semibold hover:text-blueApp transition-colors duration-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Empresas
+              </Link>
+            </div>
+
+            <div className="py-2">
+              <Link
+                href="/comunidades"
+                className="block py-3 text-gray-800 font-semibold hover:text-blueApp transition-colors duration-200"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Comunidades
+              </Link>
+            </div>
+
+            {/* User Actions - Move Register button inside mobile menu */}
+            <div className="py-4">
+              {user ? (
+                <div className="flex flex-col items-start space-y-3">
+                  <Link
+                    href="/perfil"
+                    className="flex items-center space-x-3 px-4 py-3 text-white bg-blueApp hover:bg-blue-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
+                      {(user.displayName || user.email)?.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="font-medium">Hola, {user.name}</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogOut()
+                      setIsMenuOpen(false)
+                    }}
+                    className="px-4 py-3 text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full flex items-center justify-center space-x-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                      <polyline points="16 17 21 12 16 7"></polyline>
+                      <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Cerrar Sesión</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-start space-y-3">
+                  <Link
+                    href="/registro"
+                    className="px-4 py-3 text-white bg-blueApp hover:bg-blue-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium flex items-center justify-center space-x-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span>Registrarse</span>
+                    <svg
+                      className="w-4 h-4 transition-transform duration-300 transform hover:translate-x-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
+                  </Link>
+                  <Link
+                    href="/iniciar-sesion"
+                    className="px-4 py-3 text-blueApp border-2 border-blueApp hover:bg-blueApp hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Iniciar Sesión
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>      
       {/* Backdrop */}
-      {
-        (isMenuOpen || (isMobile() && mobileDropdown)) && (
-          <div
-            className="fixed inset-0 bg-black/10 transition-opacity duration-200 ease-in-out z-40"
-            onClick={() => {
-              setIsMenuOpen(false)
-              setMobileDropdown(null)
-            }}
-          />
-        )
-      }
-    </header >
+      <div
+        className={`fixed inset-0 bg-black/20 z-40 lg:hidden transition-opacity duration-300 ease-in-out ${isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          setIsMenuOpen(false);
+          setMobileDropdown(null);
+        }}
+      />
+    </header>
   )
 }
