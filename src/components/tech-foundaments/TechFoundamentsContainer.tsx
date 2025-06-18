@@ -415,62 +415,71 @@ export default function TechFoundamentsContainer({ slug }: Props) {
           saveChanges={saveChanges}
           shortCourse={shortCourse || {}}
         />
-        <div className="gap-10 mt-12">
-          <div className="flex flex-col gap-8">
+     <div className="gap-10 mt-12">
+  {/* Grid para "aprenderás" y ProfessorContainer */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div id="aprenderas" className="bg-transparent">
+      <Details
+        shortCourse={shortCourse || {}}
+        saveChanges={saveChanges}
+      />
+    </div>
+    <div className="flex justify-center items-center w-full">
+      <div className="w-full h-full"> {/* Nueva capa para controlar el ancho y evitar que se corte */}
+        <ProfessorContainer
+          speakers={profesorData}
+          eventId={eventId}
+          saveSpeakers={saveSpeakersData}
+          onDeleteSpeaker={handleDeleteSpeaker}
+        />
+      </div>
+    </div>
+  </div>
 
-            <div id="aprenderas" className="bg-transparent">
-              <Details
-                shortCourse={shortCourse || {}}
-                saveChanges={saveChanges}
-              />
-            </div>
-            <div className="justify-center flex items-center w-full">
-              <ProfessorContainer
-                speakers={profesorData}
-                eventId={eventId}
-                saveSpeakers={saveSpeakersData}
-                onDeleteSpeaker={handleDeleteSpeaker}
-              />
-            </div>
-            <div id="programa" className="bg-transparent">
-              <Syllabus
-                shortCourse={shortCourse || {}}
-                saveChanges={saveChanges}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-8">
-            <div id="precios" className="flex items-center justify-center p-8">
-              <Tickets
-                tickets={tickets || []}
-                eventId={eventId}
-                eventSlug={slug}
-                saveTicketData={saveTicketData}
-                deleteTicketData={deleteTicketData}
-                saveChanges={saveChanges}
-              />
-            </div>
-            <div id="beneficios" className="bg-transparent">
-              <Benefits
-                shortCourse={shortCourse || {}}
-                saveChanges={saveChanges}
-              />
-            </div>            
-            {shortCourse && (
-              <LocationContainer
-                location={shortCourse?.location || ''}
-                eventId={eventId}
-                saveChanges={handleLocationUpdate}
-              />
-            )}
-            <div id="preguntas" className="bg-transparent">
-              <FAQs
-                shortCourse={shortCourse || {}}
-                saveChanges={saveChanges}
-              />
-            </div>
-          </div>
-        </div>
+  {/* Secciones adicionales con mejor separación */}
+  <div className="flex flex-col gap-y-12">
+    <div id="programa" className="bg-transparent pt-12"> {/* Separación extra antes del temario */}
+      <Syllabus
+        shortCourse={shortCourse || {}}
+        saveChanges={saveChanges}
+      />
+    </div>
+
+    <div id="precios" className="flex items-center justify-center p-8">
+      <Tickets
+        tickets={tickets || []}
+        eventId={eventId}
+        eventSlug={slug}
+        saveTicketData={saveTicketData}
+        deleteTicketData={deleteTicketData}
+        saveChanges={saveChanges}
+      />
+    </div>
+
+    <div id="beneficios" className="bg-transparent">
+      <Benefits
+        shortCourse={shortCourse || {}}
+        saveChanges={saveChanges}
+      />
+    </div>
+
+    {shortCourse && (
+      <LocationContainer
+        location={shortCourse?.location || ''}
+        eventId={eventId}
+        saveChanges={handleLocationUpdate}
+      />
+    )}
+
+    <div id="preguntas" className="bg-transparent">
+      <FAQs
+        shortCourse={shortCourse || {}}
+        saveChanges={saveChanges}
+      />
+    </div>
+  </div>
+</div>
+
       </main>
     </div>
   )
