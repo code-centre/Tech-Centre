@@ -6,6 +6,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { Suspense, useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function CheckoutPage() {
   return (
@@ -61,7 +62,15 @@ function CheckoutContent() {
 
   return (
     <section>
-      <img className="absolute -z-10 opacity-15" src="/SmokeBg.webp" />
+      <div
+        className="fixed inset-0 -z-1 flex items-center justify-center"
+        style={{
+          backgroundImage: `url('/loader-image.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      ></div>
       <div className=" mx-auto items-center justify-center min-h-screen px-5 flex flex-col gap-8">
         {loading ? (
           <div className="loader" />
