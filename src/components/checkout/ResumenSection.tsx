@@ -43,7 +43,6 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
     description: "",
   });
 
-
   useEffect(() => {
     if (!period) {
       setDiscount(0)
@@ -60,7 +59,6 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
       });
     }, 200);
   }
-
 
   const handleGetLinkToPay = async (idsToMovements: string[]) => {
     setDisableButton(true)
@@ -209,31 +207,35 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
     }
   }
 
-  console.log(subtotal, 'subtotal');
-  console.log(data, 'data');
-
-
+  // Ajuste de estética: glassmorphism, fondo oscuro, bordes, sombras y colores coherentes
   return (
-    <div className='bg-[#f9fafa] w-full flex flex-col gap-5 pt-16 md:pt-24 px-6 md:px-20 lg:px-14 pb-10 lg:pb-0 '>
-      <h2 className='text-4xl font-bold font-mono'>Resumen de pago</h2>
-      <div className='border-b h-1'></div>
+    <div className='bg-bgCard/80 backdrop-blur-md w-full flex flex-col gap-5 pt-16 md:pt-24 px-6 md:px-20 lg:px-14 pb-10 lg:pb-0 rounded-2xl shadow-2xl border border-blue-100/20 max-w-2xl mx-auto'>
+      <h2 className='text-4xl font-bold font-mono text-blueApp'>Resumen de pago</h2>
+      <div className='border-b border-blueApp/20 h-1'></div>
       <div className='flex flex-col md:flex-row justify-between'>
         <div className='flex gap-2'>
-          <Image src={isShort ? data.heroImage : data.image} className='w-16 md:h-16 bg-gray-400 rounded-md object-cover bg-center' alt={isShort ? data.title : data.name} width={64} height={64} />
+          <Image
+  src={isShort ? data.heroImage : data.image}
+  alt={isShort ? data.title : data.name}
+  width={64}
+  height={64}
+  unoptimized // puedes quitar esto si usas imágenes del /public
+  className="w-32 h-32 rounded-md object-cover bg-center border border-blueApp/10 shadow-lg"
+/>
           <div>
             {
               isShort
-                ? <p className='font-semibold'>{data.title}</p>
-                : <p className='font-semibold max-w-64'>{data.name}</p>
+                ? <p className='font-semibold text-white'>{data.title}</p>
+                : <p className='font-semibold max-w-64 text-white'>{data.name}</p>
             }
             {
               isShort
                 ?
-                <span className='text-[#acacac]'>{data.type.charAt(0).toUpperCase() +  data.type.slice(1)}</span>
+                <span className='text-blueApp/80'>{data.type.charAt(0).toUpperCase() +  data.type.slice(1)}</span>
                 :
                 <div className='flex flex-col text-sm'>
-                  <span className='text-[#acacac]'>{data.subtitle}</span>
-                  <span className='text-[#acacac]'>Batch 02</span>
+                  <span className='text-blueApp/80'>{data.subtitle}</span>
+                  <span className='text-blueApp/60'>Batch 02</span>
                 </div>
             }
           </div>
@@ -242,42 +244,33 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
           {
             isShort
               ? 
-              <p className='font-semibold'>${ticket && ticket.price.toLocaleString()}</p>
+              <p className='font-semibold text-blueApp text-xl'>${ticket && ticket.price.toLocaleString()}</p>
               :
-              <p className='font-semibold'>${data.discount ? data.discount?.toLocaleString() : data.price?.toLocaleString()}</p>
-              
+              <p className='font-semibold text-blueApp text-xl'>${data.discount ? data.discount?.toLocaleString() : data.price?.toLocaleString()}</p>
           }
-          <span className='text-[#acacac]'>COP</span>
+          <span className='text-blueApp/70'>COP</span>
         </div>
       </div>
-      <div className='border-b h-1'></div>
+      <div className='border-b border-blueApp/20 h-1'></div>
 
-      {/* {isVip ? (
-        <div className='bg-gray-100 p-3 rounded-md flex items-center gap-2'>
-          <Info size={18} className="text-blueApp" />
-          <p className='text-sm text-gray-600'>No hay códigos de descuento aplicables para este boleto</p>
-        </div>
-      ) : ( */}
       <Discounts setShowQuantity={setShowQuantity} setQuantity={setQuantity} subtotal={subtotal} quantity={quantity} discount={discount} setDiscount={setDiscount} ticket={ticket} slugProgram={slugProgram} eventId={eventId} data={data} isShort={isShort} />
-      {/* )} */}
 
-      {/* </div> */}
-      <div className='border-b h-1'></div>
+      <div className='border-b border-blueApp/20 h-1'></div>
       <div className='flex justify-between items-center'>
-        <p className='font-semibold'>Subtotal</p>
-        <p className=''>{subtotal ? `$${subtotal.toLocaleString()}` : 'Sin elegir'}</p>
+        <p className='font-semibold text-white'>Subtotal</p>
+        <p className='text-white'>{subtotal ? `$${subtotal.toLocaleString()}` : 'Sin elegir'}</p>
       </div>
       <div className='flex justify-between items-center'>
-        <p className='font-semibold'>Descuento</p>
-        <p className='text-[#acacac]'>${discount?.toLocaleString()}</p>
+        <p className='font-semibold text-white'>Descuento</p>
+        <p className='text-blueApp'>${discount?.toLocaleString()}</p>
       </div>
-      <div className='border-b h-1'></div>
+      <div className='border-b border-blueApp/20 h-1'></div>
       <div className='flex justify-between items-center'>
         <div>
-          <p className='font-semibold'>Total</p>
-          <span className='text-[#acacac] text-sm'>Pago por {slugProgram ? 'curso' : 'evento'}</span>
+          <p className='font-semibold text-white'>Total</p>
+          <span className='text-blueApp/70 text-sm'>Pago por {slugProgram ? 'curso' : 'evento'}</span>
         </div>
-        <p className='font-semibold text-3xl md:text-4xl'>{subtotal ? `$${(subtotal - discount).toLocaleString()}` : 'Sin elegir'}</p>
+        <p className='font-semibold text-3xl md:text-4xl text-blueApp'>{subtotal ? `$${(subtotal - discount).toLocaleString()}` : 'Sin elegir'}</p>
       </div>
 
       <button onClick={() => {
@@ -286,12 +279,8 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
           return
         }
         setShowModal(true)
-        // if (data.title === 'Barranqui-IA') {
-        // } else {
-        //   handleGetLinkToPay()
-        // }
-      }} disabled={slugProgram ? !subtotal || !selectedSchedule : !discountCode && ticket?.price !== 80000 && eventId === '0AV0Wdoz4lj57CbZ94eT' ? true : !subtotal} className='bg-blueApp py-3 disabled:bg-gray-400 text-white text-xl font-semibold my-5 rounded-md'>Pagar {subtotal ? `$${(subtotal - discount).toLocaleString()}` : '$0'}</button>
-      <p className='text-[#acacac] text-sm'>Tus datos personales se utilizarán para procesar tu pedido, respaldar tu experiencia en este sitio web y para otros fines descritos en nuestra política de privacidad.</p>
+      }} disabled={slugProgram ? !subtotal || !selectedSchedule : !discountCode && ticket?.price !== 80000 && eventId === '0AV0Wdoz4lj57CbZ94eT' ? true : !subtotal} className='bg-blueApp py-3 disabled:bg-gray-400 text-white text-xl font-semibold my-5 rounded-md shadow-lg hover:bg-blueApp/90 transition-colors'>Pagar {subtotal ? `$${(subtotal - discount).toLocaleString()}` : '$0'}</button>
+      <p className='text-blueApp/70 text-sm'>Tus datos personales se utilizarán para procesar tu pedido, respaldar tu experiencia en este sitio web y para otros fines descritos en nuestra política de privacidad.</p>
       {/* <AuthModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onLogin={handleLoginSucces} /> */}
 
       {
@@ -308,7 +297,6 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
       /> */}
     </div>)
 }
-
 
 const createPaymentId = async (amount: number, name: string, type: string) => {
   try {
