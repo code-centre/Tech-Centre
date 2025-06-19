@@ -15,6 +15,7 @@ import Syllabus from './Syllabus'
 import { ProfessorContainer } from './ProfessorContainer'
 import { useRouter } from 'next/navigation'
 import { GraduationCap, CalendarClock, Network, Clock, ChevronDown } from 'lucide-react';
+import Schedule from "./SchedulesShorts"
 
 interface Props {
   slug: string
@@ -448,6 +449,12 @@ export default function TechFoundamentsContainer({ slug }: Props) {
             <div id="programa" className="bg-transparent pt-12"> {/* Separación extra antes del temario */}
               <Syllabus
                 shortCourse={shortCourse || {}}
+                saveChanges={saveChanges}
+              />
+            </div>
+            <div id="horarios" className="bg-transparent pt-12">
+              <Schedule
+                data={shortCourse || {}}
                 saveChanges={saveChanges}
               />
             </div>

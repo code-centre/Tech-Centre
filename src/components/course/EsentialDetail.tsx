@@ -7,7 +7,7 @@ import Benefits from './sections/Benefits'
 import SpecificInfo from './sections/SpecificInfo'
 import Faqs from './sections/Faqs'
 import Syllabus from './sections/Syllabus'
-import SwiperComponent from './SwiperComponent'
+import Schedules from './sections/Schedules'
 import { GraduationCap, CalendarClock, Network, Clock } from 'lucide-react';
 import ContainerButtonsEdit from './ContainerButtonsEdit'
 
@@ -257,6 +257,9 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
           {/* Syllabus and FAQs maintain their own styling through their components */}
           <div id='programa'>
             <Syllabus saveChanges={saveChanges} course={course} />
+          </div>
+          <div id='horarios'>
+            <Schedules data={course} saveChanges={saveChanges} />
           </div>
           <div className="flex justify-center" id='precios'>
             <SpecificInfo saveChanges={saveChanges} course={course} />

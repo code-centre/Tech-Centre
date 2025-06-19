@@ -2,7 +2,7 @@
 import { formatPrice } from "../../utils/formatCurrency";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Book, Calendar, Users, CreditCard, HelpCircle, Star } from "lucide-react";
+import { Book, Calendar, Users, CreditCard, HelpCircle, Star, Clock2 } from "lucide-react";
 import Link from "next/link";
 
 interface NavigationItem {
@@ -10,17 +10,6 @@ interface NavigationItem {
   label: string;
   icon?: React.ReactNode;
 }
-
-const navigationItems: NavigationItem[] = [
-  { id: "aprenderas", label: "¿Qué aprenderé?", icon: <Book className="w-4 h-4 mr-2" /> },
-  { id: "para-quien", label: "¿A quién va dirigido?", icon: <Users className="w-4 h-4 mr-2" /> },
-  // { id: "certificacion", label: "Certificación Oficial" },
-  { id: "programa", label: "Programa", icon: <Calendar className="w-4 h-4 mr-2" /> },
-  { id: "precios", label: "Precios y medios de pago", icon: <CreditCard className="w-4 h-4 mr-2" /> },
-  { id: "beneficios", label: "Beneficios", icon: <Star className="w-4 h-4 mr-2" /> },
-  // { id: "salida", label: "Salida laboral y testimonios" },
-  { id: "preguntas", label: "Preguntas Frecuentes", icon: <HelpCircle className="w-4 h-4 mr-2" /> },
-];
 
 interface NavigationCardProps {
   activeSection?: string;
@@ -47,6 +36,19 @@ export default function NavigationCard({
   const [isMobile, setIsMobile] = useState(false);
   const [isShort, setIsShort] = useState(false);
 
+  // Define navigationItems inside the component to access isShort
+  const navigationItems: NavigationItem[] = [
+    { id: "aprenderas", label: "¿Qué aprenderé?", icon: <Book className="w-4 h-4 mr-2" /> },
+    ...(!isShort ? [{ id: "para-quien", label: "¿A quién va dirigido?", icon: <Users className="w-4 h-4 mr-2" /> }] : []),
+    // { id: "certificacion", label: "Certificación Oficial" },
+    { id: "programa", label: "Programa", icon: <Calendar className="w-4 h-4 mr-2" /> },
+    { id: "horarios", label: "Horarios disponibles", icon: <Clock2 className="w-4 h-4 mr-2" /> },
+    { id: "precios", label: "Precios y medios de pago", icon: <CreditCard className="w-4 h-4 mr-2" /> },
+    { id: "beneficios", label: "Beneficios", icon: <Star className="w-4 h-4 mr-2" /> },
+    // { id: "salida", label: "Salida laboral y testimonios" },
+    { id: "preguntas", label: "Preguntas Frecuentes", icon: <HelpCircle className="w-4 h-4 mr-2" /> },
+  ];
+
   useEffect(() => {
     if (courseData?.type === "curso especializado") {
       setIsShort(true);
@@ -54,7 +56,7 @@ export default function NavigationCard({
   }, [courseData]);
 
   console.log("courseData", courseData);
-  
+
 
   useEffect(() => {
     const checkScreenSize = () => {
