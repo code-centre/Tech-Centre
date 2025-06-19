@@ -279,9 +279,10 @@ export default function Header() {
                 </div>
                 <Link href={"/perfil"} className="group relative">
                   <div className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200">
-                    <div className="flex flex-col">                      <span className="text-white font-medium text-sm group-hover:text-blue-100 transition-colors">
-                      Hola, {user.displayName || user.email?.split('@')[0]}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-white font-medium text-sm group-hover:text-blue-100 transition-colors">
+                        Hola, {user?.name}
+                      </span>
                       <span className="text-xs text-white/80 group-hover:text-blue-200 transition-colors">
                         Ver perfil
                       </span>
@@ -378,8 +379,8 @@ export default function Header() {
           ref={mobileMenuRef}
           onClick={(e) => e.stopPropagation()} // Prevent clicks within the menu from closing it
           className={`lg:hidden fixed inset-x-0 top-16 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-600 z-50 shadow-lg transition-all duration-300 ease-in-out ${isMenuOpen
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 -translate-y-4 pointer-events-none"
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-4 pointer-events-none"
             }`}
         >
           <div className="px-4 py-4 divide-y divide-gray-300">
@@ -396,8 +397,8 @@ export default function Header() {
               </button>
               <div
                 className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "cursos-mobile"
-                    ? "max-h-[500px] opacity-100"
-                    : "max-h-0 opacity-0"
+                  ? "max-h-[500px] opacity-100"
+                  : "max-h-0 opacity-0"
                   }`}
               >
                 <div className="mt-2 pl-4 space-y-2 transform transition-transform duration-300">
@@ -454,11 +455,11 @@ export default function Header() {
                 <ChevronDown
                   className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "diplomados-mobile" ? "rotate-180" : ""}`}
                 />
-              </button>                
+              </button>
               <div
                 className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "diplomados-mobile"
-                    ? "max-h-[500px] opacity-100"
-                    : "max-h-0 opacity-0"
+                  ? "max-h-[500px] opacity-100"
+                  : "max-h-0 opacity-0"
                   }`}
               >
                 <div className="mt-2 pl-4 space-y-2 transform transition-transform duration-300">
@@ -599,7 +600,7 @@ export default function Header() {
             </div>
           </div>
         </div>
-      </div>      
+      </div>
       {/* Backdrop */}
       <div
         className={`fixed inset-0 bg-black/20 z-40 lg:hidden transition-opacity duration-300 ease-in-out ${isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"

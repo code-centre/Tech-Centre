@@ -13,6 +13,7 @@ interface Ticket {
   price: number
   benefits: string[]
   description: string
+  isShort?: boolean
 }
 
 interface EventFCA {
@@ -20,12 +21,13 @@ interface EventFCA {
   eventId?: string
   eventSlug?: string
   ticketName?: string
+  isShort?: boolean
   saveChanges?: (propertyName: string, content: any, index?: number) => void
   saveTicketData?: (updatedTicket: Ticket, oldTicket?: Ticket) => Promise<{success: boolean, error?: string}>
   deleteTicketData?: (ticketToDelete: Ticket) => Promise<{success: boolean, error?: string}>
 }
 
-export function Tickets({ tickets, eventId, eventSlug, saveChanges, saveTicketData, deleteTicketData }: EventFCA) {  const [selectedTicket, setSelectedTicket] = useState(0);
+export function Tickets({ tickets, eventId, eventSlug, saveChanges, saveTicketData, deleteTicketData, isShort }: EventFCA) {  const [selectedTicket, setSelectedTicket] = useState(0);
   const [showEditMode, setShowEditMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ticketToEdit, setTicketToEdit] = useState<Ticket | null>(null);  const [isCreatingNew, setIsCreatingNew] = useState(false);
@@ -40,6 +42,9 @@ export function Tickets({ tickets, eventId, eventSlug, saveChanges, saveTicketDa
   const [editedPrice, setEditedPrice] = useState(0);
   const [editedBenefits, setEditedBenefits] = useState<string[]>([]);
   const { user } = useUserStore();
+
+  console.log(isShort, 'isShort');
+  
   
 useEffect(() => {
   if(tickets && tickets.length > 0)
@@ -577,7 +582,7 @@ useEffect(() => {
               {/* Call to action buttons */}
               <div className="mt-6 space-y-3">
                 <Link
-                  href={`/checkout?eventId=${eventId || ''}&ticketId=${selectedTicket}&slug=${eventSlug || ''}`}
+                  href={`/checkout?slug=${eventSlug || ''}&isShort=${isShort}`}
                   className="w-full bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp 
                     text-white font-medium py-3.5 px-5 rounded-xl transition-all duration-300 block text-center
                     shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 border border-blue-500/30

@@ -122,7 +122,7 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
           </button>
         )}
       </div>
-      <div className="p-4 md:p-6">
+      <div className="p-4 md:p-6 animate-slide-in animate-delay-300 animate-duration-slow">
         {speakers.length > 0 ? (
           <div className="relative min-h-[220px]">
        
@@ -145,13 +145,13 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
               </div>
             )}
             {/* Profesor actual */}
-            <div className="w-full transition-all duration-500">
+            <div className="w-full animate-slide-in-bottom animate-delay-300 animate-duration-slow">
               {(() => {
                 const speaker = speakers[current];
                 return (
                   <div
                     key={speaker.id}
-                    className="flex flex-col rounded-xl overflow-hidden border border-zinc-800/60 bg-zinc-900/50 mb-6 last:mb-0 transform transition-all duration-300 hover:border-blueApp/80 hover:shadow-xl"
+                    className="flex flex-col rounded-xl overflow-hidden border border-zinc-800/60 bg-zinc-900/50 mb-6 last:mb-0 transform transition-all duration-500 hover:border-blue-500/80 hover:shadow-xl animate-slide-in-bottom animate-delay-300 animate-duration-slow"
                   >
                     {/* Header con imagen del profesor */}
                     <div className="relative group">

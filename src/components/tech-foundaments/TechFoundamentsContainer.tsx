@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { use } from 'react'
 import { Hero } from './Hero'
 import { useState, useEffect } from 'react'
 import { Description } from './Description'
@@ -14,7 +14,6 @@ import FAQs from './FAQs'
 import Syllabus from './Syllabus'
 import { ProfessorContainer } from './ProfessorContainer'
 import { useRouter } from 'next/navigation'
-import { log } from 'console'
 import { GraduationCap, CalendarClock, Network, Clock, ChevronDown } from 'lucide-react';
 
 interface Props {
@@ -31,6 +30,7 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   const [isSaving, setIsSaving] = useState(false)
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [short, setShort] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -357,6 +357,13 @@ export default function TechFoundamentsContainer({ slug }: Props) {
       return { success: false, error: "Error eliminando el ticket" };
     }
   };
+ useEffect(() => {
+  console.log("Short course type:", shortCourse);
+  if (shortCourse?.type === 'curso especializado') {
+    setShort(true);
+  }
+}, [shortCourse]);
+  
   return (
     <div className="text-white w-full mt-20 lg:mx-20 overflow-x-hidden">
       <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8 pb-20 gap-8">
@@ -415,71 +422,71 @@ export default function TechFoundamentsContainer({ slug }: Props) {
           saveChanges={saveChanges}
           shortCourse={shortCourse || {}}
         />
-     <div className="gap-10 mt-12">
-  {/* Grid para "aprenderás" y ProfessorContainer */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-    <div id="aprenderas" className="bg-transparent">
-      <Details
-        shortCourse={shortCourse || {}}
-        saveChanges={saveChanges}
-      />
-    </div>
-    <div className="flex justify-center items-center w-full">
-      <div className="w-full h-full"> {/* Nueva capa para controlar el ancho y evitar que se corte */}
-        <ProfessorContainer
-          speakers={profesorData}
-          eventId={eventId}
-          saveSpeakers={saveSpeakersData}
-          onDeleteSpeaker={handleDeleteSpeaker}
-        />
-      </div>
-    </div>
-  </div>
+        <div className="gap-10 mt-12">
+          {/* Grid para "aprenderás" y ProfessorContainer */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div id="aprenderas" className="bg-transparent">
+              <Details
+                shortCourse={shortCourse || {}}
+                saveChanges={saveChanges}
+              />
+            </div>
+            <div className="flex justify-center items-center w-full">
+              <div className="w-full h-full"> {/* Nueva capa para controlar el ancho y evitar que se corte */}
+                <ProfessorContainer
+                  speakers={profesorData}
+                  eventId={eventId}
+                  saveSpeakers={saveSpeakersData}
+                  onDeleteSpeaker={handleDeleteSpeaker}
+                />
+              </div>
+            </div>
+          </div>
 
-  {/* Secciones adicionales con mejor separación */}
-  <div className="flex flex-col gap-y-12">
-    <div id="programa" className="bg-transparent pt-12"> {/* Separación extra antes del temario */}
-      <Syllabus
-        shortCourse={shortCourse || {}}
-        saveChanges={saveChanges}
-      />
-    </div>
+          {/* Secciones adicionales con mejor separación */}
+          <div className="flex flex-col gap-y-12">
+            <div id="programa" className="bg-transparent pt-12"> {/* Separación extra antes del temario */}
+              <Syllabus
+                shortCourse={shortCourse || {}}
+                saveChanges={saveChanges}
+              />
+            </div>
 
-    <div id="precios" className="flex items-center justify-center p-8">
-      <Tickets
-        tickets={tickets || []}
-        eventId={eventId}
-        eventSlug={slug}
-        saveTicketData={saveTicketData}
-        deleteTicketData={deleteTicketData}
-        saveChanges={saveChanges}
-      />
-    </div>
+            <div id="precios" className="flex items-center justify-center p-8">
+              <Tickets
+                tickets={tickets || []}
+                eventId={eventId}
+                eventSlug={slug}
+                isShort={short}
+                saveTicketData={saveTicketData}
+                deleteTicketData={deleteTicketData}
+                saveChanges={saveChanges}
+              />
+            </div>
 
-    <div id="beneficios" className="bg-transparent">
-      <Benefits
-        shortCourse={shortCourse || {}}
-        saveChanges={saveChanges}
-      />
-    </div>
+            <div id="beneficios" className="bg-transparent">
+              <Benefits
+                shortCourse={shortCourse || {}}
+                saveChanges={saveChanges}
+              />
+            </div>
 
-    {shortCourse && (
-      <LocationContainer
-        location={shortCourse?.location || ''}
-        eventId={eventId}
-        saveChanges={handleLocationUpdate}
-      />
-    )}
+            {shortCourse && (
+              <LocationContainer
+                location={shortCourse?.location || ''}
+                eventId={eventId}
+                saveChanges={handleLocationUpdate}
+              />
+            )}
 
-    <div id="preguntas" className="bg-transparent">
-      <FAQs
-        shortCourse={shortCourse || {}}
-        saveChanges={saveChanges}
-      />
-    </div>
-  </div>
-</div>
-
+            <div id="preguntas" className="bg-transparent">
+              <FAQs
+                shortCourse={shortCourse || {}}
+                saveChanges={saveChanges}
+              />
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   )

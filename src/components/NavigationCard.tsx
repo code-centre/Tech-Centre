@@ -3,6 +3,7 @@ import { formatPrice } from "../../utils/formatCurrency";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Book, Calendar, Users, CreditCard, HelpCircle, Star } from "lucide-react";
+import Link from "next/link";
 
 interface NavigationItem {
   id: string;
@@ -27,6 +28,7 @@ interface NavigationCardProps {
   courseData?: {
     title: string;
     type?: string;
+    slug: string;
     price?: number;
     installments?: number;
     installmentPrice?: number;
@@ -50,6 +52,9 @@ export default function NavigationCard({
       setIsShort(true);
     }
   }, [courseData]);
+
+  console.log("courseData", courseData);
+  
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -173,16 +178,18 @@ export default function NavigationCard({
               <button className="text-sm text-blue-200 mb-6 cursor-pointer hover:text-white transition-colors font-medium">
                 Ver medios de pago →
               </button>
-              <button className="w-full bg-white text-blueApp py-4 px-6 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
-                {isShort ? (
-                  <span>Comprar curso especializado</span>
-                ) : (
-                  <span>Comprar diplomado</span>
-                )}
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </button>
+              <Link href={`/checkout?slug=${courseData?.slug}&isShort=${isShort}`} className="w-full">
+                <button className="w-full bg-white text-blueApp py-4 px-6 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+                  {isShort ? (
+                    <span>Comprar curso especializado</span>
+                  ) : (
+                    <span>Comprar diplomado</span>
+                  )}
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </button>
+              </Link>
             </div>
           </div>
         </div>

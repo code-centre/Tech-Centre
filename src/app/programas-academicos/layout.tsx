@@ -128,6 +128,7 @@ export default function ProgramasAcademicosLayout({
                   courseData={{
                     title: courseData?.title || courseData?.name,
                     type: courseData?.type,
+                    slug: courseData?.slug,
                     price: courseData?.price || courseData?.tickets[0].price,
                     discount: courseData?.discount,
                     installments: isShort ? 2 : 8,

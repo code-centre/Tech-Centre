@@ -1,6 +1,7 @@
 interface Program {
   id: string;
   name: string;
+  learns: Array<string>;
   description: string;
   subtitle: string;
   image: string;
