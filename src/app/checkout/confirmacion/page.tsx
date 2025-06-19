@@ -43,7 +43,7 @@ function CheckoutContent() {
         if (movement.type === 'program') {
           ref = query(collection(db, "programs"), where("slug", "==", movement.productId));
         } else {
-          ref = query(collection(db, "events"), where("id", "==", movement.productId));
+          ref = query(collection(db, "events"), where("slug", "==", movement.productId));
         }
 
         if (ref) {
@@ -61,7 +61,7 @@ function CheckoutContent() {
 
   return (
     <section>
-      <img className="absolute -z-10 opacity-15" src="/background.webp" />
+      <img className="absolute -z-10 opacity-15" src="/SmokeBg.webp" />
       <div className=" mx-auto items-center justify-center min-h-screen px-5 flex flex-col gap-8">
         {loading ? (
           <div className="loader" />

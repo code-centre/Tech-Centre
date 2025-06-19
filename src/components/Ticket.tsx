@@ -112,7 +112,7 @@ export const Ticket: React.FC<TicketProps> = ({
             <div className="flex flex-col items-center text-white">
               <div className="bg-white/90 backdrop-blur-sm p-3 mb-6 rounded-lg">
                 <QRCodeSVG
-                  value={`https://www.codigoabierto.tech/eventos/${slug}`}
+                  value={`http://localhost:3000/eventos/${slug}`}
                   size={200}
                 />
               </div>
@@ -157,7 +157,7 @@ export const Ticket: React.FC<TicketProps> = ({
                 <h2 className="text-3xl font-bold mb-6 text-white">{title}</h2>
                 <div className="bg-white/90 backdrop-blur-sm p-2 inline-block rounded-lg">
                   <QRCodeSVG
-                    value={`https://www.codigoabierto.tech/eventos/${slug}`}
+                    value={`http://localhost:3000/eventos/${slug}`}
                     size={120}
                   />
                 </div>

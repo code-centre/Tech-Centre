@@ -18,9 +18,10 @@ interface Props {
   setQuantity: (value: number) => void
   setShowQuantity: (value: boolean) => void
   showQuantity: boolean
+  schedules?: any[]
 }
 
-export default function ConfigurationSection({ slugProgram, data, subtotal, setSubtotal, ticket, setQuantity, quantity, setPaymentMethod, paymentMethod, selectedSchedule, setSelectedSchedule, setShowQuantity, showQuantity }: Props) {
+export default function ConfigurationSection({ slugProgram, data, subtotal, setSubtotal, ticket, setQuantity, quantity, setPaymentMethod, paymentMethod, selectedSchedule, setSelectedSchedule, setShowQuantity, showQuantity, schedules }: Props) {
   const [priceSelected, setPriceSelected] = useState<number>(data.discount ? data.discount : data.price)
 
   const styleButton = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blueApp disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10 hover:border-blueApp'
@@ -40,7 +41,9 @@ export default function ConfigurationSection({ slugProgram, data, subtotal, setS
         slugProgram &&
         <SelectSchedule
           data={data}
+          isShort={data.type === 'curso especializado'}
           selectedSchedule={selectedSchedule}
+          schedules={data.schedules || schedules}
           setSelectedSchedule={setSelectedSchedule}
         />
       }

@@ -50,7 +50,6 @@ function ViewCheckoutContent() {
       if (ref) {
         const snapshot = await getDocs(ref);
         setData(snapshot.docs[0].data());
-        console.log();
         if (isShort) {
           let newTicketId: number | null = null
           setSubtotal(snapshot.docs[0].data().tickets[0].price)

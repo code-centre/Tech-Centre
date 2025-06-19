@@ -65,7 +65,7 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
   const handleGetLinkToPay = async (idsToMovements: string[]) => {
     setDisableButton(true)
     if (subtotal && subtotal - discount > 0 && user) {
-      const resp = await createPaymentId(subtotal - discount, `${slugProgram ? `${data.name} - ${data.subtitle}` : `${data!.title} - Evento`}`, slugProgram ? 'program' : 'event')
+      const resp = await createPaymentId(subtotal - discount, `${isShort ? `${data.title} - ${data.subtitle}` : `${data!.name} - ${data.subtitle}`}`, isShort ? 'event' : 'program')
       await addDoc(collection(db, "movements"), {
         userID: user.id,
         date: serverTimestamp(),
@@ -79,8 +79,8 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
         quantity,
         idsToMovements,
         ...(data?.title === 'Barranqui-IA' && { isVIP: ticket?.type === 'premium' }),
-        ...(slugProgram && { payments: 1, totalPayments: period === 'monthly' ? 4 : 1 }),
-        type: slugProgram ? 'program' : 'event',
+        ...(isShort ? { payments: 1, totalPayments: period === 'monthly' ? 2 : 1 } : { payments: 1, totalPayments: period === 'monthly' ? 4 : 1 }),
+        type: isShort ? 'event' : 'program',
         selectedSchedule: slugProgram ? selectedSchedule : null,
         description: `Compra de ${slugProgram
           ? `diplomado - (${data.name} - ${data.subtitle})`
@@ -319,12 +319,12 @@ const createPaymentId = async (amount: number, name: string, type: string) => {
       },
       body: JSON.stringify({
         name,
-        description: type === 'event' ? 'Compra de boleta para evento' : 'Inscripción para curso',
+        description: type === 'event' ? 'Compra de boleta para curso especializado' : 'Inscripción para curso',
         single_use: true,
         collect_shipping: false,
         amount_in_cents: amount * 100,
         currency: "COP",
-        redirect_url: "https://www.codigoabierto.tech/checkout/confirmacion",
+        redirect_url: "http://localhost:3000/checkout/confirmacion",
       }),
     });
     const createdLink = await resp.json();
