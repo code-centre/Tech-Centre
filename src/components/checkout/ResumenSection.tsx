@@ -268,7 +268,7 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
       <div className='flex justify-between items-center'>
         <div>
           <p className='font-semibold text-white'>Total</p>
-          <span className='text-blueApp/70 text-sm'>Pago por {slugProgram ? 'curso' : 'evento'}</span>
+          <span className='text-blueApp/70 text-sm'>Pago por {isShort ? 'curso especializado' : 'diplomado'}</span>
         </div>
         <p className='font-semibold text-3xl md:text-4xl text-blueApp'>{subtotal ? `$${(subtotal - discount).toLocaleString()}` : 'Sin elegir'}</p>
       </div>
