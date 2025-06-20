@@ -155,7 +155,7 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
                   >
                     {/* Header con imagen del profesor */}
                     <div className="relative group">
-                      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent z-10"></div>
+                      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent"></div>
                       <div className="h-40 sm:h-50 md:h-60 bg-gradient-to-r from-zinc-800 to-zinc-900"></div>
                       <div className="absolute -bottom-8 md:-bottom-12 left-1/2 transform -translate-x-1/2">
                         <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-60 lg:h-60 rounded-full overflow-hidden border-2 border-blueApp shadow-lg shadow-black/30 group-hover:border-blue-400 transition-all">
@@ -169,7 +169,7 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
                           />
                         </div>
                       </div>
-                      <div className="absolute top-3 left-0 right-0 text-center z-10">
+                      <div className="absolute top-3 left-0 right-0 text-center">
                         <h3 className="font-bold text-base md:text-lg text-white shadow-sm">{speaker.firstName || 'Nombre no disponible'} {speaker.lastName || ''}</h3>
                       </div>
                       {isAdmin && (

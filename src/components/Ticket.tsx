@@ -69,7 +69,7 @@ interface TicketProps {
 }
 const typeColors = {
   program: 'bg-blue-500',
-  event: 'bg-amber-400',
+  event: 'bg-amber-600',
 }
 export const Ticket: React.FC<TicketProps> = ({
   type,

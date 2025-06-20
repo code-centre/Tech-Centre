@@ -72,29 +72,32 @@ export function CourseList({ diplomados, cursosCortos, showHeader = true }: Cour
               ))}
             </div>
           </div>
-        )}
-          {cursosCortos.length > 0 && (
-          <div>
+        )}          <div>
             <h3 className="text-2xl font-bold text-white mb-6">
               Cursos especializados
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">              
-               {cursosCortos.map((curso) => (
-                <CourseCard
-                  key={curso.id}
-                  title={curso.title}
-                  description={curso.description}
-                  image={curso.heroImage}
-                  level="BÁSICO"
-                  date={curso.date}
-                  isShort={true}
-                  slug={curso.slug}
-                  isDraft={curso.isDraft}
-                />
-              ))}
+               {cursosCortos.length > 0 ? 
+                 cursosCortos.map((curso) => (
+                  <CourseCard
+                    key={curso.id}
+                    title={curso.title}
+                    description={curso.description}
+                    image={curso.heroImage}
+                    level="BÁSICO"
+                    date={curso.date}
+                    isShort={true}
+                    slug={curso.slug}
+                    isDraft={curso.isDraft}
+                  />
+                )) : (
+                  <div className="col-span-3 p-8 bg-slate-800/30 rounded-xl border border-slate-700 text-center">
+                    <p className="text-gray-300 mb-4">No hay cursos especializados disponibles todavía.</p>
+                  </div>
+                )
+               }
             </div>
           </div>
-        )}
       </div>
     </div>
   )

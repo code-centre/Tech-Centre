@@ -71,6 +71,7 @@ function CheckoutContent() {
           backgroundRepeat: 'no-repeat',
         }}
       ></div>
+      <div className="absolute inset-0 bg-black/40 -z-1" />
       <div className=" mx-auto items-center justify-center min-h-screen px-5 flex flex-col gap-8">
         {loading ? (
           <div className="loader" />
@@ -96,8 +97,8 @@ function CheckoutContent() {
 
             <div className="flex flex-col gap-4  ">
               {/* <button className="bg-blueApp text-white py-2 rounded-md">Descargar</button> */}
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold">Orden con ID {id} {statusTransaction !== 'APPROVED' && 'no'} confirmada</h2>
-              <Link href='/' className="bg-blueApp text-white py-2 rounded-md">Volver al inicio</Link>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-white">Orden con ID {id} {statusTransaction !== 'APPROVED' && 'no'} confirmada</h2>
+              <Link href='/' className="bg-blueApp hover:bg-blue-600 transition-al duration-300 text-white py-2 rounded-md">Volver al inicio</Link>
             </div>
           </section>
         )}

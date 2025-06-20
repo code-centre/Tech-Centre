@@ -121,7 +121,7 @@ export default function DetailCourseComponent({ slug }: Props) {
         <Loader />
       )
         : course ? (
-          <div className="relative z-10 flex flex-col gap-10 pb-20">
+          <div className="relative z-0 flex flex-col gap-10 pb-20">
             <Hero
               course={course}
               newDetail={true}

@@ -124,12 +124,11 @@ export default function ProgramasAcademicosLayout({
               <div className="sticky top-24">
                 <NavigationCard
                   activeSection={activeSection}
-                  onSectionClick={handleSectionClick}
-                  courseData={{
+                  onSectionClick={handleSectionClick}                  courseData={{
                     title: courseData?.title || courseData?.name,
                     type: courseData?.type,
                     slug: courseData?.slug,
-                    price: courseData?.price || courseData?.tickets[0].price,
+                    price: courseData?.price || (courseData?.tickets && courseData.tickets.length > 0 ? courseData.tickets[0].price : 0),
                     discount: courseData?.discount,
                     installments: isShort ? 2 : 8,
                     installmentPrice: courseData?.discount

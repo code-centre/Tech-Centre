@@ -100,7 +100,7 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
 
       router.push(`https://checkout.wompi.co/l/${resp.id}`)
     }
-    if (subtotal && subtotal - discount === 0 && user && eventId) {
+    if (subtotal && subtotal - discount === 0 && user && eventId && isShort) {
       const addToAtendeesList = async () => {
         if (user) {
           const eventAtendeeRef = doc(collection(db, "eventAtendees"))

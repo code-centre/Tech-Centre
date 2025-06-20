@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { doc, updateDoc } from "firebase/firestore";
-import { storage, db } from "@/firebase";
+import { storage, db } from "@/../firebase";
 import { ref as storageRef, getDownloadURL } from "firebase/storage";
 import { useUploadFile } from "react-firebase-hooks/storage";
 import { Upload, Camera } from "lucide-react";
 import AlertModal from "./AlertModal";
 import Image from "next/image";
-import { ModalFooter } from "./eventOnTimeComponents/ScheduleCreationComponents/ScheduleModalFooter";
+
 
 interface FileUploadProps {
   isImage: boolean

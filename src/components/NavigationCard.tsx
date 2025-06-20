@@ -4,6 +4,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Book, Calendar, Users, CreditCard, HelpCircle, Star, Clock2 } from "lucide-react";
 import Link from "next/link";
+import useUserStore from "../../store/useUserStore";
+import { useRouter } from "next/navigation";
+import AuthModal from "./AuthModal";
+import AlertModal from "./AlertModal";
 
 interface NavigationItem {
   id: string;
@@ -35,6 +39,14 @@ export default function NavigationCard({
 
   const [isMobile, setIsMobile] = useState(false);
   const [isShort, setIsShort] = useState(false);
+  const { user } = useUserStore();
+  const router = useRouter();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [alertState, setAlertState] = useState({
+    isOpen: false,
+    description: "",
+    title: "",
+  });
 
   // Define navigationItems inside the component to access isShort
   const navigationItems: NavigationItem[] = [
@@ -49,27 +61,41 @@ export default function NavigationCard({
     { id: "preguntas", label: "Preguntas Frecuentes", icon: <HelpCircle className="w-4 h-4 mr-2" /> },
   ];
 
+  const handleBuyClick = async () => {
+    if (user) {
+      router.push(`/checkout?slug=${courseData?.slug}&isShort=${isShort}`);
+    } else {
+      setIsAuthModalOpen(true);
+    }
+  }
+
+  const handleLoginSuccess = () => {
+    setIsAuthModalOpen(false);
+    setTimeout(() => {
+      setAlertState({
+        isOpen: true,
+        title: "Inicio de sesión exitoso",
+        description: "¡Bienvenido de vuelta!",
+      });
+    }, 200);
+  }
+
+
   useEffect(() => {
     if (courseData?.type === "curso especializado") {
       setIsShort(true);
     }
   }, [courseData]);
 
-  console.log("courseData", courseData);
-
-
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 768);
     };
 
-    // Ejecutar al inicio
     checkScreenSize();
 
-    // Agregar listener para cambios de tamaño
     window.addEventListener('resize', checkScreenSize);
 
-    // Cleanup listener
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
@@ -180,19 +206,29 @@ export default function NavigationCard({
               <button className="text-sm text-blue-200 mb-6 cursor-pointer hover:text-white transition-colors font-medium">
                 Ver medios de pago →
               </button>
-              <Link href={`/checkout?slug=${courseData?.slug}&isShort=${isShort}`} className="w-full">
-                <button className="w-full bg-white text-blueApp py-4 px-6 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
-                  {isShort ? (
-                    <span>Comprar curso especializado</span>
-                  ) : (
-                    <span>Comprar diplomado</span>
-                  )}
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </button>
-              </Link>
+              {/* <button onClick={handleBuyClick}
+              className="w-full"> */}
+              <button
+                onClick={handleBuyClick}
+                className="w-full bg-white text-blueApp py-4 px-6 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+                {isShort ? (
+                  <span>Comprar curso especializado</span>
+                ) : (
+                  <span>Comprar diplomado</span>
+                )}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
+              {/* </button> */}
             </div>
+            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onLogin={handleLoginSuccess} />
+            <AlertModal
+              isOpen={alertState.isOpen}
+              onClose={() => setAlertState({ isOpen: false, title: "", description: "" })}
+              title={alertState.title}
+              description={alertState.description}
+            />
           </div>
         </div>
       ) : null}

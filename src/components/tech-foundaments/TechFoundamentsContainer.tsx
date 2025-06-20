@@ -16,10 +16,11 @@ import { ProfessorContainer } from './ProfessorContainer'
 import { useRouter } from 'next/navigation'
 import { GraduationCap, CalendarClock, Network, Clock, ChevronDown } from 'lucide-react';
 import Schedule from "./SchedulesShorts"
+import { generateSlug } from '../../../utils/generateSlug'
 
 interface Props {
   slug: string
-  shortCourse?: EventFCA
+  shortCourse?: EventFCA | any
 }
 
 export default function TechFoundamentsContainer({ slug }: Props) {
@@ -178,25 +179,21 @@ export default function TechFoundamentsContainer({ slug }: Props) {
           updatedAt: serverTimestamp(),
         });
 
-        console.log(`Objeto en índice ${index} actualizado correctamente:`, newValues);
-      } else if (propertyName === 'name') {
-        const newSlug = newValues?.toLowerCase().replace(/ /g, "-").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      } else if (propertyName === 'title') {
+        const newSlug = generateSlug(newValues);
 
 
         await updateDoc(eventsDocRef, {
           ...programData,
-          name: newValues,
+          title: newValues,
           id: currentId,
           slug: newSlug,
           updatedAt: serverTimestamp(),
         })
 
-
-        router.replace(`/cursos/${newSlug}`)
-        // window.location.reload()
-      } else {
-        console.log(newValues, 'else', propertyName);
-
+        router.push(`/programas-academicos/${newSlug}`)
+      } 
+      else {
         await updateDoc(eventsDocRef, {
           [propertyName]: newValues,
           updatedAt: serverTimestamp(),
@@ -367,13 +364,14 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   
   return (
     <div className="text-white w-full mt-20 lg:mx-20 overflow-x-hidden">
-      <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8 pb-20 gap-8">
+      <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8 pb-20 gap-8 ">
         <Hero
           date={shortCourse?.date || ''}
           title={shortCourse?.title || ''}
           subtitle={shortCourse?.subtitle || ''}
           heroImage={shortCourse?.heroImage || ''}
           saveChanges={saveChanges}
+          shortCourse={shortCourse || {}}
         />
         <div className="bg-bgCard backdrop-blur-sm p-8 rounded-2xl border border-blue-100/20 shadow-lg">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
