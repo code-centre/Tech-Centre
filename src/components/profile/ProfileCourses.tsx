@@ -36,8 +36,6 @@ export default function ProfileEvents() {
       console.warn("Firestore solo permite 10 elementos en un 'in' query.");
       return [];
     }
-    console.log("PROGRAM iddddddddddddddddddddd:", programId);
-
     const q = query(collection(db, "programs"), where("slug", "in", programId));
     const querySnapshot = await getDocs(q);
 
@@ -46,7 +44,6 @@ export default function ProfileEvents() {
       ...doc.data(),
     })) as Program[];
   }
-  console.log("Courses:", courses);
 
   useEffect(() => {
     const get = async () => {
