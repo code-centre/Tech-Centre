@@ -87,7 +87,7 @@ function ViewCheckoutContent() {
 
 
   return (
-    <main className={`min-h-screen  ${!loading ? ' grid grid-cols-1 lg:grid-cols-2' : ' grid place-content-center'}`}>
+    <main className={`min-h-screen  ${!loading ? ' grid grid-cols-1 lg:grid-cols-2 mt-16' : ' grid place-content-center'}`}>
       {
         loading
           ? <div className="flex justify-center items-center h-screen">

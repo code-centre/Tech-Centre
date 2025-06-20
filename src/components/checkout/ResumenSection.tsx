@@ -215,13 +215,13 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
       <div className='flex flex-col md:flex-row justify-between'>
         <div className='flex gap-2'>
           <Image
-  src={isShort ? data.heroImage : data.image}
-  alt={isShort ? data.title : data.name}
-  width={64}
-  height={64}
-  unoptimized // puedes quitar esto si usas imágenes del /public
-  className="w-32 h-32 rounded-md object-cover bg-center border border-blueApp/10 shadow-lg"
-/>
+            src={isShort ? data.heroImage : data.image}
+            alt={isShort ? data.title : data.name}
+            width={64}
+            height={64}
+            unoptimized // puedes quitar esto si usas imágenes del /public
+            className="w-32 h-32 rounded-md object-cover bg-center border border-blueApp/10 shadow-lg"
+          />
           <div>
             {
               isShort
@@ -231,7 +231,7 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
             {
               isShort
                 ?
-                <span className='text-blueApp/80'>{data.type.charAt(0).toUpperCase() +  data.type.slice(1)}</span>
+                <span className='text-blueApp/80'>{data.type.charAt(0).toUpperCase() + data.type.slice(1)}</span>
                 :
                 <div className='flex flex-col text-sm'>
                   <span className='text-blueApp/80'>{data.subtitle}</span>
@@ -243,7 +243,7 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
         <div className='mt-5 md:mt-0'>
           {
             isShort
-              ? 
+              ?
               <p className='font-semibold text-blueApp text-xl'>${ticket && ticket.price.toLocaleString()}</p>
               :
               <p className='font-semibold text-blueApp text-xl'>${data.discount ? data.discount?.toLocaleString() : data.price?.toLocaleString()}</p>
