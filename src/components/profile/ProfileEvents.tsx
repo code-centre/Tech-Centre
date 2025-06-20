@@ -26,7 +26,6 @@ export default function ProfileEvents() {
       id: doc.id,
       ...doc.data(),
     }));
-
     return asistencias;
   }
 
@@ -36,8 +35,8 @@ export default function ProfileEvents() {
       console.warn("Firestore solo permite 10 elementos en un 'in' query.");
       return [];
     }
-
-    const q = query(collection(db, "events"), where("id", "in", eventIds), where("type", "==", "curso especializado"));
+    
+    const q = query(collection(db, "events"), where("slug", "in", eventIds), where("type", "==", "curso especializado"));
     const querySnapshot = await getDocs(q);
 
     return querySnapshot.docs.map(doc => ({
@@ -81,10 +80,9 @@ export default function ProfileEvents() {
             {
               !loadingEvents && pastEvents.length > 0 &&
               <div>
-
                 <div className="grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                   {pastEvents.slice(0, visibleCount).map((event) => (
-                    <Link key={event.id} className='w-fit' href={`/eventos/${event.slug}`}>
+                    <Link key={event.id} className='w-fit' href={`/programas-academicos/${event.slug}`}>
                       <CourseCard 
                         title={event.title}
                         description={event.description}
@@ -102,7 +100,7 @@ export default function ProfileEvents() {
 
             }
             {!loadingEvents && pastEvents.length === 0 &&
-              <p className='text-center text-sm text-white'>Por el momento no hay cursos terminados por ti, revisa el calendario y ¡Anímate a inscribirte! <Link className='text-blueApp font-semibold' href='/eventos'>ver calendario</Link></p>}
+              <p className='text-center text-sm text-white'>Por el momento no hay cursos terminados por ti, revisa el calendario y ¡Anímate a inscribirte! <Link className='text-blueApp font-semibold' href='/#cursos'>ver calendario</Link></p>}
           </div>
         </div>
         <div className="p-6">
@@ -124,7 +122,7 @@ export default function ProfileEvents() {
 
                 <div className="grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                   {futureEvents.map((event) => (
-                    <Link key={event.id} className='w-fit' href={`/eventos/${event.slug}`}>
+                    <Link key={event.id} className='w-fit' href={`/programas-academicos/${event.slug}`}>
                       <CourseCard 
                         title={event.title}
                         description={event.description}
@@ -141,7 +139,7 @@ export default function ProfileEvents() {
               </div>
             }
             {!loadingEvents && futureEvents.length === 0 &&
-              <p className='text-center text-sm text-white'>Por el momento no hay cursos registrados, revisa el calendario y ¡Anímate a inscribirte! <Link className='text-blueApp font-semibold' href='/eventos'>ver calendario</Link></p>}
+              <p className='text-center text-sm text-white'>Por el momento no hay cursos registrados, revisa el calendario y ¡Anímate a inscribirte! <Link className='text-blueApp font-semibold' href='/#cursos'>ver calendario</Link></p>}
           </div>
         </div>
       </div>
