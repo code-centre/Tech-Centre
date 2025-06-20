@@ -5,6 +5,7 @@ import ProfileEvents from '@/components/profile/ProfileEvents'
 import { Sidebar } from '@/components/profile/Sidebar'
 import useUserStore from '../../../store/useUserStore'
 import { CalendarIcon, UserCogIcon, UserIcon, GraduationCap } from 'lucide-react'
+import ProfileCourses from '@/components/profile/ProfileCourses'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
@@ -67,7 +68,7 @@ export default function ProfilePage() {
 
         {activeSection === 'profile'
           ? <ProfileData />
-          : activeSection === 'events' ? <ProfileEvents /> : <AdminUsers />
+          : activeSection === 'events' ? <ProfileEvents /> : <ProfileCourses />
         }
       </div>
     </main>

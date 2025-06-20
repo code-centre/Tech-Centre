@@ -12,49 +12,49 @@ import CourseCardPlaceholder from '../course/CourseCardPlaceholder';
 
 export default function ProfileEvents() {
   const { user } = useUserStore()
-  const [events, setEvents] = useState<EventFCA[] | []>([])
+  const [courses, setCourses] = useState<Program[] | []>([])
   const [visibleCount, setVisibleCount] = useState(3)
-  const [pastEvents, setPastEvents] = useState<EventFCA[] | []>([])
-  const [futureEvents, setFutureEvents] = useState<EventFCA[] | []>([])
+  const [pastEvents, setPastEvents] = useState<Program[] | []>([])
+  const [futureEvents, setFutureEvents] = useState<Program[] | []>([])
   const [loadingEvents, setLoadingEvents] = useState(true)
 
   const obtenerAsistenciasPorUsuario = async () => {
-    const q = query(collection(db, "eventAtendees"), where("userId", "==", user?.id));
+    const q = query(collection(db, "programRegister"), where("userId", "==", user?.id));
     const querySnapshot = await getDocs(q);
 
     const asistencias = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
     }));
+
     return asistencias;
   }
 
-  const obtenerEventosPorIds = async (eventIds: string[]) => {
-    if (eventIds.length === 0) return []; // Si no hay eventos, devolver vacío
-    if (eventIds.length > 10) {
+  const obtenerCoursesPorSlugs = async (programId: string[]) => {
+    if (programId.length === 0) return []; // Si no hay eventos, devolver vacío
+    if (programId.length > 10) {
       console.warn("Firestore solo permite 10 elementos en un 'in' query.");
       return [];
     }
-    
-    const q = query(collection(db, "events"), where("slug", "in", eventIds), where("type", "==", "curso especializado"));
+    const q = query(collection(db, "programs"), where("slug", "in", programId));
     const querySnapshot = await getDocs(q);
 
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
-    })) as EventFCA[];
+    })) as Program[];
   }
 
   useEffect(() => {
     const get = async () => {
-      const asistencias = (await obtenerAsistenciasPorUsuario()).map((item: any) => item.eventId)
+      const asistencias = (await obtenerAsistenciasPorUsuario()).map((item: any) => item.programId)
 
-      const eventos = await obtenerEventosPorIds(asistencias)
+      const courses = await obtenerCoursesPorSlugs(asistencias)
       const now = new Date()
-      setEvents(eventos);
+      setCourses(courses);
 
-      setPastEvents(eventos.filter((event) => new Date(event.date) < now))
-      setFutureEvents(eventos.filter((event) => new Date(event.date) > now))
+      setPastEvents(courses.filter((courses) => new Date(courses.startDate) < now))
+      setFutureEvents(courses.filter((courses) => new Date(courses.startDate) > now))
       setLoadingEvents(false)
     }
     get()
@@ -66,7 +66,7 @@ export default function ProfileEvents() {
       <div className=" rounded-xl shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-100">
           <h2 className="text-lg font-medium text-white mb-4">
-            Cursos realizados
+            Diplomados realizados
           </h2>
           <div className="space-y-2">
             {
@@ -80,18 +80,20 @@ export default function ProfileEvents() {
             {
               !loadingEvents && pastEvents.length > 0 &&
               <div>
+
                 <div className="grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                  {pastEvents.slice(0, visibleCount).map((event) => (
-                    <Link key={event.id} className='w-fit' href={`/programas-academicos/${event.slug}`}>
-                      <CourseCard 
-                        title={event.title}
-                        description={event.description}
-                        image={event.heroImage}
-                        heroImage={event.heroImage}
-                        isShort={true}
-                        level={event.level || "BÁSICO"}   
-                        date={event.date}
-                        slug={event.slug} />
+                  {pastEvents.slice(0, visibleCount).map((diplomado) => (
+                    <Link key={diplomado.id} className='w-fit' href={`/programas-academicos/${diplomado.slug}`}>
+                      <CourseCard
+                        key={diplomado.id}
+                        title={diplomado.name}
+                        description={diplomado.description}
+                        image={diplomado.image}
+                        level={(diplomado.level || '').toString().toUpperCase()}
+                        duration={diplomado.duration}
+                        instructor={(diplomado.teacher || []).join(", ")}
+                        slug={diplomado.slug}
+                      />
                     </Link>
                   ))}
                 </div>
@@ -100,12 +102,12 @@ export default function ProfileEvents() {
 
             }
             {!loadingEvents && pastEvents.length === 0 &&
-              <p className='text-center text-sm text-white'>Por el momento no hay cursos terminados por ti, revisa el calendario y ¡Anímate a inscribirte! <Link className='text-blueApp font-semibold' href='/#cursos'>ver calendario</Link></p>}
+              <p className='text-center text-sm text-white'>Por el momento no hay diplomados terminados por ti, revisa el calendario y ¡Anímate a inscribirte! <Link className='text-blueApp font-semibold' href='/#cursos'>ver calendario</Link></p>}
           </div>
         </div>
         <div className="p-6">
           <h2 className="text-lg font-medium text-white mb-4">
-            Cursos registrados
+            Diplomados registrados
           </h2>
           <div className="space-y-2">
             {
@@ -121,17 +123,17 @@ export default function ProfileEvents() {
               <div>
 
                 <div className="grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                  {futureEvents.map((event) => (
-                    <Link key={event.id} className='w-fit' href={`/programas-academicos/${event.slug}`}>
-                      <CourseCard 
-                        title={event.title}
-                        description={event.description}
-                        isShort={true}
-                        image={event.heroImage}
-                        heroImage={event.heroImage}
-                        level={event.level || "BÁSICO"}   
-                        date={event.date}
-                        slug={event.slug} />
+                  {futureEvents.map((diplomado) => (
+                    <Link key={diplomado.id} className='w-fit' href={`/programas-academicos/${diplomado.slug}`}>
+                      <CourseCard
+                        key={diplomado.id}
+                        title={diplomado.name}
+                        description={diplomado.description}
+                        image={diplomado.image}
+                        level={(diplomado.level || '').toString().toUpperCase()}
+                        duration={diplomado.duration}
+                        instructor={(diplomado.teacher || []).join(", ")}
+                        slug={diplomado.slug} />
                     </Link>
                   ))}
                 </div>
@@ -139,7 +141,7 @@ export default function ProfileEvents() {
               </div>
             }
             {!loadingEvents && futureEvents.length === 0 &&
-              <p className='text-center text-sm text-white'>Por el momento no hay cursos registrados, revisa el calendario y ¡Anímate a inscribirte! <Link className='text-blueApp font-semibold' href='/#cursos'>ver calendario</Link></p>}
+              <p className='text-center text-sm text-white'>Por el momento no hay diplomados registrados, revisa el calendario y ¡Anímate a inscribirte! <Link className='text-blueApp font-semibold' href='/#cursos'>ver calendario</Link></p>}
           </div>
         </div>
       </div>
