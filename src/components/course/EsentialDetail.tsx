@@ -35,7 +35,7 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
   }
 
   console.log(contentLearns, 'LEARNS');
-  
+
   return (
     <div className="bg-background backdrop-blur-sm overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -208,7 +208,7 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
             <h2 className="text-2xl font-bold text-white mb-6">
               ¿Para quién es este {course.type.toLowerCase()}?
             </h2>
-            {contentProfile.map((profile, index) => (
+             {contentProfile.map((profile, index) => (
               updateProfile === index ? (
                 <div key={index} className="flex flex-col gap-4 bg-gray-50/50 p-4 rounded-lg border border-grayApp">
                   <input
@@ -233,21 +233,32 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
                   />
                 </div>
               ) : (
-                <div key={index} className="flex items-start space-x-3 bg-zinc-600 backdrop-blur-sm 
+                <div key={index} className="flex items-start justify-between space-x-3 my-3 bg-zinc-600 backdrop-blur-sm 
                   p-4 rounded-lg border border-blue-100/10 hover:bg-white/70 transition-all duration-300">
                   <div className="flex-shrink-0 w-5 h-5 rounded-full bg-blueApp/90 
-                    flex items-center justify-center mt-1">
+                  flex items-center justify-center mt-1">
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
                   <p className="text-white">{profile}</p>
                   {user?.rol === 'admin' && (
-                    <button
-                      className="text-blueApp hover:text-blue-700 ml-auto"
-                      onClick={() => setUpdateProfile(index)}>
-                      Editar
-                    </button>
+                    <>
+                      <button
+                        className="text-blueApp hover:text-blue-700 ml-auto"
+                        onClick={() => setUpdateProfile(index)}>
+                        Editar
+                      </button>
+                      <button
+                        className="text-red-500 hover:text-red-700 ml-2"
+                        onClick={() => {
+                          const updatedProfile = contentProfile.filter((_, i) => i !== index);
+                          setContentProfile(updatedProfile);
+                          saveChanges('profile', updatedProfile);
+                        }}>
+                        Eliminar
+                      </button>
+                    </>
                   )}
                 </div>
               )
