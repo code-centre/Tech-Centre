@@ -1,7 +1,7 @@
 "use client";
 
 import NavigationCard from "@/components/NavigationCard";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { db } from "../../../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -124,7 +124,7 @@ export default function ProgramasAcademicosLayout({
               <div className="sticky top-24">
                 <NavigationCard
                   activeSection={activeSection}
-                  onSectionClick={handleSectionClick}                  courseData={{
+                  onSectionClick={handleSectionClick} courseData={{
                     title: courseData?.title || courseData?.name,
                     type: courseData?.type,
                     slug: courseData?.slug,

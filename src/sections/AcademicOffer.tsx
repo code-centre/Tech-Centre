@@ -94,12 +94,16 @@ export default function AcademicOffer() {
 	const educativos = [...programasEducativos, ...cortosFuturos]
 	const displayedEducativos = showAll ? educativos : educativos.slice(0, 6);
 
-
 	if (loading && !isAdmin) return (
-		<div className="text-center flex flex-row gap-2 rounded-lg shadow p-2 bg-background">
-			<CardLoader />
-			<CardLoader />
-			<CardLoader />
+		<div className="container mx-auto px-4">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+				<CardLoader />
+				<CardLoader />
+				<CardLoader />
+				<CardLoader />
+				<CardLoader />
+				<CardLoader />
+			</div>
 		</div>
 	);
 

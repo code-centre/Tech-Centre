@@ -12,7 +12,7 @@ interface FooterProps {
   programasEducativos?: Program[];
   cortosFuturos?: EventFCA[];
 }
-export function Footer({slug, programasEducativos = [], cortosFuturos = []}: FooterProps) {
+export function Footer({ slug, programasEducativos = [], cortosFuturos = [] }: FooterProps) {
 
   const [programasEducativosSnapshot, loading, error] = useCollection(
     query(collection(db, 'programs'),
@@ -31,24 +31,24 @@ export function Footer({slug, programasEducativos = [], cortosFuturos = []}: Foo
   const cursosCortosFromDB = cursosCortos
     ? cursosCortos.docs.map(doc => ({ ...(doc.data() as EventFCA), id: doc.id }))
     : []
-  
+
   // Filtrar cursos futuros
   const cortosFuturosFromDB = cursosCortosFromDB.filter((curso) => {
     const fechaActual = new Date();
     fechaActual.setHours(0, 0, 0, 0);
-    
+
     const fechaCurso = new Date(curso.date);
     fechaCurso.setHours(0, 0, 0, 0);
-    
+
     return fechaCurso >= fechaActual;
   });
-  
+
   const academicosFromProps = [...programasEducativos, ...cortosFuturos];
-  const academicos = academicosFromProps.length > 0 
-    ? academicosFromProps 
+  const academicos = academicosFromProps.length > 0
+    ? academicosFromProps
     : [...programasFromDB, ...cortosFuturosFromDB];
-  
-  
+
+
   return (
     <footer className="bg-background text-white py-8">
       <div className="container mx-auto px-4">
@@ -79,42 +79,42 @@ export function Footer({slug, programasEducativos = [], cortosFuturos = []}: Foo
               </a>
             </div>
           </div>
-          
+
           {/* Enlaces rápidos Column */}
           <div>
             <h3 className="font-bold text-white mb-4">Enlaces rápidos</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/quienes-somos" className="text-gray-300 hover:text-blue-400 text-sm">
+                <Link href="/#quienes-somos" className="text-gray-300 hover:text-blue-400 text-sm">
                   Quiénes somos
                 </Link>
               </li>
               <li>
-                <Link href="/oferta-academica" className="text-gray-300 hover:text-blue-400 text-sm">
+                <Link href="/#cursos" className="text-gray-300 hover:text-blue-400 text-sm">
                   Oferta académica
                 </Link>
               </li>
               <li>
-                <Link href="/testimonios" className="text-gray-300 hover:text-blue-400 text-sm">
+                <Link href="/#testimonios" className="text-gray-300 hover:text-blue-400 text-sm">
                   Testimonios
                 </Link>
-              </li>
+              </li>              
               <li>
-                <Link href="/blog" className="text-gray-300 hover:text-blue-400 text-sm">
+                <div className="text-gray-300 opacity-50 cursor-not-allowed text-sm">
                   Blog
-                </Link>
+                </div>
               </li>
               <li>
-                <Link href="/preguntas-frecuentes" className="text-gray-300 hover:text-blue-400 text-sm">
+                <div className="text-gray-300 opacity-50 cursor-not-allowed text-sm">
                   Preguntas frecuentes
-                </Link>
+                </div>
               </li>
             </ul>
           </div>
-            {/* Programas Column */}
+          {/* Programas Column */}
           <div>
             <h3 className="font-bold text-white mb-4">Programas</h3>
-            <ul className="space-y-2">              
+            <ul className="space-y-2">
               {academicos.length > 0 ? (
                 academicos.slice(0, 6).map((programa) => (
                   <li key={programa.id}>
@@ -160,7 +160,7 @@ export function Footer({slug, programasEducativos = [], cortosFuturos = []}: Foo
               )}
             </ul>
           </div>
-          
+
           {/* Contacto Column */}
           <div>
             <h3 className="font-bold text-white mb-4">Contacto</h3>

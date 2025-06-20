@@ -253,20 +253,19 @@ export default function Header() {
                   )}
                 </div>
               </div>
-            </div>
-
-            <Link
-              href="/empresas"
-              className="text-white hover:text-blueApp font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all hover:after:w-full"
-            >
-              Empresas
-            </Link>
-            <Link
-              href="/comunidades"
-              className="text-white hover:text-blueApp font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all hover:after:w-full"
-            >
-              Comunidades
-            </Link>
+            </div>          
+              <>
+              <div
+                className="text-white font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all opacity-50 cursor-not-allowed"
+              >
+                Empresas
+              </div>
+              <div
+                className="text-white font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all opacity-50 cursor-not-allowed"
+              >
+                Comunidades
+              </div>
+            </>
           </nav>
           {/* User Actions */}
           {user ? (
@@ -502,27 +501,22 @@ export default function Header() {
                   )}
                 </div>
               </div>
-            </div>
-
+            </div>            
             {/* Other Navigation Links */}
             <div className="py-2">
-              <Link
-                href="/empresas"
-                className="block py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
-                onClick={() => setIsMenuOpen(false)}
+              <div
+                className="block py-3 text-white font-semibold opacity-50 cursor-not-allowed"
               >
                 Empresas
-              </Link>
+              </div>
             </div>
 
             <div className="py-2">
-              <Link
-                href="/comunidades"
-                className="block py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
-                onClick={() => setIsMenuOpen(false)}
+              <div
+                className="block py-3 text-white font-semibold opacity-50 cursor-not-allowed"
               >
                 Comunidades
-              </Link>
+              </div>
             </div>
 
             {/* User Actions - Move Register button inside mobile menu */}
