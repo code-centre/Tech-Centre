@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../../../firebase";
 import { collection, doc, getDoc, onSnapshot, query, serverTimestamp, updateDoc, where } from "firebase/firestore";
-import FormInfo from "@/components/course/FormInfo";
+// import FormInfo from "@/components/course/FormInfo";
 import { useRouter } from "next/navigation";
 import Hero from "./sections/Hero";
 import EsentialDetail from "./EsentialDetail";
@@ -77,7 +77,6 @@ export default function DetailCourseComponent({ slug }: Props) {
           updatedAt: serverTimestamp(),
         });
 
-        console.log(`Objeto en índice ${index} actualizado correctamente:`, newValues);
       } else if (propertyName === 'name') {
         const newSlug = newValues?.toLowerCase().replace(/ /g, "-").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
 
@@ -94,7 +93,6 @@ export default function DetailCourseComponent({ slug }: Props) {
         router.replace(`/cursos/${newSlug}`)
         // window.location.reload()
       } else {
-        console.log(newValues, 'else', propertyName);
 
         await updateDoc(programDocRef, {
           [propertyName]: newValues,

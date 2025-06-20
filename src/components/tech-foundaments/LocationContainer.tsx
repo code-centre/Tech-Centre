@@ -32,7 +32,6 @@ export default function LocationContainer({ location, eventId, saveChanges }: Pr
     
     const handleLocationCreated = (newLocation: LocationData) => {
         // Este método se llama cuando se crea una nueva ubicación
-        console.log("Nueva ubicación creada:", newLocation);
         // La actualización del estado la maneja el componente padre a través de saveChanges
     };
 

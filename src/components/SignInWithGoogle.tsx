@@ -65,7 +65,6 @@ export default function SignInWithGoogle({ setError, onClose, isInModal, onLogin
         if (googleUser.email) {
           const credential = EmailAuthProvider.credential(googleUser.email, 'password1234password');
           await linkWithCredential(googleUser, credential);
-          console.log("Cuenta vinculada con email y contraseña");
         }
       }
     } catch (error) {

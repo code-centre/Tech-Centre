@@ -34,7 +34,6 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
     setContentLearns(updatedLearns);
   }
 
-  console.log(contentLearns, 'LEARNS');
   
   return (
     <div className="bg-background backdrop-blur-sm overflow-x-hidden">

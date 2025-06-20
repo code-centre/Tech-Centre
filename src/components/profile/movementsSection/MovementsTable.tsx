@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { ArrowUpDown, Trash2Icon, CheckSquareIcon } from 'lucide-react'
 import { useCollection } from "react-firebase-hooks/firestore"
 import { collection, deleteDoc, doc, getDoc } from "firebase/firestore"
-import { db } from "@/firebase"
+import { db } from "@/../firebase"
 
 type MovementType = "ingreso" | "egreso" | "transferencia" | "event" | "program"
 

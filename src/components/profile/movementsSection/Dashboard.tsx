@@ -4,7 +4,7 @@ import type React from "react"
 import { useCollection } from "react-firebase-hooks/firestore"
 import { useState, useEffect } from "react"
 import { collection } from "firebase/firestore"
-import { db } from "@/firebase"
+import { db } from "@/../firebase"
 
 interface Movement {
   id: string

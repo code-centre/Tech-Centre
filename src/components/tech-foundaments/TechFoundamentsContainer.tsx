@@ -136,7 +136,6 @@ export default function TechFoundamentsContainer({ slug }: Props) {
             description: ticket.description ?? '',
           }));
 
-          console.log("Tickets cargados:", ticketsData);
           setTickets(ticketsData);
         }
       } catch (error) {
@@ -325,7 +324,6 @@ export default function TechFoundamentsContainer({ slug }: Props) {
       // Actualizar el estado local de tickets
       setTickets(updatedTickets);
 
-      console.log("Ticket actualizado/creado correctamente:", updatedTicket);
       return { success: true };
 
     } catch (error) {
@@ -365,7 +363,7 @@ export default function TechFoundamentsContainer({ slug }: Props) {
       // Actualizar el estado local de tickets
       setTickets(updatedTickets);
 
-      console.log("Ticket eliminado correctamente");
+      ("Ticket eliminado correctamente");
       return { success: true };
 
     } catch (error) {
@@ -374,7 +372,6 @@ export default function TechFoundamentsContainer({ slug }: Props) {
     }
   };
   useEffect(() => {
-    console.log("Short course type:", shortCourse);
     if (shortCourse?.type === 'curso especializado') {
       setShort(true);
     }

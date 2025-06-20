@@ -25,7 +25,7 @@ export default function Header() {
   const [mobileDropdown, setMobileDropdown] = useState<string | null>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
-  const { user, setUser } = useUserStore() as { user: User | null; setUser: (user: User | null) => void }
+  const { user, setUser } = useUserStore() as { user: any | null; setUser: (user: any | null) => void }
 
   useEffect(() => {
     if (user) {
@@ -100,8 +100,6 @@ export default function Header() {
         return fechaCurso >= fechaActual && course.status === "published"
       }) || []
 
-  console.log("Diplomas:", diplomasInfo)
-  console.log("Cursos especializados:", specializedCoursesInfo)
   // State to check if we're on mobile
   const [isMobile, setIsMobile] = useState(false)
 

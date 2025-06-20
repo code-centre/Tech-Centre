@@ -34,7 +34,6 @@ const SignUp: React.FC = () => {
 
     try {
       const credentials = await createUserWithEmailAndPassword(email, password);
-      console.log(credentials);
 
       if (credentials && credentials.user) {
         const user = credentials.user;

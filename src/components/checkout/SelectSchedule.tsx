@@ -10,8 +10,6 @@ interface Props {
 }
 
 export default function SelectSchedule({ data, selectedSchedule, setSelectedSchedule, isShort }: Props) {
-  console.log(isShort, 'isShort in SelectSchedule');
-  console.log(data, 'data in SelectSchedule');
 
   return (
     <section className='flex flex-col gap-1'>

@@ -48,7 +48,6 @@ export function Footer({slug, programasEducativos = [], cortosFuturos = []}: Foo
     ? academicosFromProps 
     : [...programasFromDB, ...cortosFuturosFromDB];
   
-  console.log("Programas académicos en el footer:", academicos);
   
   return (
     <footer className="bg-background text-white py-8">

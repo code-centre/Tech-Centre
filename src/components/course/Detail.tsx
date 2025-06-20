@@ -7,7 +7,6 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import BannerPromotion from "@/components/slug/BannerPromotion";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { collection } from "firebase/firestore";
-import FormInfo from "@/components/course/FormInfo";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 import 'swiper/css/navigation';
@@ -278,10 +277,10 @@ export default function Detail({ course, openModal, setOpenModal, loading }: Pro
             </Wrapper>
           </div>
       }
-      {
+      {/* {
         openModal &&
         <FormInfo setOpenModal={setOpenModal} />
-      }
+      } */}
       {/* </section> */}
     </main>
   );
