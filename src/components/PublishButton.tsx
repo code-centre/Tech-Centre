@@ -70,8 +70,8 @@ const PublishButton = ({ eventId, onPublish, onRemove, onDelete }: PublishButton
 
       if (!eventData || eventData.status === "published") {
         showModal(
-          "Evento Publicado",
-          "El evento ya está publicado"
+          "Curso publicado",
+          "El curso ya está publicado"
         );
         return;
       }
@@ -81,15 +81,15 @@ const PublishButton = ({ eventId, onPublish, onRemove, onDelete }: PublishButton
       setModalState(prev => ({ ...prev, isOpen: false }));
       showModal(
         "Éxito",
-        "El evento ha sido publicado exitosamente",
+        "El curso ha sido publicado exitosamente",
         true,
         undefined,
-        `/eventos/${eventData.slug}`
+        `/programas-academicos/${eventData.slug}`
       );
     } catch (error) {
       showModal(
         "Error",
-        "Error al publicar el evento: " + error
+        "Error al publicar el curso: " + error
       );
     }
   };
@@ -102,8 +102,8 @@ const PublishButton = ({ eventId, onPublish, onRemove, onDelete }: PublishButton
 
       if (!eventData || eventData.status === "draft") {
         showModal(
-          "Evento Removido",
-          "El evento ya está en estado borrador"
+          "Curso Removido",
+          "El curso ya está en estado borrador"
         );
         return;
       }
@@ -113,15 +113,15 @@ const PublishButton = ({ eventId, onPublish, onRemove, onDelete }: PublishButton
       setModalState(prev => ({ ...prev, isOpen: false }));
       showModal(
         "Éxito",
-        "El evento ha sido removido exitosamente",
+        "El curso ha sido removido exitosamente",
         true,
         undefined,
-        `/eventos/${eventData.slug}`
+        `/programas-academicos/${eventData.slug}`
       );
     } catch (error) {
       showModal(
         "Error",
-        "Error al remover el evento: " + error
+        "Error al remover el curso: " + error
       );
     }
   };
@@ -134,15 +134,15 @@ const PublishButton = ({ eventId, onPublish, onRemove, onDelete }: PublishButton
       setModalState(prev => ({ ...prev, isOpen: false }));
       showModal(
         "Éxito",
-        "Evento borrado exitosamente",
+        "Curso borrado exitosamente",
         true,
         undefined,
-        "/eventos"
+        "/"
       );
     } catch (error) {
       showModal(
         "Error",
-        "Error borrando evento: " + error
+        "Error borrando curso: " + error
       );
     }
   };
@@ -154,21 +154,21 @@ const PublishButton = ({ eventId, onPublish, onRemove, onDelete }: PublishButton
           onClick={() => showModal("Publicar Evento", "¿Estás seguro de que deseas publicar este evento?", false, handlePublish)}
           className="px-4 py-2 bg-blueApp text-white font-semibold rounded-md shadow-md hover:bg-blue-700 hover:text-white transition duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          Publicar Evento
+          Publicar curso
         </button>
 
         <button
           onClick={() => showModal("Remover evento", "¿Estás seguro de que deseas remover este evento?", false, handleRemove)}
           className="px-4 py-2 bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-800 hover:text-white transition duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
         >
-          Remover Evento
+          Remover curso
         </button>
 
         <button
           onClick={() => showModal("Borrar evento", "¿Estás seguro de que deseas borrar este evento?", true, handleDeleteEvent)}
           className="px-4 py-2 bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-800 hover:text-white transition duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
         >
-          Borrar evento
+          Borrar curso
         </button>
       </div>
 

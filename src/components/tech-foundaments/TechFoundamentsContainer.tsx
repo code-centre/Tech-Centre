@@ -17,6 +17,8 @@ import { useRouter } from 'next/navigation'
 import { GraduationCap, CalendarClock, Network, Clock, ChevronDown } from 'lucide-react';
 import Schedule from "./SchedulesShorts"
 import { generateSlug } from '../../../utils/generateSlug'
+import PublishButton from '../PublishButton'
+import userUseStore from '../../../store/useUserStore'
 
 interface Props {
   slug: string
@@ -33,7 +35,23 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [short, setShort] = useState(false)
+  const [status, setStatus] = useState(shortCourse?.status || 'draft');
+  const [deleted, setDeleted] = useState(false);
+  const { user } = userUseStore()
   const router = useRouter()
+
+  const handlePublish = () => {
+    setStatus("published");
+  };
+
+  const handleRemove = () => {
+    setStatus("draft");
+  };
+
+  const handleDeleteEvent = async () => {
+    setDeleted(true);
+  };
+
 
   useEffect(() => {
     if (shortCourse) {
@@ -192,7 +210,7 @@ export default function TechFoundamentsContainer({ slug }: Props) {
         })
 
         router.push(`/programas-academicos/${newSlug}`)
-      } 
+      }
       else {
         await updateDoc(eventsDocRef, {
           [propertyName]: newValues,
@@ -355,13 +373,13 @@ export default function TechFoundamentsContainer({ slug }: Props) {
       return { success: false, error: "Error eliminando el ticket" };
     }
   };
- useEffect(() => {
-  console.log("Short course type:", shortCourse);
-  if (shortCourse?.type === 'curso especializado') {
-    setShort(true);
-  }
-}, [shortCourse]);
-  
+  useEffect(() => {
+    console.log("Short course type:", shortCourse);
+    if (shortCourse?.type === 'curso especializado') {
+      setShort(true);
+    }
+  }, [shortCourse]);
+
   return (
     <div className="text-white w-full mt-20 lg:mx-20 overflow-x-hidden">
       <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8 pb-20 gap-8 ">
@@ -491,6 +509,14 @@ export default function TechFoundamentsContainer({ slug }: Props) {
               />
             </div>
           </div>
+          <>
+            {user?.rol === 'admin' && (
+              <div className='flex justify-center mt-8'>
+                <PublishButton eventId={shortCourse?.id} onPublish={handlePublish} onRemove={handleRemove} onDelete={handleDeleteEvent} onClose={() => { }} />
+
+              </div>
+            )}
+          </>
         </div>
       </main>
     </div>
