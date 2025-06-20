@@ -113,7 +113,7 @@ export function Footer({ slug, programasEducativos = [], cortosFuturos = [] }: F
           </div>
           {/* Programas Column */}
           <div>
-            <h3 className="font-bold text-white mb-4">Programas</h3>
+            <h3 className="font-bold text-white mb-4">Programas y cursos</h3>
             <ul className="space-y-2">
               {academicos.length > 0 ? (
                 academicos.slice(0, 6).map((programa) => (
