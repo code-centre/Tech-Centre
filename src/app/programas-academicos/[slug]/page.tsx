@@ -4,6 +4,7 @@ import TechFoundamentsContainer from "@/components/tech-foundaments/TechFoundame
 import { db } from "../../../../firebase"
 import { collection, query, where, getDocs } from "firebase/firestore"
 import Loader from "@/components/Loader"
+import DetailCourseContent from "@/components/course/DetailCourseContent"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -12,6 +13,6 @@ interface Props {
 export default async function DetailCourse({ params }: Props) {
   const { slug } = await params
   return (
-    <DetailCourseComponent slug={slug} />
+    <DetailCourseContent slug={slug} />
   )
 }
