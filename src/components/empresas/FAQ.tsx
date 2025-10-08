@@ -34,29 +34,29 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" className="py-16 bg-white">
+    <section id="faq" className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Preguntas frecuentes</h2>
-            <p className="text-gray-600">
+            <h2 className="text-3xl text-blueApp font-bold mb-4">Preguntas frecuentes</h2>
+            <p className="text-white">
               Encuentra respuestas a las dudas más comunes sobre nuestros programas para empresas.
             </p>
           </div>
 
           <div className="space-y-4">
             {faqs.map((faq, index) => (
-              <div key={index} className="border rounded-lg overflow-hidden">
+              <div key={index} className="bg-bgCard rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-zinc-800/30 group  sm:rounded-lg p-2">
                 <button
-                  className="w-full px-6 py-4 text-left flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors"
+                  className="w-full px-6 py-4 text-left flex justify-between items-center bg-bgCard rounded-xl hover:bg-white  transition-colors text-white hover:text-black "
                   onClick={() => toggleFAQ(index)}
                 >
                   <span className="font-medium text-lg">{faq.question}</span>
-                  {openIndex === index ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                  {openIndex === index ? <ChevronUp className="h-5 w-5 text-blueApp" /> : <ChevronDown className="h-5 w-5 text-blueApp" />}
                 </button>
                 {openIndex === index && (
-                  <div className="p-6 bg-white">
-                    <p className="text-gray-700">{faq.answer}</p>
+                  <div className="p-6 bg-bgCard">
+                    <p className="text-white">{faq.answer}</p>
                   </div>
                 )}
               </div>
@@ -64,8 +64,11 @@ export default function FAQ() {
           </div>
 
           <div className="mt-12 text-center">
-            <p className="text-gray-600 mb-6">¿No encontraste lo que buscabas?</p>
-            <button>
+            <p className="text-blueApp mb-6">¿No encontraste lo que buscabas?</p>
+              <button
+                type="button"
+                className=" inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300" 
+              >
                 <a href="#contacto">
                     Contáctanos
                 </a>

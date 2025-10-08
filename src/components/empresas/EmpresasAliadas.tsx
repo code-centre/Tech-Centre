@@ -1,11 +1,7 @@
 import Image from "next/image";
+import sponsorsData from '../../../data/aliados.json'
 
-const empresas = [
-  { name: 'Empresa 1', logo: '/logos/Logo-synergy-2.webp' },
-  { name: 'Empresa 2', logo: '/logos/Logo-FiveOneLabs.webp' },
-  { name: 'Empresa 3', logo: '/logos/LegalIA.webp' },
-  // Add more companies as needed
-];
+const empresas = sponsorsData.allies;
 
 export default function EmpresasAliadas() {
   return (
@@ -19,8 +15,8 @@ export default function EmpresasAliadas() {
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
-          {empresas.map((empresa, index) => (
-            <div key={index} className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          {empresas.map((empresa: any, index: any) => (
+            <div key={index} className="p-4 bg-bgCard rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <div className="relative h-20 w-40 mx-auto">
                 <Image
                   src={empresa.logo}

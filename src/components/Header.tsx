@@ -286,14 +286,20 @@ export default function Header() {
                   </Link>
                 </div>
                 <div className="px-4 py-2">
-                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                  <Link
+                    href="/empresas/trabajo"
+                     className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
                     Trabaja con nosotros
-                    </div>
+                    </Link>
                   </div>
                   <div className="px-4 py-2">
-                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                    Pasantías
-                    </div>
+                    <Link
+                      href="/empresas#pasantias"
+                      className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                              hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                    >
+                      Pasantías
+                    </Link>
                   </div>
                   
               </div>
