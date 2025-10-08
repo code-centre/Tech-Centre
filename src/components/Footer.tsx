@@ -1,11 +1,13 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import { MapPin, Phone, Mail, Facebook, Instagram, Twitter, Github } from 'lucide-react'
+import { MapPin, Phone, Mail, Facebook, Instagram, Twitter, Github, InstagramIcon } from 'lucide-react'
 import { useCollection } from 'react-firebase-hooks/firestore'
 import { collection, query, where } from 'firebase/firestore'
 import { db } from '../../firebase'
 import Image from 'next/image'
+import { AliadosSection } from './aliadosSection'
+import { LinkedInIcon } from './Icons'
 
 interface FooterProps {
   slug?: string;
@@ -51,13 +53,14 @@ export function Footer({ slug, programasEducativos = [], cortosFuturos = [] }: F
 
   return (
     <footer className="bg-background text-white py-8">
+      <AliadosSection />
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Tech Centre Column */}
           <div>
             <h3 className="font-bold text-blue-400 mb-4 flex items-center">
               <Image
-                src="/tech-center-logos/Logo-footer.png"
+                src="/tech-center-logos/TechCentreLogoColor.png"
                 alt="Tech Centre Logo"
                 width={100}
                 height={100}
@@ -68,15 +71,15 @@ export function Footer({ slug, programasEducativos = [], cortosFuturos = [] }: F
               Formamos a los profesionales tech del futuro con programas prácticos y actualizados.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-white hover:text-blue-400">
+              <a href="https://www.facebook.com/profile.php?id=100092748068869" className="text-white hover:text-blue-400">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-white hover:text-blue-400">
-                <Instagram className="h-5 w-5" />
+              <a href="https://www.instagram.com/techcentre.co/" className="text-white hover:text-blue-400">
+                <InstagramIcon className="h-5 w-5" />
               </a>
-              <a href="#" className="text-white hover:text-blue-400">
-                <Twitter className="h-5 w-5" />
-              </a>
+              <a href="https://www.linkedin.com/company/tech-centrebaq/" className="text-white hover:text-blue-400">
+                <LinkedInIcon className="h-5 w-5" />
+              </a> 
             </div>
           </div>
 
@@ -101,7 +104,7 @@ export function Footer({ slug, programasEducativos = [], cortosFuturos = [] }: F
               </li>              
               <li>
                 <div className="text-gray-300 opacity-50 cursor-not-allowed text-sm">
-                  Blog
+                  Noticias
                 </div>
               </li>
               <li>
@@ -162,7 +165,7 @@ export function Footer({ slug, programasEducativos = [], cortosFuturos = [] }: F
           </div>
 
           {/* Contacto Column */}
-          <div>
+          <div id="contacto">
             <h3 className="font-bold text-white mb-4">Contacto</h3>
             <ul className="space-y-4">
               <li className="flex items-start">

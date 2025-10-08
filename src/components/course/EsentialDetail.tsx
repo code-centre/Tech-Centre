@@ -89,7 +89,10 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
                   onCancel={() => setUpdateDetails(false)}
                 />
               ) : (
-                <div className="text-lg text-white leading-relaxed">
+                <div className="text-xl text-white leading-relaxed">
+                  <h2 className="text-xl font-bold text-white mb-6">
+                    Lo que aprenderás
+                  </h2>
                   {HTMLReactParser(contentUpdateDetails)}
                   {user?.rol === 'admin' && (
                     <ButtonToEdit startEditing={setUpdateDetails} />
@@ -113,9 +116,9 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
         </div>
 
         {/* Course Content Sections */}
-        <div className="space-y-16" id='aprenderas'>
+        <div className="space-y-16 " id='aprenderas'>
           {/* Learning Path Section with glassmorphism */}
-          <section className="bg-bgCard backdrop-blur-sm 
+          {/* <section className="bg-bgCard backdrop-blur-sm 
             rounded-2xl p-8 border border-blue-100/20 shadow-lg">
             <h2 className="text-2xl font-bold text-white mb-6">
               Lo que aprenderás
@@ -200,7 +203,7 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
                 </button>
               </div>
             )}
-          </section>
+          </section> */}
 
           {/* Target Audience with glassmorphism */}
           <section className="bg-bgCard backdrop-blur-sm p-8 rounded-2xl border border-blue-100/20 shadow-lg" id='para-quien' >

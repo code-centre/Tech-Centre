@@ -15,7 +15,7 @@ export function Hero() {
   }, []);
 
   return (
-    <div className="relative text-white overflow-hidden">
+    <div className="relative text-white overflow-hidden mt-2">
       {/* Video background */}
       <div className="absolute inset-0 w-full h-full z-0">
         <video
@@ -39,11 +39,10 @@ export function Hero() {
               <span>Inscripciones abiertas</span>
             </div> */}
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              Transforma tu futuro con habilidades tech
+            Descubre el poder de la tecnología con clases presenciales y proyectos reales
             </h1>
             <p className="text-xl mb-8 text-blue-100">
-              Aprende de expertos de la industria con programas prácticos
-              diseñados para el mercado laboral actual.
+              Cursos y diplomados en desarrollo web, mobile, diseño UX/UI, data, y más con nuestra modalidad de aprendizaje experiencia
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <a
@@ -51,6 +50,20 @@ export function Hero() {
                 className="px-8 py-3 text-center bg-white text-blueApp font-medium rounded-md hover:bg-blue-50 transition-colors"
               >
                 Ver programas académicos
+              </a>
+              <a
+                href="#contacto"
+                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-blueApp transition-colors"
+              >
+                Contáctanos
+              </a>
+            </div>
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4">
+              <a
+                href="#testimonio"
+                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-blueApp transition-colors"
+              >
+                Impacto
               </a>
               <a
                 href="#contacto"

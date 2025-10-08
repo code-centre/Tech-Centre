@@ -71,7 +71,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
       {
         newDetail
           ? <>
-            <section className="max-w-6xl mx-auto w-full bg-gradient-to-br from-bgCard via-zinc-700 to-zinc-900 text-gray-800 overflow-hidden rounded-3xl grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr] items-center relative p-6 md:p-12 gap-8 lg:h-[520px] shadow-2xl border border-white/30 backdrop-blur-sm">
+            <section className="max-w-6xl mx-auto w-full bg-gradient-to-br from-bgCard via-zinc-700 to-zinc-900 text-gray-800 overflow-hidden rounded-3xl grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr] items-center relative p-4  gap-8  shadow-2xl border border-white/30 backdrop-blur-sm mt-12">
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-300/10 to-purple-300/10 rounded-3xl"></div>
               <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/15 via-transparent to-transparent rounded-3xl"></div>
               {
@@ -141,7 +141,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                   }
                 </div>
                 <div className="px-1">
-                  <p className="lg:text-4xl text-3xl font-semibold drop-shadow-lg text-shadow text-white mb-2">
+                  <p className="lg:text-xl text-xl font-semibold drop-shadow-lg text-shadow text-white mb-2">
                     {course.type} en
                   </p>
                   {
@@ -157,7 +157,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                       </div>
                       :
                       <div className="flex items-center gap-2">
-                        <h1 className="lg:text-5xl text-3xl font-bold max-w-lg leading-tight bg-gradient-to-r from-blueApp to-lightBlue bg-clip-text text-transparent drop-shadow-md">
+                        <h1 className="lg:text-2xl text-2xl font-bold max-w-lg leading-tight bg-gradient-to-r from-blueApp to-lightBlue bg-clip-text text-transparent drop-shadow-md">
                           {course.name}
                         </h1>
                         {
@@ -176,7 +176,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
                         }} />
                       </div>
                       : <div className="flex items-center gap-2">
-                        <h2 className="lg:text-3xl text-xl font-medium inline-block max-w-lg text-white mt-2">
+                        <h2 className="lg:text-xl text-xl font-medium inline-block max-w-lg text-white mt-2">
                           {course.subtitle}
                         </h2>
                         {
