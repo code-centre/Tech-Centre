@@ -163,7 +163,7 @@ export default function Testimonials({ backgroundColor }: Props) {
             </div>
           </section>
         ) : (
-          <div className="text-center py-20 bg-gray-100 rounded-lg">
+          <div className="text-center py-20 bg-bgCard rounded-lg">
             <section className="grid gap-10 grid-cols-1 lg:grid-cols-[2.5fr_3fr]">
                 <div className="flex flex-col-reverse lg:flex-row gap-5 w-full">
                 </div>

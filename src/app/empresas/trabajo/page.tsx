@@ -5,7 +5,7 @@ export default function TrabajoPage() {
   return (
     <main className="flex-1">
      <SolicitarTrabajo 
-        hayOfertas={true}
+        hayOfertas={false}
      /> 
     </main>
   );
