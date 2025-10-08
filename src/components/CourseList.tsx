@@ -72,7 +72,7 @@ export function CourseList({ diplomados, cursosCortos, showHeader = true }: Cour
               ))}
             </div>
           </div>
-        )}          <div>
+        )}          <div id="cursosespecializados">
             <h3 className="text-2xl font-bold text-white mb-6">
               Cursos especializados
             </h3>

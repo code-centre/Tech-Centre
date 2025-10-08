@@ -1,0 +1,32 @@
+{
+    "allies": [
+        {
+            "name": "Inside Labs",
+            "logo": "/logos/inside-lab.webp"
+        },
+        {
+            "name": "Synergy",
+            "logo": "/logos/Logo-synergy-2.webp"
+        },
+        {
+            "name": "51 Labs",
+            "logo": "/logos/Logo-FiveOneLabs.webp"
+        },
+        {
+            "name": "FCA",
+            "logo": "/logos/logo-fca.webp"
+        },
+        {
+            "name": "Caribe Ventures",
+            "logo": "/logos/LogoCaribeVentures.webp"
+        },
+        {
+            "name": "Feanware",
+            "logo": "/logos/logofeamware.webp"
+        },
+        {
+            "name": "LegalIA",
+            "logo": "/logos/LegalIA.webp"
+        }
+    ]
+}
