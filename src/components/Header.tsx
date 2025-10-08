@@ -8,6 +8,7 @@ import { db } from "../../firebase"
 import { collection, query, where } from "firebase/firestore"
 import { ChevronDown, Menu, X, ChevronRight } from "lucide-react"
 import type { User } from "firebase/auth"
+import Anuncios from "@/components/anuncios";
 
 interface Course {
   id: string
@@ -125,11 +126,12 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm shadow-lg">
+      <Anuncios />  
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex-shrink-0">
             <Image
-              src="/tech-center-logos/Logo-horizontal-azul.png"
+              src="/tech-center-logos/Logotechcentrehorizontal.png"
               alt="Logo de Tech-Centre"
               width={160}
               height={40}
@@ -138,7 +140,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
+          <nav className="hidden lg:flex items-center space-x-6 text-sm">
             {/* Cursos Especializados Dropdown */}
             <div className="relative group">
               <button
@@ -161,13 +163,13 @@ export default function Header() {
               >
                 <div className="px-4 py-2">
                   <Link
-                    href="/#cursos"
+                    href="/#cursosespecializados"
                     className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
                       rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
                     onClick={(e) => {
                       if (window.location.pathname === "/") {
                         e.preventDefault()
-                        document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
+                        document.getElementById("cursosespecializados")?.scrollIntoView({ behavior: "smooth" })
                       }
                     }}
                   >
@@ -253,19 +255,143 @@ export default function Header() {
                   )}
                 </div>
               </div>
-            </div>          
-              <>
-              <div
-                className="text-white font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all opacity-50 cursor-not-allowed"
+            </div>  
+            {/* Empresas Dropdown */}
+            <div className="relative group">
+              <button
+                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                font-medium transition-all duration-200 group"
               >
-                Empresas
-              </div>
+                <span
+                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                >
+                  Empresas
+                </span>
+                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
+              </button>
+
               <div
-                className="text-white font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-blueApp after:transition-all opacity-50 cursor-not-allowed"
+                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
+                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
+                shadow-lg border border-white/20 py-3 transition-all duration-200"
               >
-                Comunidades
+                <div className="px-4 py-2">
+                  <Link
+                    href="/empresas"
+                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                  >
+                    Capacitaciones
+                  </Link>
+                </div>
+                <div className="px-4 py-2">
+                  <Link
+                    href="/empresas/trabajo"
+                     className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    Trabaja con nosotros
+                    </Link>
+                  </div>
+                  <div className="px-4 py-2">
+                    <Link
+                      href="/empresas#pasantias"
+                      className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                              hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                    >
+                      Pasantías
+                    </Link>
+                  </div>
+                  
               </div>
-            </>
+            </div>  
+            {/* Comunidad Dropdown */}
+            <div className="relative group">
+              <button
+                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                font-medium transition-all duration-200 group"
+              >
+                <span
+                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                >
+                  Comunidad
+                </span>
+                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
+              </button>
+
+              <div
+                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
+                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
+                shadow-lg border border-white/20 py-3 transition-all duration-200"
+              >
+                <div className="px-4 py-2">
+                  <Link
+                    href="/"
+                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                  >
+                    F. Codigo abierto
+                  </Link>
+                </div>
+                <div className="px-4 py-2">
+                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                  M. Costa digital
+                  </div>
+                </div>
+                <div className="px-4 py-2">
+                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    Caribe Ventures
+                    </div>
+                  </div>
+                  <div className="px-4 py-2">
+                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    Ciudad inmersiva
+                    </div>
+                  </div>
+                  
+              </div>
+            </div> 
+            {/* Noticias Dropdown */}
+            <div className="relative group">
+              <button
+                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                font-medium transition-all duration-200 group"
+              >
+                <span
+                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                >
+                  Noticias
+                </span>
+                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
+              </button>
+
+              <div
+                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
+                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
+                shadow-lg border border-white/20 py-3 transition-all duration-200"
+              >
+                <div className="px-4 py-2">
+                  <Link
+                    href="/"
+                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                  >
+                    Blogs
+                  </Link>
+                </div>
+                <div className="px-4 py-2">
+                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                  Prensa
+                  </div>
+                </div>
+                <div className="px-4 py-2">
+                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                  Eventos
+                  </div>
+                </div>
+              </div>
+            </div>      
           </nav>
           {/* User Actions */}
           {user ? (
@@ -503,21 +629,136 @@ export default function Header() {
               </div>
             </div>            
             {/* Other Navigation Links */}
+            {/* Empresas Dropdown */}
             <div className="py-2">
-              <div
-                className="block py-3 text-white font-semibold opacity-50 cursor-not-allowed"
+              <button
+                onClick={() => toggleMobileDropdown("empresas-mobile")}
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
               >
-                Empresas
-              </div>
-            </div>
+                <span
+                >
+                  Empresas
+                </span>
+                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "empresas-mobile" ? "rotate-180" : ""}`} />
+              </button>
 
-            <div className="py-2">
               <div
-                className="block py-3 text-white font-semibold opacity-50 cursor-not-allowed"
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "empresas-mobile"
+                  ? "max-h-[20vh] opacity-100 overflow-y-auto"
+                  : "max-h-0 opacity-0"
+                  }`}
               >
-                Comunidades
+                <div className="mt-2 pl-4 space-y-2 transform transition-transform duration-300">
+                  <Link
+                    href="/"
+                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                  >
+                    Capacitaciones
+                  </Link>
+                </div>
+                <div className="px-4 py-2">
+                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    Trabaja con nosotros
+                    </div>
+                  </div>
+                  <div className="px-4 py-2">
+                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    Pasantías
+                    </div>
+                  </div>
+                  
               </div>
-            </div>
+            </div>  
+            {/* Comunidad Dropdown */}
+            <div className="py-2">
+              <button
+                onClick={() => toggleMobileDropdown("comunidad-mobile")}
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
+              >
+                <span>
+                  Comunidad
+                  </span>
+                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "comunidad-mobile" ? "rotate-180" : ""}`} />
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "comunidad-mobile"
+                  ? "max-h-[20vh] opacity-100 overflow-y-auto"
+                  : "max-h-0 opacity-0"
+                  }`}
+              >
+                <div className="px-4 py-2">
+                  <Link
+                    href="/"
+                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                  >
+                    F. Codigo abierto
+                  </Link>
+                </div>
+                <div className="px-4 py-2">
+                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                  M. Costa digital
+                  </div>
+                </div>
+                <div className="px-4 py-2">
+                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    Caribe Ventures
+                    </div>
+                  </div>
+                  <div className="px-4 py-2">
+                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    Ciudad inmersiva
+                    </div>
+                  </div>
+                  
+              </div>
+            </div> 
+            {/* Noticias Dropdown */}
+            <div className="py-2">
+              <button
+                onClick={() => toggleMobileDropdown("Noticias-mobile")}
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
+              >
+                <span>
+                  Noticias
+                  </span>
+                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "Noticias-mobile" ? "rotate-180" : ""}`} />
+              </button>
+
+              <div
+                className={`${
+                  mobileDropdown === "Noticias-mobile"
+                    ? "max-h-[20vh] opacity-100 overflow-y-auto"
+                    : "max-h-0 opacity-0"
+                } transition-all duration-500 ease-in-out`}
+              >
+                <div className="px-4 py-2">
+                  <Link
+                    href="/"
+                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    Blogs
+                  </Link>
+                </div>
+                <div className="px-4 py-2">
+                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                  Prensa
+                  </div>
+                </div>
+                <div className="px-4 py-2">
+                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                  Eventos
+                  </div>
+                </div>
+              </div>
+            </div> 
 
             {/* User Actions - Move Register button inside mobile menu */}
             <div className="py-4">
