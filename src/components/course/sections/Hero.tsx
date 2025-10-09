@@ -71,7 +71,7 @@ export default function Hero({ course, newDetail, saveChanges }: Props) {
       {
         newDetail
           ? <>
-            <section className="max-w-6xl mx-auto w-full bg-gradient-to-br from-bgCard via-zinc-700 to-zinc-900 text-gray-800 overflow-hidden rounded-3xl grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr] items-center relative p-4  gap-8  shadow-2xl border border-white/30 backdrop-blur-sm mt-12">
+            <section id='herocursos' className="max-w-6xl mx-auto w-full bg-gradient-to-br from-bgCard via-zinc-700 to-zinc-900 text-gray-800 overflow-hidden rounded-3xl grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr] items-center relative p-4  gap-8  shadow-2xl border border-white/30 backdrop-blur-sm mt-12">
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-300/10 to-purple-300/10 rounded-3xl"></div>
               <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/15 via-transparent to-transparent rounded-3xl"></div>
               {
