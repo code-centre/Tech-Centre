@@ -76,7 +76,7 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
             </div>
 
             {/* Description with glassmorphism */}
-            <div className="prose max-w-none bg-bgCard backdrop-blur-sm p-6 rounded-xl 
+            <div id='aprenderas' className="prose max-w-none bg-bgCard backdrop-blur-sm p-6 rounded-xl 
               border border-blue-100/20 shadow-lg">
               {updateDetails ? (
                 <Editor
@@ -89,7 +89,7 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
                   onCancel={() => setUpdateDetails(false)}
                 />
               ) : (
-                <div className="text-xl text-white leading-relaxed">
+                <div  className="text-ms text-white leading-relaxed ">
                   <h2 className="text-xl font-bold text-white mb-6">
                     Lo que aprenderás
                   </h2>
@@ -116,7 +116,7 @@ export default function EsentialDetail({ course, newDetail, saveChanges }: Props
         </div>
 
         {/* Course Content Sections */}
-        <div className="space-y-16 " id='aprenderas'>
+        <div className="space-y-16 " >
           {/* Learning Path Section with glassmorphism */}
           {/* <section className="bg-bgCard backdrop-blur-sm 
             rounded-2xl p-8 border border-blue-100/20 shadow-lg">

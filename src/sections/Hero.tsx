@@ -51,12 +51,6 @@ export function Hero() {
               >
                 Ver programas académicos
               </a>
-              <a
-                href="#contacto"
-                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-blueApp transition-colors"
-              >
-                Contáctanos
-              </a>
             </div>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4">
               <a

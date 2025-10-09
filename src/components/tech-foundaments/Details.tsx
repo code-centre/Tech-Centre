@@ -30,8 +30,8 @@ export default function Details({ shortCourse, saveChanges }: Props) {
   return (
     <div className="max-w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
       {/* Header with gradient */}
-      <div className="p-6 text-white flex justify-between items-center">
-        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+      <div className="p-4 text-white flex justify-between items-center">
+        <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
           <BrainCircuit className="text-blueApp" size={24} />
           ¿Qué aprenderás?
         </h2>
@@ -46,7 +46,7 @@ export default function Details({ shortCourse, saveChanges }: Props) {
       </div>
 
       {/* Contenido */}
-      <div className="p-6">
+      <div className="px-6">
         {isEditing ? (
           <div className="space-y-4">
             <Editor
@@ -103,7 +103,7 @@ export default function Details({ shortCourse, saveChanges }: Props) {
 
         {/* Beneficios adicionales */}
         {hasDetails && (
-          <div className="mt-8 pt-6">
+          <div className="my-4 pt-4">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <LightbulbIcon size={18} className="text-blueApp" />
               Beneficios adicionales

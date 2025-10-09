@@ -378,8 +378,8 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   }, [shortCourse]);
 
   return (
-    <div className="text-white w-full mt-20 lg:mx-20 overflow-x-hidden">
-      <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8 pb-20 gap-8 ">
+    <div className="text-white w-full mt-30 overflow-x-hidden">
+      <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8  gap-8 ">
         <Hero
           date={shortCourse?.date || ''}
           title={shortCourse?.title || ''}
@@ -458,21 +458,21 @@ export default function TechFoundamentsContainer({ slug }: Props) {
           </div>
 
           {/* Secciones adicionales con mejor separación */}
-          <div className="flex flex-col gap-y-12">
-            <div id="programa" className="bg-transparent pt-12"> {/* Separación extra antes del temario */}
+          <div className="flex flex-col gap-y-2">
+            <div id="programa" className="bg-transparent pt-6"> {/* Separación extra antes del temario */}
               <Syllabus
                 shortCourse={shortCourse || {}}
                 saveChanges={saveChanges}
               />
             </div>
-            <div id="horarios" className="bg-transparent pt-12">
+            <div id="horarios" className="bg-transparent pt-2">
               <Schedule
                 data={shortCourse || {}}
                 saveChanges={saveChanges}
               />
             </div>
 
-            <div id="precios" className="flex items-center justify-center p-8">
+            <div id="precios" className="flex items-center justify-center p-2">
               <Tickets
                 tickets={tickets || []}
                 eventId={eventId}
