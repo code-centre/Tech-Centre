@@ -7,7 +7,7 @@ export const AliadosSection = () => {
   const allies = sponsorsData.allies
 
   return (
-    <section className="w-full py-16 px-6 md:px-12">
+    <section className="w-full px-6 md:px-12">
       <div className="max-w-7xl mx-auto">
         <div className="py-16 mt-16 ">
           <div className="text-center mb-8">

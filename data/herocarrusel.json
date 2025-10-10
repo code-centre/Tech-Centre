@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "image": "/hero-image.jpg",
+    "alt": "Estudiantes aprendiendo tecnología en el aula",
+    "title": "Aprende con los Mejores",
+    "description": "Clases presenciales con profesionales en tecnología",
+    "link": "/"
+  },
+  {
+    "id": 2,
+    "image": "/FCA-fundacion/barranqui-ia.jpg",
+    "alt": "Tecnología en la educación",
+    "title": "Tecnología de Vanguardia",
+    "description": "Equipos modernos para tu formación profesional",
+    "link": "/empresas"
+  },
+  {
+    "id": 3,
+    "image": "/FCA-fundacion/tech-caribe.jpg",
+    "alt": "Comunidad de estudiantes",
+    "title": "Únete a Nuestra Comunidad",
+    "description": "Conecta con apasionados de la tecnología",
+    "link": "/programas-academicos"
+  }
+]

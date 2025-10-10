@@ -2,6 +2,8 @@
 import React, { useEffect, useRef } from 'react'
 import { CalendarIcon } from 'lucide-react'
 import Image from 'next/image';
+import Carrusel from "@/components/carrusel";
+import heroData from '../../data/herocarrusel.json'
 
 export function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -67,22 +69,22 @@ export function Hero() {
               </a>
             </div>
           </div>
-          <div className="hidden md:block">
+          <div className="">
             <div className="relative group">
               {/* Efectos decorativos */}
               <div className="absolute -left-4 -top-4 w-24 h-24 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
               <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
               
               {/* Marco con borde brillante */}
-              <div className="p-1 bg-gradient-to-r from-blueApp via-blue-100 to-blueApp rounded-lg rotate-1 shadow-2xl">
-                <div className="p-1 bg-gradient-to-r from-lightBlue via-blue-300 to-blueApp rounded-lg -rotate-2">
-                  <Image
-                    src="/hero-image.jpg"
-                    width={800}
-                    height={400}
-                    alt="Estudiantes aprendiendo tecnología"
-                    className="rounded-lg shadow-xl relative z-10 object-cover w-full h-[400px] group-hover:scale-[1.02] transition-transform duration-300"
-                    priority
+              <div className="p-1 z-2 bg-gradient-to-r from-blueApp via-blue-100 to-blueApp rounded-lg rotate-1 shadow-2xl">
+                <div className="p-1 z-4 bg-gradient-to-r from-lightBlue via-blue-300 to-blueApp rounded-lg -rotate-2">
+                  <Carrusel
+                    items={heroData}
+                    type="hero"
+                    effect="fade"
+                    className="w-full h-[400px] z-10 rounded-lg hover:scale-102 transition-transform duration-300"
+                    itemClassName="group z-10"
+                    imageClassName=""
                   />
                 </div>
               </div>
