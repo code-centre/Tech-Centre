@@ -52,7 +52,7 @@ export function WhoWeAre() {
       {/* Content */}
       <div className="relative z-10 mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="text-center mb-12">
-          <h2 className="text-2xl font-bold text-white">Sobre Tech Centre</h2>
+          <h2 className="text-3xl font-bold text-white">Centro de tecnología del Caribe</h2>
           <p className="mt-4 text-left text-xl text-gray-200 max-w-3xl mx-auto">
           En Tech Centre creemos que lo único que se necesita para cambiar el mundo es una oportunidad, y la tecnología es la industria de las oportunidades.
           </p>
