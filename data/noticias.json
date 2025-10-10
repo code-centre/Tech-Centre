@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "image": "/noticias/2025/zonacero.webp",
+    "titulo": "Zona Cero",
+    "descripcion": "Tech Caribe Fest: el festival que trae la variedad de la tecnología en el Caribe",
+    "link": "https://zonacero.com/sociales/tech-caribe-fest-el-festival-que-trae-la-variedad-de-la-tecnologia-en-el-caribe"
+  },
+  {
+    "id": 2,
+    "image": "/noticias/2025/libertad.webp",
+    "titulo": "La libertad",
+    "descripcion": "Atlántico vive el Tech Caribe Fest 2025, la gran cita tecnológica del Caribe",
+    "link": "https://diariolalibertad.com/sitio/2025/09/12/atlantico-vive-el-tech-caribe-fest-2025-la-gran-cita-tecnologica-del-caribe/"
+  },
+  {
+    "id": 3,
+    "image": "/noticias/2025/alternativacaribe.webp",
+    "titulo": "Alternativa Caribe",
+    "descripcion": "Vuelve Tech Caribe Fest, evento que proyecta al Atlántico como nuevo epicentro tecnológico.",
+    "link": "https://alternativacaribe.info/2025/09/12/vuelve-tech-caribe-fest-evento-que-proyecta-al-atlantico-como-nuevo-epicentro-tecnologico/"
+    
+  },
+  {
+    "id": 4,
+    "image": "/noticias/2025/notasdeactualidad.webp", 
+    "titulo": "Notas de actualidad",
+    "descripcion": "Vuelve Tech Caribe Fest, evento que proyecta al Atlántico como nuevo epicentro tecnológico",
+    "link": "https://notasdeactualidad.com/vuelve-tech-caribe-fest-evento-que-proyecta-al-atlantico-como-nuevo-epicentro-tecnologico/"
+  },
+  {
+    "id": 5,
+    "image": "/noticias/2025/atlantico.webp",
+    "titulo": "Gobernación del Atlántico",
+    "descripcion": "Vuelve Tech Caribe Fest, evento que proyecta al Atlántico como nuevo epicentro tecnológico",
+    "link": "https://www.atlantico.gov.co/index.php/noticias/prensa-tic/26610-vuelve-tech-caribe-fest-evento-que-proyecta-al-atlantico-como-nuevo-epicentro-tecnologico"
+  },
+  {
+    "id": 6,
+    "image": "/noticias/2025/cuidmedia.webp", 
+    "titulo": "Cuidmedia",
+    "descripcion": "Tech Caribe Fest 2025 reunirá a más de 4.000 asistentes en la Plaza de la Paz",
+    "link": "https://www.cuidmedia.com/tech-caribe-fest-2025-reunira-a-mas-de-4-000-asistentes-en-la-plaza-de-la-paz/"
+  },
+  {
+    "id": 7,
+    "image": "/noticias/2025/universal.webp",
+    "titulo": "Universal noticias",
+    "descripcion": "Vuelve Tech Caribe Fest",
+    "link": "https://universalnoticias.co/vuelve-tech-caribe-fest/" 
+  },
+  {
+    "id": 8,
+    "image": "/noticias/2025/adn.webp",
+    "titulo": "Diario ADN",
+    "descripcion": "Barranquilla será sede del Tech Caribe Fest 2025 con apoyo de Google",
+    "link": "https://www.diarioadn.co/noticias/barranquilla-sera-sede-del-tech-caribe-fest-2025-con-apoyo-de-google+articulo+69700"
+  },
+  {
+    "id": 9,
+    "image": "/noticias/2025/heraldo.webp", 
+    "titulo": "El Heraldo",
+    "descripcion": "Regresa el Tech Caribe Fest 2025 a Barranquilla con Google como aliado",
+    "link": "https://www.elheraldo.co/atlantico/2025/09/07/regresa-el-tech-caribe-fest-2025-a-barranquilla-con-google-como-aliado/"
+    
+  }
+    
+]
