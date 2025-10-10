@@ -11,11 +11,10 @@ import { CircleCheckBig, MapPin } from 'lucide-react'
 import Image from 'next/image'
 
 const differents = [
-  "Profesores activos en la industria que comparten experiencias reales",
-  "Enfoque 100% práctico con proyectos basados en casos reales",
-  "Grupos pequeños para atención personalizada",
-  "Networking con profesionales y empresas del sector",
-  "Bolsa de empleo exclusiva para estudiantes y egresados"
+  "Metodología de aprendizaje experiencial: Aprende haciendo. Desde el primer día participarás en proyectos reales, retos prácticos y dinámicas que reflejan el mundo laboral.",
+  "Profesores activos en la industria: Nuestros mentores son profesionales que trabajan en empresas tecnológicas reales y te enseñarán lo que hoy se está buscando en el mercado.",
+  "Clases presenciales y grupos semipersonalizados: Recibe acompañamiento cercano, resuelve tus dudas en tiempo real y aprende en un entorno colaborativo.",
+  "Comunidad Tech en expansión: Conéctate con una red de profesionales, emprendedores y expertos que están construyendo el futuro tecnológico del Caribe."
 ];
 
 export function WhoWeAre() {
@@ -53,16 +52,19 @@ export function WhoWeAre() {
       {/* Content */}
       <div className="relative z-10 mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white">Sobre Tech Centre</h2>
-          <p className="mt-4 text-xl text-gray-200 max-w-3xl mx-auto">
-            Somos más que un centro de formación tecnológica. Somos un
-            ecosistema de aprendizaje donde la innovación y el talento se
-            encuentran.
+          <h2 className="text-2xl font-bold text-white">Sobre Tech Centre</h2>
+          <p className="mt-4 text-left text-xl text-gray-200 max-w-3xl mx-auto">
+          En Tech Centre creemos que lo único que se necesita para cambiar el mundo es una oportunidad, y la tecnología es la industria de las oportunidades.
+          </p>
+          <p className="text-left text-xl text-gray-200 max-w-3xl mx-auto">
+          Nuestra misión es despertar al genio tech que llevas dentro y acompañarte en este viaje para que formes parte de la revolución tecnológica que está transformando al Caribe, a Colombia y al mundo. 
+          </p>
+          <p className="mt-4 text-left text-xl text-gray-200 max-w-3xl mx-auto">Formamos talento preparado para los retos reales de la industria a través de una experiencia educativa práctica, humana y conectada con el ecosistema empresarial.
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
           <div>
-            <h3 className="text-2xl font-bold mb-6 text-white">¿Qué nos hace diferentes?</h3>
+            <h3 className="text-xl text-center font-bold mb-6 text-white">¿Por qué elegirnos?</h3>
             <ul className="list-disc list-inside text-gray-200 mb-10">
               {differents.map((item, index) => (
                 <div key={index} className="mb-2 py-3">
@@ -71,7 +73,7 @@ export function WhoWeAre() {
                 </div>
               ))}
             </ul>
-            <div className="bg-white rounded-lg p-6 shadow-lg">
+            {/* <div className="bg-white rounded-lg p-6 shadow-lg border-2 border-black">
               <div className="flex items-center mb-4">
                 <div className="bg-blueApp rounded-full p-3 mr-4">
                   <MapPin className="h-6 w-6 text-white" />
@@ -90,7 +92,7 @@ export function WhoWeAre() {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
-            </div>
+            </div> */}
           </div>
           <div>
             <Image
