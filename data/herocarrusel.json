@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "image": "/hero-image.jpg",
+    "image": "/FCA-fundacion/tech-nights.jpg",
     "alt": "Estudiantes aprendiendo tecnología en el aula",
     "title": "Aprende con los Mejores",
     "description": "Clases presenciales con profesionales en tecnología",
@@ -22,5 +22,13 @@
     "title": "Únete a Nuestra Comunidad",
     "description": "Conecta con apasionados de la tecnología",
     "link": "/programas-academicos"
+  },
+  {
+    "id": 4,
+    "image": "/hero-image.jpg",
+    "alt": "Hero's principal",
+    "title": "Descubre el poder de la tecnología con clases presenciales y proyectos reales",
+    "description": "Cursos y diplomados en desarrollo web, mobile, diseño UX/UI, data, y más con nuestra modalidad de aprendizaje experiencia",
+    "link": "/"
   }
 ]
