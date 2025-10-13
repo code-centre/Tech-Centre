@@ -391,7 +391,46 @@ export default function Header() {
                   </div>
                 </div>
               </div>
-            </div>      
+            </div>   
+            {user ? (<div>
+              <div className="relative group">
+              <button
+                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                font-medium transition-all duration-200 group"
+              >
+                <span
+                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                >
+                  Admin
+                </span>
+                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
+              </button>
+
+              <div
+                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
+                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
+                shadow-lg border border-white/20 py-3 transition-all duration-200"
+              >
+                <div className="px-4 py-2">
+                  <Link
+                    href="/admin/estudiantes"
+                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                  >
+                    Lista estudiantes
+                  </Link>
+                </div>
+                <div className="px-4 py-2">
+                  <Link
+                    href="/admin/pagos"
+                     className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    Lista de pagos
+                    </Link>
+                  </div>
+              </div>
+            </div> 
+            </div>) : (<div></div>)}   
           </nav>
           {/* User Actions */}
           {user ? (
