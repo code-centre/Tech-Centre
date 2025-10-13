@@ -109,7 +109,7 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
     >
       {/* Header */}
       <div className="p-4 md:p-6 text-white flex justify-between items-center">
-        <h2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center text-center gap-2">
+        <h2 className="text-xl md:text-xl font-bold tracking-tight flex items-center text-center gap-2">
           <GraduationCap className="text-blueApp" size={24} />
           Profesor{speakers.length > 1 ? 'es' : ''}
         </h2>
@@ -197,21 +197,21 @@ export function ProfessorContainer({ speakers = [], eventId, saveSpeakers, onDel
                       )}
                     </div>
                     {/* Contenido - información del profesor */}
-                    <div className="px-3 pt-12 sm:pt-14 md:pt-16 pb-4 md:pb-6 flex flex-col items-center text-center">
+                    <div className="px-3 pt-12 sm:pt-14 md:pt-16 pb-4 md:pb-6 flex flex-col items-center ">
                       {speaker.occupation && (
                         <div className="flex mb-4 md:mb-6 flex justify-center items-center text-center gap-2 md:gap-3 bg-zinc-800 rounded-lg px-3 md:px-4 py-2 w-full border border-zinc-700/30">
                           <div className="text-xl md:text-2xl font-bold tracking-tight flex items-center text-center gap-2">
                             <GraduationCap className="w-6 h-6 md:w-10 md:h-10 text-blue-400" />
                           </div>
                           <div>
-                            <p className="text-white text-sm md:text-base">{speaker.occupation}</p>
+                            <p className="text-left text-white text-sm md:text-base">{speaker.occupation}</p>
                           </div>
                         </div>
                       )}
                       {speaker.speciality && (
-                        <div className="text-xl md:text-2xl font-bold tracking-tight flex items-center text-center gap-2">
-                          <CodeIcon className="w-6 h-6 md:w-8 md:h-8 text-blue-400" />
-                          <p className="text-gray-300 text-xs md:text-sm">{speaker.speciality}</p>
+                        <div className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-6">
+                          <CodeIcon className="ml-4 w-6 h-6 md:w-8 md:h-8 text-blue-400" />
+                          <p className="text-left text-gray-300 text-xs md:text-sm">{speaker.speciality}</p>
                         </div>
                       )}
                       {speaker.bio && (
