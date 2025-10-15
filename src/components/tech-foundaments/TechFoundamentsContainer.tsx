@@ -126,15 +126,21 @@ export default function TechFoundamentsContainer({ slug }: Props) {
 
         if (eventSnap.exists()) {
           const eventData = eventSnap.data();
-          const ticketsData = (eventData?.tickets || []).map((ticket: any) => ({
-            name: ticket.name ?? ticket.title ?? '',
-            title: ticket.title ?? '',
-            ticketName: ticket.ticketName ?? ticket.name ?? ticket.title ?? '',
-            price: ticket.price ?? 0,
-            benefits: ticket.benefits ?? [],
-            type: ticket.type ?? 'general',
-            description: ticket.description ?? '',
-          }));
+          const ticketsData = (eventData?.tickets || []).map((ticket: any) => {
+            // Ensure price is a valid number, default to 0 if invalid
+            const price = typeof ticket.price === 'number' ? ticket.price : 
+                         ticket.price && !isNaN(Number(ticket.price)) ? Number(ticket.price) : 0;
+            
+            return {
+              name: ticket.name ?? ticket.title ?? '',
+              title: ticket.title ?? '',
+              ticketName: ticket.ticketName ?? ticket.name ?? ticket.title ?? '',
+              price: price,
+              benefits: Array.isArray(ticket.benefits) ? ticket.benefits : [],
+              type: ticket.type ?? 'general',
+              description: ticket.description ?? '',
+            };
+          });
 
           setTickets(ticketsData);
         }
@@ -165,15 +171,21 @@ export default function TechFoundamentsContainer({ slug }: Props) {
 
     // Actualizar tickets solo si estamos modificando la propiedad tickets
     if (propertyName === 'tickets') {
-      const ticketsSnapshot = (programSnapshot.data()?.tickets || []).map((ticket: any) => ({
-        name: ticket.name ?? ticket.title ?? '',
-        title: ticket.title ?? '',
-        ticketName: ticket.ticketName ?? ticket.name ?? ticket.title ?? '',
-        price: ticket.price ?? 0,
-        benefits: ticket.benefits ?? [],
-        type: ticket.type ?? 'general',
-        description: ticket.description ?? '',
-      }))
+      const ticketsSnapshot = (programSnapshot.data()?.tickets || []).map((ticket: any) => {
+        // Ensure price is a valid number, default to 0 if invalid
+        const price = typeof ticket.price === 'number' ? ticket.price : 
+                     ticket.price && !isNaN(Number(ticket.price)) ? Number(ticket.price) : 0;
+        
+        return {
+          name: ticket.name ?? ticket.title ?? '',
+          title: ticket.title ?? '',
+          ticketName: ticket.ticketName ?? ticket.name ?? ticket.title ?? '',
+          price: price,
+          benefits: Array.isArray(ticket.benefits) ? ticket.benefits : [],
+          type: ticket.type ?? 'general',
+          description: ticket.description ?? '',
+        };
+      })
       setTickets(ticketsSnapshot)
     }
     try {

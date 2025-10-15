@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { useCollection } from "react-firebase-hooks/firestore"
 import { db } from "../../firebase"
 import { collection, query, where } from "firebase/firestore"
-import { ChevronDown, Menu, X, ChevronRight } from "lucide-react"
+import { ChevronDown, Menu, X, ChevronRight, ChevronLast, ChevronLeft } from "lucide-react"
 import type { User } from "firebase/auth"
 import Anuncios from "@/components/anuncios";
 
@@ -24,6 +24,10 @@ export default function Header() {
   const [userOn, setUserOn] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [mobileDropdown, setMobileDropdown] = useState<string | null>(null)
+  const [showCursosEspecializados, setShowCursosEspecializados] = useState(false)
+  const [showDiplomados, setShowDiplomados] = useState(false)
+  const cursosEspecializadosRef = useRef<HTMLDivElement>(null)
+  const diplomadosRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
   const { user, setUser } = useUserStore() as { user: any | null; setUser: (user: any | null) => void }
@@ -140,9 +144,136 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-6 text-sm">
-            {/* Cursos Especializados Dropdown */}
+          <nav className="hidden lg:flex items-center space-x-12 text-lg">
+            {/* cursos general dropdown */}
             <div className="relative group">
+              <button
+                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                font-medium transition-all duration-200 group"
+              >
+                <span
+                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                >
+                  Programas
+                </span>
+                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
+              </button>
+              <div
+                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
+                absolute top-full left-0 mt-2 w-60 bg-zinc-900 backdrop-blur-md rounded-xl 
+                shadow-lg border border-white/20 py-3 transition-all duration-200"
+              >
+                <div className="px-4 py-2 space-y-2">
+                  <Link
+                    href="/programas-academicos"
+                    className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
+                      rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
+                  >
+                    ¡Estudia con nosotros!
+                  </Link>
+                  <div 
+                    className="relative group cursor-pointer"
+                    onMouseEnter={() => setShowDiplomados(true)}
+                    onMouseLeave={() => setShowDiplomados(false)}
+                    ref={diplomadosRef}
+                  >
+                    <div
+                      className="flex items-center space-x-2 text-white hover:text-blueApp 
+                      font-medium transition-all duration-200 px-3 py-2"
+                    >
+                      <span
+                        className="relative after:absolute text-sm after:bottom-0 after:left-0 after:h-0.5 
+                        after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                      >
+                        Diplomados
+                      </span>
+                      <ChevronLeft
+                        className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" 
+                      />
+                    </div>
+                    <div
+                      className={`z-20 absolute left-full top-0 ml-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl shadow-lg border border-white/20 py-3 transition-all duration-200 ${
+                        showDiplomados ? 'opacity-100 visible' : 'opacity-0 invisible'
+                      }`}
+                      onMouseEnter={() => setShowDiplomados(true)}
+                      onMouseLeave={() => setShowDiplomados(false)}
+                    >
+                      <div className=" px-4 py-2">
+                        {loading ? (
+                          <div className="flex justify-center py-4">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
+                          </div>
+                        ) : (
+                          <div className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40">
+                            {diplomasInfo.map((diploma, index) => (
+                              <Link
+                                key={diploma.id}
+                                href={`/programas-academicos/${diploma.slug}`}
+                                className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                                  hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                {diploma.title || diploma.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div 
+                    className="relative group cursor-pointer"
+                    onMouseEnter={() => setShowCursosEspecializados(true)}
+                    onMouseLeave={() => setShowCursosEspecializados(false)}
+                    ref={cursosEspecializadosRef}
+                  >
+                    <div
+                      className="flex items-center space-x-2 text-white hover:text-blueApp 
+                      font-medium transition-all duration-200 px-3 py-2"
+                    >
+                      <span
+                        className="relative text-sm after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                        after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                      >
+                        Cursos Especializados
+                      </span>
+                      <ChevronLeft
+                        className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" 
+                      />
+                    </div>
+                    <div
+                      className={`z-20 absolute left-full top-0 ml-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl shadow-lg border border-white/20 py-3 transition-all duration-200 ${showCursosEspecializados ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                      onMouseEnter={() => setShowCursosEspecializados(true)}
+                      onMouseLeave={() => setShowCursosEspecializados(false)}
+                    >
+                      <div className=" px-4 py-2">
+                        {loading ? (
+                          <div className="flex justify-center py-4">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
+                          </div>
+                        ) : (
+                          <div className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40">
+                            {specializedCoursesInfo.map((course, index) => (
+                              <Link
+                                key={course.id}
+                                href={`/programas-academicos/${course.slug}`}
+                                className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                {course.title || course.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Cursos Especializados Dropdown */}
+            {/* <div className="relative group">
               <button
                 className="flex items-center space-x-2 text-white hover:text-blueApp 
                 font-medium transition-all duration-200 group"
@@ -195,10 +326,10 @@ export default function Header() {
                   )}
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Diplomados Dropdown */}
-            <div className="relative group">
+            {/* <div className="relative group">
               <button
                 className="flex items-center space-x-2 text-white hover:text-blueApp 
                 font-medium transition-all duration-200 group"
@@ -255,7 +386,7 @@ export default function Header() {
                   )}
                 </div>
               </div>
-            </div>  
+            </div>   */}
             {/* Empresas Dropdown */}
             <div className="relative group">
               <button
