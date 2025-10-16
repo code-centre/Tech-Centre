@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@midudev/tailwind-animations": "^0.2.0",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/auth-helpers-react": "^0.5.0",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.75.0",
     "axios": "^1.9.0",
     "clsx": "^2.1.1",
     "firebase": "^11.7.3",
