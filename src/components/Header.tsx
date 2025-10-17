@@ -625,8 +625,15 @@ export default function Header() {
                       href="/admin/pagos"
                       className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
                       Lista de pagos
-                      </Link>
-                    </div>
+                    </Link>
+                  </div>
+                  <div className="px-4 py-2">
+                    <Link
+                      href="/admin/programas"
+                      className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                      Lista de programas
+                    </Link>
+                  </div>
                 </div>
               </div> 
             </div>)}  
