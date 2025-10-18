@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Save, X, XCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, Save, X, XCircle} from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useUser } from '@/lib/supabase';
+import Link from 'next/link';
 
 type Program = {
   id: number;
@@ -364,7 +365,12 @@ export default function ProgramsAdmon() {
                       <div className="font-medium text-gray-900">{program.difficulty}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{program.name}</div>
+                      <Link 
+                        href={`/admin/programas/${program.id}`}
+                        className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        {program.name}
+                      </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button 
