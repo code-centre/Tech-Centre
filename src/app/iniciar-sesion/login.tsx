@@ -25,40 +25,44 @@ const Login = () => {
   const supabase = createClientComponentClient();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  e.preventDefault();
+  setError('');
+  setIsLoading(true);
 
-    try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+  try {
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      if (signInError) {
-        // Mapeo de errores de Supabase a mensajes amigables
-        switch (signInError.message) {
-          case 'Invalid login credentials':
-            throw new Error('Correo o contraseña incorrectos');
-          case 'Email not confirmed':
-            throw new Error('Por favor verifica tu correo electrónico antes de iniciar sesión');
-          case 'Email rate limit exceeded':
-            throw new Error('Demasiados intentos. Por favor, inténtalo más tarde');
-          default:
-            throw new Error('Error al iniciar sesión. Por favor, inténtalo de nuevo');
-        }
+    if (signInError) {
+      // Mapeo de errores de Supabase a mensajes amigables
+      switch (signInError.message) {
+        case 'Invalid login credentials':
+          throw new Error('Correo o contraseña incorrectos');
+        case 'Email not confirmed':
+          throw new Error('Por favor verifica tu correo electrónico antes de iniciar sesión');
+        case 'Email rate limit exceeded':
+          throw new Error('Demasiados intentos. Por favor, inténtalo más tarde');
+        default:
+          console.error('Error de autenticación:', signInError);
+          throw new Error('Error al iniciar sesión. Por favor, inténtalo de nuevo');
       }
-
-      // Redirigir a la página de inicio después del inicio de sesión exitoso
-      router.push('/');
-      router.refresh(); // Asegura que los datos de sesión se actualicen
-
-    } catch (err: any) {
-      setError(err.message || 'Error al iniciar sesión');
-    } finally {
-      setIsLoading(false);
     }
-  };
+
+    // Forzar recarga completa de la página para asegurar que todos los datos se actualicen
+    window.location.href = '/';
+    // Alternativa si prefieres usar el router:
+    // router.replace('/');
+    // router.refresh();
+
+  } catch (err: any) {
+    console.error('Error en inicio de sesión:', err);
+    setError(err.message || 'Error al iniciar sesión');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const getErrorMessage = (error: any) => {
     switch (error?.code) {
