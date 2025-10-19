@@ -30,7 +30,7 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
             <button
               key={section.id}
               onClick={() => onSectionChange(section.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium mb-1 ${activeSection === section.id ? 'bg-zinc-900 text-blueApp' : 'text-white hover:bg-gray-50'}`}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium mb-1 ${activeSection === section.id ? 'bg-zinc-900 text-blueApp' : 'text-white hover:bg-gray-50 hover:text-blueApp'}`}
             >
               <Icon size={20} />
               {section.label}
