@@ -12,6 +12,7 @@ interface Props {
 
 export default async function DetailCourse({ params }: Props) {
   const { slug } = await params
+  console.log("cod2",slug)
   return (
     <DetailCourseContent slug={slug} />
   )
