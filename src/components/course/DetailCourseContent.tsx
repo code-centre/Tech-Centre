@@ -21,19 +21,34 @@ type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 //   // Agrega más campos según la estructura de tu syllabus
 // }
 
+interface Module {
+  id: number;
+  titulo: string;
+  temas: string[];
+  duracion_horas: number;
+}
+
+interface SyllabusData {
+  modulos: Module[];
+}
 // Interfaz principal del programa
 interface Program {
   id: number;
   code: string;
   name: string;
-  syllabus: Json[]; // o any[] si la estructura es muy dinámica
+  syllabus: SyllabusData; // o any[] si la estructura es muy dinámica
   difficulty: Difficulty;
   kind: string;
   total_hours: number;
   default_price: number;
   is_active: boolean;
   created_at: string; // o Date si lo conviertes
-  updated_at: string; // o Date si lo conviertes
+  updated_at: string; 
+  image: string;
+  description: string;
+  video: string;
+  subtitle: string;
+  faqs: any[];
   // Agrega aquí cualquier otro campo que pueda tener tu tabla
 }
 export default function DetailCourseContent({ slug }: { slug: string }) {

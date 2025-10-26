@@ -13,7 +13,11 @@ export interface Program {
   is_active: boolean
   created_at: string
   updated_at: string
-  status?: string
+  image:string;
+  description:string;
+  video:string;
+  subtitle:string;
+  faqs:any[];
   slug?: string
   [key: string]: any
 }
@@ -50,7 +54,10 @@ export function CourseListSupa({
               <CourseCardSupa
                 key={program.id}
                 title={program.name}
+                subtitle={program.subtitle}
+                image={program.image}
                 kind={program.kind}
+                description={program.description}
                 level={program.difficulty}
                 duration={`${program.total_hours || 0} horas`}
                 slug={program.slug || program.code.toString()}

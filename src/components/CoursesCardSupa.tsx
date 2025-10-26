@@ -25,7 +25,9 @@ interface EventFCA {
 
 interface CourseCardProps {
   title?: string
+  subtitle?: string
   kind?: string
+  description?: string
   image?: string
   level?: string
   duration?: string
@@ -39,7 +41,9 @@ interface CourseCardProps {
 
 export function CourseCardSupa({
   title: propTitle,
+  subtitle: propSubtitle,
   kind: propKind,
+  description: propDescription,
   image: propImage,
   level: propLevel,
   duration: propDuration,
@@ -53,7 +57,9 @@ export function CourseCardSupa({
   const [short, setShort] = useState(false)
   
   const title = eventData?.title || eventData?.name || propTitle || '';
+  const subtitle = eventData?.subtitle || propSubtitle || '';
   const kind = eventData?.kind || propKind || '';
+  const description = eventData?.description || propDescription || '';
   const image = eventData?.image || propImage || '';
   const level = eventData?.level || propLevel || 'BÁSICO';
   const duration = eventData?.duration || propDuration || '';
@@ -92,7 +98,7 @@ export function CourseCardSupa({
         )}
         <div className="relative overflow-hidden">
           <Image
-            src={'/3.webp'} 
+            src={image} 
             width={500}
             height={300}
             alt={title || 'Curso'}
@@ -112,6 +118,7 @@ export function CourseCardSupa({
           </div>
         )}        
         <h3 className="text-xl font-bold text-white mb-1 line-clamp-2 group-hover:text-blueApp transition-colors duration-300">{title}</h3>
+        <h4 className="text-xl font-bold text-white mb-1 line-clamp-2 group-hover:text-blueApp transition-colors duration-300">{subtitle}</h4>
         <div className="text-gray-300 mb-2 line-clamp-3 text-sm leading-relaxed">
           tipo: {typeof kind === 'string' ? HTMLReactParser(kind) : ''}
         </div>

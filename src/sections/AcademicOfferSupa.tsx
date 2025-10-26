@@ -20,7 +20,11 @@ interface Program {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  status?: string; // Añadido para compatibilidad
+  image:string;
+  description:string;
+  video:string;
+  subtitle:string;
+  faqs:any[];
 }
 
 export default function AcademicOfferSupa() {

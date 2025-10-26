@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
      domains: [
       'th3.googleusercontent.com',
       'lh3.googleusercontent.com', 
+      'jyrtclndzwhslfydadna.supabase.co'
     ],
   }
 };
