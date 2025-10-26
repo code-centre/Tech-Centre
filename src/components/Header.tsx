@@ -11,6 +11,8 @@ import type { User } from "firebase/auth"
 import Anuncios from "@/components/anuncios";
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import ProgramQuery from "./ProgramQuery";
+
 
 
 interface Course {
@@ -29,6 +31,10 @@ export default function Header() {
   const [userFirstName, setUserFirstName] = useState<string | null>(null);
   const [loadinguser, setLoadinguser] = useState(true);
   const supabase = createClientComponentClient();
+  const [supabasePrograms, setSupabasePrograms] = useState<Program[]>([]);
+  const handleProgramsLoaded = useCallback((programs: any[]) => {
+    setSupabasePrograms(programs);
+  }, []);
   const router = useRouter();
 
   // Obtener la sesión actual
@@ -75,6 +81,9 @@ export default function Header() {
       console.error('Error al cerrar sesión:', error);
     }
   };
+
+
+
 
   const [userOn, setUserOn] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -199,6 +208,8 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm shadow-lg">
       <Anuncios />  
+      <ProgramQuery onProgramsLoaded={handleProgramsLoaded} />
+
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex-shrink-0">
@@ -214,7 +225,7 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-12 text-lg">
             {/* cursos general dropdown */}
-            <div className="relative group">
+            {/* <div className="relative group">
               <button
                 className="flex items-center space-x-2 text-white hover:text-blueApp 
                 font-medium transition-all duration-200 group"
@@ -339,7 +350,182 @@ export default function Header() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
+            {/* programas dropdown */}
+            <div className="relative group">
+              <button
+                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                font-medium transition-all duration-200 group"
+              >
+                <span
+                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                >
+                  Programas
+                </span>
+                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
+              </button>
+
+              <div
+                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
+                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
+                shadow-lg border border-white/20 py-3 transition-all duration-200"
+              >
+                <div className="px-4 py-2">
+                  <Link
+                    href="/programas-academicos"
+                    className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
+                      rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
+                    onClick={(e) => {
+                      if (window.location.pathname === "/") {
+                        e.preventDefault()
+                        document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
+                      }
+                    }}
+                  >
+                    Toda nuestra oferta académica
+                  </Link>
+                  <div
+                    className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin 
+                    scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40"
+                  >
+                    {supabasePrograms.map((program) => (
+                      <Link
+                        key={program.id}
+                        href={`/programas-academicos/${program.slug}`}
+                        className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                          hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                      >
+                        {program.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>  
+            {/* <div className="relative group">
+              <button
+                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                font-medium transition-all duration-200 group"
+              >
+                <span
+                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                >
+                  Programas
+                </span>
+                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
+              </button>
+              <div
+                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
+                absolute top-full left-0 mt-2 w-60 bg-zinc-900 backdrop-blur-md rounded-xl 
+                shadow-lg border border-white/20 py-3 transition-all duration-200"
+              >
+                <div className="px-4 py-2 space-y-2">
+                  <Link
+                    href="/programas-academicos"
+                    className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
+                      rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
+                  >
+                    ¡Estudia con nosotros!
+                  </Link>
+                  <div 
+                    className="relative group cursor-pointer"
+                    onMouseEnter={() => setShowDiplomados(true)}
+                    onMouseLeave={() => setShowDiplomados(false)}
+                    ref={diplomadosRef}
+                  >
+                    <div className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40">
+                            {supabasePrograms.map((program) => (
+                              <Link
+                                key={program.id}
+                                href={`/programas-academicos/${program.slug}`}
+                                className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                                  hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                              >
+                                {program.name}
+                              </Link>
+                            ))}
+                          </div>
+                    <div
+                      className="flex items-center space-x-2 text-white hover:text-blueApp 
+                      font-medium transition-all duration-200 px-3 py-2"
+                    >
+                      <span
+                        className="relative after:absolute text-sm after:bottom-0 after:left-0 after:h-0.5 
+                        after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                      >
+                        Diplomados
+                      </span>
+                      <ChevronLeft
+                        className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" 
+                      />
+                    </div>
+                    <div
+                      className={`z-20 absolute left-full top-0 ml-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl shadow-lg border border-white/20 py-3 transition-all duration-200 ${
+                        showDiplomados ? 'opacity-100 visible' : 'opacity-0 invisible'
+                      }`}
+                      onMouseEnter={() => setShowDiplomados(true)}
+                      onMouseLeave={() => setShowDiplomados(false)}
+                    >
+                      <div className=" px-4 py-2">
+                          <div className="flex justify-center py-4">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
+                          </div>
+              
+                      </div>
+                    </div>
+                  </div>
+                  <div 
+                    className="relative group cursor-pointer"
+                    onMouseEnter={() => setShowCursosEspecializados(true)}
+                    onMouseLeave={() => setShowCursosEspecializados(false)}
+                    ref={cursosEspecializadosRef}
+                  >
+                    <div
+                      className="flex items-center space-x-2 text-white hover:text-blueApp 
+                      font-medium transition-all duration-200 px-3 py-2"
+                    >
+                      <span
+                        className="relative text-sm after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                        after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                      >
+                        Cursos Especializados
+                      </span>
+                      <ChevronLeft
+                        className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" 
+                      />
+                    </div>
+                    <div
+                      className={`z-20 absolute left-full top-0 ml-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl shadow-lg border border-white/20 py-3 transition-all duration-200 ${showCursosEspecializados ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                      onMouseEnter={() => setShowCursosEspecializados(true)}
+                      onMouseLeave={() => setShowCursosEspecializados(false)}
+                    >
+                      <div className=" px-4 py-2">
+                        {loading ? (
+                          <div className="flex justify-center py-4">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
+                          </div>
+                        ) : (
+                          <div className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40">
+                            {specializedCoursesInfo.map((course, index) => (
+                              <Link
+                                key={course.id}
+                                href={`/programas-academicos/${course.slug}`}
+                                className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                {course.title || course.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> */}
             {/* Cursos Especializados Dropdown */}
             {/* <div className="relative group">
               <button

@@ -126,7 +126,7 @@ export default function AcademicOfferSupa() {
         </div>
 
         {/* Lista de programas */}
-		<div className='border-2 border-red-500'>
+		<div className=''>
         <CourseListSupa 
 			programs={programas}
 			showHeader={true}

@@ -49,7 +49,7 @@ export function CourseListSupa({
         )}
         
         {programs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 border-2 border-yellow-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ">
             {programs.map((program) => (
               <CourseCardSupa
                 key={program.id}

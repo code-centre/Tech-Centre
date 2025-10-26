@@ -135,7 +135,7 @@ export default function DetailCourseContent({ slug }: { slug: string }) {
       )}
       {contentType === "not-found" && (
         <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center py-20">
+          <div className="text-center py-20 ">
             <h2 className="text-2xl font-bold mb-4 text-gray-900">Contenido no encontrado</h2>
             <p className="text-xl text-gray-600">No se encontró información para este programa o taller.</p>
           </div>

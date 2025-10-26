@@ -206,8 +206,8 @@ useEffect(() => {
 
 
   return (
-    <div className="text-white w-full mt-30 overflow-x-hidden">
-      <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8  gap-8 ">
+    <div className="text-white w-full mt-12 overflow-x-hidden">
+      <main className="max-w-7xl flex flex-col gap-8 ">
         <HeroSupa
           date={cohorts[0]?.start_date || ''} 
           title={programData?.name || ''} 

@@ -8,7 +8,7 @@ export default function ProgramasAcademicos() {
   return (
     <main className="min-h-screen">
       <AcademicOfferSupa />
-      <AcademicOffer />
+      {/* <AcademicOffer /> */}
       <Testimonials />
       <Ubication />
       <ProgramsAdmon />
