@@ -12,6 +12,7 @@ import Anuncios from "@/components/anuncios";
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import ProgramQuery from "./ProgramQuery";
+import type { Program } from './ProgramQuery';
 
 
 
@@ -31,11 +32,12 @@ export default function Header() {
   const [userFirstName, setUserFirstName] = useState<string | null>(null);
   const [loadinguser, setLoadinguser] = useState(true);
   const supabase = createClientComponentClient();
+  const router = useRouter();
   const [supabasePrograms, setSupabasePrograms] = useState<Program[]>([]);
-  const handleProgramsLoaded = useCallback((programs: any[]) => {
+
+  const handleProgramsLoaded = useCallback((programs: Program[]) => {
     setSupabasePrograms(programs);
   }, []);
-  const router = useRouter();
 
   // Obtener la sesión actual
   useEffect(() => {
@@ -376,12 +378,12 @@ export default function Header() {
                     href="/programas-academicos"
                     className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
                       rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
-                    onClick={(e) => {
-                      if (window.location.pathname === "/") {
-                        e.preventDefault()
-                        document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
-                      }
-                    }}
+                    // onClick={(e) => {
+                    //   if (window.location.pathname === "/") {
+                    //     e.preventDefault()
+                    //     document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
+                    //   }
+                    // }}
                   >
                     Toda nuestra oferta académica
                   </Link>
@@ -392,7 +394,7 @@ export default function Header() {
                     {supabasePrograms.map((program) => (
                       <Link
                         key={program.id}
-                        href={`/programas-academicos/${program.slug}`}
+                        href={`/programas-academicos/${program.code}`}
                         className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
                           hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
                       >

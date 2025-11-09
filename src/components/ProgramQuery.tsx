@@ -2,11 +2,12 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
-interface Program {
+export interface Program {
   id: number;
   name: string;
   slug: string;
   is_active: boolean;
+  code: string;
   // Agrega más campos según necesites
 }
 

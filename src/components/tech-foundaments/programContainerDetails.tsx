@@ -3,7 +3,7 @@ import React, { use } from 'react'
 import { HeroSupa } from './HeroSupa'
 import { useState, useEffect } from 'react'
 import { Description } from './Description'
-import { Tickets } from './Tickets'
+import { TicketsSupa } from './TicketsSupa'
 import { useCollection } from 'react-firebase-hooks/firestore'
 import { db } from '../../../firebase'
 import { where, collection, query, getDocs, doc, updateDoc, serverTimestamp, onSnapshot, getDoc, deleteDoc } from 'firebase/firestore'
@@ -67,6 +67,7 @@ export interface ProgramProps {
 export default function ProgramContainerDetails({ programData, slug }: ProgramProps) {
   
   const [cohorts, setCohorts] = useState<any[]>([]);
+  const [paymentPlans, setPaymentPlans] = useState<any[]>([]);
 
   // Función para obtener las cohortes de un programa específico
 async function getProgramCohorts(programId: number) {
@@ -204,6 +205,33 @@ useEffect(() => {
   const router = useRouter()
 
 
+  // Add this function inside your component, after the getCohortInstructor function
+  async function fetchPaymentPlans(programId: number) {
+    try {
+      const { data: paymentPlans, error } = await supabase
+        .from('payment_plans')
+        .select('*')
+        .eq('program_id', programId);
+
+      if (error) {
+        console.error('Error fetching payment plans:', error);
+        return [];
+      }
+
+      console.log('Payment Plans:', paymentPlans);
+      setPaymentPlans(paymentPlans || []);
+    } catch (error) {
+      console.error('Error in fetchPaymentPlans:', error);
+      return [];
+    }
+  }
+
+  // Then, call this function inside a useEffect when the component mounts or when programData changes
+  useEffect(() => {
+    if (programData?.id) {
+      fetchPaymentPlans(programData.id);
+    }
+  }, [programData?.id]);
 
   return (
     <div className="text-white w-full mt-12 overflow-x-hidden">
@@ -296,15 +324,11 @@ useEffect(() => {
             </div>
 
             <div id="precios" className="flex items-center justify-center p-2">
-              {/* <Tickets
-                tickets={tickets || []}
-                eventId={eventId}
-                eventSlug={slug}
-                isShort={short}
-                saveTicketData={saveTicketData}
-                deleteTicketData={deleteTicketData}
-                saveChanges={saveChanges}
-              /> */}
+              <TicketsSupa
+                programData={programData}
+                cohort={cohorts[0]}
+                paymentPlans={paymentPlans}
+              />
             </div>
 
             
