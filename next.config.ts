@@ -8,8 +8,13 @@ const nextConfig: NextConfig = {
         hostname: 'firebasestorage.googleapis.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/**',
+      },
     ],
-     domains: [
+    domains: [
       'th3.googleusercontent.com',
       'lh3.googleusercontent.com', 
       'jyrtclndzwhslfydadna.supabase.co'
