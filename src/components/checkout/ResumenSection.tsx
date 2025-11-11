@@ -209,7 +209,7 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
 
   // Ajuste de estética: glassmorphism, fondo oscuro, bordes, sombras y colores coherentes
   return (
-    <div className='bg-bgCard/80 backdrop-blur-md w-full flex flex-col gap-5 pt-16 md:pt-24 px-6 md:px-20 lg:px-14 pb-10 lg:pb-0 rounded-2xl shadow-2xl border border-blue-100/20 max-w-2xl mx-auto'>
+    <div className='bg-bgCard/80 backdrop-blur-md w-full flex flex-col gap-5 pt-16 md:pt-24 px-6 md:px-20 lg:px-14 pb-10 lg:pb-0 rounded-2xl shadow-2xl border border-blue-100/20 max-w-xl'>
       <h2 className='text-4xl font-bold font-mono text-blueApp'>Resumen de pago</h2>
       <div className='border-b border-blueApp/20 h-1'></div>
       <div className='flex flex-col md:flex-row justify-between'>
@@ -235,19 +235,15 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
                 :
                 <div className='flex flex-col text-sm'>
                   <span className='text-blueApp/80'>{data.subtitle}</span>
-                  <span className='text-blueApp/60'>Batch 02</span>
+                  {/* <span className='text-blueApp/60'>Batch 02</span> */}
                 </div>
             }
           </div>
         </div>
         <div className='mt-5 md:mt-0'>
-          {
-            isShort
-              ?
-              <p className='font-semibold text-blueApp text-xl'>${ticket && ticket.price.toLocaleString()}</p>
-              :
-              <p className='font-semibold text-blueApp text-xl'>${data.discount ? data.discount?.toLocaleString() : data.price?.toLocaleString()}</p>
-          }
+          <p className='font-semibold text-blueApp text-xl'>
+            ${data.default_price?.toLocaleString()}
+          </p>
           <span className='text-blueApp/70'>COP</span>
         </div>
       </div>

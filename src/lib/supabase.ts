@@ -93,6 +93,6 @@ export function useUser() {
     };
   }, []);
 
-  console.log("User:", user);
+  // console.log("User:", user);
   return { user, loading };
 }

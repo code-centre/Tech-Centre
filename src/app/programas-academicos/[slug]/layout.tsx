@@ -110,7 +110,7 @@ export default function CourseLayout({
   };
 
   return (
-    <div className="flex mx-auto px-4 h-fit">
+    <div className="flex gap-4 ">
       <main className="flex-1">
         {children}
       </main>
