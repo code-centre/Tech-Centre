@@ -714,24 +714,48 @@ export default function Header() {
                 <div className="px-4 py-2">
                   <Link
                     href="/"
-                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                    className="block px-3 py-2 flex items-center gap-4 text-sm text-white hover:bg-blue-50 
                             hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
                   >
-                    F. Codigo abierto
+                    <Image
+                      src="/logos/comunidad/logo-fca.webp"
+                      alt="Fundación Codigo abierto"
+                      width={30}
+                      height={30}
+                    />
+                    Fundación Codigo abierto
                   </Link>
                 </div>
                 <div className="px-4 py-2">
-                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                  M. Costa digital
+                  <div className="block px-3 py-2 flex items-center gap-4 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                  <Image
+                    src="/logos/comunidad/Logo-costa-digital.png"
+                    alt="Movimiento Costa digital"
+                    width={30}
+                    height={30}
+                  />
+                  Movimiento Costa digital
                   </div>
                 </div>
                 <div className="px-4 py-2">
-                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                  <div className="block px-3 py-2 flex items-center gap-4 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    <Image
+                      src="/logos/comunidad/Logo-caribe-ventures.png"
+                      alt="Caribe Ventures"
+                      width={30}
+                      height={30}
+                    />
                     Caribe Ventures
                     </div>
                   </div>
                   <div className="px-4 py-2">
-                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    <div className="block px-3 py-2 flex items-center gap-4 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                    <Image
+                      src="/logos/comunidad/logo-c-i.png"
+                      alt="Ciudad inmersiva"
+                      width={30}
+                      height={30}
+                    />
                     Ciudad inmersiva
                     </div>
                   </div>
