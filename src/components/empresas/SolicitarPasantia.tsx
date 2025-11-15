@@ -4,17 +4,17 @@
 import { useState } from 'react';
 // import { PaperClipIcon } from '@heroicons/react/24/outline';
 
-interface SolicitarTrabajoProps {
+interface SolicitarPasantiaProps {
     hayOfertas: boolean;
   }
-export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) {
+export default function SolicitarPasantia({ hayOfertas }: SolicitarPasantiaProps) {
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
     telefono: '',
     puesto: '',
-    experiencia: '',
-    institucion: 'null',
+    experiencia: 'null',
+    institucion: '',
     mensaje: '',
     archivo: null as File | null
   });
@@ -36,18 +36,18 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
 
   if (!hayOfertas) {
     return (
-        <div className="min-h-screen mt-32 bg-background py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen mt-4 bg-background py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <div className="bg-bgCard rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-zinc-800/30 group  sm:rounded-lg p-8">
               <h2 className="text-2xl font-bold text-blueApp mb-4">¡Gracias por tu interés!</h2>
               <p className="text-white">
-                Actualmente no tenemos vacantes disponibles, pero puedes dejarnos tus datos y te contactaremos cuando tengamos nuevas oportunidades.
+                Actualmente no tenemos pasantías disponibles, pero puedes dejarnos tus datos y te contactaremos cuando tengamos nuevas oportunidades.
               </p>
               
               <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">¿Quieres que te contactemos?</h3>
                 <p className="text-black mb-4">
-                  Déjanos tu correo electrónico y te notificaremos cuando tengamos nuevas ofertas disponibles.
+                  Déjanos tu correo electrónico y te notificaremos cuando tengamos nuevas pasantías disponibles.
                 </p>
                 
                 <div className="max-w-md mx-auto">
@@ -72,12 +72,12 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
       );
     }
     return (
-    <div className="min-h-screen mt-32 bg-background py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen mt-4 bg-background py-12 px-4 sm:px-6 lg:px-8">
     <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-blueApp">Solicitar Trabajo</h1>
+        <h1 className="text-3xl font-bold text-blueApp">Solicitar Pasantía</h1>
         <p className="mt-2 text-lg text-white">
-            Completa el formulario para postularte a nuestras ofertas de empleo
+            Completa el formulario para postularte a una pasantía en Tech Center
         </p>
         </div>
         
@@ -152,22 +152,9 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
 
             <div>
             <label htmlFor="experiencia" className="block text-sm font-medium text-blueApp">
-                Años de experiencia *
+                Institución *
             </label>
-            <select
-                id="experiencia"
-                name="experiencia"
-                required
-                value={formData.experiencia}
-                onChange={handleChange}
-                className="mt-1 bg-white block w-full rounded-md border-blueApp shadow-sm focus:border-blueApp focus:ring-blueApp sm:text-sm p-2 border-2"
-            >
-                <option value="">Selecciona años de experiencia</option>
-                <option value="0-1">0-1 años</option>
-                <option value="1-3">1-3 años</option>
-                <option value="3-5">3-5 años</option>
-                <option value="5+">Más de 5 años</option>
-            </select>
+            <input id="institucion" name="institucion" required value={formData.institucion} onChange={handleChange} className="mt-1 bg-white block w-full rounded-md border-blueApp shadow-sm focus:border-blueApp focus:ring-blueApp sm:text-sm p-2 border-2" type="text" />
             </div>
 
             <div>

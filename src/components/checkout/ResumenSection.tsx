@@ -1,6 +1,6 @@
 'use client'
 import { db } from '@/../firebase'
-import useUserStore from '@/../store/useUserStore'
+// import useUserStore from '@/../store/useUserStore'
 import { addDoc, collection, doc, getDocs, query, serverTimestamp, setDoc, Timestamp, updateDoc, where } from 'firebase/firestore'
 import { ArrowLeft, Info, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -10,6 +10,7 @@ import Modal from './Modal'
 import Image from 'next/image'
 // import AlertModal from '../AlertModal'
 import Discounts from './Discounts'
+import { supabase } from '@/lib/supabase'
 
 interface Props {
   data: any
@@ -23,10 +24,11 @@ interface Props {
   setQuantity: (quantity: number) => void
   setShowQuantity: (showQuantity: boolean) => void
   isShort?: boolean
+  user?: User | null
 }
 
-export default function ResumenSection({ data, slugProgram, setQuantity, setShowQuantity, ticket, subtotal, quantity, eventId, selectedSchedule, period, isShort }: Props) {
-  const { user } = useUserStore()
+export default function ResumenSection({ data, slugProgram, setQuantity, setShowQuantity, ticket, subtotal, quantity, eventId, selectedSchedule, period, isShort, user }: Props) {
+  
   const router = useRouter()
   const [discount, setDiscount] = useState<number>(0)
   const [errorDiscount, setErrorDiscount] = useState<string | null>(null)
@@ -60,152 +62,144 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
     }, 200);
   }
 
-  const handleGetLinkToPay = async (idsToMovements: string[]) => {
-    setDisableButton(true)
-    if (subtotal && subtotal - discount > 0 && user) {
-      const resp = await createPaymentId(subtotal - discount, `${isShort ? `${data.title} - ${data.subtitle}` : `${data!.name} - ${data.subtitle}`}`, isShort ? 'event' : 'program')
-      await addDoc(collection(db, "movements"), {
-        userID: user.id,
-        date: serverTimestamp(),
-        subtotal,
-        total: subtotal - discount,
-        discount,
-        discountCode,
-        paymentId: resp.id,
-        status: 'PENDING',
-        productId: slugProgram ? slugProgram : eventId,
-        quantity,
-        idsToMovements,
-        ...(data?.title === 'Barranqui-IA' && { isVIP: ticket?.type === 'premium' }),
-        ...(isShort ? { payments: 1, totalPayments: period === 'monthly' ? 2 : 1 } : { payments: 1, totalPayments: period === 'monthly' ? 4 : 1 }),
-        type: isShort ? 'event' : 'program',
-        selectedSchedule: slugProgram ? selectedSchedule : null,
-        description: `Compra de ${slugProgram
-          ? `diplomado - (${data.name} - ${data.subtitle})`
-          : `boleta para evento - (${data.title})`}`,
-      });
-
-      const q = query(collection(db, "movements"), where("userID", "==", user.id));
-      const querySnapshot = await getDocs(q);
-      const userMovements = querySnapshot.docs.map((doc) => doc.data());
-
-      const userDocRef = doc(db, "users", user.id);
-      await updateDoc(userDocRef, {
-        paymentLinkId: resp.id,
-        movements: userMovements,
-
-      });
-
-      router.push(`https://checkout.wompi.co/l/${resp.id}`)
+  const handleGetLinkToPay = async () => {
+  setDisableButton(true);
+  
+  try {
+    if (!user) {
+      throw new Error('Usuario no autenticado');
     }
-    if (subtotal && subtotal - discount === 0 && user && eventId && isShort) {
-      const addToAtendeesList = async () => {
-        if (user) {
-          const eventAtendeeRef = doc(collection(db, "eventAtendees"))
-          await setDoc(eventAtendeeRef, {
-            eventId,
-            userId: user.id,
-            nombre: user.name.toUpperCase(),
-            ...(user.lastName && { apellido: user.lastName.toUpperCase() }),
-            rol: "CUSTOMER",
-            date: Timestamp.fromDate(new Date()),
-            checkin: false,
-            phone: user.phone || '',
-            email: user.email,
-            ticketId: 0,
-          })
-        }
-      }
 
-      const handleSendEmail = async () => {
-        const qEvent = query(collection(db, "events"), where("id", "==", eventId))
-        const querySnapshotEvent = await getDocs(qEvent)
-        const event = querySnapshotEvent.docs[0].data()
-
-        await fetch('/api/send-email', {
-          method: 'POST',
-          body: JSON.stringify({
-            user,
-            type: 'event',
-            title: event.title,
-            date: event.date,
-            time: event.startHour,
-            location: `${event.location.mapUrl} - ${event.location.title} `,
-            code: '12323',
-            isHackthon: true,
-          })
-        })
-      }
-
-      setTimeout(async () => {
-        setAlertState({
-          isOpen: true,
-          title: "Inscripción exitosa",
-          description: "¡Disfruta de este evento!",
-        });
-        await addToAtendeesList()
-        await handleSendEmail()
-        router.back()
-      }, 200);
+    if (!subtotal) {
+      throw new Error('Subtotal no definido');
     }
-    if (subtotal && subtotal - discount === 0 && user && slugProgram) {
 
-      const addToAtendeesList = async () => {
-        if (user) {
-          const eventAtendeeRef = doc(collection(db, "programRegister"))
-          await setDoc(eventAtendeeRef, {
-            programId: slugProgram,
-            userId: user.id,
-            nombre: user.name.toUpperCase(),
-            ...(user.lastName && { apellido: user.lastName.toUpperCase() }),
-            rol: "CUSTOMER",
-            phone: user.phone,
-            date: Timestamp.fromDate(new Date()),
-            checkin: false,
-            email: user.email,
-            ticketId: 0,
-            selectedSchedule: selectedSchedule,
-            payments: 1,
-            totalPayments: period === 'monthly' ? 4 : 1,
-            total: subtotal,
-            schedule: selectedSchedule,
-            isProgram: true,
-          })
-        }
-      }
+    const totalAmount = subtotal - discount;
+    const paymentCount = period === 'monthly' ? (isShort ? 2 : 4) : 1;
+    const amountPerPayment = totalAmount / paymentCount;
 
-      const handleSendEmail = async () => {
-        const qEvent = query(collection(db, "programs"), where("slug", "==", slugProgram))
-        const querySnapshotEvent = await getDocs(qEvent)
-        const event = querySnapshotEvent.docs[0].data()
+    // En tu función handleGetLinkToPay, reemplaza la validación actual con:
+console.log('Datos del producto recibidos:', {
+  name: data?.name,
+  subtitle: data?.subtitle,
+  kind: data?.kind,
+  dataCompleta: data // Mostrar todos los datos disponibles
+});
 
-        await fetch('/api/send-email', {
-          method: 'POST',
-          body: JSON.stringify({
-            user,
-            type: 'program',
-            title: event.name,
-            date: event.startDate,
-            time: selectedSchedule,
-            location: 'Cra. 50 #72-126',
-            code: '12323',
-            isHackthon: false,
-          })
-        })
-      }
+if (!data) {
+  throw new Error('No se encontraron datos del producto');
+}
 
-      setTimeout(async () => {
-        setAlertState({
-          isOpen: true,
-          title: "Inscripción exitosa",
-          description: "¡Disfruta de este evento!",
-        });
-        await addToAtendeesList()
-        await handleSendEmail()
-        router.back()
-      }, 200);
+const requiredFields = ['name', 'subtitle', 'kind'];
+const missingFields = requiredFields.filter(field => !data[field]);
+
+if (missingFields.length > 0) {
+  throw new Error(`Faltan campos requeridos: ${missingFields.join(', ')}`);
+}
+
+    // 2. Crear el pago en Wompi
+    console.log('Creando pago en Wompi...');
+    const resp = await createPaymentId(
+      totalAmount, 
+      `${data.name} - ${data.subtitle}`, 
+      data.kind
+    );
+
+    if (!resp?.id) {
+      throw new Error('No se pudo crear el pago en Wompi');
     }
+
+const { data: enrollment, error: enrollmentError } = await supabase
+  .from('enrollments')
+  .insert({
+    cohort_id: 7,  // Asegúrate de que esto sea un bigint
+    student_id: user.id,  // Asegúrate de que user.id sea un UUID
+    status: 'pending_payment',
+    agreed_price: totalAmount,  // Asegúrate de que sea un número
+  })
+  .select()
+  .single();
+
+if (enrollmentError) {
+  console.error('Error al crear matrícula:', enrollmentError);
+  throw new Error(`Error al crear la matrícula: ${enrollmentError.message}`);
+}
+
+    // 3. Preparar las facturas
+const currentDate = new Date();
+const invoices = Array.from({ length: paymentCount }).map((_, index) => {
+  const dueDate = new Date(currentDate);
+  dueDate.setMonth(dueDate.getMonth() + index);
+  
+  // Calcular el monto de cada cuota (la última cuota puede ser diferente por redondeo)
+  const isLastPayment = index === paymentCount - 1;
+  const paymentAmount = isLastPayment 
+    ? totalAmount - (amountPerPayment * index)
+    : amountPerPayment;
+
+  return {
+    enrollment_id: enrollment.id,
+    label: `Pago ${index + 1} de ${paymentCount} - ${data.name}`,
+    amount: paymentAmount,
+    due_date: dueDate.toISOString().split('T')[0],
+    status: 'pending',
+    meta: {
+      payment_id: resp.id,
+      product_type: isShort ? 'event' : 'program',
+      product_id: slugProgram || eventId || 'unknown',
+      user_id: user.id,
+      payment_number: index + 1,
+      total_payments: paymentCount
+    }
+  };
+});
+
+    // 4. Insertar facturas en Supabase
+    // Reemplaza la inserción con:
+console.log('Insertando facturas en Supabase...');
+const { data: createdInvoices, error: invoiceError } = await supabase
+  .from('invoices')
+  .insert(invoices)
+  .select();
+
+if (invoiceError) {
+  console.error('Error detallado de Supabase:', {
+    message: invoiceError.message,
+    details: invoiceError.details,
+    hint: invoiceError.hint,
+    code: invoiceError.code
+  });
+  throw new Error(`Error al crear facturas: ${JSON.stringify(invoiceError, null, 2)}`);
+}
+
+if (!createdInvoices || createdInvoices.length === 0) {
+  throw new Error('No se recibió confirmación de la creación de facturas');
+}
+
+console.log(`${createdInvoices.length} facturas creadas exitosamente:`, createdInvoices);
+
+    // 5. Redirigir al pago
+    console.log('Redirigiendo a Wompi...');
+    router.push(`https://checkout.wompi.co/l/${resp.id}`);
+
+  } catch (error) {
+    console.error('Error en handleGetLinkToPay:', {
+      error,
+      message: error instanceof Error ? error.message : 'Error desconocido',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
+    setAlertState({
+      isOpen: true,
+      title: "Error",
+      description: error instanceof Error 
+        ? `Error: ${error.message}` 
+        : "Ocurrió un error al procesar tu solicitud. Por favor, inténtalo de nuevo.",
+    });
+  } finally {
+    setDisableButton(false);
   }
+};
 
   // Ajuste de estética: glassmorphism, fondo oscuro, bordes, sombras y colores coherentes
   return (
@@ -303,12 +297,12 @@ const createPaymentId = async (amount: number, name: string, type: string) => {
       },
       body: JSON.stringify({
         name,
-        description: type === 'event' ? 'Compra de boleta para curso especializado' : 'Inscripción para curso',
+        description: 'Inscripción para' + type,
         single_use: true,
         collect_shipping: false,
         amount_in_cents: amount * 100,
         currency: "COP",
-        redirect_url: "http://localhost:3000/checkout/confirmacion",
+        redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/confirmacion`,
       }),
     });
     const createdLink = await resp.json();

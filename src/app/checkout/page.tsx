@@ -10,8 +10,12 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useState } from 'react'
 import { useCollection } from 'react-firebase-hooks/firestore'
 import { supabase } from '@/lib/supabase'
+import { useUser } from '@/lib/supabase'; // Ajusta esta ruta según tu configuración
+
 
 export default function ViewCheckoutPage() {
+  
+  
   return (
     <main className='relative'>
       <Suspense fallback={<div className="loader"></div>}>
@@ -32,6 +36,8 @@ function ViewCheckoutContent() {
 
   const [data, setData] = useState<Program | null>(null);
   const slugProgram = searchParams.get('slug')
+  const { user } = useUser();
+  console.log("user activo es:",user)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,6 +134,7 @@ function ViewCheckoutContent() {
               showQuantity={showQuantity}
             />
             <ResumenSection
+              user={user}
               data={data}
               slugProgram={slugProgram}
               selectedSchedule={selectedSchedule}

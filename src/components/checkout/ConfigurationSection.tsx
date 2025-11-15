@@ -51,6 +51,7 @@ export default function ConfigurationSection({ slugProgram, data, subtotal, setS
           selectedSchedule={selectedSchedule}
           schedules={data.schedules || schedules}
           setSelectedSchedule={setSelectedSchedule}
+          
         />
       }
       {

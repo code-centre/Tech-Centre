@@ -681,7 +681,7 @@ export default function Header() {
                   </div>
                   <div className="px-4 py-2">
                     <Link
-                      href="/empresas#pasantias"
+                      href="/empresas/trabajo#pasantia"
                       className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
                               hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
                     >
@@ -1197,14 +1197,22 @@ export default function Header() {
                   </Link>
                 </div>
                 <div className="px-4 py-2">
-                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
+                  <Link
+                    href="/empresas/trabajo"
+                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                  >
                     Trabaja con nosotros
-                    </div>
+                  </Link>
                   </div>
                   <div className="px-4 py-2">
-                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                    Pasantías
-                    </div>
+                    <Link
+                      href="/empresas/trabajo#pasantia"
+                      className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
+                              hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                    >
+                      Pasantías
+                    </Link>
                   </div>
                   
               </div>
@@ -1233,13 +1241,13 @@ export default function Header() {
                     className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
                             hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
                   >
-                    F. Codigo abierto
+                    Fundación Codigo abierto
                   </Link>
                 </div>
                 <div className="px-4 py-2">
                   <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
                             hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                  M. Costa digital
+                  Movimiento Costa digital
                   </div>
                 </div>
                 <div className="px-4 py-2">
