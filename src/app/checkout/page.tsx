@@ -33,6 +33,9 @@ function ViewCheckoutContent() {
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
   const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null)
   const [showQuantity, setShowQuantity] = useState<boolean>(true)
+  const [selectedCohortId, setSelectedCohortId] = useState<number | null>(null);
+  const [selectedInstallments, setSelectedInstallments] = useState<number>(1); // Valor por defecto 1
+
 
   const [data, setData] = useState<Program | null>(null);
   const slugProgram = searchParams.get('slug')
@@ -110,6 +113,7 @@ function ViewCheckoutContent() {
 }, [quantity, paymentMethod, data]);
 
 
+console.log('selectedCohortId:', selectedCohortId);
   return (
     <main className={` mt-26 min-h-screen  ${!loading ? ' grid grid-cols-1 lg:grid-cols-2 mt-16' : ' grid place-content-center'}`}>
       {
@@ -132,6 +136,10 @@ function ViewCheckoutContent() {
               subtotal={subtotal}
               setShowQuantity={setShowQuantity}
               showQuantity={showQuantity}
+              selectedCohortId={selectedCohortId}
+              setSelectedCohortId={setSelectedCohortId}
+              selectedInstallments={selectedInstallments}
+              setSelectedInstallments={setSelectedInstallments}
             />
             <ResumenSection
               user={user}
@@ -145,6 +153,8 @@ function ViewCheckoutContent() {
               setShowQuantity={setShowQuantity}
               ticket={null}  // Add this line with appropriate value
               eventId={null} // Add this line with appropriate value
+              selectedCohortId={selectedCohortId}
+              selectedInstallments={selectedInstallments}
             />
           </>
       }

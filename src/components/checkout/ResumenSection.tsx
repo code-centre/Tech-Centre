@@ -25,9 +25,11 @@ interface Props {
   setShowQuantity: (showQuantity: boolean) => void
   isShort?: boolean
   user?: User | null
+  selectedCohortId: number | null;
+  selectedInstallments: number;
 }
 
-export default function ResumenSection({ data, slugProgram, setQuantity, setShowQuantity, ticket, subtotal, quantity, eventId, selectedSchedule, period, isShort, user }: Props) {
+export default function ResumenSection({ data, slugProgram, setQuantity, setShowQuantity, ticket, subtotal, quantity, eventId, selectedSchedule, period, isShort, user, selectedCohortId, selectedInstallments }: Props) {
   
   const router = useRouter()
   const [discount, setDiscount] = useState<number>(0)
@@ -39,11 +41,15 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
   const [typeUser, setTypeUser] = useState<string | null>(null)
   // const [isVip, setIsVip] = useState<boolean>(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const paymentCount = selectedInstallments; // Usa el valor de las cuotas seleccionadas
+
   const [alertState, setAlertState] = useState({
     isOpen: false,
     title: "",
     description: "",
   });
+  console.log('selectedCohortId: en ResumenSection', selectedCohortId);
+  console.log('selectedInstallments: en ResumenSection', selectedInstallments);
 
   useEffect(() => {
     if (!period) {
@@ -75,8 +81,7 @@ export default function ResumenSection({ data, slugProgram, setQuantity, setShow
     }
 
     const totalAmount = subtotal - discount;
-    const paymentCount = period === 'monthly' ? (isShort ? 2 : 4) : 1;
-    const amountPerPayment = totalAmount / paymentCount;
+    // const amountPerPayment = totalAmount / paymentCount;
 
     // En tu función handleGetLinkToPay, reemplaza la validación actual con:
 console.log('Datos del producto recibidos:', {
@@ -112,7 +117,7 @@ if (missingFields.length > 0) {
 const { data: enrollment, error: enrollmentError } = await supabase
   .from('enrollments')
   .insert({
-    cohort_id: 7,  // Asegúrate de que esto sea un bigint
+    cohort_id: selectedCohortId,  // Asegúrate de que esto sea un bigint
     student_id: user.id,  // Asegúrate de que user.id sea un UUID
     status: 'pending_payment',
     agreed_price: totalAmount,  // Asegúrate de que sea un número
@@ -127,15 +132,44 @@ if (enrollmentError) {
 
     // 3. Preparar las facturas
 const currentDate = new Date();
+// Calcular el monto de cada cuota
+// Calcular el monto de cada cuota
+const baseAmount = Number(data.discount) || Number(data.default_price);
+if (isNaN(baseAmount) || baseAmount <= 0) {
+  throw new Error('El monto base no es válido');
+}
+
+if (!paymentCount || paymentCount < 1) {
+  throw new Error('El número de cuotas no es válido');
+}
+
+const amountPerPayment = Number((baseAmount / paymentCount).toFixed(2));
+
+// Crear las facturas
 const invoices = Array.from({ length: paymentCount }).map((_, index) => {
-  const dueDate = new Date(currentDate);
+  const dueDate = new Date();
   dueDate.setMonth(dueDate.getMonth() + index);
   
-  // Calcular el monto de cada cuota (la última cuota puede ser diferente por redondeo)
-  const isLastPayment = index === paymentCount - 1;
-  const paymentAmount = isLastPayment 
-    ? totalAmount - (amountPerPayment * index)
-    : amountPerPayment;
+  // Calcular el monto de la cuota
+  let paymentAmount;
+  if (index === paymentCount - 1) {
+    // Para la última cuota, asegurarse de que la suma sea exacta
+    const previousPayments = amountPerPayment * index;
+    paymentAmount = Number((baseAmount - previousPayments).toFixed(2));
+  } else {
+    paymentAmount = amountPerPayment;
+  }
+
+  // Validar que el monto sea un número válido
+  if (isNaN(paymentAmount) || paymentAmount <= 0) {
+    console.error('Monto de pago inválido:', {
+      index,
+      paymentAmount,
+      baseAmount,
+      amountPerPayment
+    });
+    throw new Error(`El monto de la cuota ${index + 1} no es válido`);
+  }
 
   return {
     enrollment_id: enrollment.id,

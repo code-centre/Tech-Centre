@@ -11,6 +11,8 @@ interface Props {
   setQuantity: (value: number) => void
   priceSelected: number
   isShort?: boolean
+  selectedInstallments: number;
+  setSelectedInstallments: (installments: number) => void;
 }
 
 interface PaymentPlan {
@@ -22,7 +24,7 @@ interface PaymentPlan {
   // Agrega más campos según la estructura de tu tabla payment_plans
 }
 
-export default function SelectPayment({ data, paymentMethod, setPaymentMethod, setSubtotal, setPriceSelected, priceSelected, setQuantity, isShort }: Props) {
+export default function SelectPayment({ data, paymentMethod, setPaymentMethod, setSubtotal, setPriceSelected, priceSelected, setQuantity, isShort, selectedInstallments, setSelectedInstallments }: Props) {
   const [paymentPlans, setPaymentPlans] = useState<PaymentPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +105,7 @@ export default function SelectPayment({ data, paymentMethod, setPaymentMethod, s
                       console.log("precio",data.default_price/plan.installments)
                       console.log("el tipo de precio es:",typeof(data.default_price/plan.installments))
                       setPriceSelected(data.default_price/plan.installments)
+                      setSelectedInstallments(plan.installments)
                     }} 
                 className="ml-4 p-2 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors flex-shrink-0">
                       <Plus className='text-white ' />

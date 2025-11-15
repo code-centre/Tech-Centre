@@ -8,9 +8,11 @@ interface Props {
   setSelectedSchedule: (value: string | null) => void
   isShort?: boolean
   schedules?: any[]
+  selectedCohortId: number | null;
+  onCohortSelect?: (cohortId: number) => void;
 }
 
-export default function SelectSchedule({ data, selectedSchedule, setSelectedSchedule, isShort }: Props) {
+export default function SelectSchedule({ data, selectedSchedule, setSelectedSchedule, isShort, onCohortSelect, selectedCohortId }: Props) {
 
   const [cohort, setCohort] = useState<any>(null)
   const [loading, setLoading] = useState<boolean>(true)
@@ -92,6 +94,7 @@ export default function SelectSchedule({ data, selectedSchedule, setSelectedSche
                         ].filter(Boolean).join(' | ');
                         
                         setSelectedSchedule(scheduleText);
+                        onCohortSelect?.(cohortItem.id); // Esto actualizará el estado en el componente padre
                       }}
                       className="ml-4 p-2 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors flex-shrink-0"
                       aria-label="Seleccionar horario"

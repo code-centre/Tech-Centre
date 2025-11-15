@@ -19,10 +19,16 @@ interface Props {
   setShowQuantity: (value: boolean) => void
   showQuantity: boolean
   schedules?: any[]
+  selectedCohortId: number | null;
+  setSelectedCohortId: (id: number) => void; // Agrega esta línea
+  selectedInstallments: number;
+  setSelectedInstallments: (installments: number) => void;
 }
 
-export default function ConfigurationSection({ slugProgram, data, subtotal, setSubtotal, ticket, setQuantity, quantity, setPaymentMethod, paymentMethod, selectedSchedule, setSelectedSchedule, setShowQuantity, showQuantity, schedules }: Props) {
+export default function ConfigurationSection({ slugProgram, data, subtotal, setSubtotal, ticket, setQuantity, quantity, setPaymentMethod, paymentMethod, selectedSchedule, setSelectedSchedule, setShowQuantity, showQuantity, schedules, selectedCohortId, setSelectedCohortId, selectedInstallments, setSelectedInstallments }: Props) {
   const [priceSelected, setPriceSelected] = useState<number>(data.discount ? data.discount : data.price)
+  console.log('selectedCohortId: en ConfigurationSection', selectedCohortId);
+
 
   useEffect(() => {
     console.log('subtotal cambió a:', subtotal);
@@ -51,7 +57,11 @@ export default function ConfigurationSection({ slugProgram, data, subtotal, setS
           selectedSchedule={selectedSchedule}
           schedules={data.schedules || schedules}
           setSelectedSchedule={setSelectedSchedule}
-          
+          selectedCohortId={selectedCohortId}
+          onCohortSelect={(cohortId) => {
+            // Esto actualizará el estado en page.tsx
+            setSelectedCohortId(cohortId);
+          }}
         />
       }
       {
@@ -67,6 +77,8 @@ export default function ConfigurationSection({ slugProgram, data, subtotal, setS
               setPriceSelected={setPriceSelected}
               setQuantity={setQuantity}
               setSubtotal={setSubtotal}
+              selectedInstallments={selectedInstallments}
+              setSelectedInstallments={setSelectedInstallments}
             />
           }
         </>
