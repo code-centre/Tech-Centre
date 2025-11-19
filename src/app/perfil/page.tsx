@@ -1,18 +1,32 @@
 'use client'
 import AdminUsers from '@/components/profile/AdminUsers'
 import ProfileData from '@/components/profile/ProfileData'
-import ProfileEvents from '@/components/profile/ProfileEvents'
+// import ProfileEvents from '@/components/profile/ProfileEvents'
 import { Sidebar } from '@/components/profile/Sidebar'
-import useUserStore from '../../../store/useUserStore'
 import { CalendarIcon, UserCogIcon, UserIcon, GraduationCap } from 'lucide-react'
 import ProfileCourses from '@/components/profile/ProfileCourses'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useUser } from '@/lib/supabase';
 
 export default function ProfilePage() {
-  const { user } = useUserStore()
+  const { user, loading } = useUser();
   const [activeSection, setActiveSection] = useState('profile')
   const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/')
+    }
+  }, [user, loading, router])
+
+  if (loading) {
+    return <div>Cargando...</div>
+  }
+
+  if (!user) {
+    return null
+  }
 
   const sections = [
     {
@@ -32,13 +46,9 @@ export default function ProfilePage() {
     },
   ]
 
-  if (!user) {
-    router.push('/')
-    return null
-  }
 
   return (
-    <main className='min-h-screen pt-10 flex flex-col lg:flex-row'>
+    <main className='min-h-screen pt-10 flex flex-col lg:flex-row mt-20'>
       <Sidebar
         sections={sections}
         activeSection={activeSection}
@@ -68,8 +78,7 @@ export default function ProfilePage() {
 
         {activeSection === 'profile'
           ? <ProfileData />
-          : activeSection === 'events' ? <ProfileEvents /> : <ProfileCourses />
-        }
+          : activeSection === 'events'  }
       </div>
     </main>
   )
