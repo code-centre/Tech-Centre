@@ -6,7 +6,7 @@ export default function Anuncios() {
 return (
     <div className="bg-yellow-200 text-center flex flex-col  sm:flex-row justify-center items-center py-2 sm:py-0 px-4 py-8 sm:px-0 gap-4 w-full text-sm sm:text-base h-10">
         <div className="hidden sm:flex sm:flex-row gap-2">
-            <span className="text-sm  ">ANIVERSARIO 🔥</span>
+            <span className="text-sm  ">BLACK FRIDAY 🔥</span>
         </div>
         <div className="flex sm:flex-row gap-2">
             <span className="">Aprovecha hasta 20% de descuento</span>
@@ -29,7 +29,7 @@ return (
             <p className="hidden sm:inline"> | </p>
         </div>
         <div className="flex sm:flex-row gap-2">
-            <p className="hidden sm:inline font-bold"> Hasta el 31/10</p>
+            <p className="hidden sm:inline font-bold"> Hasta el 30/11</p>
         </div>
     </div>
     )

@@ -133,7 +133,6 @@ if (enrollmentError) {
     // 3. Preparar las facturas
 const currentDate = new Date();
 // Calcular el monto de cada cuota
-// Calcular el monto de cada cuota
 const baseAmount = Number(data.discount) || Number(data.default_price);
 if (isNaN(baseAmount) || baseAmount <= 0) {
   throw new Error('El monto base no es válido');

@@ -1,4 +1,3 @@
-import AcademicOffer from "@/sections/AcademicOffer";
 import Testimonials from "@/sections/Testimonials";
 import { WhoWeAre } from "@/sections/WhoWeAre";
 import Reviews from "@/sections/Reviews";
@@ -6,6 +5,7 @@ import NoticiasSection from "@/sections/Noticias";
 import { Ubication } from "@/sections/ubication";
 import HeroCarrusel from "@/components/HeroCarrusel";
 import heroData from '../../data/herocarrusel.json'
+import AcademicOfferSupa from "@/sections/AcademicOfferSupa";
 
 export default function Home() {
   return (
@@ -28,7 +28,7 @@ export default function Home() {
         <Reviews />
       </div>
       <div id="programs">
-        <AcademicOffer />
+        <AcademicOfferSupa />
       </div>
       <Testimonials />
       <NoticiasSection/>      

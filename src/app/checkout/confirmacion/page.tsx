@@ -55,6 +55,7 @@ function CheckoutContent() {
       // }
 
       setStatusTransaction(data.status);
+      console.log(data)
       setLoading(false);
     };
 
