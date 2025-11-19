@@ -3,9 +3,7 @@ import Image from 'next/image'
 import sponsorsData from '../../data/aliados.json'
 
 export const AliadosSection = () => {
-
   const allies = sponsorsData.allies
-
   return (
     <section className="w-full px-6 md:px-12">
       <div className="max-w-7xl mx-auto">

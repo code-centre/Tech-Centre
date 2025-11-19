@@ -6,7 +6,6 @@ import { useCollection } from 'react-firebase-hooks/firestore'
 import { collection, query, where } from 'firebase/firestore'
 import { db } from '../../firebase'
 import Image from 'next/image'
-import { AliadosSection } from './aliadosSection'
 import { LinkedInIcon } from './Icons'
 
 interface FooterProps {
@@ -53,7 +52,6 @@ export function Footer({ slug, programasEducativos = [], cortosFuturos = [] }: F
 
   return (
     <footer className="bg-background text-white py-8">
-      <AliadosSection />
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Tech Centre Column */}

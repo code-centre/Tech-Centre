@@ -1,5 +1,5 @@
 import React from 'react'
-import { ClockIcon, User, Award} from 'lucide-react'
+import { ClockIcon, User, Award, Calendar, ArrowRight } from 'lucide-react'
 import HTMLReactParser from 'html-react-parser/lib/index'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -20,7 +20,7 @@ interface EventFCA {
   slug?: string
   status?: string
   type?: string
-  [key: string]: any // Para cualquier otra propiedad que pueda tener el objeto
+  [key: string]: any
 }
 
 interface CourseCardProps {
@@ -47,7 +47,8 @@ export function CourseCard({
   heroImage: propHeroImage,
   instructor: propInstructor,
   date: propDate,
-  isShort: propIsShort,  slug: propSlug,
+  isShort: propIsShort,
+  slug: propSlug,
   eventData,
   isDraft: propIsDraft,
 }: CourseCardProps) {
@@ -64,7 +65,6 @@ export function CourseCard({
   const slug = eventData?.slug || propSlug || '';
   const isShort = propIsShort || (eventData?.type === 'curso especializado');
   
-
   const isDraftStatus = propIsDraft || 
                         eventData?.isDraft || 
                         eventData?.status === 'draft' || 
@@ -75,96 +75,97 @@ export function CourseCard({
       setShort(true)
     }
   }, [isShort])
+
   return (
-    <div className="bg-bgCard rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-zinc-800/30 group">
-      <div className="relative">
-        <div
-          className={`absolute top-4 left-4 ${level === 'BÁSICO'
-              ? 'bg-gradient-to-r from-blueApp to-blue-600'
-              : level === 'INTERMEDIO'
+    <div className="group relative bg-bgCard rounded-2xl overflow-hidden border border-zinc-800/50 hover:border-zinc-700/70 transition-all duration-500 hover:shadow-2xl hover:shadow-blueApp/10 hover:-translate-y-2">
+      {/* Image Section */}
+      <div className="relative h-56 overflow-hidden">
+        <Image
+          src={image || '/placeholder.jpg'} 
+          width={500}
+          height={300}
+          alt={title || 'Curso'}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-zinc-900/40 to-transparent"></div>
+        
+        {/* Badges */}
+        <div className="absolute top-4 left-4 right-4 flex items-start justify-between gap-2 z-10">
+          <div
+            className={`${
+              level === 'BÁSICO'
+                ? 'bg-gradient-to-r from-blueApp to-blue-600'
+                : level === 'INTERMEDIO'
                 ? 'bg-gradient-to-r from-yellow-500 to-amber-600'
-                : 'bg-gradient-to-r from-blueApp to-blue-600'
-            } text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-lg backdrop-blur-sm border border-white/10`}
-        >
-          {level}
-        </div>        
-        {isShort && (
-          <div className="absolute top-4 right-4 bg-gradient-to-r from-darkBlue to-blue-900 text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-lg backdrop-blur-sm border border-white/10">
-            CURSO ESPECIALIZADO
+                : 'bg-gradient-to-r from-purple-500 to-purple-700'
+            } text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20`}
+          >
+            {level}
           </div>
-        )}
+          
+          {isShort && (
+            <div className="bg-gradient-to-r from-darkBlue to-blue-900 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20">
+              ESPECIALIZADO
+            </div>
+          )}
+        </div>
+
         {isDraftStatus && (
-          <div className="absolute bottom-4 left-0 right-0 mx-auto w-max bg-amber-600 text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-lg backdrop-blur-sm border border-white/10 flex items-center gap-1">
+          <div className="absolute bottom-4 left-0 right-0 mx-auto w-max bg-amber-500/90 backdrop-blur-sm text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg border border-amber-400/30 flex items-center gap-1.5">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
             BORRADOR
           </div>
         )}
-        <div className="relative overflow-hidden">
-          <Image
-            src={image || '/placeholder.jpg'} 
-            width={500}
-            height={300}
-            alt={title || 'Curso'}
-            className="w-full h-52 object-cover transition-transform duration-700 group-hover:scale-110"
-          />
-          {/* Overlay gradient para mejor legibilidad */}
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/70 to-transparent opacity-60"></div>
-        </div>
       </div>
-      <div className="p-6 space-y-4">
-        {date && (
-          <div className="flex items-center text-gray-300 text-sm">
-            <div className="bg-zinc-800 p-1.5 rounded-full mr-2 shadow-inner border border-zinc-700/40">
-              <ClockIcon className="h-3.5 w-3.5 text-blueApp" />
-            </div>
-            {formatDate(date)}
-          </div>
-        )}        
-        <h3 className="text-xl font-bold text-white mb-1 line-clamp-2 group-hover:text-blueApp transition-colors duration-300">{title}</h3>
-        <div className="text-gray-300 mb-2 line-clamp-3 text-sm leading-relaxed">
+
+      {/* Content Section */}
+      <div className="p-7 space-y-5">
+        {/* Title */}
+        <h3 className="text-2xl font-bold text-white line-clamp-2 group-hover:text-blueApp transition-colors duration-300 leading-tight">
+          {title}
+        </h3>
+
+        {/* Description */}
+        <div className="text-gray-400 line-clamp-3 text-sm leading-relaxed">
           {typeof description === 'string' ? HTMLReactParser(description) : ''}
         </div>
-        {!isShort && (
-          <div className="flex items-center text-gray-300 text-sm">
-            <div className="bg-zinc-800 p-1.5 rounded-full mr-2 shadow-inner border border-zinc-700/40">
-              <ClockIcon className="h-3.5 w-3.5 text-blueApp" />
-            </div>
-            <span>{duration}</span>
-          </div>
-        )}
-        {instructor && (
-          <div className="border-t border-zinc-700/50 pt-4 mt-3">
-            <div className="flex items-center">
-              <div className="bg-zinc-800 p-2 rounded-lg shadow-inner border border-zinc-700/40">
-                <User className="h-5 w-5 text-blueApp" />
+
+        {/* Metadata */}
+        <div className="flex flex-col gap-3 pt-2">
+          {date && (
+            <div className="flex items-center gap-3 text-gray-300 text-sm">
+              <div className="flex items-center justify-center w-9 h-9 bg-zinc-800/60 rounded-lg border border-zinc-700/50 group-hover:bg-zinc-800 transition-colors">
+                <Calendar className="h-4 w-4 text-blueApp" />
               </div>
-              <div className="ml-3">
-                <div className="text-sm text-gray-400">Instructor:</div>
-                <div className="font-medium text-white">{instructor}</div>
+              <div>
+                <p className="text-xs text-gray-500 font-medium">Inicio</p>
+                <p className="text-sm text-gray-300 font-semibold">{formatDate(date)}</p>
               </div>
             </div>
-          </div>
-        )}
-        <div className="border-t border-zinc-700/50 pt-4 mt-3">
-            <div className="flex items-center">
-              <div className="bg-zinc-800 p-2 rounded-lg shadow-inner border border-zinc-700/40">
-                <Award className="h-5 w-5 text-blueApp" />
-              </div>
-              <div className="ml-3">
-                <div className="text-sm text-gray-400">Requisito de certificación:</div>
-                <div className="font-medium text-white">Proyecto final</div>
-              </div>
+          )}
+          
+          <div className="flex items-center gap-3 text-gray-300 text-sm">
+            <div className="flex items-center justify-center w-9 h-9 bg-zinc-800/60 rounded-lg border border-zinc-700/50 group-hover:bg-zinc-800 transition-colors">
+              <ClockIcon className="h-4 w-4 text-blueApp" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 font-medium">Duración</p>
+              <p className="text-sm text-gray-300 font-semibold">{duration}</p>
             </div>
           </div>
+        </div>
+
+        {/* CTA Button */}
         <Link
           href={`/programas-academicos/${slug}`}
-          className="mt-6 inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"        >
-          {isShort ? 'Ver curso especializado' : 'Ver diplomado'}
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          className="mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blueApp/25 hover:shadow-blueApp/40 transition-all duration-300 group/btn"
+        >
+          <span>{isShort ? 'Ver curso especializado' : 'Ver diplomado'}</span>
+          <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
         </Link>
       </div>
     </div>

@@ -4,6 +4,7 @@ import Reviews from "@/sections/Reviews";
 import NoticiasSection from "@/sections/Noticias";
 import { Ubication } from "@/sections/ubication";
 import HeroCarrusel from "@/components/HeroCarrusel";
+import { AliadosSection } from '@/components/aliadosSection';
 import heroData from '../../data/herocarrusel.json'
 import AcademicOfferSupa from "@/sections/AcademicOfferSupa";
 
@@ -12,14 +13,17 @@ export default function Home() {
     <>
       <HeroCarrusel 
         items={heroData}
-          type="hero"
-          effect="fade"
-          className="w-full z-10 rounded-lg mt-28"
-          itemClassName="group z-10"
-          imageClassName=""
-        />
+        type="hero"
+        effect="fade"
+        className="w-full z-10 rounded-lg mt-28"
+        itemClassName="group z-10"
+        imageClassName=""
+      />
       <div id="quienes-somos">
         <WhoWeAre />
+      </div>
+      <div id="programs">
+        <AcademicOfferSupa />
       </div>
       <div id="ubicacion">
         <Ubication />
@@ -27,11 +31,9 @@ export default function Home() {
       <div id="testimonios">
         <Reviews />
       </div>
-      <div id="programs">
-        <AcademicOfferSupa />
-      </div>
       <Testimonials />
-      <NoticiasSection/>      
+      <NoticiasSection/>
+      <AliadosSection />      
     </>
   );
 }
