@@ -11,7 +11,7 @@ import ModalPortal from "@/components/ModalPortal"
 interface Props {
   quantity: number
   setShowModal: (show: boolean) => void
-  handleGoToPay: (idsToMovements: string[]) => void
+  handleGoToPay: () => void
   titleEntity: string
   slugProgram: string | null
   disableButton: boolean
@@ -125,39 +125,40 @@ export default function Modal({
   }
 
   const handleAddNewForm = async () => {
-    const allFormsValid = areAllFormsValid()
-    setError(!allFormsValid)
-    if (userForm < quantity - 1 && allFormsValid) {
-      setUserForm(userForm + 1)
-      if (!userWentBack) {
-        setHasCar("NO")
-        setFormPerUser([
-          ...formPerUser,
-          {
-            name: "",
-            lastName: "",
-            idNumber: "",
-            ...(typeUser === "company" && { nit: "" }),
-            age: "",
-            email: "",
-            phone: "",
-            address: "",
-            occupation: "",
-            company: "",
-            ...(slugProgram && { size: "" }),
-            ...(titleEntity === "Barranqui-IA" && { isAllergic: "No", foodRestriction: "Ninguna", hasCar: "NO" }),
-            bloodType: "",
-            emergencyName: "",
-            emergencyPhone: "",
-          },
-        ])
-      }
-    }
-    if (allFormsValid && userForm === quantity - 1) {
-      const ids = await verifyEmailInFirebase()
-      await handleGoToPay(ids)
-    }
+    // const allFormsValid = areAllFormsValid()
+    // setError(!allFormsValid)
+    // if (userForm < quantity - 1 && allFormsValid) {
+    //   setUserForm(userForm + 1)
+    //   if (!userWentBack) {
+    //     setHasCar("NO")
+    //     setFormPerUser([
+    //       ...formPerUser,
+    //       {
+    //         name: "",
+    //         lastName: "",
+    //         idNumber: "",
+    //         ...(typeUser === "company" && { nit: "" }),
+    //         age: "",
+    //         email: "",
+    //         phone: "",
+    //         address: "",
+    //         occupation: "",
+    //         company: "",
+    //         ...(slugProgram && { size: "" }),
+    //         ...(titleEntity === "Barranqui-IA" && { isAllergic: "No", foodRestriction: "Ninguna", hasCar: "NO" }),
+    //         bloodType: "",
+    //         emergencyName: "",
+    //         emergencyPhone: "",
+    //       },
+    //     ])
+    //   }
+    // }
+    // if (allFormsValid && userForm === quantity - 1) {
+    //   const ids = await verifyEmailInFirebase()
+    // }
+    await handleGoToPay()
   }
+
 
   const verifyEmailInFirebase = async () => {
     const ids: string[] = []

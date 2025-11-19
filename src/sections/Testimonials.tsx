@@ -54,7 +54,7 @@ export default function Testimonials({ backgroundColor }: Props) {
     );
   };
   return (
-    <div className='bg-background'>
+    <div id="testimonio" className='bg-background'>
       <Wrapper styles="max-w-6xl flex flex-col gap-14 w-full py-14">
         <section className="grid gap-10 grid-cols-1 lg:grid-cols-[2.5fr_3fr]">
           <div className=" flex flex-col-reverse lg:flex-row gap-5 w-full">

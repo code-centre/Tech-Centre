@@ -9,8 +9,13 @@ import { Minus, Plus, PlusSquare, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useState } from 'react'
 import { useCollection } from 'react-firebase-hooks/firestore'
+import { supabase } from '@/lib/supabase'
+import { useUser } from '@/lib/supabase'; // Ajusta esta ruta según tu configuración
+
 
 export default function ViewCheckoutPage() {
+  
+  
   return (
     <main className='relative'>
       <Suspense fallback={<div className="loader"></div>}>
@@ -25,69 +30,92 @@ function ViewCheckoutContent() {
   const [loading, setLoading] = useState<boolean>(true)
   const [subtotal, setSubtotal] = useState<number | null>(null)
   const [quantity, setQuantity] = useState<number>(1)
-  const [ticket, setTicket] = useState<Ticket | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
   const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null)
   const [showQuantity, setShowQuantity] = useState<boolean>(true)
+  const [selectedCohortId, setSelectedCohortId] = useState<number | null>(null);
+  const [selectedInstallments, setSelectedInstallments] = useState<number>(1); // Valor por defecto 1
 
 
-  const [data, setData] = useState<Program | any>({});
-  const ticketId = searchParams.get('ticket')
+  const [data, setData] = useState<Program | null>(null);
   const slugProgram = searchParams.get('slug')
-  const eventId = searchParams.get('eventId')
-  const isShort = searchParams.get('isShort') === 'true';
+  const { user } = useUser();
+  console.log("user activo es:",user)
 
   useEffect(() => {
     const fetchData = async () => {
-      let ref;
+    if (!slugProgram) {
+      console.error('❌ No se proporcionó un slug de programa');
+      setLoading(false);
+      return;
+    }
 
-      if (!isShort) {
-        ref = query(collection(db, "programs"), where("slug", "==", slugProgram));
+    console.log('🔍 Buscando programa con code:', slugProgram);
+    
+    try {
+      console.log('🔄 Realizando consulta a Supabase...');
+      const { data: programData, error } = await supabase
+        .from('programs')
+        .select('*')
+        .eq('code', slugProgram)
+        .single();
+
+      console.log('✅ Respuesta de Supabase recibida');
+      
+      if (error) {
+        console.error('❌ Error en la consulta:', error);
+        throw error;
+      }
+      
+      if (!programData) {
+        console.error('❌ No se encontró ningún programa con el code:', slugProgram);
+        throw new Error('No se encontró el programa');
+      }
+
+      console.log('📦 Datos del programa:', programData);
+      setData(programData);
+
+      if (programData.default_price) {
+        console.log('💰 Precio del programa:', programData.default_price);
+        setSubtotal(programData.default_price);
       } else {
-        ref = query(collection(db, "events"), where("slug", "==", slugProgram));
+        console.warn('⚠️ El programa no tiene precio definido');
       }
-
-      if (ref) {
-        const snapshot = await getDocs(ref);
-        setData(snapshot.docs[0].data());
-        if (isShort) {
-          let newTicketId: number | null = null
-          setSubtotal(snapshot.docs[0].data().tickets[0].price)
-          setTicket(snapshot.docs[0].data().tickets[0])
-        }
-        setLoading(false)
-      }
-    };
+    } catch (error) {
+      console.error('❌ Error al cargar el programa:', error);
+    } finally {
+      console.log('🏁 Finalizando carga de datos');
+      setLoading(false);
+    }
+  };
+    
     fetchData();
-  }, [slugProgram, eventId]);
+  }, [slugProgram]);
 
 
 
   useEffect(() => {
-    if (isShort) {
-      if (paymentMethod === 'monthly' && ticket) {
-        setSubtotal((ticket.price / 2) * quantity)
-      } else {
-        setSubtotal(ticket && (ticket.price * quantity))
-      }
-    } else {
-      let calculateSubtotal = 0
-      if (paymentMethod === 'monthly' && data.discount) {
-        calculateSubtotal = (data.discount / 4) * quantity
-      } else if (paymentMethod === 'monthly' && !data.discount) {
-        calculateSubtotal = (data.price / 4) * quantity
-      } else if (paymentMethod === 'full' && data.discount) {
-        calculateSubtotal = data.discount * quantity
-      } else if (paymentMethod === 'full' && !data.discount) {
-        calculateSubtotal = data.price * quantity
-      }
-      setSubtotal(calculateSubtotal)
-    }
-  }, [quantity])
+  if (!data) return;
+  
+  let calculateSubtotal = 0;
+  
+  if (paymentMethod === 'monthly') {
+    calculateSubtotal = ((data.discount || data.price) / 4) * quantity;
+  } else if (paymentMethod === 'full' || paymentMethod === null) {
+    // Incluimos el caso donde paymentMethod es null
+    calculateSubtotal = (data.discount || data.price) * quantity;
+  }
+  
+  // Solo actualizamos si el valor es mayor que 0
+  if (calculateSubtotal > 0) {
+    setSubtotal(calculateSubtotal);
+  }
+}, [quantity, paymentMethod, data]);
 
 
+console.log('selectedCohortId:', selectedCohortId);
   return (
-    <main className={`min-h-screen  ${!loading ? ' grid grid-cols-1 lg:grid-cols-2 mt-16' : ' grid place-content-center'}`}>
+    <main className={` mt-26 min-h-screen  ${!loading ? ' grid grid-cols-1 lg:grid-cols-2 mt-16' : ' grid place-content-center'}`}>
       {
         loading
           ? <div className="flex justify-center items-center h-screen">
@@ -102,25 +130,31 @@ function ViewCheckoutContent() {
               setPaymentMethod={setPaymentMethod}
               quantity={quantity}
               setQuantity={setQuantity}
+              ticket={null}
               setSubtotal={setSubtotal}
-              slugProgram={slugProgram}
+              slugProgram={data?.name || ''}
               subtotal={subtotal}
-              ticket={ticket}
               setShowQuantity={setShowQuantity}
               showQuantity={showQuantity}
+              selectedCohortId={selectedCohortId}
+              setSelectedCohortId={setSelectedCohortId}
+              selectedInstallments={selectedInstallments}
+              setSelectedInstallments={setSelectedInstallments}
             />
             <ResumenSection
+              user={user}
               data={data}
-              ticket={ticket}
               slugProgram={slugProgram}
-              eventId={eventId}
               selectedSchedule={selectedSchedule}
               quantity={quantity}
               subtotal={subtotal}
-              isShort={isShort}
               period={paymentMethod}
               setQuantity={setQuantity}
               setShowQuantity={setShowQuantity}
+              ticket={null}  // Add this line with appropriate value
+              eventId={null} // Add this line with appropriate value
+              selectedCohortId={selectedCohortId}
+              selectedInstallments={selectedInstallments}
             />
           </>
       }

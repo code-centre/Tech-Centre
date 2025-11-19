@@ -126,15 +126,21 @@ export default function TechFoundamentsContainer({ slug }: Props) {
 
         if (eventSnap.exists()) {
           const eventData = eventSnap.data();
-          const ticketsData = (eventData?.tickets || []).map((ticket: any) => ({
-            name: ticket.name ?? ticket.title ?? '',
-            title: ticket.title ?? '',
-            ticketName: ticket.ticketName ?? ticket.name ?? ticket.title ?? '',
-            price: ticket.price ?? 0,
-            benefits: ticket.benefits ?? [],
-            type: ticket.type ?? 'general',
-            description: ticket.description ?? '',
-          }));
+          const ticketsData = (eventData?.tickets || []).map((ticket: any) => {
+            // Ensure price is a valid number, default to 0 if invalid
+            const price = typeof ticket.price === 'number' ? ticket.price : 
+                         ticket.price && !isNaN(Number(ticket.price)) ? Number(ticket.price) : 0;
+            
+            return {
+              name: ticket.name ?? ticket.title ?? '',
+              title: ticket.title ?? '',
+              ticketName: ticket.ticketName ?? ticket.name ?? ticket.title ?? '',
+              price: price,
+              benefits: Array.isArray(ticket.benefits) ? ticket.benefits : [],
+              type: ticket.type ?? 'general',
+              description: ticket.description ?? '',
+            };
+          });
 
           setTickets(ticketsData);
         }
@@ -165,15 +171,21 @@ export default function TechFoundamentsContainer({ slug }: Props) {
 
     // Actualizar tickets solo si estamos modificando la propiedad tickets
     if (propertyName === 'tickets') {
-      const ticketsSnapshot = (programSnapshot.data()?.tickets || []).map((ticket: any) => ({
-        name: ticket.name ?? ticket.title ?? '',
-        title: ticket.title ?? '',
-        ticketName: ticket.ticketName ?? ticket.name ?? ticket.title ?? '',
-        price: ticket.price ?? 0,
-        benefits: ticket.benefits ?? [],
-        type: ticket.type ?? 'general',
-        description: ticket.description ?? '',
-      }))
+      const ticketsSnapshot = (programSnapshot.data()?.tickets || []).map((ticket: any) => {
+        // Ensure price is a valid number, default to 0 if invalid
+        const price = typeof ticket.price === 'number' ? ticket.price : 
+                     ticket.price && !isNaN(Number(ticket.price)) ? Number(ticket.price) : 0;
+        
+        return {
+          name: ticket.name ?? ticket.title ?? '',
+          title: ticket.title ?? '',
+          ticketName: ticket.ticketName ?? ticket.name ?? ticket.title ?? '',
+          price: price,
+          benefits: Array.isArray(ticket.benefits) ? ticket.benefits : [],
+          type: ticket.type ?? 'general',
+          description: ticket.description ?? '',
+        };
+      })
       setTickets(ticketsSnapshot)
     }
     try {
@@ -378,8 +390,8 @@ export default function TechFoundamentsContainer({ slug }: Props) {
   }, [shortCourse]);
 
   return (
-    <div className="text-white w-full mt-20 lg:mx-20 overflow-x-hidden">
-      <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8 pb-20 gap-8 ">
+    <div className="text-white w-full mt-30 overflow-x-hidden">
+      <main className="max-w-7xl flex flex-col mx-auto sm:px-4 lg:px-8  gap-8 ">
         <Hero
           date={shortCourse?.date || ''}
           title={shortCourse?.title || ''}
@@ -458,21 +470,21 @@ export default function TechFoundamentsContainer({ slug }: Props) {
           </div>
 
           {/* Secciones adicionales con mejor separación */}
-          <div className="flex flex-col gap-y-12">
-            <div id="programa" className="bg-transparent pt-12"> {/* Separación extra antes del temario */}
+          <div className="flex flex-col gap-y-2">
+            <div id="programa" className="bg-transparent pt-6"> {/* Separación extra antes del temario */}
               <Syllabus
                 shortCourse={shortCourse || {}}
                 saveChanges={saveChanges}
               />
             </div>
-            <div id="horarios" className="bg-transparent pt-12">
+            <div id="horarios" className="bg-transparent pt-2">
               <Schedule
                 data={shortCourse || {}}
                 saveChanges={saveChanges}
               />
             </div>
 
-            <div id="precios" className="flex items-center justify-center p-8">
+            <div id="precios" className="flex items-center justify-center p-2">
               <Tickets
                 tickets={tickets || []}
                 eventId={eventId}

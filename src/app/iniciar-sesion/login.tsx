@@ -1,51 +1,68 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth'
-import { auth, db } from "../../../firebase";
-import { useRouter } from "next/navigation";
-import useUserStore from "../../../store/useUserStore";
-import { doc, getDoc } from "firebase/firestore";
-import Link from "next/link";
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
-import SignInWithGoogle from "../../components/SignInWithGoogle";
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import Link from 'next/link';
+
+// import React, { useState, useEffect } from "react";
+// import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth'
+// import { auth, db } from "../../../firebase";
+// import { useRouter } from "next/navigation";
+// import useUserStore from "../../../store/useUserStore";
+// import { doc, getDoc } from "firebase/firestore";
+// import Link from "next/link";
+// import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
+// import SignInWithGoogle from "../../components/SignInWithGoogle";
 
 
 const Login = () => {
-  const { setUser } = useUserStore();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
-  const [signInWithEmailAndPassword, user, loading, authError] =
-    useSignInWithEmailAndPassword(auth);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const supabase = createClientComponentClient();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const auth = getAuth()
+  e.preventDefault();
+  setError('');
+  setIsLoading(true);
 
-    try {
-      const res = await signInWithEmailAndPassword(email, password);
+  try {
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      if (res) {
-        const user = res.user;
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data() as User;
-          setUser({ ...userData, id: user.uid });
-          router.back();
-        } else {
-          setError("No se encontraron datos adicionales para este usuario.");
-        }
-      } else {
-        setError(
-          "Error al iniciar sesión. Por favor verifica tus credenciales."
-        );
+    if (signInError) {
+      // Mapeo de errores de Supabase a mensajes amigables
+      switch (signInError.message) {
+        case 'Invalid login credentials':
+          throw new Error('Correo o contraseña incorrectos');
+        case 'Email not confirmed':
+          throw new Error('Por favor verifica tu correo electrónico antes de iniciar sesión');
+        case 'Email rate limit exceeded':
+          throw new Error('Demasiados intentos. Por favor, inténtalo más tarde');
+        default:
+          console.error('Error de autenticación:', signInError);
+          throw new Error('Error al iniciar sesión. Por favor, inténtalo de nuevo');
       }
-    } catch (error) {
-      setError("Error inesperado. Por favor, inténtalo de nuevo más tarde.");
     }
-  };
+
+    // Forzar recarga completa de la página para asegurar que todos los datos se actualicen
+    window.location.href = '/';
+    // Alternativa si prefieres usar el router:
+    // router.replace('/');
+    // router.refresh();
+
+  } catch (err: any) {
+    console.error('Error en inicio de sesión:', err);
+    setError(err.message || 'Error al iniciar sesión');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const getErrorMessage = (error: any) => {
     switch (error?.code) {
@@ -65,10 +82,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[80vh] w-full max-w-md mx-auto flex items-center justify-center p-4">
+    <div className="min-h-[80vh] w-full max-w-md mx-auto flex items-center justify-center p-4 mt-25">
       <div className="w-full relative bg-white/95 backdrop-blur-sm p-8 md:p-10 rounded-2xl 
         shadow-[0_8px_30px_rgb(0,0,0,0.05)] border border-gray-100/80
-        space-y-8 animate-fade-in animate-duration-500">
+        space-y-8 animate-fade-in animate-duration-500 ">
         
         {/* Header with enhanced styling */}
         <div className="space-y-2 animate-fade-in-up">
@@ -85,73 +102,53 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
-          {/* Form fields with enhanced focus and hover states */}
-          <div className="space-y-5">
-            <label className="block space-y-2 animate-fade-in animate-delay-100">
-              <span className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-                <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <span>Correo electrónico</span>
-              </span>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Correo Electrónico
+              </label>
               <input
+                id="email"
                 type="email"
-                placeholder="ejemplo@correo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg 
-                  focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 
-                  transition-all duration-300 hover:border-blue-500/50"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
               />
-            </label>
+            </div>
 
-            <label className="block space-y-2">
-              <span className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-                <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                    d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Contraseña</span>
-              </span>
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Contraseña
+                </label>
+                <a href="/recuperar-contrasena" className="text-sm text-blue-600 hover:underline">
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
               <input
+                id="password"
                 type="password"
-                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg 
-                  focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 
-                  transition-all duration-300 hover:border-blue-500/50"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
               />
-            </label>
+            </div>
           </div>
 
-          {(error || authError) && (
-            <div className="animate-fade-in animate-duration-200">
-              <p className="text-red-500 text-sm bg-red-50 px-4 py-2.5 rounded-lg border border-red-100">
-                {error || getErrorMessage(authError)}
-              </p>
+          {error && (
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+              {error}
             </div>
           )}
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full px-6 py-3 text-white bg-blue-600 rounded-lg font-medium
-              transform transition-all duration-300 hover:bg-blue-700 
-              hover:scale-[1.02] active:scale-[0.98] 
-              disabled:opacity-50 disabled:cursor-not-allowed
-              shadow-md hover:shadow-lg
-              animate-fade-in animate-duration-300"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? (
-              <span className="flex items-center justify-center space-x-2">
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Iniciando sesión...</span>
-              </span>
-            ) : (
-              "Iniciar sesión"
-            )}
+            {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </button>
         </form>
 
@@ -161,9 +158,6 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="animate-fade-in animate-delay-150">
-          <SignInWithGoogle setError={setError} />
-        </div>
 
         <div className="text-center">
           <span className="text-sm text-gray-600">

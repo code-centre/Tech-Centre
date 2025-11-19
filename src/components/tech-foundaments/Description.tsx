@@ -20,7 +20,7 @@ export function Description({ shortCourse, saveChanges }: Props) {
   return (
     <div className="mt-8">
       <div className="flex items-center">
-        <h2 className="text-2xl font-bold mb-4">Detalles de este curso especializado</h2>
+        <h2 className="text-xl font-bold mb-4">Detalles de este curso especializado</h2>
         {isAdmin && (
           isEditing ? (
             <button
@@ -57,7 +57,7 @@ export function Description({ shortCourse, saveChanges }: Props) {
               <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
               <span className="ml-2 text-blue-500">Guardando cambios...</span>
             </div>) : (
-            <div className="text-gray-300 leading-relaxed">
+            <div className="text-gray-300 text-md leading-relaxed">
               {HTMLReactParser(shortCourse?.description || '')}
               {error && (
                 <div className="p-2 mt-4 bg-red-900/50 text-red-200 rounded-lg text-sm">

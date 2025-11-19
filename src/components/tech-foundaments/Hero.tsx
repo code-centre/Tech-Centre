@@ -152,7 +152,7 @@ export function Hero({ title, subtitle, date, heroImage, saveChanges, shortCours
             </div>
           ) : (
             <div className="flex items-start mb-4">
-              <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg flex-grow">
+              <h1 className="text-3xl md:text-3xl font-bold text-white drop-shadow-lg flex-grow">
                 {title || 'Sin título'}
               </h1>
               {saveChanges && user?.rol === 'admin' && (
@@ -201,7 +201,7 @@ export function Hero({ title, subtitle, date, heroImage, saveChanges, shortCours
             </div>
           ) : (
             <div className="flex items-start mb-4">
-              <h2 className="text-2xl md:text-3xl font-medium text-white drop-shadow flex-grow">
+              <h2 className="text-xl md:text-xl font-medium text-white drop-shadow flex-grow">
                 {subtitle || 'Sin subtítulo'}
               </h2>
               {saveChanges && user?.rol === 'admin' && (

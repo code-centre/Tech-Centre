@@ -1,5 +1,5 @@
 import React from 'react'
-import { ClockIcon, User } from 'lucide-react'
+import { ClockIcon, User, Award} from 'lucide-react'
 import HTMLReactParser from 'html-react-parser/lib/index'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -147,6 +147,17 @@ export function CourseCard({
             </div>
           </div>
         )}
+        <div className="border-t border-zinc-700/50 pt-4 mt-3">
+            <div className="flex items-center">
+              <div className="bg-zinc-800 p-2 rounded-lg shadow-inner border border-zinc-700/40">
+                <Award className="h-5 w-5 text-blueApp" />
+              </div>
+              <div className="ml-3">
+                <div className="text-sm text-gray-400">Requisito de certificación:</div>
+                <div className="font-medium text-white">Proyecto final</div>
+              </div>
+            </div>
+          </div>
         <Link
           href={`/programas-academicos/${slug}`}
           className="mt-6 inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"        >

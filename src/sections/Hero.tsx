@@ -2,6 +2,8 @@
 import React, { useEffect, useRef } from 'react'
 import { CalendarIcon } from 'lucide-react'
 import Image from 'next/image';
+import Carrusel from "@/components/carrusel";
+import heroData from '../../data/herocarrusel.json'
 
 export function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -15,7 +17,7 @@ export function Hero() {
   }, []);
 
   return (
-    <div className="relative text-white overflow-hidden">
+    <div className="relative text-white overflow-hidden mt-2">
       {/* Video background */}
       <div className="absolute inset-0 w-full h-full z-0">
         <video
@@ -39,11 +41,10 @@ export function Hero() {
               <span>Inscripciones abiertas</span>
             </div> */}
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              Transforma tu futuro con habilidades tech
+            Descubre el poder de la tecnología con clases presenciales y proyectos reales
             </h1>
             <p className="text-xl mb-8 text-blue-100">
-              Aprende de expertos de la industria con programas prácticos
-              diseñados para el mercado laboral actual.
+              Cursos y diplomados en desarrollo web, mobile, diseño UX/UI, data, y más con nuestra modalidad de aprendizaje experiencia
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <a
@@ -51,6 +52,14 @@ export function Hero() {
                 className="px-8 py-3 text-center bg-white text-blueApp font-medium rounded-md hover:bg-blue-50 transition-colors"
               >
                 Ver programas académicos
+              </a>
+            </div>
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4">
+              <a
+                href="#testimonio"
+                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-blueApp transition-colors"
+              >
+                Impacto
               </a>
               <a
                 href="#contacto"
@@ -60,22 +69,22 @@ export function Hero() {
               </a>
             </div>
           </div>
-          <div className="hidden md:block">
+          <div className="">
             <div className="relative group">
               {/* Efectos decorativos */}
               <div className="absolute -left-4 -top-4 w-24 h-24 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
               <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
               
               {/* Marco con borde brillante */}
-              <div className="p-1 bg-gradient-to-r from-blueApp via-blue-100 to-blueApp rounded-lg rotate-1 shadow-2xl">
-                <div className="p-1 bg-gradient-to-r from-lightBlue via-blue-300 to-blueApp rounded-lg -rotate-2">
-                  <Image
-                    src="/hero-image.jpg"
-                    width={800}
-                    height={400}
-                    alt="Estudiantes aprendiendo tecnología"
-                    className="rounded-lg shadow-xl relative z-10 object-cover w-full h-[400px] group-hover:scale-[1.02] transition-transform duration-300"
-                    priority
+              <div className="p-1 z-2 bg-gradient-to-r from-blueApp via-blue-100 to-blueApp rounded-lg rotate-1 shadow-2xl">
+                <div className="p-1 z-4 bg-gradient-to-r from-lightBlue via-blue-300 to-blueApp rounded-lg -rotate-2">
+                  <Carrusel
+                    items={heroData}
+                    type="hero"
+                    effect="fade"
+                    className="w-full h-[400px] z-10 rounded-lg hover:scale-102 transition-transform duration-300"
+                    itemClassName="group z-10"
+                    imageClassName=""
                   />
                 </div>
               </div>

@@ -31,7 +31,7 @@ export default function Benefits({ shortCourse, saveChanges, type = "curso" }: P
     <section className="min-h-[50vh]">
       <div className="max-w-6xl mx-auto grid grid-cols-1 gap-10 py-5 items-center px-4">
         <div className="flex flex-col gap-6 lg:gap-10">
-          <h2 className="text-3xl lg:text-5xl font-bold text-blueApp text-balance">
+          <h2 className="text-2xl lg:text-2xl font-bold text-blueApp text-balance">
             ¿Cuáles son los beneficios de tomar <span className="text-white">este {type}?</span>
           </h2>
           <p className="text-lg font-semibold text-white">

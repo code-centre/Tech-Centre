@@ -33,27 +33,29 @@ function CheckoutContent() {
         `https://${process.env.NEXT_PUBLIC_MODE_WOMPI}.wompi.co/v1/transactions/${id}`
       );
       const { data } = await resp.json();
+      console.log(data)
 
-      if (data.payment_link_id) {
-        const qMovement = query(collection(db, "movements"), where("paymentId", "==", data.payment_link_id))
+      // if (data.payment_link_id) {
+      //   const qMovement = query(collection(db, "movements"), where("paymentId", "==", data.payment_link_id))
 
-        const querySnapshotMovement = await getDocs(qMovement)
-        const movement = querySnapshotMovement.docs[0].data()
-        setMovementData(movement)
-        let ref;
-        if (movement.type === 'program') {
-          ref = query(collection(db, "programs"), where("slug", "==", movement.productId));
-        } else {
-          ref = query(collection(db, "events"), where("slug", "==", movement.productId));
-        }
+      //   const querySnapshotMovement = await getDocs(qMovement)
+      //   const movement = querySnapshotMovement.docs[0].data()
+      //   setMovementData(movement)
+      //   let ref;
+      //   if (movement.type === 'program') {
+      //     ref = query(collection(db, "programs"), where("slug", "==", movement.productId));
+      //   } else {
+      //     ref = query(collection(db, "events"), where("slug", "==", movement.productId));
+      //   }
 
-        if (ref) {
-          const snapshot = await getDocs(ref);
-          setPurchaseData(snapshot.docs[0].data());
-        }
-      }
+      //   if (ref) {
+      //     const snapshot = await getDocs(ref);
+      //     setPurchaseData(snapshot.docs[0].data());
+      //   }
+      // }
 
       setStatusTransaction(data.status);
+      console.log(data)
       setLoading(false);
     };
 
@@ -78,17 +80,20 @@ function CheckoutContent() {
         ) : (
           <section className="max-w-4xl w-full flex flex-col gap-3 text-center">
             {
-              statusTransaction === 'APPROVED' && purchaseData
-                ? <Ticket
-                  type={movementData && movementData.type === 'program' ? 'program' : 'event'}
-                  title={movementData && movementData.type === 'program' ? `${purchaseData.name} ${purchaseData.subtitle}` : purchaseData.title}
-                  date={movementData && movementData.type === 'program' ? purchaseData.startDate : formatDate(purchaseData.date)}
-                  time={movementData && movementData.type === 'program' ? movementData.selectedSchedule : purchaseData.startHour}
-                  location={movementData && movementData.type === 'program' ? "Fundación código abierto" : purchaseData.title}
-                  code={id!}
-                  slug={purchaseData.slug}
-                  heroImage={purchaseData.heroImage}
-                />
+              statusTransaction === 'APPROVED'
+                // ? <Ticket
+                //   type={movementData && movementData.type === 'program' ? 'program' : 'event'}
+                //   title={movementData && movementData.type === 'program' ? `${purchaseData.name} ${purchaseData.subtitle}` : purchaseData.title}
+                //   date={movementData && movementData.type === 'program' ? purchaseData.startDate : formatDate(purchaseData.date)}
+                //   time={movementData && movementData.type === 'program' ? movementData.selectedSchedule : purchaseData.startHour}
+                //   location={movementData && movementData.type === 'program' ? "Fundación código abierto" : purchaseData.title}
+                //   code={id!}
+                //   slug={purchaseData.slug}
+                //   heroImage={purchaseData.heroImage}
+                // />
+                ? <div className="h-[250px] bg-gray-200 pt-4 max-w-sm mx-auto w-full mask rounded-t-md">
+                  <p className="font-semibold">Compra aprobada =P </p>
+                </div>
                 : <div className="h-[250px] bg-gray-200 pt-4 max-w-sm mx-auto w-full mask rounded-t-md">
                   <p className="font-semibold">Compra no aprobada 😪</p>
                 </div>
