@@ -13,7 +13,7 @@ return (
         </div>
         <div className="flex sm:flex-row gap-2">
             <Link 
-                href="/#cursosespecializados"
+                href="/programas-academicos"
                 className="text-sm rounded-lg border border-black bg-background text-white p-1  hover:scale-105 duration-300"
                 onClick={(e) => {
                 if (window.location.pathname === "/") {

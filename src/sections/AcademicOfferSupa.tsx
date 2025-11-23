@@ -102,7 +102,7 @@ export default function AcademicOfferSupa() {
       <div className="mx-auto">
         <div className="text-center mb-10">
           <h2 className="text-4xl md:text-5xl font-extrabold mb-5 drop-shadow-lg">
-            Programas academicos supa
+            Programas académicos
           </h2>
           <h2 className="text-4xl md:text-5xl font-extrabold mb-5 drop-shadow-lg">
             diseñados para el mercado laboral actual
