@@ -21,7 +21,7 @@ export default function ProfilePage() {
   }, [user, loading, router])
 
   if (loading) {
-    return <div>Cargando...</div>
+    return <div className="flex items-center justify-center mt-20 h-screen">Cargando...</div>
   }
 
   if (!user) {
