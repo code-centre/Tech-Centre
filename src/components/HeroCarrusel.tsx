@@ -2,7 +2,7 @@
 
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules'
-import { useState,useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import Link from 'next/link'
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -17,6 +17,7 @@ interface CarruselProps {
     title?: string
     description?: string
     link?: string
+    cta?: string
   }[]
   type?: 'default' | 'hero' | 'cards'
   autoplayDelay?: number
@@ -28,8 +29,6 @@ interface CarruselProps {
   imageClassName?: string
   contentClassName?: string
 }
-
-// ... (imports y tipos permanecen iguales)
 
 export function HeroCarrusel({
   items,
@@ -61,7 +60,7 @@ export function HeroCarrusel({
       Autoplay,
       EffectFade
     ],
-    navigation: showNavigation,
+    navigation: false,
     pagination: showPagination ? { clickable: true } : false,
     autoplay: { 
       delay: autoplayDelay, 
@@ -106,17 +105,17 @@ export function HeroCarrusel({
         {items.map((item) => (
           <SwiperSlide 
             key={item.id} 
-            className="swiper-slide " // Clase estándar de Swiper
+            className="swiper-slide"
             style={{ 
               backgroundColor: 'transparent',
               position: 'relative',
               zIndex: 10
             }}
           >
-            <div className="max-w-7xl mx-10 px-4 sm:px-6 lg:px-8 ">
+            <div className="max-w-5xl mx-auto py-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="relative z-20  ">
-                  <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+                  <h1 className="text-4xl font-bold mb-6 leading-tight">
                     {item.title}
                   </h1>
                   <p className="text-xl mb-8 text-blue-100">
@@ -124,24 +123,10 @@ export function HeroCarrusel({
                   </p>
                   <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                     <a
-                      href="#cursos"
+                      href={item.link}
                       className="px-8 py-3 text-center bg-white text-blueApp font-medium rounded-md hover:bg-blue-50 transition-colors"
                     >
-                      Ver programas académicos
-                    </a>
-                  </div>
-                  <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4">
-                    <a
-                      href="#testimonio"
-                      className="px-8 py-3 text-center bg-transparent border border-white text-white font-medium rounded-md hover:bg-white hover:text-blueApp transition-colors"
-                    >
-                      Impacto
-                    </a>
-                    <a
-                      href="#contacto"
-                      className="px-8 py-3 text-center bg-transparent border border-white text-white font-medium rounded-md hover:bg-white hover:text-blueApp transition-colors"
-                    >
-                      Contáctanos
+                      {item.cta}
                     </a>
                   </div>
                 </div>

@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { useCollection } from "react-firebase-hooks/firestore"
 import { db } from "../../firebase"
 import { collection, query, where } from "firebase/firestore"
-import { ChevronDown, Menu, X, ChevronRight, ChevronLast, ChevronLeft } from "lucide-react"
+import { ChevronDown, Menu, X, ChevronRight, ChevronLast, ChevronLeft, User as UserIcon, LogOut, Users, FileText, GraduationCap } from "lucide-react"
 import type { User } from "firebase/auth"
 import Anuncios from "@/components/anuncios";
 import { useRouter } from 'next/navigation'
@@ -226,6 +226,15 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-12 text-lg">
+            {/* <Link 
+              href="/programas-academicos" 
+              className="hover:text-blueApp transition-all duration-200 font-medium text-white group">
+              <span
+                className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+              >Programas
+              </span>
+            </Link> */}
             {/* cursos general dropdown */}
             {/* <div className="relative group">
               <button
@@ -644,7 +653,7 @@ export default function Header() {
               </div>
             </div>   */}
             {/* Empresas Dropdown */}
-            <div className="relative group">
+            {/* <div className="relative group">
               <button
                 className="flex items-center space-x-2 text-white hover:text-blueApp 
                 font-medium transition-all duration-200 group"
@@ -690,10 +699,12 @@ export default function Header() {
                   </div>
                   
               </div>
-            </div>  
+            </div>   */}
             {/* Comunidad Dropdown */}
             <div className="relative group">
-              <button
+              <a
+                href="https://www.codigoabierto.tech/eventos"
+                target="_blank"
                 className="flex items-center space-x-2 text-white hover:text-blueApp 
                 font-medium transition-all duration-200 group"
               >
@@ -703,10 +714,10 @@ export default function Header() {
                 >
                   Comunidad
                 </span>
-                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
-              </button>
+              </a>
+            </div>
 
-              <div
+              {/* <div
                 className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
                 absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
                 shadow-lg border border-white/20 py-3 transition-all duration-200"
@@ -761,9 +772,9 @@ export default function Header() {
                   </div>
                   
               </div>
-            </div> 
+            </div> */}
             {/* Noticias Dropdown */}
-            <div className="relative group">
+            {/* <div className="relative group">
               <button
                 className="flex items-center space-x-2 text-white hover:text-blueApp 
                 font-medium transition-all duration-200 group"
@@ -802,99 +813,94 @@ export default function Header() {
                   </div>
                 </div>
               </div>
-            </div>   
-            {userRole === 'admin' && (
-              <div>
-                <div className="relative group">
-                  <button
-                    className="flex items-center space-x-2 text-white hover:text-blueApp 
-                    font-medium transition-all duration-200 group"
-                  >
-                    <span
-                      className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                      after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                    >
-                      Admin
-                    </span>
-                    <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
-                  </button>
-                <div
-                  className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                  absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
-                  shadow-lg border border-white/20 py-3 transition-all duration-200"
-                >
-                  <div className="px-4 py-2">
-                    <Link
-                      href="/admin/estudiantes"
-                      className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                              hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                    >
-                      Lista estudiantes
-                    </Link>
-                  </div>
-                  <div className="px-4 py-2">
-                    <Link
-                      href="/admin/pagos"
-                      className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                      Lista de pagos
-                    </Link>
-                  </div>
-                  <div className="px-4 py-2">
-                    <Link
-                      href="/admin/programas"
-                      className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                      Lista de programas
-                    </Link>
-                  </div>
-                </div>
-              </div> 
-            </div>)}  
+            </div>    */}
           </nav>
+
           {/* User Actions */}
           {loadinguser ? (
             <div className="h-10 w-24 bg-gray-200 rounded-md animate-pulse"></div>
           ) : user ? (
             <div className="hidden lg:flex items-center space-x-4">
-              <div className="flex items-center bg-white/10 px-4 py-2 rounded-lg h-10 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] animate-fade-in">
-                <div className="w-8 h-8 rounded-full bg-blueApp flex items-center justify-center text-white mr-3">
-                  {userFirstName?.charAt(0).toUpperCase()}
-                </div>
-                <Link href={"/perfil"} className="group relative">
-                  <div className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200">
+              {/* User Profile Dropdown */}
+              <div className="relative group">
+                <button className="flex items-center bg-white/10 px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] animate-fade-in cursor-pointer">
+                  <div className="w-8 h-8 rounded-full bg-blueApp flex items-center justify-center text-white mr-3">
+                    {userFirstName?.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex items-center space-x-3">
                     <div className="flex flex-col">
-                      <span className="text-white font-medium text-sm group-hover:text-blue-100 transition-colors">
+                      <span className="text-white font-medium text-sm">
                         Hola, {userFirstName?.split('@')[0]}
                       </span>
-                      <span className="text-xs text-white/80 group-hover:text-blue-200 transition-colors">
-                        Ver perfil
+                      <span className="text-xs text-white/80">
+                        Mi cuenta
                       </span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-white/80 group-hover:text-blue-200 transition-colors" />
+                    <ChevronDown className="w-4 h-4 text-white/80 transition-transform duration-300 group-hover:rotate-180" />
                   </div>
-                </Link>
+                </button>
+
+                {/* Dropdown Menu */}
+                <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full right-0 mt-2 w-64 bg-zinc-900 backdrop-blur-md rounded-xl shadow-lg border border-white/20 py-3 transition-all duration-200 z-50">
+                  {/* Profile Link */}
+                  <Link
+                    href="/perfil"
+                    className="flex items-center space-x-3 px-4 py-3 text-white hover:bg-zinc-800 transition-all duration-200"
+                  >
+                    <UserIcon className="w-5 h-5 text-blueApp" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">Ver perfil</span>
+                      <span className="text-xs text-gray-400">Gestiona tu cuenta</span>
+                    </div>
+                  </Link>
+
+                  {/* Admin Section - Only show if user is admin */}
+                  {userRole === 'admin' && (
+                    <>
+                      <div className="border-t border-zinc-700/50 my-2"></div>
+                      <div className="px-4 py-2">
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                          Administración
+                        </p>
+                      </div>
+                      <Link
+                        href="/admin/estudiantes"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-zinc-800 transition-all duration-200"
+                      >
+                        <Users className="w-4 h-4 text-blueApp" />
+                        <span className="text-sm">Lista estudiantes</span>
+                      </Link>
+                      <Link
+                        href="/admin/pagos"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-zinc-800 transition-all duration-200"
+                      >
+                        <FileText className="w-4 h-4 text-blueApp" />
+                        <span className="text-sm">Lista de pagos</span>
+                      </Link>
+                      <Link
+                        href="/admin/programas"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-zinc-800 transition-all duration-200"
+                      >
+                        <GraduationCap className="w-4 h-4 text-blueApp" />
+                        <span className="text-sm">Lista de programas</span>
+                      </Link>
+                    </>
+                  )}
+
+                  {/* Logout */}
+                  <div className="border-t border-zinc-700/50 my-2"></div>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex cursor-pointer items-center space-x-3 px-4 py-3 text-white hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-medium">Cerrar sesión</span>
+                      <span className="text-xs text-gray-400">Salir de tu cuenta</span>
+                    </div>
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={handleSignOut}  // Cambiado de handleLogOut a handleSignOut
-                className="py-2 px-1 text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center cursor-pointer hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="mr-2"
-                >
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-                Cerrar Sesión
-              </button>
             </div>
           ) : (
             <div className="hidden lg:flex items-center space-x-4">
@@ -1045,155 +1051,128 @@ export default function Header() {
             : "opacity-0 -translate-y-4 pointer-events-none"
             }`}
         >
-          <div className="px-4 py-4 divide-y divide-gray-300">
-            {/* Cursos Especializados Mobile Dropdown */}
+                    <div className="px-4 py-4 divide-y divide-gray-300">
+            {/* Programas Link */}
             <div className="py-2">
-              <button
-                onClick={() => toggleMobileDropdown("cursos-mobile")}
+              <Link
+                href="/programas-academicos"
                 className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
+                onClick={() => {
+                  setIsMenuOpen(false)
+                  setMobileDropdown(null)
+                }}
               >
-                <span>Cursos Especializados</span>
-                <ChevronDown
-                  className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "cursos-mobile" ? "rotate-180" : ""}`}
-                />
-              </button>
-              <div
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "cursos-mobile"
-                  ? "max-h-[500px] opacity-100"
-                  : "max-h-0 opacity-0"
-                  }`}
-              >
-                <div className="mt-2 pl-4 space-y-2 transform transition-transform duration-300">
-                  <Link
-                    href="/#cursos"
-                    className="block py-2 text-sm font-medium text-white hover:underline transition-colors duration-200"
-                    onClick={(e) => {
-                      if (window.location.pathname === "/") {
-                        e.preventDefault()
-                        document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
-                      }
-                      setIsMenuOpen(false)
-                      setMobileDropdown(null)
-                    }}
-                  >
-                    Toda nuestra oferta académica
-                  </Link>
-                  {loading ? (
-                    <div className="flex justify-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
-                    </div>
-                  ) : (
-                    specializedCoursesInfo.map((course, index) => (
-                      <Link
-                        key={course.id}
-                        href={`/programas-academicos/${course.slug}`}
-                        className="block py-2 text-sm text-white hover:text-blueApp transition-colors duration-200 transform hover:translate-x-1"
-                        onClick={() => {
-                          setIsMenuOpen(false)
-                          setMobileDropdown(null)
-                        }}
-                        style={{
-                          animationDelay: `${index * 50}ms`,
-                          opacity: mobileDropdown === "cursos-mobile" ? 1 : 0,
-                          transform: mobileDropdown === "cursos-mobile" ? "translateY(0)" : "translateY(-10px)",
-                          transition: "all 0.3s ease-out",
-                        }}
-                      >
-                        {course.title || course.name}
-                      </Link>
-                    ))
-                  )}
-                </div>
-              </div>
+                <span>Programas</span>
+              </Link>
             </div>
 
-            {/* Diplomados Mobile Dropdown */}
+            {/* Comunidad Link */}
             <div className="py-2">
-              <button
-                onClick={() => toggleMobileDropdown("diplomados-mobile")}
+              <a
+                href="https://www.codigoabierto.tech/eventos"
                 className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
+                onClick={() => {
+                  setIsMenuOpen(false)
+                  setMobileDropdown(null)
+                }}
               >
-                <span>Diplomados</span>
-                <ChevronDown
-                  className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "diplomados-mobile" ? "rotate-180" : ""}`}
-                />
-              </button>
-              <div
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "diplomados-mobile"
-                  ? "max-h-[500px] opacity-100"
-                  : "max-h-0 opacity-0"
-                  }`}
-              >
-                <div className="mt-2 pl-4 space-y-2 transform transition-transform duration-300">
+                <span>Comunidad</span>
+              </a>
+            </div>
+
+            {/* User Actions */}
+            <div className="py-4">
+              {user ? (
+                <div className="flex flex-col space-y-3">
+                  {/* Profile Section */}
                   <Link
-                    href="/#cursos"
-                    className="block py-2 text-sm font-medium text-white hover:underline transition-colors duration-200"
-                    onClick={(e) => {
-                      if (window.location.pathname === "/") {
-                        e.preventDefault()
-                        document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
-                      }
-                      setIsMenuOpen(false)
-                      setMobileDropdown(null)
-                    }}
+                    href="/perfil"
+                    className="flex items-center space-x-3 px-4 py-3 text-white bg-blueApp/20 hover:bg-blueApp/30 rounded-lg transition-all duration-300 w-full"
+                    onClick={() => setIsMenuOpen(false)}
                   >
-                    Toda nuestra oferta académica
-                  </Link>
-                  {loadingDiploma ? (
-                    <div className="flex justify-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
+                    <div className="w-8 h-8 rounded-full bg-blueApp flex items-center justify-center text-white">
+                      {userFirstName?.charAt(0).toUpperCase()}
                     </div>
-                  ) : (
-                    diplomasInfo.map((diploma, index) => (
-                      <Link
-                        key={diploma.id}
-                        href={`/programas-academicos/${diploma.slug}`}
-                        className="block py-2 text-sm text-white hover:text-blueApp transition-colors duration-200 transform hover:translate-x-1"
-                        onClick={() => {
-                          setIsMenuOpen(false)
-                          setMobileDropdown(null)
-                        }}
-                        style={{
-                          animationDelay: `${index * 50}ms`,
-                          opacity: mobileDropdown === "diplomados-mobile" ? 1 : 0,
-                          transform: mobileDropdown === "diplomados-mobile" ? "translateY(0)" : "translateY(-10px)",
-                          transition: "all 0.3s ease-out",
-                        }}
+                    <span className="font-medium">Hola, {userFirstName?.split('@')[0]}</span>
+                  </Link>
+
+                  {/* Admin Dropdown - Only show if user is admin */}
+                  {userRole === 'admin' && (
+                    <div className="py-2">
+                      <button
+                        onClick={() => toggleMobileDropdown("admin-mobile")}
+                        className="flex items-center justify-between w-full py-3 px-4 text-white font-semibold bg-zinc-800/50 hover:bg-zinc-800 rounded-lg transition-colors duration-200"
                       >
-                        {diploma.title || diploma.name}
-                      </Link>
-                    ))
+                        <span>Admin</span>
+                        <ChevronDown
+                          className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "admin-mobile" ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      <div
+                        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                          mobileDropdown === "admin-mobile"
+                            ? "max-h-[500px] opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                      >
+                        <div className="mt-2 pl-4 space-y-2">
+                          <Link
+                            href="/admin/estudiantes"
+                            className="block py-2 px-3 text-sm text-white hover:text-blueApp hover:bg-zinc-800/30 rounded-md transition-all duration-200"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setMobileDropdown(null)
+                            }}
+                          >
+                            Lista estudiantes
+                          </Link>
+                          <Link
+                            href="/admin/pagos"
+                            className="block py-2 px-3 text-sm text-white hover:text-blueApp hover:bg-zinc-800/30 rounded-md transition-all duration-200"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setMobileDropdown(null)
+                            }}
+                          >
+                            Lista de pagos
+                          </Link>
+                          <Link
+                            href="/admin/programas"
+                            className="block py-2 px-3 text-sm text-white hover:text-blueApp hover:bg-zinc-800/30 rounded-md transition-all duration-200"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setMobileDropdown(null)
+                            }}
+                          >
+                            Lista de programas
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
-              </div>
-            </div>            
-            {/* Other Navigation Links */}
-            {/* Empresas Dropdown */}
-            <div className="py-2">
-              <button
-                onClick={() => toggleMobileDropdown("empresas-mobile")}
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
-              >
-                <span
-                >
-                  Empresas
-                </span>
-                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "empresas-mobile" ? "rotate-180" : ""}`} />
-              </button>
-
-              <div
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "empresas-mobile"
-                  ? "max-h-[20vh] opacity-100 overflow-y-auto"
-                  : "max-h-0 opacity-0"
-                  }`}
-              >
-                <div className="mt-2 pl-4 space-y-2 transform transition-transform duration-300">
+              ) : (
+                <>
+                <div className="flex flex-col items-start space-y-3">
                   <Link
-                    href="/"
-                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                    href="/registro"
+                    className="px-4 py-3 text-white bg-blueApp hover:bg-blue-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium flex items-center justify-center space-x-2"
+                    onClick={() => setIsMenuOpen(false)}
                   >
-                    Capacitaciones
+                    <span>Registrarse</span>
+                    <svg
+                      className="w-4 h-4 transition-transform duration-300 transform hover:translate-x-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
                   </Link>
                 </div>
                 <div className="px-4 py-2">
@@ -1214,8 +1193,8 @@ export default function Header() {
                       Pasantías
                     </Link>
                   </div>
-                  
-              </div>
+                </>
+              )}
             </div>  
             {/* Comunidad Dropdown */}
             <div className="py-2">
@@ -1237,9 +1216,9 @@ export default function Header() {
               >
                 <div className="px-4 py-2">
                   <Link
-                    href="/"
-                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                    href="/iniciar-sesion"
+                    className="px-4 py-3 text-blueApp border-2 border-blueApp hover:bg-blueApp hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     Fundación Codigo abierto
                   </Link>

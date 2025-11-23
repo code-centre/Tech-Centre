@@ -10,8 +10,6 @@ export default function ProgramasAcademicos() {
       <AcademicOfferSupa />
       {/* <AcademicOffer /> */}
       <Testimonials />
-      <Ubication />
-      <ProgramsAdmon />
     </main>
   );
 }
