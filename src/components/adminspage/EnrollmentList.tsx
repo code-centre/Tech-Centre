@@ -23,7 +23,7 @@ interface Cohort {
   program: Program | null;  // Program is a single object, not an array
 }
 
-interface Enrollment {
+export interface Enrollment {
   id: number;
   cohort_id: number;
   student_id: string;
@@ -40,7 +40,11 @@ interface Enrollment {
   } | null;  // Ahora puede ser null
 }
 
-export function EnrollmentList() {
+interface EnrollmentListProps {
+  onEnrollmentSelect?: (enrollment: Enrollment) => void;
+}
+
+export function EnrollmentList({ onEnrollmentSelect }: EnrollmentListProps) {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,30 +146,13 @@ export function EnrollmentList() {
     // );
   });
 
-  const updateEnrollmentStatus = async (enrollmentId: number, newStatus: string) => {
-    try {
-        const { error } = await supabase
-        .from('enrollments')
-        .update({ status: newStatus })
-        .eq('id', enrollmentId);
-
-        if (error) throw error;
-
-        // Actualizar el estado local
-        setEnrollments(prev => 
-        prev.map(enrollment => 
-            enrollment.id === enrollmentId 
-            ? { ...enrollment, status: newStatus } 
-            : enrollment
-        )
-        );
-    } catch (err) {
-        console.error('Error al actualizar el estado:', err);
-        // Aquí podrías mostrar un mensaje de error al usuario
+  const handlePaymentClick = (enrollment: Enrollment) => {
+    if (onEnrollmentSelect) {
+      onEnrollmentSelect(enrollment);
     }
-    };
+  };
 
-  if (loading) return <div>Cargando inscripciones...</div>;
+  if (loading) return <div className='text-white'>Cargando inscripciones...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
@@ -202,15 +189,14 @@ export function EnrollmentList() {
                 <td className="py-2 px-4 border">{enrollment.cohort?.name || 'N/A'}</td>
                 <td className="py-2 px-4 border">
                   <button
-                    onClick={() => updateEnrollmentStatus(enrollment.id, 'pagado')}
-                    disabled={enrollment.status === 'pagado'}
+                    onClick={() => handlePaymentClick(enrollment)}
                     className={`px-2 py-1 rounded-full text-xs ${
                         enrollment.status === 'pagado' 
                         ? 'bg-green-100 text-green-800 cursor-default' 
                         : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                     }`}
                     >
-                    {enrollment.status === 'pagado' ? 'Pagado' : 'Marcar como pagado'}
+                    {enrollment.status}
                     </button>
                 </td>
                 <td className="py-2 px-4 border">${enrollment.agreed_price.toLocaleString()}</td>

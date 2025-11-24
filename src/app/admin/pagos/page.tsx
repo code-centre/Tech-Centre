@@ -3,24 +3,24 @@
 
 import { useState } from 'react';
 import { PayCheck } from '@/components/adminspage/PayCheck';
-import { EnrollmentList } from '@/components/adminspage/EnrollmentList';
+import { EnrollmentList, Enrollment } from '@/components/adminspage/EnrollmentList';
+// import { Enrollment } from '@/components/adminspage/EnrollmentList';
+import { Invoices } from '@/components/adminspage/Invoices';
+
 
 export default function PagosPage() {
+  const [selectedEnrollment, setSelectedEnrollment] = useState<Enrollment | null>(null);
+  const [enrollments, setEnrollments] = useState<[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [selectedStudentName, setSelectedStudentName] = useState<string>('');
 
-  const handleStudentSelect = (studentId: string, studentName: string) => {
-    setSelectedStudent(studentId);
-    setSelectedStudentName(studentName);
+  const handleEnrollmentSelect = (enrollment: Enrollment) => {
+    setSelectedEnrollment(enrollment);
+    setSelectedStudent(enrollment.student_id);
+    // setSelectedStudentName(enrollment.student_name);
+    console.log("log de enrollos",enrollment )
   };
 
-  const handlePaymentSuccess = () => {
-    // Aquí podrías actualizar la lista de estudiantes o mostrar un mensaje de éxito
-    console.log('Pago registrado exitosamente');
-    setSelectedStudent(null);
-    setSelectedStudentName('');
-    // En una aplicación real, aquí podrías actualizar la lista de estudiantes
-  };
 
   return (
     <main>
@@ -30,12 +30,26 @@ export default function PagosPage() {
         <div className="flex flex-col gap-6 ">
           {/* Lista de estudiantes */}
           <div className="">
-            <EnrollmentList />
+            <EnrollmentList onEnrollmentSelect={handleEnrollmentSelect} />
           </div>
 
           {/* Panel de pago */}
-          {/* <div className="border-2 border-white">
-            <PayCheck />
+          <div className="border-2 border-white">
+            {/* {selectedEnrollment ? (
+              <PayCheck 
+                studentId={selectedEnrollment.student_id}
+                enrollmentId={selectedEnrollment.id}
+                amount={selectedEnrollment.agreed_price}
+                onPaymentSuccess={handlePaymentSuccess}
+              />
+            ) : (
+              <PayCheck 
+                // studentId=""
+                // enrollmentId={0}
+                // amount={0}
+                // onPaymentSuccess={handlePaymentSuccess}
+              />
+            )} */}
               <div className="bg-bgCard rounded-lg shadow p-6 text-center h-full flex items-center justify-center">
                 <div>
                   <svg
@@ -58,8 +72,12 @@ export default function PagosPage() {
                   </p>
                 </div>
               </div>
+              {/* // Inside your PagosPage component, add this where you want to show the invoices */}
+              <div className="mt-6">
+                <Invoices enrollment={selectedEnrollment} />
+              </div>
             
-          </div> */}
+          </div>
         </div>
       </div>
     </main>
