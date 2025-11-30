@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useUser } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 import SilaboInstructor from '@/components/instructor/SilaboInstructor';
+import CohortListInstructor from '@/components/instructor/CohortListInstructor';
 
 export default function CohortPage() {
   const params = useParams();
@@ -52,7 +53,11 @@ export default function CohortPage() {
             {/* <li>Instructor: {user.name || user.email}</li> */}
           </ul>
         </div>
+        <CohortListInstructor 
+          cohortName={cohortName}      
+        />
         <SilaboInstructor />
+        
       </div>
     </div>
   );

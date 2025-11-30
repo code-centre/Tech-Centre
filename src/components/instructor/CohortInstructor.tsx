@@ -74,7 +74,7 @@ export default function CohortInstructor() {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Panel del Instructor</h1>
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Bienvenido, {user.name || user.email}</h2>
+        <h2 className="text-xl font-semibold mb-4">Bienvenido, {user.first_name }</h2>
         <p className="text-gray-600 mb-6">Rol: {user.role}</p>
         
         <div className="mt-6">
