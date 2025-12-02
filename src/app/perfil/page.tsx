@@ -8,6 +8,8 @@ import ProfileCourses from '@/components/profile/ProfileCourses'
 import { useRouter } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
 import { useUser } from '@/lib/supabase';
+import InstructorPanel from '@/components/profile/InstructorPanel'
+import ProfileCursosMatriculados from '@/components/profile/ProfileCursosMatriculados'
 
 export default function ProfilePage() {
   const { user, loading } = useUser();
@@ -28,6 +30,8 @@ export default function ProfilePage() {
     return null
   }
 
+  console.log('User object:', user);
+
   const sections = [
     {
       id: 'profile',
@@ -35,13 +39,13 @@ export default function ProfilePage() {
       icon: UserIcon,
     },
     {
-      id: 'events',
+      id: 'cursos',
       label: 'Mis cursos',
       icon: CalendarIcon,
     },
     {
-      id: 'diplomados',
-      label: 'Mis diplomados',
+      id: 'instructor',
+      label: 'Instruidos',
       icon: GraduationCap,
     },
   ]
@@ -75,11 +79,22 @@ export default function ProfilePage() {
 
 
       <div className="container w-full flex-1 mx-auto p-6 md:py-12">
-
-        {activeSection === 'profile'
-          ? <ProfileData />
-          : activeSection === 'events'  }
-      </div>
+      {activeSection === 'profile' ? (
+        <ProfileData />
+      ) : activeSection === 'cursos' ? (
+        user?.role === 'student' ? (
+          <ProfileCursosMatriculados user={user} />
+        ) : (
+          <p className="text-gray-500">No te has matriculado en ningún curso</p>
+        )
+      ) : activeSection === 'instructor' && user?.role === 'instructor' || user?.role === 'admin' ? (
+        <div>
+          <InstructorPanel />
+        </div>
+      ) : (
+        <p className="text-blueApp">No tienes acceso a esta sección</p>
+      )}
+    </div>
     </main>
   )
 }

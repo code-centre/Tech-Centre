@@ -6,6 +6,7 @@ import { useUser } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 import SilaboInstructor from '@/components/instructor/SilaboInstructor';
 import CohortListInstructor from '@/components/instructor/CohortListInstructor';
+import Homeworks from '@/components/instructor/Homeworks';
 
 export default function CohortPage() {
   const params = useParams();
@@ -46,7 +47,8 @@ export default function CohortPage() {
         <p className="text-gray-600 mb-4">
           Bienvenido al panel de administración del cohorte.
         </p>
-        <div className="mt-4 p-4 bg-gray-50 rounded">
+        
+        <div className="mt-8 p-4 bg-gray-50 rounded">
           <p className="font-medium">Información del cohorte:</p>
           <ul className="list-disc pl-5 mt-2 space-y-1">
             <li>Nombre: {cohortName}</li>
@@ -56,6 +58,10 @@ export default function CohortPage() {
         <CohortListInstructor 
           cohortName={cohortName}      
         />
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-4">Tareas del Curso</h3>
+          <Homeworks />
+        </div>
         <SilaboInstructor />
         
       </div>
