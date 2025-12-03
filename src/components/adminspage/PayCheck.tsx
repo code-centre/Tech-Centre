@@ -4,21 +4,59 @@
 import { useState } from 'react';
 
 interface PayCheckProps {
-  studentId?: string;
+  studentId: string;
+  enrollmentId: number;
+  amount: number;
   onPaymentSuccess?: () => void;
 }
 
-export function PayCheck({ studentId, onPaymentSuccess }: PayCheckProps) {
-  const [amount, setAmount] = useState('');
+export function PayCheck({ studentId, enrollmentId, amount, onPaymentSuccess }: PayCheckProps) {
+  // const [amount, setAmount] = useState(amount > 0 ? amount.toString() : '');
   const [paymentMethod, setPaymentMethod] = useState('transfer');
   const [reference, setReference] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí iría la lógica para procesar el pago
-    console.log('Procesando pago:', { studentId, amount, paymentMethod, reference });
-    if (onPaymentSuccess) {
-      onPaymentSuccess();
+    
+    if (!studentId || !enrollmentId) {
+      alert('Por favor selecciona un estudiante válido');
+      return;
+    }
+
+    try {
+      // Aquí iría la lógica para procesar el pago en tu backend
+      const paymentData = {
+        studentId,
+        enrollmentId,
+        // amount: parseFloat(amount),
+        paymentMethod,
+        reference,
+        date: new Date().toISOString()
+      };
+
+      console.log('Procesando pago:', paymentData);
+      
+      // Llamar a tu API para registrar el pago
+      // const response = await fetch('/api/payments/register', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(paymentData)
+      // });
+      
+      // if (!response.ok) throw new Error('Error al procesar el pago');
+      
+      // Si todo sale bien, llamar a la función de éxito
+      if (onPaymentSuccess) {
+        onPaymentSuccess();
+      }
+      
+      // Resetear el formulario
+      setPaymentMethod('transfer');
+      setReference('');
+      
+    } catch (error) {
+      console.error('Error al procesar el pago:', error);
+      alert('Ocurrió un error al procesar el pago. Por favor intenta de nuevo.');
     }
   };
 
@@ -34,7 +72,7 @@ export function PayCheck({ studentId, onPaymentSuccess }: PayCheckProps) {
             type="number"
             id="amount"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            // onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
             className="w-full px-3 py-2 border border-blueApp bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             required

@@ -5,8 +5,8 @@
     "alt": "Estudiantes aprendiendo tecnología en el aula",
     "title": "¿Estas listo para entrar al mundo tech?",
     "description": "Solo necesitas una laptop y ganas de aprender, nosotros nos encargamos del resto",
-    "cta": "Ver programas académicos",
-    "link": "/"
+    "cta": "Ver testimonios",
+    "link": "/#testimonios"
   },
   {
     "id": 2,
@@ -23,7 +23,16 @@
     "alt": "Comunidad de estudiantes",
     "title": "¿Quieres aprender a programar?",
     "description": "Ya sea para un cambio de carrera, un proyecto personal o un nuevo desafío, Tech Centre te acompaña",
-    "cta": "Ver programas académicos",
-    "link": "/programas-academicos"
+    "cta": "Ver ofertas académicas",
+    "link": "/#programs"
+  },
+  {
+    "id": 4,
+    "image": "/1.png",
+    "alt": "Hero's principal",
+    "title": "Descubre el poder de la tecnología con clases presenciales y proyectos reales",
+    "description": "Cursos y diplomados en desarrollo web, mobile, diseño UX/UI, data, y más con nuestra modalidad de aprendizaje experiencial.",
+    "cta": "Ver cursos",
+    "link": "/#programs"
   }
 ]

@@ -13,8 +13,8 @@ export default function DetailsSupa() {
   return (
     <div className="max-w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
       {/* Header with gradient */}
-      <div className="p-4 text-white flex flex-col justify-between items-center">
-        <div className='flex items-center gap-2'>
+      <div className="p-8 text-white flex flex-col justify-between items-center gap-4">
+        <div className='flex items-center gap-4'>
           <BrainCircuit className="text-blueApp" size={32} />
           <h2 className="text-xl font-bold text-blueApp text-balance">
            ¿Cuáles son los beneficios de tomar programa?

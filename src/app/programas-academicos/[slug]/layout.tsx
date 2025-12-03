@@ -3,8 +3,9 @@
 import NavigationCard from "@/components/NavigationCard";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { db } from "../../../../firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+// import { db } from "../../../../firebase";
+// import { collection, query, where, getDocs } from "firebase/firestore";
+import { supabase } from "@/lib/supabase";
 
 export default function CourseLayout({
   children,
@@ -20,43 +21,29 @@ export default function CourseLayout({
   const slug = pathname.split('/').pop();
 
   useEffect(() => {
-    if (!slug) return;
+  if (!slug) return;
 
-    async function fetchCourseData() {
-      try {
-        const programsQuery = query(collection(db, "programs"), where("slug", "==", slug));
-        const programsSnapshot = await getDocs(programsQuery);
+  async function fetchCourseData() {
+    try {
+      // Primero buscamos en la tabla 'programs'
+      const { data: programsData, error: programsError } = await supabase
+        .from('programs')
+        .select('*')
+        .eq('code', slug)
+        .single();
 
-        if (!programsSnapshot.empty) {
-          const courseDoc = programsSnapshot.docs[0];
-          setCourseData({ id: courseDoc.id, ...courseDoc.data() });
-          return;
-        }
-        
-        const eventsQuery = query(
-          collection(db, "events"),
-          where("slug", "==", slug),
-          where("type", "==", "curso especializado"),
-          where("status", "in", ["published", "draft"])
-        );
-        const eventsSnapshot = await getDocs(eventsQuery);
-
-        if (!eventsSnapshot.empty) {
-          const eventDoc = eventsSnapshot.docs[0];
-          const eventData = eventDoc.data();
-          setCourseData({ id: eventDoc.id, ...eventData });
-
-          if (eventData?.type === "curso especializado") {
-            setIsShort(true);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching course data:", error);
+      if (programsData && !programsError) {
+        console.log("Datos del programa:", programsData);
+        setCourseData({ id: programsData.id, ...programsData });
+        return;
       }
+    } catch (error) {
+      console.error("Error al obtener los datos del curso:", error);
     }
+  }
 
-    fetchCourseData();
-  }, [slug]);
+  fetchCourseData();
+}, [slug]);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -115,16 +102,16 @@ export default function CourseLayout({
         {children}
       </main>
       {!isMobile && (
-        <aside className="w-80 flex-shrink-0 mt-20">
+        <aside className="w-80 flex-shrink-0 mt-5">
           <div className="sticky top-24">
             <NavigationCard
               activeSection={activeSection}
               onSectionClick={handleSectionClick}
               courseData={{
-                title: courseData?.title || courseData?.name,
-                type: courseData?.type,
-                slug: courseData?.slug,
-                price: courseData?.price || (courseData?.tickets && courseData.tickets.length > 0 ? courseData.tickets[0].price : 0),
+                title: courseData?.name,
+                type: courseData?.kind,
+                slug: courseData?.code,
+                price: courseData?.default_price,
                 discount: courseData?.discount,
                 installments: isShort ? 2 : 8,
                 installmentPrice: courseData?.discount

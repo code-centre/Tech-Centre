@@ -120,11 +120,11 @@ export function CourseCardSupa({
         <h3 className="text-xl font-bold text-white mb-1 line-clamp-2 group-hover:text-blueApp transition-colors duration-300">{title}</h3>
         <h4 className="text-xl font-bold text-white mb-1 line-clamp-2 group-hover:text-blueApp transition-colors duration-300">{subtitle}</h4>
         <div className="text-gray-300 mb-2 line-clamp-3 text-sm leading-relaxed">
-          tipo: {typeof kind === 'string' ? HTMLReactParser(kind) : ''}
+          Tipo: {typeof kind === 'string' ? HTMLReactParser(kind) : ''}
         </div>
           <div className="flex items-center text-gray-300 text-sm">
             <div className="bg-zinc-800 p-1.5 rounded-full mr-2 shadow-inner border border-zinc-700/40">
-              <ClockIcon className="h-3.5 w-3.5 text-blueApp" />
+              <ClockIcon className="h-5 w-5 text-blueApp" />
             </div>
             <span>{duration}</span>
           </div>
