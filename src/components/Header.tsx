@@ -14,8 +14,6 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import ProgramQuery from "./ProgramQuery";
 import type { Program } from './ProgramQuery';
 
-
-
 interface Course {
   id: string
   title?: string
@@ -209,10 +207,10 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm shadow-lg">
-      <Anuncios />  
+      {/* <Anuncios />   */}
       <ProgramQuery onProgramsLoaded={handleProgramsLoaded} />
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto container px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex-shrink-0">
             <Image
@@ -366,7 +364,7 @@ export default function Header() {
             <div className="relative group">
               <button
                 className="flex items-center space-x-2 text-white hover:text-blueApp 
-                font-medium transition-all duration-200 group"
+                font-medium transition-all duration-200 group cursor-pointer"
               >
                 <span
                   className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
@@ -394,7 +392,7 @@ export default function Header() {
                     //   }
                     // }}
                   >
-                    Toda nuestra oferta académica
+                    Oferta académica
                   </Link>
                   <div
                     className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin 
@@ -700,7 +698,7 @@ export default function Header() {
                   
               </div>
             </div>   */}
-            {/* Comunidad Dropdown */}
+
             <div className="relative group">
               <a
                 href="https://www.codigoabierto.tech/eventos"
@@ -1026,6 +1024,8 @@ export default function Header() {
               </div>
             </>
           )} */}
+
+
           <button
             onClick={(e) => {
               e.stopPropagation(); // Prevent click from propagating to the backdrop
@@ -1034,7 +1034,7 @@ export default function Header() {
                 setIsMenuOpen(!isMenuOpen);
               });
             }}
-            className="lg:hidden p-2 hover:animate-pulse hover:animate-once"
+            className="lg:hidden p-2 hover:animate-pulse hover:animate-once cursor-pointer"
           >
             {isMenuOpen ? (
               <X className="w-6 h-6 animate-fade-in animate-duration-200 text-white" />
@@ -1043,15 +1043,27 @@ export default function Header() {
             )}
           </button>
         </div>
+        {/* Mobile Sidebar - Slides in from right */}
         <div
           ref={mobileMenuRef}
           onClick={(e) => e.stopPropagation()} // Prevent clicks within the menu from closing it
-          className={`lg:hidden fixed inset-x-0 top-16 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-600 z-50 shadow-lg transition-all duration-300 ease-in-out ${isMenuOpen
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 -translate-y-4 pointer-events-none"
-            }`}
+          className={`lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-zinc-900/95 backdrop-blur-md border-l border-zinc-600 z-50 shadow-2xl transition-transform duration-300 ease-out ${
+            isMenuOpen
+              ? "translate-x-0"
+              : "translate-x-full"
+          }`}
         >
-                    <div className="px-4 py-4 divide-y divide-gray-300">
+          <div className="px-4 py-4 divide-y divide-gray-300 h-full overflow-y-auto">
+            {/* Close button */}
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="p-2 hover:bg-zinc-800 rounded-lg transition-colors duration-200"
+              >
+                <X className="w-6 h-6 text-white" />
+              </button>
+            </div>
+
             {/* Programas Link */}
             <div className="py-2">
               <Link
@@ -1095,6 +1107,18 @@ export default function Header() {
                     </div>
                     <span className="font-medium">Hola, {userFirstName?.split('@')[0]}</span>
                   </Link>
+
+                  {/* Logout Button */}
+                  <button
+                    onClick={() => {
+                      handleSignOut()
+                      setIsMenuOpen(false)
+                    }}
+                    className="px-4 py-3 text-white bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-all duration-300 w-full flex items-center justify-center space-x-2"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span>Cerrar Sesión</span>
+                  </button>
 
                   {/* Admin Dropdown - Only show if user is admin */}
                   {userRole === 'admin' && (
@@ -1152,180 +1176,6 @@ export default function Header() {
                   )}
                 </div>
               ) : (
-                <>
-                <div className="flex flex-col items-start space-y-3">
-                  <Link
-                    href="/registro"
-                    className="px-4 py-3 text-white bg-blueApp hover:bg-blue-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium flex items-center justify-center space-x-2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <span>Registrarse</span>
-                    <svg
-                      className="w-4 h-4 transition-transform duration-300 transform hover:translate-x-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
-                  </Link>
-                </div>
-                <div className="px-4 py-2">
-                  <Link
-                    href="/empresas/trabajo"
-                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                  >
-                    Trabaja con nosotros
-                  </Link>
-                  </div>
-                  <div className="px-4 py-2">
-                    <Link
-                      href="/empresas/trabajo#pasantia"
-                      className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                              hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                    >
-                      Pasantías
-                    </Link>
-                  </div>
-                </>
-              )}
-            </div>  
-            {/* Comunidad Dropdown */}
-            <div className="py-2">
-              <button
-                onClick={() => toggleMobileDropdown("comunidad-mobile")}
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
-              >
-                <span>
-                  Comunidad
-                  </span>
-                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "comunidad-mobile" ? "rotate-180" : ""}`} />
-              </button>
-
-              <div
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${mobileDropdown === "comunidad-mobile"
-                  ? "max-h-[20vh] opacity-100 overflow-y-auto"
-                  : "max-h-0 opacity-0"
-                  }`}
-              >
-                <div className="px-4 py-2">
-                  <Link
-                    href="/iniciar-sesion"
-                    className="px-4 py-3 text-blueApp border-2 border-blueApp hover:bg-blueApp hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Fundación Codigo abierto
-                  </Link>
-                </div>
-                <div className="px-4 py-2">
-                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                  Movimiento Costa digital
-                  </div>
-                </div>
-                <div className="px-4 py-2">
-                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                    Caribe Ventures
-                    </div>
-                  </div>
-                  <div className="px-4 py-2">
-                    <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                    Ciudad inmersiva
-                    </div>
-                  </div>
-                  
-              </div>
-            </div> 
-            {/* Noticias Dropdown */}
-            <div className="py-2">
-              <button
-                onClick={() => toggleMobileDropdown("Noticias-mobile")}
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
-              >
-                <span>
-                  Noticias
-                  </span>
-                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "Noticias-mobile" ? "rotate-180" : ""}`} />
-              </button>
-
-              <div
-                className={`${
-                  mobileDropdown === "Noticias-mobile"
-                    ? "max-h-[20vh] opacity-100 overflow-y-auto"
-                    : "max-h-0 opacity-0"
-                } transition-all duration-500 ease-in-out`}
-              >
-                <div className="px-4 py-2">
-                  <Link
-                    href="/"
-                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                    Blogs
-                  </Link>
-                </div>
-                <div className="px-4 py-2">
-                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                  Prensa
-                  </div>
-                </div>
-                <div className="px-4 py-2">
-                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                  Eventos
-                  </div>
-                </div>
-              </div>
-            </div> 
-
-            {/* User Actions - Move Register button inside mobile menu */}
-            <div className="py-4">
-              {user ? (
-                <div className="flex flex-col items-start space-y-3">
-                  <Link
-                    href="/perfil"
-                    className="flex items-center space-x-3 px-4 py-3 text-white bg-blueApp hover:bg-blue-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
-                      {(user.displayName || user.email)?.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="font-medium">Hola, {user.name}</span>
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleLogOut()
-                      setIsMenuOpen(false)
-                    }}
-                    className="px-4 py-3 text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full flex items-center justify-center space-x-2"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                      <polyline points="16 17 21 12 16 7"></polyline>
-                      <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Cerrar Sesión</span>
-                  </button>
-                </div>
-              ) : (
                 <div className="flex flex-col items-start space-y-3">
                   <Link
                     href="/registro"
@@ -1362,8 +1212,9 @@ export default function Header() {
       </div>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/20 z-40 lg:hidden transition-opacity duration-300 ease-in-out ${isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ease-in-out ${
+          isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();

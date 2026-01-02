@@ -112,26 +112,9 @@ export function HeroCarrusel({
               zIndex: 10
             }}
           >
-            <div className="max-w-5xl mx-auto py-10">
+            <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div className="relative z-20  ">
-                  <h1 className="text-4xl font-bold mb-6 leading-tight">
-                    {item.title}
-                  </h1>
-                  <p className="text-xl mb-8 text-blue-100">
-                    {item.description}
-                  </p>
-                  <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                    <a
-                      href={item.link}
-                      className="px-8 py-3 text-center bg-white text-blueApp font-medium rounded-md hover:bg-blue-50 transition-colors"
-                    >
-                      {item.cta}
-                    </a>
-                  </div>
-                </div>
-                
-                <div className="relative group ">
+              <div className="relative group ">
                   <div className="absolute -left-4 -top-4 w-24 h-24 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
                   <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
                   
@@ -148,6 +131,25 @@ export function HeroCarrusel({
                     </div>
                   </div>
                 </div>
+
+                <div className="relative z-20 ">
+                  <h1 className="text-2xl lg:text-4xl font-bold mb-6 leading-tight">
+                    {item.title}
+                  </h1>
+                  <p className="text-xl mb-8 text-blue-100">
+                    {item.description}
+                  </p>
+                  <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a
+                      href={item.link}
+                      className="px-8 py-3 text-center bg-white text-blueApp font-medium rounded-md hover:bg-blue-50 transition-colors"
+                    >
+                      {item.cta}
+                    </a>
+                  </div>
+                </div>
+                
+
               </div>
             </div>
           </SwiperSlide>
