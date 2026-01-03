@@ -5,38 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { formatDate } from '../../utils/formatDate'
 import { useEffect, useState } from 'react'
-
-interface EventFCA {
-  id: string
-  title?: string
-  name?: string
-  description?: string
-  image?: string
-  level?: string
-  duration?: string
-  instructor?: string
-  heroImage?: string
-  date?: string
-  slug?: string
-  status?: string
-  type?: string
-  [key: string]: any
-}
-
-interface CourseCardProps {
-  title?: string
-  description?: string
-  image?: string
-  level?: string
-  duration?: string
-  instructor?: string
-  heroImage?: string
-  date?: string
-  isShort?: boolean
-  slug?: string
-  eventData?: EventFCA
-  isDraft?: boolean
-}
+import type { EventFCA, CourseCardPropsLegacy as CourseCardProps } from '@/types/programs'
 
 export function CourseCard({
   title: propTitle,

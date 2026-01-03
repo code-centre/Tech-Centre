@@ -28,6 +28,13 @@ export interface Database {
           id_type: IdType;
           id_number: string;
           role: UserRole;
+          profile_image?: string | null;
+          professional_title?: string | null;
+          bio?: string | null;
+          linkedin_url?: string | null;
+          twitter_url?: string | null;
+          instagram_url?: string | null;
+          github_url?: string | null;
           created_at: string; // timestamptz
           updated_at: string; // timestamptz
         };
@@ -42,6 +49,13 @@ export interface Database {
           id_type: IdType;
           id_number: string;
           role?: UserRole; // Valor por defecto 'USER'
+          profile_image?: string | null;
+          professional_title?: string | null;
+          bio?: string | null;
+          linkedin_url?: string | null;
+          twitter_url?: string | null;
+          instagram_url?: string | null;
+          github_url?: string | null;
           created_at?: string; // timestamptz
           updated_at?: string; // timestamptz
         };
@@ -56,6 +70,13 @@ export interface Database {
           id_type?: IdType;
           id_number?: string;
           role?: UserRole;
+          profile_image?: string | null;
+          professional_title?: string | null;
+          bio?: string | null;
+          linkedin_url?: string | null;
+          twitter_url?: string | null;
+          instagram_url?: string | null;
+          github_url?: string | null;
           created_at?: string; // timestamptz
           updated_at?: string; // timestamptz
         };

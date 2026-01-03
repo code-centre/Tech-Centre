@@ -35,12 +35,13 @@ export function useUser() {
       if (error) throw error;
       return profile;
     } catch (error) {
-      console.error('Error fetching user profile:', error);
       return null;
     }
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
         setLoading(true);
@@ -50,11 +51,16 @@ export function useUser() {
         
         if (error) throw error;
 
+        if (!mounted) return;
+
         if (session?.user) {
           // 2. Obtener el perfil completo del usuario
           const userProfile = await fetchUserProfile(session.user.id);
           
+          if (!mounted) return;
+          
           // 3. Combinar la información de auth con el perfil
+          // El perfil tiene prioridad sobre session.user para evitar sobrescritura
           setUser({
             ...session.user,
             ...userProfile
@@ -63,10 +69,13 @@ export function useUser() {
           setUser(null);
         }
       } catch (error) {
-        console.error('Error en useUser:', error);
-        setUser(null);
+        if (mounted) {
+          setUser(null);
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -75,24 +84,33 @@ export function useUser() {
     // 4. Escuchar cambios en la autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+        
         if (session?.user) {
           const userProfile = await fetchUserProfile(session.user.id);
-          setUser({
-            ...session.user,
-            ...userProfile
-          });
+          if (mounted) {
+            // El perfil tiene prioridad sobre session.user
+            setUser({
+              ...session.user,
+              ...userProfile
+            });
+          }
         } else {
-          setUser(null);
+          if (mounted) {
+            setUser(null);
+          }
         }
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
-  // console.log("User:", user);
   return { user, loading };
 }

@@ -1,120 +1,40 @@
 "use client"
 import Link from "next/link"
 import Image from "next/image"
-import useUserStore from "../../store/useUserStore"
 import { useState, useEffect, useRef, useCallback } from "react"
-import { useCollection } from "react-firebase-hooks/firestore"
-import { db } from "../../firebase"
-import { collection, query, where } from "firebase/firestore"
-import { ChevronDown, Menu, X, ChevronRight, ChevronLast, ChevronLeft, User as UserIcon, LogOut, Users, FileText, GraduationCap } from "lucide-react"
-import type { User } from "firebase/auth"
-import Anuncios from "@/components/anuncios";
+import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, GraduationCap } from "lucide-react"
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import ProgramQuery from "./ProgramQuery";
-import type { Program } from './ProgramQuery';
-
-interface Course {
-  id: string
-  title?: string
-  name?: string
-  slug?: string
-  status: string
-  type: string
-  date: string // Add date field
-}
+import { supabase } from '@/lib/supabase'
+import { useUser } from '@/lib/supabase'
+import ProgramQuery from "./ProgramQuery"
+import type { Program } from '@/types/programs'
 
 export default function Header() {
-  const [user, setUser] = useState<any>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [userFirstName, setUserFirstName] = useState<string | null>(null);
-  const [loadinguser, setLoadinguser] = useState(true);
-  const supabase = createClientComponentClient();
-  const router = useRouter();
-  const [supabasePrograms, setSupabasePrograms] = useState<Program[]>([]);
-
-  const handleProgramsLoaded = useCallback((programs: Program[]) => {
-    setSupabasePrograms(programs);
-  }, []);
-
-  // Obtener la sesión actual
-  useEffect(() => {
-    const getSessionAndRole = async () => {
-      try {
-        setLoadinguser(true);
-        
-        // Get the session
-        const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
-        
-        if (session?.user?.id) {
-          // Get the user's role from profiles table
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('role,first_name')
-            .eq('user_id', session.user.id)
-            .single();
-            
-          if (error) {
-            console.error('Error al obtener el perfil:', error);
-          } else if (profile) {
-            setUserRole(profile.role);
-            setUserFirstName(profile.first_name);
-          }
-        }
-      } catch (error) {
-        console.error('Error al obtener la sesión o el perfil:', error);
-      } finally {
-        setLoadinguser(false);
-      }
-    };
-
-    getSessionAndRole();
-  }, []);
-  // Función para cerrar sesión
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      router.push('/');
-      router.refresh();
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
-  };
-
-
-
-
-  const [userOn, setUserOn] = useState(false)
+  const { user, loading: loadingUser } = useUser()
+  const router = useRouter()
+  const [supabasePrograms, setSupabasePrograms] = useState<Program[]>([])
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [mobileDropdown, setMobileDropdown] = useState<string | null>(null)
-  const [showCursosEspecializados, setShowCursosEspecializados] = useState(false)
-  const [showDiplomados, setShowDiplomados] = useState(false)
-  const cursosEspecializadosRef = useRef<HTMLDivElement>(null)
-  const diplomadosRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
-  const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
-  
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') {
-        router.refresh()
-      }
-    })
+  const handleProgramsLoaded = useCallback((programs: Program[]) => {
+    setSupabasePrograms(programs)
+  }, [])
 
-    return () => {
-      subscription?.unsubscribe()
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut()
+      router.push('/')
+      router.refresh()
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error)
     }
-  }, [router, supabase])
+  }
 
-  useEffect(() => {
-    if (user) {
-      setUserOn(true)
-    }
-  }, [user])
 
-  // Click outside handler for mobile dropdowns
+
+
+  // Click outside handler for mobile menu
   const handleClickOutside = useCallback((event: MouseEvent | TouchEvent) => {
     if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
       setIsMenuOpen(false)
@@ -133,81 +53,12 @@ export default function Header() {
     }
   }, [isMenuOpen, mobileDropdown, handleClickOutside])
 
-  const handleLogOut = () => {
-    setUser(null)
-    setUserOn(false)
-    supabase.auth.signOut()
-  }
-
-  const [specializedCourses, loading, error] = useCollection(
-    query(collection(db, "events"), where("type", "==", "curso especializado"), where("status", "==", "published")),
-  )
-
-  const [diplomaCourses, loadingDiploma, errorDiploma] = useCollection(
-    query(collection(db, "programs"), where("type", "==", "Diplomado"), where("status", "==", "Publicado")),
-  )
-
-  interface Diploma {
-    id: string
-    title?: string
-    name?: string
-    slug?: string
-    status?: string
-    type?: string
-    date?: string
-  }
-
-  const diplomasInfo: Diploma[] =
-    diplomaCourses?.docs.map((doc) => ({
-      id: doc.id,
-      ...(doc.data() as Omit<Diploma, "id">),
-    })) || []
-
-  const specializedCoursesInfo =
-    specializedCourses?.docs
-      .map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          }) as Course,
-      )
-      .filter((course) => {
-        const fechaActual = new Date()
-        fechaActual.setHours(0, 0, 0, 0)
-
-        const fechaCurso = new Date(course.date)
-        fechaCurso.setHours(0, 0, 0, 0)
-
-        return fechaCurso >= fechaActual && course.status === "published"
-      }) || []
-
-  // State to check if we're on mobile
-  const [isMobile, setIsMobile] = useState(false)
-
-  // Effect to update isMobile state based on window size
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 1024) // 1024px is the 'lg' breakpoint in Tailwind
-    }
-
-    // Check on first render
-    checkIsMobile()
-
-    // Add event listener for window resize
-    window.addEventListener('resize', checkIsMobile)
-
-    // Clean up
-    return () => window.removeEventListener('resize', checkIsMobile)
-  }, [])
-
   const toggleMobileDropdown = (dropdown: string) => {
     setMobileDropdown(mobileDropdown === dropdown ? null : dropdown)
   }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm shadow-lg">
-      {/* <Anuncios />   */}
       <ProgramQuery onProgramsLoaded={handleProgramsLoaded} />
 
       <div className="max-w-7xl mx-auto container px-4 sm:px-6">
@@ -224,143 +75,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-12 text-lg">
-            {/* <Link 
-              href="/programas-academicos" 
-              className="hover:text-blueApp transition-all duration-200 font-medium text-white group">
-              <span
-                className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-              >Programas
-              </span>
-            </Link> */}
-            {/* cursos general dropdown */}
-            {/* <div className="relative group">
-              <button
-                className="flex items-center space-x-2 text-white hover:text-blueApp 
-                font-medium transition-all duration-200 group"
-              >
-                <span
-                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                >
-                  Programas
-                </span>
-                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
-              </button>
-              <div
-                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-60 bg-zinc-900 backdrop-blur-md rounded-xl 
-                shadow-lg border border-white/20 py-3 transition-all duration-200"
-              >
-                <div className="px-4 py-2 space-y-2">
-                  <Link
-                    href="/programas-academicos"
-                    className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
-                      rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
-                  >
-                    ¡Estudia con nosotros!
-                  </Link>
-                  <div 
-                    className="relative group cursor-pointer"
-                    onMouseEnter={() => setShowDiplomados(true)}
-                    onMouseLeave={() => setShowDiplomados(false)}
-                    ref={diplomadosRef}
-                  >
-                    <div
-                      className="flex items-center space-x-2 text-white hover:text-blueApp 
-                      font-medium transition-all duration-200 px-3 py-2"
-                    >
-                      <span
-                        className="relative after:absolute text-sm after:bottom-0 after:left-0 after:h-0.5 
-                        after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                      >
-                        Diplomados
-                      </span>
-                      <ChevronLeft
-                        className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" 
-                      />
-                    </div>
-                    <div
-                      className={`z-20 absolute left-full top-0 ml-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl shadow-lg border border-white/20 py-3 transition-all duration-200 ${
-                        showDiplomados ? 'opacity-100 visible' : 'opacity-0 invisible'
-                      }`}
-                      onMouseEnter={() => setShowDiplomados(true)}
-                      onMouseLeave={() => setShowDiplomados(false)}
-                    >
-                      <div className=" px-4 py-2">
-                        {loading ? (
-                          <div className="flex justify-center py-4">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
-                          </div>
-                        ) : (
-                          <div className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40">
-                            {diplomasInfo.map((diploma, index) => (
-                              <Link
-                                key={diploma.id}
-                                href={`/programas-academicos/${diploma.slug}`}
-                                className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                                  hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                                style={{ animationDelay: `${index * 50}ms` }}
-                              >
-                                {diploma.title || diploma.name}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div 
-                    className="relative group cursor-pointer"
-                    onMouseEnter={() => setShowCursosEspecializados(true)}
-                    onMouseLeave={() => setShowCursosEspecializados(false)}
-                    ref={cursosEspecializadosRef}
-                  >
-                    <div
-                      className="flex items-center space-x-2 text-white hover:text-blueApp 
-                      font-medium transition-all duration-200 px-3 py-2"
-                    >
-                      <span
-                        className="relative text-sm after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                        after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                      >
-                        Cursos Especializados
-                      </span>
-                      <ChevronLeft
-                        className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" 
-                      />
-                    </div>
-                    <div
-                      className={`z-20 absolute left-full top-0 ml-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl shadow-lg border border-white/20 py-3 transition-all duration-200 ${showCursosEspecializados ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-                      onMouseEnter={() => setShowCursosEspecializados(true)}
-                      onMouseLeave={() => setShowCursosEspecializados(false)}
-                    >
-                      <div className=" px-4 py-2">
-                        {loading ? (
-                          <div className="flex justify-center py-4">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
-                          </div>
-                        ) : (
-                          <div className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40">
-                            {specializedCoursesInfo.map((course, index) => (
-                              <Link
-                                key={course.id}
-                                href={`/programas-academicos/${course.slug}`}
-                                className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                                style={{ animationDelay: `${index * 50}ms` }}
-                              >
-                                {course.title || course.name}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> */}
-            {/* programas dropdown */}
+            {/* Programas Dropdown */}
             <div className="relative group">
               <button
                 className="flex items-center space-x-2 text-white hover:text-blueApp 
@@ -385,12 +100,6 @@ export default function Header() {
                     href="/programas-academicos"
                     className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
                       rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
-                    // onClick={(e) => {
-                    //   if (window.location.pathname === "/") {
-                    //     e.preventDefault()
-                    //     document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
-                    //   }
-                    // }}
                   >
                     Oferta académica
                   </Link>
@@ -411,298 +120,13 @@ export default function Header() {
                   </div>
                 </div>
               </div>
-            </div>  
-            {/* <div className="relative group">
-              <button
-                className="flex items-center space-x-2 text-white hover:text-blueApp 
-                font-medium transition-all duration-200 group"
-              >
-                <span
-                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                >
-                  Programas
-                </span>
-                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
-              </button>
-              <div
-                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-60 bg-zinc-900 backdrop-blur-md rounded-xl 
-                shadow-lg border border-white/20 py-3 transition-all duration-200"
-              >
-                <div className="px-4 py-2 space-y-2">
-                  <Link
-                    href="/programas-academicos"
-                    className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
-                      rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
-                  >
-                    ¡Estudia con nosotros!
-                  </Link>
-                  <div 
-                    className="relative group cursor-pointer"
-                    onMouseEnter={() => setShowDiplomados(true)}
-                    onMouseLeave={() => setShowDiplomados(false)}
-                    ref={diplomadosRef}
-                  >
-                    <div className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40">
-                            {supabasePrograms.map((program) => (
-                              <Link
-                                key={program.id}
-                                href={`/programas-academicos/${program.slug}`}
-                                className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                                  hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                              >
-                                {program.name}
-                              </Link>
-                            ))}
-                          </div>
-                    <div
-                      className="flex items-center space-x-2 text-white hover:text-blueApp 
-                      font-medium transition-all duration-200 px-3 py-2"
-                    >
-                      <span
-                        className="relative after:absolute text-sm after:bottom-0 after:left-0 after:h-0.5 
-                        after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                      >
-                        Diplomados
-                      </span>
-                      <ChevronLeft
-                        className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" 
-                      />
-                    </div>
-                    <div
-                      className={`z-20 absolute left-full top-0 ml-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl shadow-lg border border-white/20 py-3 transition-all duration-200 ${
-                        showDiplomados ? 'opacity-100 visible' : 'opacity-0 invisible'
-                      }`}
-                      onMouseEnter={() => setShowDiplomados(true)}
-                      onMouseLeave={() => setShowDiplomados(false)}
-                    >
-                      <div className=" px-4 py-2">
-                          <div className="flex justify-center py-4">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
-                          </div>
-              
-                      </div>
-                    </div>
-                  </div>
-                  <div 
-                    className="relative group cursor-pointer"
-                    onMouseEnter={() => setShowCursosEspecializados(true)}
-                    onMouseLeave={() => setShowCursosEspecializados(false)}
-                    ref={cursosEspecializadosRef}
-                  >
-                    <div
-                      className="flex items-center space-x-2 text-white hover:text-blueApp 
-                      font-medium transition-all duration-200 px-3 py-2"
-                    >
-                      <span
-                        className="relative text-sm after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                        after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                      >
-                        Cursos Especializados
-                      </span>
-                      <ChevronLeft
-                        className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" 
-                      />
-                    </div>
-                    <div
-                      className={`z-20 absolute left-full top-0 ml-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl shadow-lg border border-white/20 py-3 transition-all duration-200 ${showCursosEspecializados ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-                      onMouseEnter={() => setShowCursosEspecializados(true)}
-                      onMouseLeave={() => setShowCursosEspecializados(false)}
-                    >
-                      <div className=" px-4 py-2">
-                        {loading ? (
-                          <div className="flex justify-center py-4">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
-                          </div>
-                        ) : (
-                          <div className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40">
-                            {specializedCoursesInfo.map((course, index) => (
-                              <Link
-                                key={course.id}
-                                href={`/programas-academicos/${course.slug}`}
-                                className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                                style={{ animationDelay: `${index * 50}ms` }}
-                              >
-                                {course.title || course.name}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> */}
-            {/* Cursos Especializados Dropdown */}
-            {/* <div className="relative group">
-              <button
-                className="flex items-center space-x-2 text-white hover:text-blueApp 
-                font-medium transition-all duration-200 group"
-              >
-                <span
-                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                >
-                  Cursos Especializados
-                </span>
-                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
-              </button>
-
-              <div
-                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
-                shadow-lg border border-white/20 py-3 transition-all duration-200"
-              >
-                <div className="px-4 py-2">
-                  <Link
-                    href="/#cursosespecializados"
-                    className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
-                      rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
-                    onClick={(e) => {
-                      if (window.location.pathname === "/") {
-                        e.preventDefault()
-                        document.getElementById("cursosespecializados")?.scrollIntoView({ behavior: "smooth" })
-                      }
-                    }}
-                  >
-                    Toda nuestra oferta académica
-                  </Link>
-                  {loading ? (
-                    <div className="flex justify-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
-                    </div>
-                  ) : (
-                    <div className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40">
-                      {specializedCoursesInfo.map((course, index) => (
-                        <Link
-                          key={course.id}
-                          href={`/programas-academicos/${course.slug}`}
-                          className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                          style={{ animationDelay: `${index * 50}ms` }}
-                        >
-                          {course.title || course.name}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div> */}
-
-            {/* Diplomados Dropdown */}
-            {/* <div className="relative group">
-              <button
-                className="flex items-center space-x-2 text-white hover:text-blueApp 
-                font-medium transition-all duration-200 group"
-              >
-                <span
-                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                >
-                  Diplomados
-                </span>
-                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
-              </button>
-
-              <div
-                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
-                shadow-lg border border-white/20 py-3 transition-all duration-200"
-              >
-                <div className="px-4 py-2">
-                  <Link
-                    href="/#cursos"
-                    className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
-                      rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
-                    onClick={(e) => {
-                      if (window.location.pathname === "/") {
-                        e.preventDefault()
-                        document.getElementById("cursos")?.scrollIntoView({ behavior: "smooth" })
-                      }
-                    }}
-                  >
-                    Toda nuestra oferta académica
-                  </Link>
-                  {loadingDiploma ? (
-                    <div className="flex justify-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blueApp" />
-                    </div>
-                  ) : (
-                    <div
-                      className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin 
-                      scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40"
-                    >
-                      {diplomasInfo.map((diploma, index) => (
-                        <Link
-                          key={diploma.id}
-                          href={`/programas-academicos/${diploma.slug}`}
-                          className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                          style={{ animationDelay: `${index * 50}ms` }}
-                        >
-                          {diploma.title || diploma.name}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>   */}
-            {/* Empresas Dropdown */}
-            {/* <div className="relative group">
-              <button
-                className="flex items-center space-x-2 text-white hover:text-blueApp 
-                font-medium transition-all duration-200 group"
-              >
-                <span
-                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                >
-                  Empresas
-                </span>
-                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
-              </button>
-
-              <div
-                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
-                shadow-lg border border-white/20 py-3 transition-all duration-200"
-              >
-                <div className="px-4 py-2">
-                  <Link
-                    href="/empresas"
-                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                  >
-                    Capacitaciones
-                  </Link>
-                </div>
-                <div className="px-4 py-2">
-                  <Link
-                    href="/empresas/trabajo"
-                     className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                    Trabaja con nosotros
-                    </Link>
-                  </div>
-                  <div className="px-4 py-2">
-                    <Link
-                      href="/empresas/trabajo#pasantia"
-                      className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                              hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                    >
-                      Pasantías
-                    </Link>
-                  </div>
-                  
-              </div>
-            </div>   */}
+            </div>
 
             <div className="relative group">
               <a
                 href="https://www.codigoabierto.tech/eventos"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-white hover:text-blueApp 
                 font-medium transition-all duration-200 group"
               >
@@ -714,121 +138,35 @@ export default function Header() {
                 </span>
               </a>
             </div>
-
-              {/* <div
-                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
-                shadow-lg border border-white/20 py-3 transition-all duration-200"
-              >
-                <div className="px-4 py-2">
-                  <Link
-                    href="/"
-                    className="block px-3 py-2 flex items-center gap-4 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                  >
-                    <Image
-                      src="/logos/comunidad/logo-fca.webp"
-                      alt="Fundación Codigo abierto"
-                      width={30}
-                      height={30}
-                    />
-                    Fundación Codigo abierto
-                  </Link>
-                </div>
-                <div className="px-4 py-2">
-                  <div className="block px-3 py-2 flex items-center gap-4 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                  <Image
-                    src="/logos/comunidad/Logo-costa-digital.png"
-                    alt="Movimiento Costa digital"
-                    width={30}
-                    height={30}
-                  />
-                  Movimiento Costa digital
-                  </div>
-                </div>
-                <div className="px-4 py-2">
-                  <div className="block px-3 py-2 flex items-center gap-4 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                    <Image
-                      src="/logos/comunidad/Logo-caribe-ventures.png"
-                      alt="Caribe Ventures"
-                      width={30}
-                      height={30}
-                    />
-                    Caribe Ventures
-                    </div>
-                  </div>
-                  <div className="px-4 py-2">
-                    <div className="block px-3 py-2 flex items-center gap-4 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                    <Image
-                      src="/logos/comunidad/logo-c-i.png"
-                      alt="Ciudad inmersiva"
-                      width={30}
-                      height={30}
-                    />
-                    Ciudad inmersiva
-                    </div>
-                  </div>
-                  
-              </div>
-            </div> */}
-            {/* Noticias Dropdown */}
-            {/* <div className="relative group">
-              <button
-                className="flex items-center space-x-2 text-white hover:text-blueApp 
-                font-medium transition-all duration-200 group"
-              >
-                <span
-                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
-                >
-                  Noticias
-                </span>
-                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
-              </button>
-
-              <div
-                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
-                shadow-lg border border-white/20 py-3 transition-all duration-200"
-              >
-                <div className="px-4 py-2">
-                  <Link
-                    href="/"
-                    className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                            hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
-                  >
-                    Blogs
-                  </Link>
-                </div>
-                <div className="px-4 py-2">
-                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                  Prensa
-                  </div>
-                </div>
-                <div className="px-4 py-2">
-                  <div className="block px-3 py-2 text-sm text-white hover:bg-blue-50 hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up">
-                  Eventos
-                  </div>
-                </div>
-              </div>
-            </div>    */}
           </nav>
 
           {/* User Actions */}
-          {loadinguser ? (
-            <div className="h-10 w-24 bg-gray-200 rounded-md animate-pulse"></div>
+          {loadingUser ? (
+            <div className="h-10 w-24 bg-gray-200/20 rounded-md animate-pulse"></div>
           ) : user ? (
             <div className="hidden lg:flex items-center space-x-4">
               {/* User Profile Dropdown */}
               <div className="relative group">
-                <button className="flex items-center bg-white/10 px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] animate-fade-in cursor-pointer">
-                  <div className="w-8 h-8 rounded-full bg-blueApp flex items-center justify-center text-white mr-3">
-                    {userFirstName?.charAt(0).toUpperCase()}
+                <button className="flex items-center bg-white/10 px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blueApp/50 mr-3 flex-shrink-0">
+                    {user.profile_image ? (
+                      <Image
+                        src={user.profile_image}
+                        alt={user.first_name || 'Usuario'}
+                        width={40}
+                        height={40}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-blueApp flex items-center justify-center text-white font-semibold">
+                        {user.first_name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="flex flex-col">
                       <span className="text-white font-medium text-sm">
-                        Hola, {userFirstName?.split('@')[0]}
+                        Hola, {user.first_name || 'Usuario'}
                       </span>
                       <span className="text-xs text-white/80">
                         Mi cuenta
@@ -853,7 +191,7 @@ export default function Header() {
                   </Link>
 
                   {/* Admin Section - Only show if user is admin */}
-                  {userRole === 'admin' && (
+                  {user?.role === 'admin' && (
                     <>
                       <div className="border-t border-zinc-700/50 my-2"></div>
                       <div className="px-4 py-2">
@@ -936,94 +274,6 @@ export default function Header() {
               </Link>
             </div>
           )}
-          {/* User Actions */}
-          {/* {user ? (
-            <div className="hidden lg:flex items-center space-x-4 ">
-              <div className="flex items-center bg-white/10 px-4 py-2 rounded-lg h-10 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] animate-fade-in">
-                <div className="w-8 h-8 rounded-full bg-blueApp flex items-center justify-center text-white mr-3">
-                  {(user.displayName || user.email)?.charAt(0).toUpperCase()}
-                </div>
-                <Link href={"/perfil"} className="group relative">
-                  <div className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200">
-                    <div className="flex flex-col">
-                      <span className="text-white font-medium text-sm group-hover:text-blue-100 transition-colors">
-                        Hola, {user?.name}
-                      </span>
-                      <span className="text-xs text-white/80 group-hover:text-blue-200 transition-colors">
-                        Ver perfil
-                      </span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-white/80 group-hover:text-blue-200 transition-colors" />
-                  </div>
-                </Link>
-              </div>
-              <button
-                onClick={handleLogOut}
-                className="px-4 py-2 text-white bg-red-500 hover:to-red-300 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center cursor-pointer hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="mr-2"
-                >
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-                Cerrar Sesión
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="gap-0 flex items-center justify-end space-x-4 lg:space-x-6">
-                {!isMobile && (
-                  <Link
-                    href="/registro"
-                    className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blueApp hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                  rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300
-                  hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
-                  >
-                    <span className="absolute inset-0 bg-blueApp opacity-0 
-                      group-hover:opacity-100 transition-opacity duration-300"></span>
-                    <span className="relative">
-                      Registrarse
-                    </span>
-                    <svg
-                      className="w-4 h-4 ml-2 -mr-1 transition-transform duration-300 transform hover:translate-x-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
-                  </Link>
-                )}
-                <div className="hidden lg:flex items-center space-x-6 animate-fade-in animate-delay-300">
-                  <Link
-                    href="/iniciar-sesion"
-                    className="relative px-4 py-2 text-white font-medium group overflow-hidden"
-                  >
-                    <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
-                      Iniciar sesión
-                    </span>
-                    <div className="absolute inset-0 bg-blueApp transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
-                  </Link>
-                </div>
-              </div>
-            </>
-          )} */}
 
 
           <button
@@ -1102,10 +352,22 @@ export default function Header() {
                     className="flex items-center space-x-3 px-4 py-3 text-white bg-blueApp/20 hover:bg-blueApp/30 rounded-lg transition-all duration-300 w-full"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <div className="w-8 h-8 rounded-full bg-blueApp flex items-center justify-center text-white">
-                      {userFirstName?.charAt(0).toUpperCase()}
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blueApp/50 flex-shrink-0">
+                      {user.profile_image ? (
+                        <Image
+                          src={user.profile_image}
+                          alt={user.first_name || 'Usuario'}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-blueApp flex items-center justify-center text-white font-semibold">
+                          {user.first_name?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                      )}
                     </div>
-                    <span className="font-medium">Hola, {userFirstName?.split('@')[0]}</span>
+                    <span className="font-medium">Hola, {user.first_name || 'Usuario'}</span>
                   </Link>
 
                   {/* Logout Button */}
@@ -1121,7 +383,7 @@ export default function Header() {
                   </button>
 
                   {/* Admin Dropdown - Only show if user is admin */}
-                  {userRole === 'admin' && (
+                  {user?.role === 'admin' && (
                     <div className="py-2">
                       <button
                         onClick={() => toggleMobileDropdown("admin-mobile")}

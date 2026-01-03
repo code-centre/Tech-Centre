@@ -1,10 +1,8 @@
 'use client'
-import AdminUsers from '@/components/profile/AdminUsers'
 import ProfileData from '@/components/profile/ProfileData'
 // import ProfileEvents from '@/components/profile/ProfileEvents'
 import { Sidebar } from '@/components/profile/Sidebar'
-import { CalendarIcon, UserCogIcon, UserIcon, GraduationCap } from 'lucide-react'
-import ProfileCourses from '@/components/profile/ProfileCourses'
+import { CalendarIcon, UserIcon, GraduationCap } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
 import { useUser } from '@/lib/supabase';
@@ -13,24 +11,34 @@ import ProfileCursosMatriculados from '@/components/profile/ProfileCursosMatricu
 
 export default function ProfilePage() {
   const { user, loading } = useUser();
-  const [activeSection, setActiveSection] = useState('profile')
+  const [activeSection, setActiveSection] = useState('cursos')
   const router = useRouter()
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   useEffect(() => {
-    if (!loading && !user) {
+    // Solo redirigir si ya terminó de cargar y no hay usuario
+    if (!loading && !user && !isRedirecting) {
+      setIsRedirecting(true)
       router.push('/')
     }
-  }, [user, loading, router])
+  }, [user, loading, router, isRedirecting])
 
-  if (loading) {
-    return <div className="flex items-center justify-center mt-20 h-screen">Cargando...</div>
+  // Mostrar loader mientras carga o mientras redirige
+  if (loading || isRedirecting) {
+    return (
+      <div className="flex items-center justify-center mt-20 h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blueApp border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-400 text-sm">Cargando...</p>
+        </div>
+      </div>
+    )
   }
 
+  // Si no hay usuario después de cargar, no mostrar nada (ya se está redirigiendo)
   if (!user) {
     return null
   }
-
-  console.log('User object:', user);
 
   const sections = [
     {
@@ -52,7 +60,7 @@ export default function ProfilePage() {
 
 
   return (
-    <main className='min-h-screen pt-10 flex flex-col lg:flex-row mt-20'>
+    <main className='min-h-screen flex flex-col lg:flex-row mt-20 px-6 max-w-7xl mx-auto'>
       <Sidebar
         sections={sections}
         activeSection={activeSection}
@@ -60,7 +68,7 @@ export default function ProfilePage() {
       />
 
       <section>
-        <nav className="flex mt-5 md:mt-10  mx-5 border-b pb-4 border-dashed gap-3 border-gray-200 lg:hidden">
+        <nav className="flex mt-5 md:mt-10 mx-5 border-b pb-4 border-dashed gap-3 border-gray-200 lg:hidden">
           {sections.map((section) => {
             const Icon = section.icon
             return (
@@ -78,23 +86,19 @@ export default function ProfilePage() {
       </section>
 
 
-      <div className="container w-full flex-1 mx-auto p-6 md:py-12">
-      {activeSection === 'profile' ? (
-        <ProfileData />
-      ) : activeSection === 'cursos' ? (
-        user?.role === 'student' ? (
+      <div className="w-full flex-1 mx-auto p-6">
+        {activeSection === 'profile' ? (
+          <ProfileData />
+        ) : activeSection === 'cursos' ? (
           <ProfileCursosMatriculados user={user} />
+        ) : activeSection === 'instructor' && user?.role === 'instructor' || user?.role === 'admin' ? (
+          <div>
+            <InstructorPanel />
+          </div>
         ) : (
-          <p className="text-gray-500">No te has matriculado en ningún curso</p>
-        )
-      ) : activeSection === 'instructor' && user?.role === 'instructor' || user?.role === 'admin' ? (
-        <div>
-          <InstructorPanel />
-        </div>
-      ) : (
-        <p className="text-blueApp">No tienes acceso a esta sección</p>
-      )}
-    </div>
+          <p className="text-blueApp">No tienes acceso a esta sección</p>
+        )}
+      </div>
     </main>
   )
 }
