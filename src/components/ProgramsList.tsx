@@ -1,7 +1,7 @@
 'use client'
 import React, { useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { CourseCardSupa } from './CoursesCardSupa'
+import { ProgramCard } from './ProgramCard'
 import { GraduationCap, BookOpen, Award, ArrowRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/supabase'
@@ -208,7 +208,7 @@ export function ProgramsList({
                         const typeSchedule = getTypeSchedule(program.kind)
                         return (
                           <div key={program.id} className="shrink-0 w-[350px]">
-                            <CourseCardSupa
+                            <ProgramCard
                               title={program.name}
                               subtitle={program.subtitle}
                               image={program.image}
@@ -280,7 +280,7 @@ export function ProgramsList({
                         {/* Grid de tarjetas */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                           {typePrograms.map((program) => (
-                            <CourseCardSupa
+                            <ProgramCard
                               key={program.id}
                               title={program.name}
                               subtitle={program.subtitle}

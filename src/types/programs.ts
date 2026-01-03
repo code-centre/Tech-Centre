@@ -68,9 +68,9 @@ export interface Program {
 // ============================================================================
 
 /**
- * Props para CourseCardSupa
+ * Props para ProgramCard
  */
-export interface CourseCardProps {
+export interface ProgramCardProps {
   title?: string;
   subtitle?: string;
   kind?: string;
@@ -85,23 +85,6 @@ export interface CourseCardProps {
   slug?: string;
   isActive?: boolean;
   eventData?: any;
-}
-
-/**
- * Props para CourseCard (versión antigua)
- */
-export interface CourseCardPropsLegacy {
-  title?: string;
-  description?: string;
-  image?: string;
-  level?: string;
-  duration?: string;
-  instructor?: string;
-  heroImage?: string;
-  date?: string;
-  isShort?: boolean;
-  slug?: string;
-  isDraft?: boolean;
 }
 
 /**
