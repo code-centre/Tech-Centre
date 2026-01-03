@@ -1,7 +1,8 @@
 import React from 'react'
-import { ClockIcon, User, Award, BookOpen, TrendingUp, Sparkles, Calendar} from 'lucide-react'
+import { ClockIcon, User, Award, BookOpen, TrendingUp, Sparkles, Calendar, Clock} from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import HTMLReactParser from 'html-react-parser/lib/index'
 import { formatDate } from '../../utils/formatDate'
 import type { CourseCardProps } from '@/types/programs'
 
@@ -13,6 +14,7 @@ export function CourseCardSupa({
   image: propImage,
   level: propLevel,
   duration: propDuration,
+  schedule: propSchedule,
   heroImage: propHeroImage,
   instructor: propInstructor,
   date: propDate,
@@ -27,6 +29,7 @@ export function CourseCardSupa({
   const image = eventData?.image || propImage || '';
   const level = eventData?.level || propLevel || 'BÁSICO';
   const duration = eventData?.duration || propDuration || '';
+  const schedule = eventData?.schedule || propSchedule || '';
   const instructor = eventData?.instructor || propInstructor || '';
   const heroImage = eventData?.heroImage || propHeroImage || '';
   const date = eventData?.date || propDate || '';
@@ -39,10 +42,8 @@ export function CourseCardSupa({
                         eventData?.status === 'Borrador';
 
   
-  // Truncar descripción para mantener consistencia
-  const truncatedDescription = description 
-    ? (description.length > 120 ? description.substring(0, 120) + '...' : description)
-    : '';
+  // Truncar descripción para mantener consistencia (solo para preview, el HTML se renderiza completo)
+  const truncatedDescription = description || '';
 
   // Si no hay slug, no renderizar el link
   if (!slug) {
@@ -133,9 +134,14 @@ export function CourseCardSupa({
 
           {/* Description */}
           {truncatedDescription && (
-            <p className="text-gray-400 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">
-              {truncatedDescription.replace(/<[^>]*>/g, '')}
-            </p>
+            <div className="text-gray-400 text-sm leading-relaxed mb-4 flex-1 overflow-hidden">
+              <div className="line-clamp-3 prose prose-invert prose-sm max-w-none prose-p:text-gray-400 prose-p:text-sm prose-p:my-0 prose-p:leading-relaxed prose-strong:text-white prose-strong:font-semibold prose-ul:text-gray-400 prose-li:text-gray-400 prose-a:text-blueApp prose-a:no-underline hover:prose-a:underline">
+                {typeof truncatedDescription === 'string' && truncatedDescription.includes('<') 
+                  ? HTMLReactParser(truncatedDescription)
+                  : <p>{truncatedDescription}</p>
+                }
+              </div>
+            </div>
           )}
 
           {/* Metadata Grid */}
@@ -154,11 +160,25 @@ export function CourseCardSupa({
               </div>
             )}
             
-            {date && (
+            {schedule && (
+              <div className="bg-zinc-800/60 backdrop-blur-sm rounded-lg p-3 border border-zinc-700/50 hover:border-blueApp/30 transition-colors">
+                <div className="flex items-center gap-2">
+                  <div className="bg-purple-500/20 p-1.5 rounded-lg">
+                    <Clock className="h-4 w-4 text-purple-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-gray-400">Horario</div>
+                    <div className="text-sm font-semibold text-white truncate">{schedule}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {!schedule && date && (
               <div className="bg-zinc-800/60 backdrop-blur-sm rounded-lg p-3 border border-zinc-700/50 hover:border-blueApp/30 transition-colors">
                 <div className="flex items-center gap-2">
                   <div className="bg-emerald-500/20 p-1.5 rounded-lg">
-                    <ClockIcon className="h-4 w-4 text-emerald-400" />
+                    <Calendar className="h-4 w-4 text-emerald-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs text-gray-400">Inicio</div>

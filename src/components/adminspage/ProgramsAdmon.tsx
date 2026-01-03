@@ -21,6 +21,7 @@ type Program = {
   updated_at: string;
   image?: string;
   description?: string;
+  schedule?: string;
   cohorts?: Array<{
     id: number;
     name: string;
@@ -51,6 +52,7 @@ export default function ProgramsAdmon() {
     is_active: true,
     image: '',
     description: '',
+    schedule: '',
   });
   const [isAdding, setIsAdding] = useState(false);
   const [viewingSyllabus, setViewingSyllabus] = useState<{isOpen: boolean, content: any}>({isOpen: false, content: null});
@@ -239,6 +241,7 @@ export default function ProgramsAdmon() {
         is_active: true,
         image: '',
         description: '',
+        schedule: '',
       });
       
     } catch (err: any) {
@@ -287,6 +290,7 @@ export default function ProgramsAdmon() {
       is_active: true,
       image: '',
       description: '',
+      schedule: '',
     });
   };
 
@@ -520,6 +524,17 @@ export default function ProgramsAdmon() {
                 onChange={(e) => setCurrentProgram({...currentProgram, image: e.target.value})}
                 className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp"
                 placeholder="https://ejemplo.com/imagen.jpg"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Horario</label>
+              <input
+                type="text"
+                value={currentProgram.schedule || ''}
+                onChange={(e) => setCurrentProgram({...currentProgram, schedule: e.target.value})}
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp"
+                placeholder="Ej: Lunes a jueves 7pm a 9pm"
               />
             </div>
             

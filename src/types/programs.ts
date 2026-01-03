@@ -55,6 +55,7 @@ export interface Program {
   video: string;
   subtitle: string;
   duration: string;
+  schedule?: string;
   faqs: any[];
   slug?: string;
   syllabus?: SyllabusData;
@@ -77,11 +78,13 @@ export interface CourseCardProps {
   image?: string;
   level?: string;
   duration?: string;
+  schedule?: string;
   instructor?: string;
   heroImage?: string;
   date?: string;
   slug?: string;
   isActive?: boolean;
+  eventData?: any;
 }
 
 /**

@@ -14,8 +14,6 @@ const getTypeLabel = (kind: string | undefined): string => {
   
   if (kindLower.includes('diplomado')) return 'Diplomados'
   if (kindLower.includes('curso')) return 'Cursos cortos'
-  if (kindLower.includes('especializado')) return 'Cursos Especializados'
-  if (kindLower.includes('certificación')) return 'Certificaciones'
   
   // Capitalizar primera letra
   return kind.charAt(0).toUpperCase() + kind.slice(1)
@@ -41,7 +39,6 @@ const getTypeSchedule = (kind: string | undefined): string => {
   
   if (kindLower.includes('diplomado')) return 'Lunes a jueves 7pm a 9pm'
   if (kindLower.includes('curso')) return 'Sábados 9am y 2pm'
-  if (kindLower.includes('especializado')) return 'Sábados 9am y 2pm'
   
   return ''
 }
@@ -148,7 +145,8 @@ export function ProgramsList({
                         kind={program.kind}
                         description={program.description}
                         level={program.difficulty}
-                        duration={`${program.total_hours || 0} horas`}
+                        duration={`${program.duration}`}
+                        schedule={program.schedule || typeSchedule}
                         slug={program.slug || program.code.toString()}
                         isActive={!program.is_active}
                       />
