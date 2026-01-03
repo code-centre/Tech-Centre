@@ -1,32 +1,19 @@
 "use client";
-import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from './supabase/client';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+// Cliente de Supabase para uso general (mantener compatibilidad)
+export const supabase = createClient();
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Faltan las variables de entorno de Supabase');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
-
-// En lib/supabase.ts o similar
+// Hook para obtener el usuario actual
 export function useUser() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClientComponentClient();
+  const supabaseClient = createClient();
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      const { data: profile, error } = await supabase
+      const { data: profile, error } = await supabaseClient
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
@@ -47,7 +34,7 @@ export function useUser() {
         setLoading(true);
         
         // 1. Verificar la sesión actual
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
         
         if (error) throw error;
 
@@ -63,8 +50,8 @@ export function useUser() {
           // El perfil tiene prioridad sobre session.user para evitar sobrescritura
           setUser({
             ...session.user,
-            ...userProfile
-          });
+            ...(userProfile || {})
+          } as any);
         } else {
           setUser(null);
         }
@@ -82,7 +69,7 @@ export function useUser() {
     checkAuth();
 
     // 4. Escuchar cambios en la autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
         
@@ -92,8 +79,8 @@ export function useUser() {
             // El perfil tiene prioridad sobre session.user
             setUser({
               ...session.user,
-              ...userProfile
-            });
+              ...(userProfile || {})
+            } as any);
           }
         } else {
           if (mounted) {

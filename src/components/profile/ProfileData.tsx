@@ -254,7 +254,7 @@ export default function ProfileData() {
       updateData.instagram_url = formData.instagram_url?.trim() || null
       updateData.github_url = formData.github_url?.trim() || null
 
-      const { error: updateError, data } = await supabase
+      const { error: updateError, data } = await (supabase as any)
         .from('profiles')
         .update(updateData)
         .eq('user_id', user.id)

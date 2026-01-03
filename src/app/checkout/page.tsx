@@ -74,11 +74,12 @@ function ViewCheckoutContent() {
       }
 
       console.log('📦 Datos del programa:', programData);
-      setData(programData);
+      const typedProgramData = programData as Program;
+      setData(typedProgramData);
 
-      if (programData.default_price) {
-        console.log('💰 Precio del programa:', programData.default_price);
-        setSubtotal(programData.default_price);
+      if (typedProgramData.default_price) {
+        console.log('💰 Precio del programa:', typedProgramData.default_price);
+        setSubtotal(typedProgramData.default_price);
       } else {
         console.warn('⚠️ El programa no tiene precio definido');
       }

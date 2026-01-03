@@ -43,7 +43,7 @@ export function ProgramTeacher({ cohortId }: Props) {
     
     setLoading(true)
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cohort_instructors')
         .select(`
           instructor_id,
@@ -69,9 +69,9 @@ export function ProgramTeacher({ cohortId }: Props) {
         return
       }
 
-      if (data?.profiles) {
+      if ((data as any)?.profiles) {
         // profiles puede ser un objeto o un array, normalizamos
-        const profileData = Array.isArray(data.profiles) ? data.profiles[0] : data.profiles
+        const profileData = Array.isArray((data as any).profiles) ? (data as any).profiles[0] : (data as any).profiles
         if (profileData) {
           setInstructor({
             user_id: profileData.user_id,

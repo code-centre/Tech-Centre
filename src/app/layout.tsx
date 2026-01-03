@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { League_Spartan, Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Database } from '@/types/supabase';
+import { createClient } from '@/lib/supabase/server';
 import AuthProvider from "@/components/AuthProvider";
 
 const leagueSpartan = League_Spartan({
@@ -83,14 +83,27 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createClientComponentClient<Database>();
+  const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
 
   return (
-    <html lang="en">       
+    <html lang="en">
      <body
         className={`${leagueSpartan.variable} ${poppins.variable} antialiased`}
       >
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-YCK2DMSV9J"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-YCK2DMSV9J');
+          `}
+        </Script>
          <AuthProvider initialSession={session}>
           <Header />
           <main>

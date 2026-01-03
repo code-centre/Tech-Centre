@@ -35,7 +35,7 @@ export function ProgramDescription({ programData, programId, onDescriptionUpdate
     setError('');
     
     try {
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('programs')
         .update({
           description: descriptionContent,

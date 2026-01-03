@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
 interface Cohort {
@@ -30,7 +30,7 @@ export default function CohortList({ cohorts: initialCohorts, programId }: { coh
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [cohorts, setCohorts] = useState(initialCohorts);
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const openModal = (cohort: Cohort | null = null) => {
     if (cohort) {
@@ -122,7 +122,7 @@ export default function CohortList({ cohorts: initialCohorts, programId }: { coh
 
       if (editingCohort) {
         // Actualizar cohorte existente
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from('cohorts')
           .update(cohortData)
           .eq('id', editingCohort.id)
@@ -141,7 +141,7 @@ export default function CohortList({ cohorts: initialCohorts, programId }: { coh
         setCohorts(cohorts.map(c => c.id === editingCohort.id ? data : c));
       } else {
         // Crear nueva cohorte
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from('cohorts')
           .insert([cohortData])
           .select('*')

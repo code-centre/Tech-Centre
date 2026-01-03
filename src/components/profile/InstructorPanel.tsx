@@ -147,7 +147,7 @@ export default function InstructorPanel() {
   
     // Crear el registro en la tabla assessments
     console.log('Iniciando inserción en la tabla assessments...');
-    const { data: insertedData, error } = await supabase
+    const { data: insertedData, error } = await (supabase as any)
         .from('assessments')
         .insert([{
         name: assessment.name,

@@ -40,7 +40,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
     
     try {
       // Buscar usuarios con rol instructor o admin
-      const { data, error: fetchError } = await supabase
+      const { data, error: fetchError } = await (supabase as any)
         .from('profiles')
         .select('user_id, first_name, last_name, email, profile_image, professional_title, bio, linkedin_url')
         .in('role', ['instructor', 'admin'])
@@ -67,7 +67,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
     setError('')
     
     try {
-      const { data, error: searchError } = await supabase
+      const { data, error: searchError } = await (supabase as any)
         .from('profiles')
         .select('user_id, first_name, last_name, email, profile_image, professional_title, bio, linkedin_url')
         .in('role', ['instructor', 'admin'])
@@ -108,7 +108,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
       }
 
       // Primero, eliminar cualquier instructor existente para esta cohorte
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await (supabase as any)
         .from('cohort_instructors')
         .delete()
         .eq('cohort_id', cohortIdNum)
@@ -122,7 +122,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
       }
 
       // Luego, asignar el nuevo instructor
-      const { data, error: insertError } = await supabase
+      const { data, error: insertError } = await (supabase as any)
         .from('cohort_instructors')
         .insert({
           cohort_id: cohortIdNum,
@@ -170,7 +170,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
     setError('')
 
     try {
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await (supabase as any)
         .from('cohort_instructors')
         .delete()
         .eq('cohort_id', cohortId)

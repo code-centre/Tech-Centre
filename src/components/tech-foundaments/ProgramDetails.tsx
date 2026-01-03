@@ -40,7 +40,7 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
     setError('')
     
     try {
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('programs')
         .update({
           duration: editedData.duration,

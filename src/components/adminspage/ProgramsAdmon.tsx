@@ -73,7 +73,7 @@ export default function ProgramsAdmon() {
   const fetchPrograms = async () => {
     try {
       setLoading(true);
-      const { data: programsData, error: programsError } = await supabase
+      const { data: programsData, error: programsError } = await (supabase as any)
         .from('programs')
         .select('*')
         .order('created_at', { ascending: false });
@@ -82,8 +82,8 @@ export default function ProgramsAdmon() {
       
       // Obtener cohortes para cada programa
       const programsWithCohorts = await Promise.all(
-        (programsData || []).map(async (program) => {
-          const { data: cohortsData } = await supabase
+        (programsData || []).map(async (program: any) => {
+          const { data: cohortsData } = await (supabase as any)
             .from('cohorts')
             .select('id, name, start_date, end_date, modality, campus')
             .eq('program_id', program.id);
@@ -133,7 +133,7 @@ export default function ProgramsAdmon() {
   const handleToggleActive = async (programId: number, currentStatus: boolean) => {
     try {
       setTogglingActive(programId);
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('programs')
         .update({ is_active: !currentStatus, updated_at: new Date().toISOString() })
         .eq('id', programId);
@@ -180,7 +180,7 @@ export default function ProgramsAdmon() {
       
       if (editingId) {
         // Actualizar programa existente
-        const { data: updatedProgram, error: updateError } = await supabase
+        const { data: updatedProgram, error: updateError } = await (supabase as any)
           .from('programs')
           .update(programData)
           .eq('id', editingId)
@@ -192,7 +192,7 @@ export default function ProgramsAdmon() {
         }
         
         // Recargar cohortes
-        const { data: cohortsData, error: cohortsError } = await supabase
+        const { data: cohortsData, error: cohortsError } = await (supabase as any)
           .from('cohorts')
           .select('id, name, start_date, end_date, modality, campus')
           .eq('program_id', editingId);
@@ -209,7 +209,7 @@ export default function ProgramsAdmon() {
         alert('Programa actualizado exitosamente');
       } else {
         // Crear nuevo programa
-        const { data: newProgram, error: insertError } = await supabase
+        const { data: newProgram, error: insertError } = await (supabase as any)
           .from('programs')
           .insert([
             {
@@ -258,7 +258,7 @@ export default function ProgramsAdmon() {
   const handleDelete = async (id: number) => {
     if (confirm('¿Estás seguro de eliminar este programa? Esta acción no se puede deshacer.')) {
       try {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('programs')
           .delete()
           .eq('id', id);

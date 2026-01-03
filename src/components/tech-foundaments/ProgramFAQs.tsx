@@ -96,7 +96,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
           faq => faq.pregunta.trim() !== '' && faq.respuesta.trim() !== ''
         )
 
-        const { error: updateError } = await supabase
+        const { error: updateError } = await (supabase as any)
           .from('programs')
           .update({
             faqs: cleanedFAQs,
@@ -142,7 +142,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
       )
 
       // Actualizar en Supabase
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('programs')
         .update({
           faqs: cleanedFAQs,

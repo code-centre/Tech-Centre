@@ -58,7 +58,7 @@ export default function ProgramSyllabus({ syllabusData, programId, onSyllabusUpd
       }));
 
       // Actualizar en Supabase
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('programs')
         .update({
           syllabus: { modules: cleanedSyllabus },

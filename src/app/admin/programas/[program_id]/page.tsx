@@ -1,8 +1,6 @@
 // app/admin/programas/[program_id]/page.tsx
 import { Metadata } from 'next'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { Database } from '@/types/supabase'
+import { createClient } from '@/lib/supabase/server'
 import CohortList from '@/components/adminspage/CohortList'
 import ProgramDetails from '@/components/adminspage/ProgramDetails'
 import type { Program } from '@/types/programs'
@@ -18,7 +16,7 @@ interface Props {
 
 export default async function ProgramPage({ params }: Props) {
   const { program_id } = await params
-  const supabase = createServerComponentClient<Database>({ cookies })
+  const supabase = await createClient()
 
 
   // Obtener datos del programa

@@ -1,13 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 type IdType = 'CC' | 'TI' | 'CE' | 'PASSPORT';
 type UserRole = 'ADMIN' | 'USER' | 'STUDENT' | 'TEACHER';
 
 const SignUp: React.FC = () => {
   const router = useRouter();
+  const supabase = createClient();
   
   // Auth Data
   const [email, setEmail] = useState<string>("");
@@ -80,17 +81,17 @@ const SignUp: React.FC = () => {
           first_name: firstName,
           last_name: lastName,
           phone,
-          id_type: idType || null,
-          id_number: idNumber || null,
+          id_type: idType,
+          id_number: idNumber || '',
           birthdate,
           address: address || null,
-          role: 'lead',
+          role: 'USER' as const,
           updated_at: new Date().toISOString(),
         };
 
         console.log('Datos del perfil a guardar:', profileData);
 
-        const { data, error: profileError } = await supabase
+        const { data, error: profileError } = await (supabase as any)
           .from('profiles')
           .insert([profileData])
           .select();

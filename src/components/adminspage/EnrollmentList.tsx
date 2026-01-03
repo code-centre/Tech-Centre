@@ -96,10 +96,10 @@ export function EnrollmentList({ onEnrollmentSelect }: EnrollmentListProps) {
             } | null;
         };
 
-        const rawItem = item as unknown as RawItem;
+        const rawItem = item as any;
         
         // Handle the case where cohort might be null or undefined
-        const cohort = rawItem.cohort ? {
+        const cohort = rawItem?.cohort ? {
             id: rawItem.cohort.id,
             name: rawItem.cohort.name,
             start_date: rawItem.cohort.start_date,

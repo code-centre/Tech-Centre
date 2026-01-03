@@ -116,7 +116,7 @@ if (missingFields.length > 0) {
       throw new Error('No se pudo crear el pago en Wompi');
     }
 
-const { data: enrollment, error: enrollmentError } = await supabase
+const { data: enrollment, error: enrollmentError } = await (supabase as any)
   .from('enrollments')
   .insert({
     cohort_id: selectedCohortId,  // Asegúrate de que esto sea un bigint
@@ -192,7 +192,7 @@ const invoices = Array.from({ length: paymentCount }).map((_, index) => {
     // 4. Insertar facturas en Supabase
     // Reemplaza la inserción con:
 console.log('Insertando facturas en Supabase...');
-const { data: createdInvoices, error: invoiceError } = await supabase
+const { data: createdInvoices, error: invoiceError } = await (supabase as any)
   .from('invoices')
   .insert(invoices)
   .select();

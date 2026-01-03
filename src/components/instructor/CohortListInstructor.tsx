@@ -44,7 +44,7 @@ useEffect(() => {
       console.log('Buscando cohorte con nombre:', cohortName);
       
       // 1. Buscar el ID del cohorte por su nombre
-      const { data: cohortData, error: cohortError } = await supabase
+      const { data: cohortData, error: cohortError } = await (supabase as any)
         .from('cohorts')
         .select('id')
         .eq('name', cohortName)
@@ -57,13 +57,13 @@ useEffect(() => {
         throw new Error('Cohorte no encontrado');
       }
 
-      const cohortId = cohortData.id;
+      const cohortId = (cohortData as any).id;
       console.log('ID del cohorte encontrado:', cohortId);
       setCohortId(cohortId);
 
       // 2. Buscar los estudiantes inscritos en este cohorte
       console.log('Buscando estudiantes para el cohorte ID:', cohortId);
-      const { data: enrollmentsData, error: enrollmentsError } = await supabase
+      const { data: enrollmentsData, error: enrollmentsError } = await (supabase as any)
         .from('enrollments')
         .select(`
           id,
@@ -72,13 +72,13 @@ useEffect(() => {
           status,
           profiles:student_id (user_id, first_name, email)
         `)
-        .eq('cohort_id', cohortId) as { data: Enrollment[] | null, error: any };
+        .eq('cohort_id', cohortId);
 
       console.log('Respuesta de enrollments:', { enrollmentsData, enrollmentsError });
 
       if (enrollmentsError) throw enrollmentsError;
 
-      const studentsData = (enrollmentsData || []).map(enrollment => {
+      const studentsData = (enrollmentsData || []).map((enrollment: any) => {
         const profile = enrollment.profiles; // profiles es un objeto, no un array
         
         return {

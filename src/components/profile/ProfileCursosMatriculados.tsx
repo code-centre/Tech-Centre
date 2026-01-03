@@ -43,7 +43,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
     const fetchEnrollments = async () => {
         try {
             setLoading(true);
-            const { data: enrollments, error } = await supabase
+            const { data: enrollments, error } = await (supabase as any)
             .from('enrollments')
             .select(`
                 *,
@@ -57,7 +57,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
             if (error) throw error;
 
             // Transform the data to match EnrolledCourse type
-            const transformedEnrollments = enrollments.map(enrollment => {
+            const transformedEnrollments = (enrollments || []).map((enrollment: any) => {
             // Take the first cohort if it's an array, or use the cohort object directly
             const cohort = Array.isArray(enrollment.cohorts) 
                 ? enrollment.cohorts[0] 
