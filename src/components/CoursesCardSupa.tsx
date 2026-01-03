@@ -55,60 +55,21 @@ export function CourseCardSupa({
       href={`/programas-academicos/${slug}`}
       className="block group h-full cursor-pointer"
     >
-      <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-2xl shadow-xl overflow-hidden transition-all duration-500 h-full flex flex-col relative border border-zinc-700/50 hover:border-blueApp/70 hover:shadow-2xl hover:shadow-blueApp/40 hover:-translate-y-3 hover:scale-[1.02] active:scale-[0.98] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-blueApp/0 before:via-blueApp/0 before:to-blueApp/0 hover:before:from-blueApp/10 hover:before:via-blueApp/5 hover:before:to-blueApp/10 before:transition-all before:duration-500 before:pointer-events-none">
-        {/* Image Section */}
-        <div className="relative h-56 overflow-hidden">
+      <div className="bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-2xl shadow-xl overflow-hidden transition-all duration-500 h-full flex flex-col relative border border-zinc-700/50 hover:border-blueApp/70 hover:shadow-2xl hover:shadow-blueApp/40 hover:-translate-y-3 hover:scale-[1.02] active:scale-[0.98] before:absolute before:inset-0 before:rounded-2xl before:bg-linear-to-br before:from-blueApp/0 before:via-blueApp/0 before:to-blueApp/0 hover:before:from-blueApp/10 hover:before:via-blueApp/5 hover:before:to-blueApp/10 before:transition-all before:duration-500 before:pointer-events-none">
+        {/* Image Section - Optimizada sin elementos encima */}
+        <div className="relative h-64 overflow-hidden bg-zinc-800">
           <Image
             src={image || '/placeholder-course.jpg'} 
             width={500}
-            height={300}
+            height={400}
             alt={title || 'Curso'}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:brightness-110"
+            priority={false}
           />
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/50 to-transparent group-hover:from-zinc-900/90 group-hover:via-zinc-900/60 transition-all duration-500"></div>
+          {/* Gradient Overlay sutil solo en la parte inferior */}
+          <div className="absolute inset-0 bg-linear-to-t from-zinc-900/80 via-transparent to-transparent group-hover:from-zinc-900/90 transition-all duration-500"></div>
           {/* Hover glow effect */}
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-blueApp/20 via-transparent to-transparent"></div>
-          
-          {/* Badges */}
-          <div className="absolute top-4 left-4 right-4 flex flex-wrap gap-2 z-10">
-            <div
-              className={`${
-                level === 'BÁSICO'
-                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-600'
-                  : level === 'INTERMEDIO'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-600'
-                    : level === 'AVANZADO'
-                      ? 'bg-gradient-to-r from-red-500 to-rose-600'
-                      : 'bg-gradient-to-r from-blueApp to-blue-600'
-              } text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20 flex items-center gap-1.5`}
-            >
-              <TrendingUp className="h-3 w-3" />
-              {level}
-            </div>
-            {isActiveStatus && (
-              <div className="bg-amber-500/90 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20 flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3" />
-                BORRADOR
-              </div>
-            )}
-            {kind && (
-              <div className="bg-blueApp/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20 flex items-center gap-1.5">
-                <BookOpen className="h-3 w-3" />
-                {typeof kind === 'string' ? kind.replace(/<[^>]*>/g, '').substring(0, 20) : kind}
-              </div>
-            )}
-          </div>
-          
-          {/* Date Badge - Bottom of Image */}
-          {date && (
-            <div className="absolute bottom-4 left-4 right-4 z-10">
-              <div className="bg-gradient-to-r from-emerald-500/95 to-emerald-600/95 backdrop-blur-sm text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg border border-white/20 flex items-center gap-2 w-fit">
-                <Calendar className="h-3.5 w-3.5" />
-                <span>Inicia: {formatDate(date)}</span>
-              </div>
-            </div>
-          )}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-linear-to-br from-blueApp/10 via-transparent to-transparent"></div>
         </div>
 
         {/* Content Section */}
@@ -122,13 +83,6 @@ export function CourseCardSupa({
               <h4 className="text-lg font-semibold text-gray-300 mb-3 line-clamp-2 leading-snug group-hover:text-gray-200 transition-colors duration-300">
                 {subtitle}
               </h4>
-            )}
-            {/* Date Badge - Below Title */}
-            {date && (
-              <div className="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg px-3 py-1.5 mb-3 group-hover:bg-emerald-500/30 group-hover:border-emerald-500/50 transition-all duration-300">
-                <Calendar className="h-4 w-4 text-emerald-400" />
-                <span className="text-sm font-semibold text-emerald-300">Fecha de inicio: {formatDate(date)}</span>
-              </div>
             )}
           </div>
 
@@ -144,8 +98,63 @@ export function CourseCardSupa({
             </div>
           )}
 
-          {/* Metadata Grid */}
+          {/* Metadata Grid - Incluye nivel, tipo, duración, horario y fecha */}
           <div className="grid grid-cols-2 gap-3 mb-4">
+            {/* Nivel */}
+            <div className={`bg-zinc-800/60 backdrop-blur-sm rounded-lg p-3 border border-zinc-700/50 hover:border-blueApp/30 transition-colors ${
+              level === 'BÁSICO'
+                ? 'border-emerald-500/30'
+                : level === 'INTERMEDIO'
+                  ? 'border-amber-500/30'
+                  : level === 'AVANZADO'
+                    ? 'border-red-500/30'
+                    : ''
+            }`}>
+              <div className="flex items-center gap-2">
+                <div className={`p-1.5 rounded-lg ${
+                  level === 'BÁSICO'
+                    ? 'bg-emerald-500/20'
+                    : level === 'INTERMEDIO'
+                      ? 'bg-amber-500/20'
+                      : level === 'AVANZADO'
+                        ? 'bg-red-500/20'
+                        : 'bg-blueApp/20'
+                }`}>
+                  <TrendingUp className={`h-4 w-4 ${
+                    level === 'BÁSICO'
+                      ? 'text-emerald-400'
+                      : level === 'INTERMEDIO'
+                        ? 'text-amber-400'
+                        : level === 'AVANZADO'
+                          ? 'text-red-400'
+                          : 'text-blueApp'
+                  }`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs text-gray-400">Nivel</div>
+                  <div className="text-sm font-semibold text-white truncate">{level}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tipo */}
+            {kind && (
+              <div className="bg-zinc-800/60 backdrop-blur-sm rounded-lg p-3 border border-zinc-700/50 hover:border-blueApp/30 transition-colors">
+                <div className="flex items-center gap-2">
+                  <div className="bg-blueApp/20 p-1.5 rounded-lg">
+                    <BookOpen className="h-4 w-4 text-blueApp" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-gray-400">Tipo</div>
+                    <div className="text-sm font-semibold text-white truncate">
+                      {typeof kind === 'string' ? kind.replace(/<[^>]*>/g, '').substring(0, 15) : kind}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Duración */}
             {duration && (
               <div className="bg-zinc-800/60 backdrop-blur-sm rounded-lg p-3 border border-zinc-700/50 hover:border-blueApp/30 transition-colors">
                 <div className="flex items-center gap-2">
@@ -160,6 +169,7 @@ export function CourseCardSupa({
               </div>
             )}
             
+            {/* Horario */}
             {schedule && (
               <div className="bg-zinc-800/60 backdrop-blur-sm rounded-lg p-3 border border-zinc-700/50 hover:border-blueApp/30 transition-colors">
                 <div className="flex items-center gap-2">
@@ -174,8 +184,9 @@ export function CourseCardSupa({
               </div>
             )}
             
-            {!schedule && date && (
-              <div className="bg-zinc-800/60 backdrop-blur-sm rounded-lg p-3 border border-zinc-700/50 hover:border-blueApp/30 transition-colors">
+            {/* Fecha de inicio */}
+            {date && (
+              <div className="bg-zinc-800/60 backdrop-blur-sm rounded-lg p-3 border border-zinc-700/50 hover:border-emerald-500/30 transition-colors">
                 <div className="flex items-center gap-2">
                   <div className="bg-emerald-500/20 p-1.5 rounded-lg">
                     <Calendar className="h-4 w-4 text-emerald-400" />
@@ -183,6 +194,21 @@ export function CourseCardSupa({
                   <div className="flex-1 min-w-0">
                     <div className="text-xs text-gray-400">Inicio</div>
                     <div className="text-sm font-semibold text-white truncate">{formatDate(date)}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Estado Borrador */}
+            {isActiveStatus && (
+              <div className="bg-zinc-800/60 backdrop-blur-sm rounded-lg p-3 border border-amber-500/30 hover:border-amber-500/50 transition-colors">
+                <div className="flex items-center gap-2">
+                  <div className="bg-amber-500/20 p-1.5 rounded-lg">
+                    <Sparkles className="h-4 w-4 text-amber-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-gray-400">Estado</div>
+                    <div className="text-sm font-semibold text-amber-300">Borrador</div>
                   </div>
                 </div>
               </div>
@@ -205,7 +231,7 @@ export function CourseCardSupa({
           )}
 
           {/* Certification Badge */}
-          <div className="bg-gradient-to-r from-purple-500/20 to-blueApp/20 rounded-lg p-3 mb-4 border border-purple-500/30 group-hover:border-purple-400/50 transition-colors">
+          <div className="bg-linear-to-r from-purple-500/20 to-blueApp/20 rounded-lg p-3 mb-4 border border-purple-500/30 group-hover:border-purple-400/50 transition-colors">
             <div className="flex items-center gap-3">
               <div className="bg-purple-500/30 p-2 rounded-lg group-hover:bg-purple-500/40 transition-colors">
                 <Award className="h-5 w-5 text-purple-300 group-hover:text-purple-200 transition-colors" />

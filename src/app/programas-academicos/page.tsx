@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import AcademicOfferSupa from "@/sections/AcademicOfferSupa";
+import { ProgramsList } from "@/components/ProgramsList";
 import Testimonials from "@/sections/Testimonials";
-import { Ubication } from "@/sections/ubication";
-import ProgramsAdmon from '@/components/adminspage/ProgramsAdmon';
 
 export const metadata: Metadata = {
   title: "Programas Académicos",
@@ -18,7 +16,11 @@ export const metadata: Metadata = {
 export default function ProgramasAcademicos() {
   return (
     <main className="min-h-screen">
-      <AcademicOfferSupa />
+      <ProgramsList 
+        fetchPrograms={true}
+        showHeader={true}
+        backgroundColor="bg-background"
+      />
       <Testimonials />
     </main>
   );

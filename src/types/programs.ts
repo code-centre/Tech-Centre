@@ -105,12 +105,14 @@ export interface CourseCardPropsLegacy {
 }
 
 /**
- * Props para CourseListSupa
+ * Props para CourseListSupa / ProgramsList
  */
 export interface CourseListSupaProps {
-  programs: Program[];
+  programs?: Program[]; // Opcional si fetchPrograms es true
   showHeader?: boolean;
   backgroundColor?: string;
+  fetchPrograms?: boolean; // Si es true, hace fetch interno
+  horizontalScroll?: boolean; // Si es true, muestra todos los programas en una fila con scroll horizontal sin agrupar por tipo
 }
 
 // ============================================================================

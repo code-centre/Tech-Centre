@@ -87,7 +87,7 @@ export default function DetailCourse() {
         <main className="flex gap-8">
           <ProgramContainer programData={programData} />
             
-          <aside className="w-80 flex-shrink-0 hidden lg:block">
+          <aside className="w-80 shrink-0 hidden lg:block">
             <div className="sticky top-24">
               <NavigationCard programData={programData} />
             </div>
