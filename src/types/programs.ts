@@ -151,3 +151,27 @@ export interface Faq {
   answer: string;
 }
 
+/**
+ * Interface para eventos FCA (cursos cortos/eventos)
+ */
+export interface EventFCA {
+  id?: string;
+  title?: string;
+  name?: string;
+  date?: string;
+  description?: string;
+  image?: string;
+  heroImage?: string;
+  slug?: string;
+  level?: string;
+  type?: string;
+  tickets?: Ticket[];
+  eventId?: string;
+  eventSlug?: string;
+  ticketName?: string;
+  isShort?: boolean;
+  isDraft?: boolean;
+  status?: string;
+  [key: string]: any;
+}
+

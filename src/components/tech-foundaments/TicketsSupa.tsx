@@ -9,6 +9,7 @@ import AuthModal from "../AuthModal"
 import { useRouter } from "next/navigation"
 import AlertModal from "../AlertModal"
 import { supabase } from "@/lib/supabase"
+import type { Ticket } from "@/types/programs"
 
 interface ProgramData {
   id: number;

@@ -11,6 +11,8 @@ import Image from 'next/image'
 // import AlertModal from '../AlertModal'
 import Discounts from './Discounts'
 import { supabase } from '@/lib/supabase'
+import type { Ticket } from '@/types/programs'
+import type { User } from '@/types/supabase'
 
 interface Props {
   data: any

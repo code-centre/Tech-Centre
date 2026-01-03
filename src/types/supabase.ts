@@ -6,8 +6,37 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-type UserRole = 'ADMIN' | 'USER' | 'STUDENT' | 'TEACHER';
+export type UserRole = 'ADMIN' | 'USER' | 'STUDENT' | 'TEACHER' | 'admin' | 'instructor' | 'student';
 type IdType = 'CC' | 'TI' | 'CE' | 'PASSPORT';
+
+/**
+ * Interface para usuarios del sistema
+ */
+export interface User {
+  id: string;
+  email?: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  first_name?: string;
+  last_name?: string;
+  role?: UserRole;
+  profile_image?: string | null;
+  professional_title?: string | null;
+  bio?: string | null;
+  phone?: string;
+  address?: string | null;
+  birthdate?: string;
+  id_type?: IdType;
+  id_number?: string;
+  linkedin_url?: string | null;
+  twitter_url?: string | null;
+  instagram_url?: string | null;
+  github_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: any;
+}
 
 export interface Database {
   public: {

@@ -3,6 +3,7 @@ import { Minus, Plus, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import SelectSchedule from './SelectSchedule'
 import SelectPayment from './SelectPayment'
+import type { Program, Ticket } from '@/types/programs'
 
 interface Props {
   data: Program | any
@@ -89,7 +90,7 @@ export default function ConfigurationSection({ slugProgram, data, subtotal, setS
           <p className='font-semibold'>Beneficios de este evento</p>
           <ul className='list-disc pl-4 -mt-2 disc marker:text-blueApp'>
             {
-              ticket && ticket.benefits.map((benefit, i) => (
+              ticket && ticket.benefits.map((benefit: string, i: number) => (
                 <li key={i}>{benefit}</li>
               ))
             }

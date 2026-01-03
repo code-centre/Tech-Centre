@@ -6,6 +6,7 @@ import { GoogleIcon } from './Icons'
 import useUserStore from '../../store/useUserStore'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
+import type { User } from '@/types/supabase'
 
 interface Props {
   setError: (value: string) => void

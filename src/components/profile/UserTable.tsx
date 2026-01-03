@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { doc, updateDoc } from 'firebase/firestore'
 import { db } from '../../../firebase'
+import type { User } from '@/types/supabase'
 
 interface UserTableProps {
   users: User[]

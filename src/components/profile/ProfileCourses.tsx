@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react'
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { CourseCard } from '../CoursesCard';
 import CourseCardPlaceholder from '../course/CourseCardPlaceholder';
+import type { Program } from '@/types/programs';
 
 
 export default function ProfileEvents() {
@@ -42,7 +43,7 @@ export default function ProfileEvents() {
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
-    })) as Program[];
+    })) as unknown as Program[];
   }
 
   useEffect(() => {

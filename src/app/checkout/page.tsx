@@ -10,7 +10,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useState } from 'react'
 import { useCollection } from 'react-firebase-hooks/firestore'
 import { supabase } from '@/lib/supabase'
-import { useUser } from '@/lib/supabase'; // Ajusta esta ruta según tu configuración
+import { useUser } from '@/lib/supabase'
+import type { Program } from '@/types/programs'
 
 
 export default function ViewCheckoutPage() {

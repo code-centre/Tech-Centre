@@ -7,6 +7,7 @@ import { collection, query, where } from 'firebase/firestore'
 import { db } from '../../firebase'
 import Image from 'next/image'
 import { LinkedInIcon } from './Icons'
+import type { Program, EventFCA } from '@/types/programs'
 
 interface FooterProps {
   slug?: string;
@@ -35,6 +36,7 @@ export function Footer({ slug, programasEducativos = [], cortosFuturos = [] }: F
 
   // Filtrar cursos futuros
   const cortosFuturosFromDB = cursosCortosFromDB.filter((curso) => {
+    if (!curso.date) return false;
     const fechaActual = new Date();
     fechaActual.setHours(0, 0, 0, 0);
 

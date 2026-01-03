@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { User } from '@/types/supabase';
 
 type Store = {
   user: User | null;

@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react'
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { CourseCard } from '../CoursesCard';
 import CourseCardPlaceholder from '../course/CourseCardPlaceholder';
+import type { EventFCA } from '@/types/programs';
 
 
 export default function ProfileEvents() {
@@ -53,8 +54,8 @@ export default function ProfileEvents() {
       const now = new Date()
       setEvents(eventos);
 
-      setPastEvents(eventos.filter((event) => new Date(event.date) < now))
-      setFutureEvents(eventos.filter((event) => new Date(event.date) > now))
+      setPastEvents(eventos.filter((event) => event.date && new Date(event.date) < now))
+      setFutureEvents(eventos.filter((event) => event.date && new Date(event.date) > now))
       setLoadingEvents(false)
     }
     get()

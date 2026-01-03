@@ -5,7 +5,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { formatDate } from '../../utils/formatDate'
 import { useEffect, useState } from 'react'
-import type { EventFCA, CourseCardPropsLegacy as CourseCardProps } from '@/types/programs'
+import type { EventFCA, CourseCardPropsLegacy } from '@/types/programs'
+
+interface CourseCardProps extends CourseCardPropsLegacy {
+  eventData?: EventFCA;
+}
 
 export function CourseCard({
   title: propTitle,

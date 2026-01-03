@@ -4,9 +4,10 @@ import { useCollection } from 'react-firebase-hooks/firestore'
 import { db } from '../../firebase'
 import { collection, query, where, Query, DocumentData } from 'firebase/firestore'
 import CardLoader from '../components/loaders-skeletons/CardLoader'
-import { CourseList } from '@/components/CourseList'
+import { ProgramsList } from '@/components/ProgramsList'
 import useUserStore from '../../store/useUserStore'
 import EventCreationModal from '@/components/EventCreationModal'
+import type { Program } from '@/types/programs'
 
 export default function AcademicOffer() {
 	const [areaFiltrada, setAreaFiltrada] = useState("todos")
@@ -154,11 +155,9 @@ export default function AcademicOffer() {
 					)}
 				</div>
 				{/* Programas filtrados */}
-				<CourseList
-					diplomados={programasEducativos}
-					cursosCortos={cortosFuturos}
+				<ProgramsList
+					programs={educativos}
 					showHeader={false}
-
 				/>				
 				{programasEducativos.length === 0 && !isAdmin && (
 					<div className="text-center py-12 bg-slate-800/30 rounded-lg border border-slate-700 shadow">
