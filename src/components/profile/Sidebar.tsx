@@ -101,7 +101,7 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
                 flex-1 text-left transition-colors duration-200
                 ${isActive ? 'font-semibold' : 'font-medium'}
               `}>
-                {section.label}
+              {section.label}
               </span>
 
               {/* Hover effect */}

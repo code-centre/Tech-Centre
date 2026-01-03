@@ -155,7 +155,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
             </p>
             <p className="text-base text-gray-500 mb-8 max-w-md mx-auto">
               Explora nuestra oferta académica y encuentra el programa perfecto para impulsar tu carrera profesional.
-            </p>
+          </p>
             <Link 
               href="/programas-academicos"
               className="inline-flex items-center gap-2 px-8 py-4 bg-blueApp hover:bg-blue-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-blueApp/20 hover:-translate-y-1 active:translate-y-0"
@@ -163,7 +163,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
               <BookOpen className="w-5 h-5" />
               <span>Explorar Cursos Disponibles</span>
               <ArrowRight className="w-5 h-5" />
-            </Link>
+          </Link>
           </div>
         </div>
       ) : (
@@ -213,7 +213,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                         <TrendingUp className="h-3 w-3" />
                         {difficulty}
                       </div>
-                    </div>
+              </div>
 
                     {/* Status Badge */}
                     <div className="absolute top-4 right-4">
@@ -279,19 +279,19 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                             <Clock className="w-4 h-4 text-blueApp" />
                           </div>
                           <span>{program.total_hours} horas</span>
-                        </div>
+                  </div>
                       )}
-                    </div>
+                  </div>
 
                     {/* View Course Link */}
                     <div className="mt-6 pt-4 border-t border-zinc-700/50">
                       <div className="flex items-center gap-2 text-blueApp text-sm font-medium group-hover:gap-3 transition-all duration-200">
                         <span>Ver detalles del curso</span>
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
-                      </div>
-                    </div>
                   </div>
                 </div>
+              </div>
+            </div>
               </Link>
             );
           })}
