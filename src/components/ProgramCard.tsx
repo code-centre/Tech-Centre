@@ -1,5 +1,5 @@
 import React from 'react'
-import { ClockIcon, User, Award, BookOpen, TrendingUp, Sparkles, Calendar, Clock} from 'lucide-react'
+import { ClockIcon, Award, Calendar, Clock} from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import HTMLReactParser from 'html-react-parser/lib/index'
@@ -86,10 +86,10 @@ export function ProgramCard({
 
           {/* Description compacta */}
           {truncatedDescription && (
-            <div className="text-gray-400 text-xs leading-relaxed mb-3 line-clamp-2">
+            <div className="text-gray-400 text-xs leading-relaxed mb-3 line-clamp-4">
               {typeof truncatedDescription === 'string' 
-                ? truncatedDescription.replace(/<[^>]*>/g, '').substring(0, 100) + '...'
-                : truncatedDescription.substring(0, 100) + '...'
+                ? truncatedDescription.replace(/<[^>]*>/g, '').substring(0, 200) + '...'
+                : truncatedDescription.substring(0, 200) + '...'
               }
             </div>
           )}
