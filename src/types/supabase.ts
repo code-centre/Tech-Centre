@@ -7,7 +7,7 @@ export type Json =
   | Json[];
 
 export type UserRole = 'ADMIN' | 'USER' | 'STUDENT' | 'TEACHER' | 'admin' | 'instructor' | 'student';
-type IdType = 'CC' | 'TI' | 'CE' | 'PASSPORT';
+type IdType = 'CC' | 'TI' | 'CE' | 'PASAPORTE';
 
 /**
  * Interface para usuarios del sistema

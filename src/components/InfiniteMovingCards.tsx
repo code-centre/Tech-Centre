@@ -22,6 +22,7 @@ export const InfiniteMovingCards = ({
   const containerRef = React.useRef<HTMLDivElement>(null);
   const scrollerRef = React.useRef<HTMLUListElement>(null);
   const [start, setStart] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     addAnimation();
@@ -66,11 +67,12 @@ export const InfiniteMovingCards = ({
   const getSpeed = () => {
     if (containerRef.current) {
       if (speed === "fast") {
-        containerRef.current.style.setProperty("--animation-duration", "20s");
+        containerRef.current.style.setProperty("--animation-duration", "30s");
       } else if (speed === "normal") {
-        containerRef.current.style.setProperty("--animation-duration", "40s");
+        containerRef.current.style.setProperty("--animation-duration", "60s");
       } else {
-        containerRef.current.style.setProperty("--animation-duration", "90s");
+        // Más lento para mejor legibilidad
+        containerRef.current.style.setProperty("--animation-duration", "120s");
       }
     }
   };
@@ -87,16 +89,20 @@ export const InfiniteMovingCards = ({
   return (
     <div
       ref={containerRef}
+      onMouseEnter={() => pauseOnHover && setIsPaused(true)}
+      onMouseLeave={() => pauseOnHover && setIsPaused(false)}
       className={cn(
-        "scroller relative z-20  overflow-hidden  [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]"
+        "scroller relative z-20 overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]"
       )}
     >
       <ul
         ref={scrollerRef}
+        style={{
+          animationPlayState: isPaused ? 'paused' : 'running'
+        }}
         className={cn(
-          " flex min-w-full w-max items-center gap-x-10 py-4  flex-nowrap",
-          start && "animate-scroll ",
-          pauseOnHover && "hover:[animation-play-state:paused]"
+          "flex min-w-full w-max items-center gap-x-10 py-4 flex-nowrap",
+          start && "animate-scroll"
         )}
       >
         {children}

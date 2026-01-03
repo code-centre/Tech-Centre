@@ -35,7 +35,7 @@ export default function Home() {
         items={heroData}
         type="hero"
         effect="fade"
-        className="w-full z-10 rounded-lg mt-28"
+        className="w-full z-10 rounded-lg mt-24"
         itemClassName="group z-10"
         imageClassName=""
       />

@@ -1,6 +1,8 @@
 'use client'
 import React from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useUser } from '@/lib/supabase'
 
 interface Section {
@@ -17,13 +19,14 @@ type SidebarProps = {
 
 export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarProps) => {
   const { user } = useUser()
+  const pathname = usePathname()
 
   if (!user) {
     return null
   }
 
   return (
-    <aside className="hidden lg:block w-80 bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border-r border-zinc-700/50 shadow-xl min-h-[calc(100vh-5rem)] sticky top-20 rounded-lg mr-6">
+    <aside className="hidden lg:block w-80 bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 border-r border-zinc-700/50 shadow-xl min-h-[calc(100vh-5rem)] sticky top-20 rounded-lg mr-6">
       {/* User Profile Header */}
       <div className="p-6 border-b border-zinc-700/50">
         <div className="flex items-center gap-4 mb-4">
@@ -38,7 +41,7 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blueApp to-blue-600 flex items-center justify-center text-white font-bold text-xl">
+                <div className="w-full h-full bg-linear-to-br from-blueApp to-blue-600 flex items-center justify-center text-white font-bold text-xl">
                   {user?.first_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
                 </div>
               )}
@@ -63,19 +66,22 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
       <nav className="p-4 space-y-2">
         {sections.map((section) => {
           const Icon = section.icon
-          const isActive = activeSection === section.id
+          const sectionPath = `/perfil/${section.id}`
+          const isActive = pathname === sectionPath || activeSection === section.id
           
           return (
-            <button
+            <Link
               key={section.id}
+              href={sectionPath}
               onClick={() => onSectionChange(section.id)}
+              scroll={false}
               className={`
                 w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium
                 transition-all duration-200 ease-in-out
                 relative overflow-hidden group
                 ${
                   isActive
-                    ? 'bg-gradient-to-r from-blueApp/20 to-blueApp/10 text-blueApp shadow-lg shadow-blueApp/10 border border-blueApp/30'
+                    ? 'bg-linear-to-r from-blueApp/20 to-blueApp/10 text-blueApp shadow-lg shadow-blueApp/10 border border-blueApp/30'
                     : 'text-gray-300 hover:text-white hover:bg-zinc-800/50 border border-transparent'
                 }
               `}
@@ -105,14 +111,14 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
               </span>
 
               {/* Hover effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blueApp/0 to-blueApp/0 group-hover:from-blueApp/5 group-hover:to-transparent transition-all duration-200 rounded-lg"></div>
-            </button>
+              <div className="absolute inset-0 bg-linear-to-r from-blueApp/0 to-blueApp/0 group-hover:from-blueApp/5 group-hover:to-transparent transition-all duration-200 rounded-lg"></div>
+            </Link>
           )
         })}
       </nav>
 
       {/* Footer decoration */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-zinc-700 to-transparent"></div>
     </aside>
   )
 }

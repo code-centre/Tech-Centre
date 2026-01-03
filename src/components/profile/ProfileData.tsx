@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/lib/supabase'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { User, Mail, Phone, MapPin, Calendar, IdCard, Briefcase, FileText, Camera, Save, X, Linkedin, Twitter, Instagram, Github } from 'lucide-react'
 import Image from 'next/image'
 import ButtonToEdit from '../ButtonToEdit'
@@ -17,9 +17,10 @@ interface FormFieldProps {
   type?: 'text' | 'email' | 'tel' | 'date' | 'textarea'
   options?: { value: string; label: string }[]
   icon?: React.ReactNode
+  placeholder?: string
 }
 
-function FormField({ label, value, name, isEditing, onChange, type = 'text', options, icon }: FormFieldProps) {
+function FormField({ label, value, name, isEditing, onChange, type = 'text', options, icon, placeholder }: FormFieldProps) {
   return (
     <div className="space-y-2">
       <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
@@ -33,6 +34,7 @@ function FormField({ label, value, name, isEditing, onChange, type = 'text', opt
             value={value}
             onChange={onChange}
             rows={3}
+            placeholder={placeholder}
             className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent resize-none"
           />
         ) : options ? (
@@ -54,7 +56,7 @@ function FormField({ label, value, name, isEditing, onChange, type = 'text', opt
             name={name}
             value={value}
             onChange={onChange}
-            placeholder={`https://...`}
+            placeholder={placeholder}
             className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent"
           />
         )
@@ -133,6 +135,7 @@ function SocialField({ label, value, name, isEditing, onChange, icon, placeholde
 export default function ProfileData() {
   const { user, loading } = useUser()
   const router = useRouter()
+  const supabase = createClient()
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
@@ -226,25 +229,34 @@ export default function ProfileData() {
   }
 
   const handleSubmit = async () => {
-    if (!user?.id) return
+    // Obtener el ID del usuario (puede ser user.id o user.user_id)
+    const userId = user?.user_id || user?.id
+    
+    if (!userId) {
+      setError('No se pudo identificar tu usuario. Por favor, inicia sesión nuevamente.')
+      return
+    }
 
     setIsSaving(true)
     setError('')
 
     try {
+      console.log('Iniciando actualización del perfil para usuario:', userId)
+      console.log('Datos a guardar:', formData)
+
       // Preparar datos básicos que siempre existen
       const updateData: any = {
-        first_name: formData.first_name || null,
-        last_name: formData.last_name || null,
-        email: formData.email || null,
-        phone: formData.phone || null,
+        first_name: formData.first_name?.trim() || null,
+        last_name: formData.last_name?.trim() || null,
+        email: formData.email?.trim() || null,
+        phone: formData.phone?.trim() || null,
         id_type: formData.id_type || null,
-        id_number: formData.id_number || null,
+        id_number: formData.id_number?.trim() || null,
         birthdate: formData.birthdate || null,
-        address: formData.address || null,
+        address: formData.address?.trim() || null,
         profile_image: formData.profile_image || null,
-        professional_title: formData.professional_title || null,
-        bio: formData.bio || null,
+        professional_title: formData.professional_title?.trim() || null,
+        bio: formData.bio?.trim() || null,
         updated_at: new Date().toISOString()
       }
 
@@ -254,51 +266,75 @@ export default function ProfileData() {
       updateData.instagram_url = formData.instagram_url?.trim() || null
       updateData.github_url = formData.github_url?.trim() || null
 
+      console.log('Datos preparados para actualizar:', updateData)
+
       const { error: updateError, data } = await (supabase as any)
         .from('profiles')
         .update(updateData)
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .select()
 
+      console.log('Respuesta de Supabase:', { error: updateError, data })
+
       if (updateError) {
+        console.error('Error completo al actualizar perfil:', {
+          code: updateError.code,
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint
+        })
+        
         // Si el error es porque falta una columna, mostrar mensaje más claro
         if (updateError.code === 'PGRST204') {
-          setError('Las columnas de redes sociales no existen en la base de datos. Por favor, agrégalas primero en Supabase.')
+          setError('Algunas columnas no existen en la base de datos. Por favor, contacta al administrador.')
+        } else if (updateError.message) {
+          setError(`Error al guardar: ${updateError.message}`)
         } else {
-          throw updateError
+          setError('Error al actualizar el perfil. Por favor, inténtalo de nuevo.')
         }
+        setIsSaving(false)
         return
       }
 
-      // Actualizar el estado ANTES de refrescar para evitar que se quede en estado de guardado
+      if (!data || !data[0]) {
+        console.error('No se recibieron datos actualizados de Supabase')
+        setError('Los datos se guardaron pero no se pudieron recuperar. Por favor, recarga la página.')
+        setIsSaving(false)
+        setIsEditing(false)
+        router.refresh()
+        return
+      }
+
+      console.log('Datos actualizados exitosamente:', data[0])
+
+      // Actualizar formData con los datos guardados
+      setFormData({
+        first_name: data[0].first_name || '',
+        last_name: data[0].last_name || '',
+        email: data[0].email || '',
+        phone: data[0].phone || '',
+        id_type: data[0].id_type || 'CC',
+        id_number: data[0].id_number || '',
+        birthdate: data[0].birthdate || '',
+        address: data[0].address || '',
+        profile_image: data[0].profile_image || '',
+        professional_title: data[0].professional_title || '',
+        bio: data[0].bio || '',
+        linkedin_url: data[0].linkedin_url || '',
+        twitter_url: data[0].twitter_url || '',
+        instagram_url: data[0].instagram_url || '',
+        github_url: data[0].github_url || ''
+      })
+
+      // Actualizar el estado ANTES de refrescar
       setIsSaving(false)
       setIsEditing(false)
       setError('')
       
-      // Actualizar formData con los datos guardados si están disponibles
-      if (data && data[0]) {
-        setFormData({
-          first_name: data[0].first_name || '',
-          last_name: data[0].last_name || '',
-          email: data[0].email || '',
-          phone: data[0].phone || '',
-          id_type: data[0].id_type || 'CC',
-          id_number: data[0].id_number || '',
-          birthdate: data[0].birthdate || '',
-          address: data[0].address || '',
-          profile_image: data[0].profile_image || '',
-          professional_title: data[0].professional_title || '',
-          bio: data[0].bio || '',
-          linkedin_url: data[0].linkedin_url || '',
-          twitter_url: data[0].twitter_url || '',
-          instagram_url: data[0].instagram_url || '',
-          github_url: data[0].github_url || ''
-        })
-      }
-      
       // Refrescar los datos sin recargar la página completa
       router.refresh()
     } catch (err: any) {
+      console.error('Error en handleSubmit:', err)
       const errorMessage = err.message || 'Error al actualizar el perfil. Por favor, inténtalo de nuevo.'
       setError(errorMessage)
       setIsSaving(false)
@@ -361,10 +397,23 @@ export default function ProfileData() {
         )}
       </div>
 
+      {/* Success Message */}
+      {!isEditing && !error && !isSaving && formData.first_name && (
+        <div className="p-4 bg-green-900/50 text-green-200 rounded-lg text-sm border border-green-800 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          Información guardada correctamente
+        </div>
+      )}
+
       {/* Error Message */}
       {error && (
-        <div className="p-4 bg-red-900/50 text-red-200 rounded-lg text-sm border border-red-800">
-          {error}
+        <div className="p-4 bg-red-900/50 text-red-200 rounded-lg text-sm border border-red-800 flex items-start gap-2">
+          <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{error}</span>
         </div>
       )}
 
@@ -425,6 +474,7 @@ export default function ProfileData() {
                 isEditing={isEditing}
                 onChange={handleInputChange}
                 icon={<User className="w-4 h-4" />}
+                placeholder="Ingresa tu nombre"
               />
               <FormField
                 label="Apellidos"
@@ -433,6 +483,7 @@ export default function ProfileData() {
                 isEditing={isEditing}
                 onChange={handleInputChange}
                 icon={<User className="w-4 h-4" />}
+                placeholder="Ingresa tus apellidos"
               />
               <FormField
                 label="Email"
@@ -442,6 +493,7 @@ export default function ProfileData() {
                 onChange={handleInputChange}
                 type="email"
                 icon={<Mail className="w-4 h-4" />}
+                placeholder="ejemplo@correo.com"
               />
               <FormField
                 label="Teléfono"
@@ -451,6 +503,7 @@ export default function ProfileData() {
                 onChange={handleInputChange}
                 type="tel"
                 icon={<Phone className="w-4 h-4" />}
+                placeholder="Ej: 3001234567"
               />
             </div>
           </div>
@@ -472,7 +525,7 @@ export default function ProfileData() {
                   { value: 'CC', label: 'Cédula de Ciudadanía (CC)' },
                   { value: 'CE', label: 'Cédula de Extranjería (CE)' },
                   { value: 'TI', label: 'Tarjeta de Identidad (TI)' },
-                  { value: 'PASSPORT', label: 'Pasaporte' }
+                  { value: 'PASAPORTE', label: 'Pasaporte' }
                 ]}
                 icon={<IdCard className="w-4 h-4" />}
               />
@@ -482,6 +535,7 @@ export default function ProfileData() {
                 value={formData.id_number}
                 isEditing={isEditing}
                 onChange={handleInputChange}
+                placeholder="Ej: 1234567890"
               />
             </div>
           </div>
@@ -509,6 +563,7 @@ export default function ProfileData() {
                 isEditing={isEditing}
                 onChange={handleInputChange}
                 icon={<MapPin className="w-4 h-4" />}
+                placeholder="Ej: Calle 123 #45-67, Barranquilla"
               />
             </div>
           </div>
@@ -527,6 +582,7 @@ export default function ProfileData() {
                 isEditing={isEditing}
                 onChange={handleInputChange}
                 icon={<Briefcase className="w-4 h-4" />}
+                placeholder="Ej: Desarrollador Full Stack"
               />
               <FormField
                 label="Biografía"
@@ -536,6 +592,7 @@ export default function ProfileData() {
                 onChange={handleInputChange}
                 type="textarea"
                 icon={<FileText className="w-4 h-4" />}
+                placeholder="Cuéntanos sobre ti, tu experiencia y tus intereses..."
               />
             </div>
           </div>
@@ -596,7 +653,10 @@ export default function ProfileData() {
                 onSave={handleSubmit}
               />
               {isSaving && (
-                <span className="ml-4 text-gray-400 text-sm">Guardando...</span>
+                <div className="mt-4 flex items-center gap-2 text-blue-400 text-sm">
+                  <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  <span>Guardando cambios...</span>
+                </div>
               )}
             </div>
           )}

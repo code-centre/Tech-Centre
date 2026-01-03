@@ -146,9 +146,9 @@ export function ProgramTeacher({ cohortId }: Props) {
             </div>
           </div>
         ) : instructor ? (
-          <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-xl">
+          <div className="bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-xl">
             {/* Profile Header */}
-            <div className="relative bg-gradient-to-r from-blueApp/20 via-zinc-800 to-zinc-800 px-6 pt-8 pb-20">
+            <div className="relative bg-linear-to-r from-blueApp/20 via-zinc-800 to-zinc-800 px-6 pt-8 pb-20">
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 {/* Avatar */}
                 <div className="relative">
@@ -247,7 +247,7 @@ export function ProgramTeacher({ cohortId }: Props) {
               {instructor.bio && (
                 <div className="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700/30">
                   <div className="flex items-start gap-3">
-                    <CodeIcon className="w-5 h-5 text-blueApp mt-0.5 flex-shrink-0" />
+                    <CodeIcon className="w-5 h-5 text-blueApp mt-0.5 shrink-0" />
                     <div className="flex-1">
                       <h4 className="text-sm font-semibold text-gray-400 mb-2">Sobre el profesor</h4>
                       <p className="text-gray-300 leading-relaxed">{instructor.bio}</p>
