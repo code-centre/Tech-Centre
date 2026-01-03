@@ -39,11 +39,11 @@ export default function Home() {
         itemClassName="group z-10"
         imageClassName=""
       />
-      <div id="quienes-somos">
-        <WhoWeAre />
-      </div>
       <div id="programs">
         <AcademicOfferSupa />
+      </div>
+      <div id="quienes-somos">
+        <WhoWeAre />
       </div>
       <div id="ubicacion">
         <Ubication />

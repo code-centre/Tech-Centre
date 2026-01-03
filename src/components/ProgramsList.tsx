@@ -45,7 +45,6 @@ const getTypeSchedule = (kind: string | undefined): string => {
 
 export function ProgramsList({ 
   programs, 
-  showHeader = true,
   backgroundColor = 'bg-background' 
 }: CourseListSupaProps) {
   // Agrupar programas por tipo
@@ -80,19 +79,7 @@ export function ProgramsList({
 
   return (
     <div id="cursos" className={backgroundColor}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {showHeader && (
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white">
-              Programas educativos
-            </h2>
-            <p className="mt-4 text-xl text-gray-300 max-w-3xl mx-auto">
-              Enfoque práctico y orientados al aprendizaje experiencial, 
-              diseñados por profesionales de la industria.
-            </p>
-          </div>
-        )}
-        
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">        
         {programs.length > 0 ? (
           <div className="space-y-16">
             {sortedTypes.map((type, typeIndex) => {

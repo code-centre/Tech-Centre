@@ -103,7 +103,6 @@ export default function AcademicOfferSupa() {
         <div className=''>
           <ProgramsList 
             programs={programas}
-            showHeader={false}
             backgroundColor="bg-background"
           />
         </div>
