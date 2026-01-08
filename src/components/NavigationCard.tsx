@@ -2,6 +2,8 @@
 import { formatPrice } from "../../utils/formatCurrency";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import type { Program } from "@/types/programs";
 
 interface NavigationCardProps {
@@ -9,15 +11,39 @@ interface NavigationCardProps {
   cohortId?: number | null;
 }
 
+interface Cohort {
+  maximum_payments: number;
+}
+
 export default function NavigationCard({ programData, cohortId }: NavigationCardProps) {
   const router = useRouter();
+  const [cohort, setCohort] = useState<Cohort | null>(null);
 
-  const handleBuyClick = async () => {
+  useEffect(() => {
+    if (!cohortId) return;
+
+    const fetchCohort = async () => {
+      try {
+        const { data: cohortData, error } = await (supabase as any)
+          .from('cohorts')
+          .select('maximum_payments')
+          .eq('id', cohortId)
+          .single();
+
+        if (error) throw error;
+        setCohort(cohortData as Cohort);
+      } catch (error) {
+        console.error('Error al obtener cohorte:', error);
+        setCohort(null);
+      }
+    };
+
+    fetchCohort();
+  }, [cohortId]);
+
+  const handleBuyClick = () => {
     if (cohortId) {
       router.push(`/checkout?cohortId=${cohortId}`);
-    } else if (programData?.code) {
-      // Fallback al método anterior si no hay cohortId
-      router.push(`/checkout?slug=${programData.code}`);
     }
   }
 
@@ -40,15 +66,14 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
             Inscripciones abiertas
           </div> 
           <h3 className="text-2xl mb-1 font-semibold tracking-wide text-white">{programData?.name}</h3>
-          <h4 className="text-lg font-semibold text-gray-300 mb-3 line-clamp-2 leading-snug group-hover:text-gray-200 transition-colors duration-300">
+          <h4 className="text-lg font-semibold text-gray-300 mb-3 line-clamp-2 leading-snug">
             {programData?.subtitle}
           </h4>
          
-         {
-          programData?.discount ? (
+          {programData?.discount ? (
             <div className="text-xl font-bold text-white flex flex-col items-center justify-center">
               <span>¡Precio en oferta!</span>
-              {formatPrice(programData?.discount || 0)}
+              {formatPrice(programData.discount)}
             </div>
           ) : (
             <div className="text-xl font-bold text-white flex flex-col items-center justify-center">
@@ -57,14 +82,15 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
             </div>
           )}
 
-          <div className="text-sm text-white/80">
-            {programData?.installments && programData?.installmentPrice
-              ? `Hasta ${programData.installments} cuotas de ${formatPrice(programData.installmentPrice, programData.currency)}`
-              : programData?.discount
-                ? `Hasta 4 cuotas de ${formatPrice(Math.round((programData.discount) / 4), programData?.currency || "COP")}`
-                : `Hasta 4 cuotas de ${formatPrice(Math.round((programData?.default_price || 0) / 4), programData?.currency || "COP")}`
-            }
-          </div>
+          {cohort && cohort.maximum_payments >= 2 && programData && (() => {
+            const basePrice = programData.discount || programData.default_price || 0;
+            const installmentPrice = Math.round(basePrice / cohort.maximum_payments);
+            return (
+              <div className="text-sm text-white/80">
+                Hasta {cohort.maximum_payments} cuotas de {formatPrice(installmentPrice, programData.currency || "COP")}
+              </div>
+            );
+          })()}
 
           <button
             onClick={handleBuyClick}

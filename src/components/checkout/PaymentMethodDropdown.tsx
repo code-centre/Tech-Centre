@@ -149,7 +149,7 @@ export default function PaymentMethodDropdown({
           Pago de contado (10% descuento) - ${fullPaymentCalculation.total.toLocaleString()} COP
         </option>
         {maxInstallments >= 2 &&
-          Array.from({ length: Math.min(maxInstallments - 1, 5) }, (_, i) => {
+          Array.from({ length: maxInstallments - 1 }, (_, i) => {
             const numInstallments = i + 2 // Empezar desde 2 cuotas
             const installmentAmount = getInstallmentAmount(numInstallments)
 

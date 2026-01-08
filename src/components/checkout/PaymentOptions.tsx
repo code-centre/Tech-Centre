@@ -242,7 +242,7 @@ export default function PaymentOptions({
 
             <div className="space-y-3">
               {maxInstallments >= 2 ? (
-                Array.from({ length: Math.min(maxInstallments - 1, 5) }, (_, i) => {
+                Array.from({ length: maxInstallments - 1 }, (_, i) => {
                   const numInstallments = i + 2 // Empezar desde 2 cuotas
                   const installmentAmount = getInstallmentAmount(numInstallments)
                   const totalAmount = installmentAmount * numInstallments
