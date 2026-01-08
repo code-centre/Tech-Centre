@@ -85,14 +85,14 @@ export default function ProfileEvents() {
                   {pastEvents.slice(0, visibleCount).map((event) => (
                     <Link key={event.id} className='w-fit' href={`/programas-academicos/${event.slug}`}>
                       <CourseCard 
-                        title={event.title}
+                        title={event.title || ''}
                         description={event.description}
                         image={event.heroImage}
                         heroImage={event.heroImage}
                         isShort={true}
                         level={event.level || "BÁSICO"}   
                         date={event.date}
-                        slug={event.slug} />
+                        slug={event.slug || ''} />
                     </Link>
                   ))}
                 </div>
@@ -125,14 +125,14 @@ export default function ProfileEvents() {
                   {futureEvents.map((event) => (
                     <Link key={event.id} className='w-fit' href={`/programas-academicos/${event.slug}`}>
                       <CourseCard 
-                        title={event.title}
+                        title={event.title || ''}
                         description={event.description}
                         isShort={true}
                         image={event.heroImage}
                         heroImage={event.heroImage}
                         level={event.level || "BÁSICO"}   
                         date={event.date}
-                        slug={event.slug} />
+                        slug={event.slug || ''} />
                     </Link>
                   ))}
                 </div>

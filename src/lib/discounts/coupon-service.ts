@@ -36,7 +36,7 @@ export async function validateCoupon(
 
   try {
     // Buscar el cupón por código y programa
-    const { data: coupon, error } = await supabase
+    const { data: couponData, error } = await supabase
       .from('discount_coupons')
       .select('*')
       .eq('code', code.toUpperCase().trim())
@@ -44,12 +44,15 @@ export async function validateCoupon(
       .eq('is_active', true)
       .single();
 
-    if (error || !coupon) {
+    if (error || !couponData) {
       return {
         valid: false,
         error: 'Código de descuento no válido o no encontrado',
       };
     }
+
+    // Tipar el cupón explícitamente
+    const coupon = couponData as unknown as Coupon;
 
     // Validar fechas
     const now = new Date();
@@ -96,7 +99,7 @@ export async function validateCoupon(
 
     return {
       valid: true,
-      coupon: coupon as Coupon,
+      coupon,
       discountAmount,
     };
   } catch (error) {
@@ -116,19 +119,22 @@ export async function incrementCouponUses(couponId: string): Promise<boolean> {
 
   try {
     // Obtener el cupón actual
-    const { data: coupon, error: fetchError } = await supabase
+    const { data: couponData, error: fetchError } = await supabase
       .from('discount_coupons')
       .select('current_uses')
       .eq('id', couponId)
       .single();
 
-    if (fetchError || !coupon) {
+    if (fetchError || !couponData) {
       console.error('Error al obtener cupón:', fetchError);
       return false;
     }
 
+    // Tipar el cupón explícitamente
+    const coupon = couponData as unknown as Pick<Coupon, 'current_uses'>;
+
     // Incrementar el contador
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from('discount_coupons')
       .update({ 
         current_uses: (coupon.current_uses || 0) + 1,

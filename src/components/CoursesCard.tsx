@@ -2,7 +2,7 @@ import React from 'react'
 import { ClockIcon, Award, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { formatDate } from '../utils/formatDate'
+import { formatDate } from '../../utils/formatDate'
 
 interface CourseCardProps {
   title: string
@@ -33,7 +33,7 @@ export function CourseCard({
   const truncatedDescription = description 
     ? (typeof description === 'string' 
         ? description.replace(/<[^>]*>/g, '').substring(0, isShort ? 100 : 200) + '...'
-        : description.substring(0, isShort ? 100 : 200) + '...')
+        : '')
     : ''
 
   return (

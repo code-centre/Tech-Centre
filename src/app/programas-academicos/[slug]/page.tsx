@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { createClient } from '@/lib/supabase/server'
 import { generateProgramMetadata } from '@/lib/seo/generateProgramMetadata'
 import type { Program } from "@/types/programs"
+import type { Cohort } from "@/types/cohorts"
 import ProgramDetailClient from './ProgramDetailClient'
 
 interface Props {
@@ -57,7 +58,7 @@ export default async function DetailCourse({ params }: Props) {
       programData = supabaseProgram as unknown as Program
       
       // Obtener la primera cohorte disponible para el checkout
-      const { data: cohortData } = await supabase
+      const { data: cohortData }: { data: Cohort | null } = await supabase
         .from('cohorts')
         .select('id')
         .eq('program_id', (supabaseProgram as any).id)

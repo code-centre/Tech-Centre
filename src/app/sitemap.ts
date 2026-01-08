@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import type { Program } from '@/types/programs'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co'
@@ -32,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let programPages: MetadataRoute.Sitemap = []
   
   try {
-    const { data: programs, error } = await supabase
+    const { data: programs, error }: { data: Program[] | null, error: any } = await supabase
       .from('programs')
       .select('code, updated_at')
       .eq('is_active', true)

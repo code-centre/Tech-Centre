@@ -112,9 +112,9 @@ export default function ProgramDetailClient({
     )
   }
 
-  const baseUrl = typeof window !== 'undefined' 
-    ? window.location.origin 
-    : process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co'
+  // Usar variable de entorno para evitar problemas de SSR
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+    (typeof window !== 'undefined' ? window.location.origin : 'https://techcentre.co')
 
   return (
     <>
