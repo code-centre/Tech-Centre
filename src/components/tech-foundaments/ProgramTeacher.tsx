@@ -105,6 +105,11 @@ export function ProgramTeacher({ cohortId }: Props) {
     fetchInstructor() // Recargar instructor después de asignar/eliminar
   };
 
+  // Si no es admin y no hay instructor, no mostrar la sección
+  if (!loading && !instructor && !isAdmin) {
+    return null
+  }
+
   return (
     <>
       <section className="w-full">
@@ -116,23 +121,14 @@ export function ProgramTeacher({ cohortId }: Props) {
             </div>
             Profesor del Programa
           </h2>
-          {isAdmin && (
+          {isAdmin && instructor && (
             <button
               onClick={() => setIsModalOpen(true)}
               className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-800 hover:border-blueApp/50 transition-all duration-200 flex items-center gap-2"
-              aria-label="Asignar profesor"
+              aria-label="Editar profesor"
             >
-              {instructor ? (
-                <>
-                  <Pencil className="w-4 h-4" />
-                  <span>Editar</span>
-                </>
-              ) : (
-                <>
-                  <UserPlus className="w-4 h-4" />
-                  <span>Asignar Profesor</span>
-                </>
-              )}
+              <Pencil className="w-4 h-4" />
+              <span>Editar</span>
             </button>
           )}
         </div>

@@ -7,7 +7,7 @@ import { Ubication } from "@/sections/ubication";
 import HeroCarrusel from "@/components/HeroCarrusel";
 import { AliadosSection } from '@/components/aliadosSection';
 import heroData from '../../data/herocarrusel.json'
-import AcademicOfferSupa from "@/sections/AcademicOfferSupa";
+import AcademicOffer from "@/sections/AcademicOffer";
 
 export const metadata: Metadata = {
   title: "Inicio",
@@ -40,7 +40,7 @@ export default function Home() {
         imageClassName=""
       />
       <div id="programs">
-        <AcademicOfferSupa />
+        <AcademicOffer />
       </div>
       <div id="quienes-somos">
         <WhoWeAre />

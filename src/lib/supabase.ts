@@ -99,5 +99,29 @@ export function useUser() {
     };
   }, []);
 
-  return { user, loading };
+  const refreshUser = async () => {
+    try {
+      setLoading(true);
+      const { data: { session }, error } = await supabaseClient.auth.getSession();
+      
+      if (error) throw error;
+
+      if (session?.user) {
+        const userProfile = await fetchUserProfile(session.user.id);
+        setUser({
+          ...session.user,
+          ...(userProfile || {})
+        } as any);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Error al refrescar usuario:', error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { user, loading, refreshUser };
 }

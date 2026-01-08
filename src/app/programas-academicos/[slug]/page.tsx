@@ -14,6 +14,7 @@ export default function DetailCourse() {
   const [isLoading, setIsLoading] = useState(true)
   const [programData, setProgramData] = useState<Program | null>(null)
   const [allPrograms, setAllPrograms] = useState<Program[]>([])
+  const [firstCohortId, setFirstCohortId] = useState<number | null>(null)
 
   useEffect(() => {
     async function checkContentType() {
@@ -30,6 +31,21 @@ export default function DetailCourse() {
         if (supabaseProgram && !error) {
           setProgramData(supabaseProgram)
           setContentType("programa")
+          
+          // Obtener la primera cohorte disponible para el checkout
+          const { data: cohortData } = await (supabase as any)
+            .from('cohorts')
+            .select('id')
+            .eq('program_id', (supabaseProgram as any).id)
+            .eq('offering', true)
+            .order('start_date', { ascending: true })
+            .limit(1)
+            .single()
+          
+          if (cohortData?.id) {
+            setFirstCohortId(cohortData.id)
+          }
+          
           setIsLoading(false)
           return
         }
@@ -89,7 +105,7 @@ export default function DetailCourse() {
             
           <aside className="w-80 shrink-0 hidden lg:block">
             <div className="sticky top-24">
-              <NavigationCard programData={programData} />
+              <NavigationCard programData={programData} cohortId={firstCohortId} />
             </div>
           </aside>
         </main>

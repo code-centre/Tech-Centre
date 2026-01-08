@@ -8,4 +8,9 @@ export interface Cohort {
   updated_at: string;
   modality: string;
   offering: boolean;
+  maximum_payments: number;
+  schedule: {
+    hours: string[];
+    days: string[];
+  };
 }

@@ -6,13 +6,19 @@ import type { Program } from "@/types/programs";
 
 interface NavigationCardProps {
   programData?: Program;
+  cohortId?: number | null;
 }
 
-export default function NavigationCard({ programData }: NavigationCardProps) {
+export default function NavigationCard({ programData, cohortId }: NavigationCardProps) {
   const router = useRouter();
 
   const handleBuyClick = async () => {
-    router.push(`/checkout?slug=${programData?.code}`);
+    if (cohortId) {
+      router.push(`/checkout?cohortId=${cohortId}`);
+    } else if (programData?.code) {
+      // Fallback al método anterior si no hay cohortId
+      router.push(`/checkout?slug=${programData.code}`);
+    }
   }
 
   return (
@@ -25,7 +31,7 @@ export default function NavigationCard({ programData }: NavigationCardProps) {
         className="object-cover"
       />
       {/* Dark overlay for better text readability */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/80 to-purple-900/80"></div>
+      <div className="absolute inset-0 bg-linear-to-br from-blue-900/80 via-blue-800/80 to-purple-900/80"></div>
 
       <div className="px-6 pb-1 relative z-10">
         <div className="text-center">
