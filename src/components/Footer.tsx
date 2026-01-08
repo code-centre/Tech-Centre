@@ -5,12 +5,11 @@ import { MapPin, Phone, Mail, Facebook, InstagramIcon } from 'lucide-react'
 import Image from 'next/image'
 import { LinkedInIcon } from './Icons'
 import { supabase } from '@/lib/supabase'
-import type { Program, EventFCA } from '@/types/programs'
+import type { Program } from '@/types/programs'
 
 interface FooterProps {
   slug?: string;
   programasEducativos?: Program[];
-  cortosFuturos?: EventFCA[];
 }
 export function Footer() {
   const [programs, setPrograms] = useState<Program[]>([])
@@ -21,13 +20,13 @@ export function Footer() {
       try {
         const { data, error } = await (supabase as any)
           .from('programs')
-          .select('id, name, code, slug, is_active')
+          .select('id, name, code, is_active')
           .eq('is_active', true)
           .order('created_at', { ascending: false })
           .limit(6)
 
         if (error) throw error
-        
+
         setPrograms(data || [])
       } catch (err) {
         console.error('Error cargando programas para el footer:', err)
@@ -106,7 +105,7 @@ export function Footer() {
             <h3 className="font-bold text-white mb-4">Programas y cursos</h3>
             {loading ? (
               <ul className="space-y-2">
-                <li className="text-gray-300 text-sm">Cargando...</li>
+                <li className="text-gray-300 text-sm">Cargando programas...</li>
               </ul>
             ) : programs.length > 0 ? (
               <ul className="space-y-2">
