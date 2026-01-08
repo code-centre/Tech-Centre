@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { createClient } from '@/lib/supabase/server';
 import AuthProvider from "@/components/AuthProvider";
+import { OrganizationSchema, EducationalOrganizationSchema } from "@/components/seo/StructuredData";
 
 const leagueSpartan = League_Spartan({
   variable: "--font-league-spartan",
@@ -24,8 +25,38 @@ export const metadata: Metadata = {
     default: "Tech Centre - Centro de tecnología del Caribe",
     template: "%s | Tech Centre"
   },
-  description: "Formamos a los profesionales tech del futuro con programas prácticos y actualizados. Diplomados y cursos especializados en tecnología diseñados para el mercado laboral actual.",
-  keywords: ["tecnología", "programación", "diplomados", "cursos tech", "educación tecnológica", "Barranquilla", "Colombia"],
+  description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
+  keywords: [
+    "centro tecnología Caribe",
+    "cursos programación Barranquilla",
+    "diplomados tech Colombia",
+    "educación tecnológica vanguardia",
+    "formación tech Caribe",
+    "aprender tecnología Barranquilla",
+    "cursos tecnología calidad",
+    "centro formación tech Caribe colombiano",
+    "programación Caribe",
+    "tecnología vanguardia Colombia",
+    "inteligencia artificial",
+    "análisis de datos",
+    "python",
+    "agentes IA",
+    "javascript",
+    "react",
+    "diseño",
+    "figma",
+    "desarrollo web",
+    "machine learning",
+    "data science",
+    "programación python",
+    "desarrollo react",
+    "diseño UI/UX",
+    "análisis datos python",
+    "inteligencia artificial Colombia",
+    "cursos python Barranquilla",
+    "cursos react Caribe",
+    "diseño figma Barranquilla",
+  ],
   authors: [{ name: "Tech Centre" }],
   creator: "Tech Centre",
   publisher: "Tech Centre",
@@ -43,21 +74,21 @@ export const metadata: Metadata = {
     locale: "es_CO",
     url: "/",
     siteName: "Tech Centre",
-    title: "Tech Centre - Centro de tecnología del Caribe",
-    description: "Formamos a los profesionales tech del futuro con programas prácticos y actualizados.",
+    title: "Tech Centre - Centro de Tecnología del Caribe | Educación Tech de Vanguardia",
+    description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
     images: [
       {
         url: "/tech-center-logos/TechCentreLogoColor.png",
         width: 1200,
         height: 630,
-        alt: "Tech Centre Logo",
+        alt: "Tech Centre - Centro de Tecnología del Caribe",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tech Centre - Centro de tecnología del Caribe",
-    description: "Formamos a los profesionales tech del futuro con programas prácticos y actualizados.",
+    title: "Tech Centre - Centro de Tecnología del Caribe | Educación Tech de Vanguardia",
+    description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
     images: ["/tech-center-logos/TechCentreLogoColor.png"],
   },
   robots: {
@@ -87,10 +118,24 @@ export default async function RootLayout({
   const { data: { session } } = await supabase.auth.getSession();
 
   return (
-    <html lang="en">
+    <html lang="es">
      <body
         className={`${leagueSpartan.variable} ${poppins.variable} antialiased`}
       >
+        <OrganizationSchema
+          address={{
+            addressLocality: "Barranquilla",
+            addressRegion: "Atlántico",
+            addressCountry: "CO",
+          }}
+        />
+        <EducationalOrganizationSchema
+          address={{
+            addressLocality: "Barranquilla",
+            addressRegion: "Atlántico",
+            addressCountry: "CO",
+          }}
+        />
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-YCK2DMSV9J"

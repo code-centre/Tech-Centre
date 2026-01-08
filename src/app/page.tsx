@@ -8,21 +8,49 @@ import HeroCarrusel from "@/components/HeroCarrusel";
 import { AliadosSection } from '@/components/aliadosSection';
 import heroData from '../../data/herocarrusel.json'
 import AcademicOffer from "@/sections/AcademicOffer";
+import { LocalBusinessSchema } from "@/components/seo/StructuredData";
 
 export const metadata: Metadata = {
-  title: "Inicio",
-  description: "Tech Centre - Formamos a los profesionales tech del futuro con programas prácticos y actualizados. Descubre nuestros diplomados y cursos especializados en tecnología diseñados para el mercado laboral actual en Barranquilla, Colombia.",
-  keywords: ["tecnología", "programación", "diplomados tech", "cursos especializados", "educación tecnológica", "Barranquilla", "Colombia", "formación profesional"],
+  title: "Tech Centre - Centro de Tecnología del Caribe | Educación Tech de Vanguardia",
+  description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia. Cursos de inteligencia artificial, análisis de datos, Python, JavaScript, React, diseño y más.",
+  keywords: [
+    "centro tecnología Caribe",
+    "cursos programación Barranquilla",
+    "diplomados tech Colombia",
+    "educación tecnológica vanguardia",
+    "formación tech Caribe",
+    "aprender tecnología Barranquilla",
+    "cursos tecnología calidad",
+    "inteligencia artificial",
+    "análisis de datos",
+    "python",
+    "javascript",
+    "react",
+    "diseño",
+    "figma",
+    "agentes IA",
+    "machine learning",
+    "data science",
+    "desarrollo web",
+    "programación python",
+    "desarrollo react",
+    "diseño UI/UX",
+    "análisis datos python",
+    "inteligencia artificial Colombia",
+    "cursos python Barranquilla",
+    "cursos react Caribe",
+    "diseño figma Barranquilla",
+  ],
   openGraph: {
-    title: "Tech Centre - Formación Tech para el Futuro",
-    description: "Formamos a los profesionales tech del futuro con programas prácticos y actualizados.",
+    title: "Tech Centre - Centro de Tecnología del Caribe | Educación Tech de Vanguardia",
+    description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
     type: "website",
     images: [
       {
         url: "/tech-center-logos/TechCentreLogoColor.png",
         width: 1200,
         height: 630,
-        alt: "Tech Centre - Formación Tech",
+        alt: "Tech Centre - Centro de Tecnología del Caribe",
       },
     ],
   },
@@ -31,6 +59,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
+      <LocalBusinessSchema />
       <HeroCarrusel 
         items={heroData}
         type="hero"
