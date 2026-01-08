@@ -13,11 +13,21 @@ const nextConfig: NextConfig = {
         hostname: '*.supabase.co',
         pathname: '/**',
       },
-    ],
-    domains: [
-      'th3.googleusercontent.com',
-      'lh3.googleusercontent.com', 
-      'jyrtclndzwhslfydadna.supabase.co'
+      {
+        protocol: 'https',
+        hostname: 'th3.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'jyrtclndzwhslfydadna.supabase.co',
+        pathname: '/**',
+      },
     ],
   }
 };

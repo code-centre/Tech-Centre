@@ -32,7 +32,7 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from('profiles')
           .select('*');
 
@@ -86,7 +86,7 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
     if (!editingProfile) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('profiles')
         .update({
           first_name: editingProfile.first_name,
@@ -211,7 +211,7 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
                   onClick={async () => {
                     if (window.confirm('¿Estás seguro de que deseas eliminar este perfil?')) {
                       try {
-                        const { error } = await supabase
+                        const { error } = await (supabase as any)
                           .from('profiles')
                           .delete()
                           .eq('id', profile.id);

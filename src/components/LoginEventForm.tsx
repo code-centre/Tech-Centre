@@ -10,6 +10,7 @@ import useUserStore from "@/../store/useUserStore"
 import Link from "next/link"
 import AlertModal from "./AlertModal"
 import SignInWithGoogle from "./SignInWithGoogle"
+import type { User } from "@/types/supabase"
 
 interface LoginEventFormProps {
   onLogin: () => void

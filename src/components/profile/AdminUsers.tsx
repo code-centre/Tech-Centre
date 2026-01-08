@@ -3,6 +3,7 @@ import UserTable from './UserTable'
 import UserFilter from './UserFilter'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../../../firebase'
+import type { User } from '@/types/supabase'
 
 const UserDashboard = () => {
   const [users, setUsers] = useState<User[] | []>([])
@@ -25,8 +26,8 @@ const UserDashboard = () => {
 
     // console.log(speakers);
 
-    setUsers([...users].sort((a, b) => a.name.localeCompare(b.name)));
-    setFilteredUsers([...users].sort((a, b) => a.name.localeCompare(b.name)))
+    setUsers([...users].sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+    setFilteredUsers([...users].sort((a, b) => (a.name || '').localeCompare(b.name || '')))
   }
 
   useEffect(() => {
@@ -40,7 +41,7 @@ const UserDashboard = () => {
         (user.email || '').toLowerCase().includes(filterText.toLowerCase()) ||
         (user.rol || '').toLowerCase().includes(filterText.toLowerCase())
     )
-    setFilteredUsers(filtered.sort((a, b) => a.name.localeCompare(b.name)))
+    setFilteredUsers(filtered.sort((a, b) => (a.name || '').localeCompare(b.name || '')))
   }, [filterText, users])
   return (
     <div className="w-full mx-auto p-6 md:py-12">

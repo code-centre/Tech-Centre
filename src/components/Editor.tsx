@@ -63,16 +63,16 @@ const Editor: React.FC<EditorComponentProps> = ({ value, onChange, onSave, onCan
         config={editorConfig}
         onChange={handleChange}
       />
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <button
           onClick={onSave}
-          className="self-start bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-800 hover:border-gray-600 transition-colors duration-200"
         >
           Guardar
         </button>
         <button
           onClick={onCancel}
-          className="self-start bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          className="px-4 py-2 text-sm font-medium text-gray-400 bg-transparent border border-gray-700 rounded-md hover:bg-gray-800/30 hover:border-gray-600 transition-colors duration-200"
         >
           Cancelar
         </button>

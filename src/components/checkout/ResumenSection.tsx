@@ -1,346 +1,487 @@
 'use client'
-import { db } from '@/../firebase'
-// import useUserStore from '@/../store/useUserStore'
-import { addDoc, collection, doc, getDocs, query, serverTimestamp, setDoc, Timestamp, updateDoc, where } from 'firebase/firestore'
-import { ArrowLeft, Info, X } from 'lucide-react'
+
 import { useRouter } from 'next/navigation'
-import React, { useState, useEffect } from 'react'
-import Modal from './Modal'
-// import AuthModal from '../../AuthModal'
-import Image from 'next/image'
-// import AlertModal from '../AlertModal'
-import Discounts from './Discounts'
+import React, { useState } from 'react'
+import DiscountCoupon from './DiscountCoupon'
+import QuickSignUp from './QuickSignUp'
+import PaymentMethodDropdown from './PaymentMethodDropdown'
 import { supabase } from '@/lib/supabase'
+import { getPaymentProvider } from '@/lib/payments/payment-factory'
+import { calculatePrice, calculateInstallments } from '@/lib/pricing/price-calculator'
+import { incrementCouponUses } from '@/lib/discounts/coupon-service'
+import { useUser } from '@/lib/supabase'
+import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service'
+import type { Program } from '@/types/programs'
 
 interface Props {
-  data: any
+  data: Program
   slugProgram: string | null
-  ticket: Ticket | null
   subtotal: number | null
   quantity: number
-  eventId: string | null
-  selectedSchedule: string | null
-  period: string | null
-  setQuantity: (quantity: number) => void
-  setShowQuantity: (showQuantity: boolean) => void
-  isShort?: boolean
-  user?: User | null
-  selectedCohortId: number | null;
-  selectedInstallments: number;
+  paymentMethod: 'full' | 'installments' | null
+  setPaymentMethod: (value: 'full' | 'installments' | null) => void
+  selectedCohortId: number | null
+  selectedInstallments: number
+  setSelectedInstallments: (installments: number) => void
+  setSubtotal: (value: number | null) => void
+  matriculaAdded: boolean
+  matriculaAmount?: number
+  couponCode?: string | null
+  className?: string
 }
 
-export default function ResumenSection({ data, slugProgram, setQuantity, setShowQuantity, ticket, subtotal, quantity, eventId, selectedSchedule, period, isShort, user, selectedCohortId, selectedInstallments }: Props) {
-  
+export default function ResumenSection({
+  data,
+  slugProgram,
+  subtotal,
+  quantity,
+  paymentMethod,
+  setPaymentMethod,
+  selectedCohortId,
+  selectedInstallments,
+  setSelectedInstallments,
+  setSubtotal,
+  matriculaAdded,
+  matriculaAmount = 0,
+  className,
+}: Props) {
   const router = useRouter()
+  const { user, refreshUser } = useUser()
   const [discount, setDiscount] = useState<number>(0)
-  const [errorDiscount, setErrorDiscount] = useState<string | null>(null)
-  const [discountCode, setDiscountCode] = useState<string | null>(null)
-  const [discountSuccess, setDiscountSuccess] = useState<boolean | null>(null)
-  const [showModal, setShowModal] = useState<boolean>(false)
+  const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null)
+  const [showQuickSignUp, setShowQuickSignUp] = useState<boolean>(false)
   const [disableButton, setDisableButton] = useState<boolean>(false)
-  const [typeUser, setTypeUser] = useState<string | null>(null)
-  // const [isVip, setIsVip] = useState<boolean>(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const paymentCount = selectedInstallments; // Usa el valor de las cuotas seleccionadas
+  const [error, setError] = useState<string | null>(null)
 
-  const [alertState, setAlertState] = useState({
-    isOpen: false,
-    title: "",
-    description: "",
-  });
-  console.log('selectedCohortId: en ResumenSection', selectedCohortId);
-  console.log('selectedInstallments: en ResumenSection', selectedInstallments);
+  const handlePriceChange = (price: number) => {
+    setSubtotal(price)
+  }
 
-  useEffect(() => {
-    if (!period) {
-      setDiscount(0)
-    }
-  }, [period])
+  // Calcular precio final usando la calculadora
+  const priceCalculation = subtotal && paymentMethod
+    ? calculatePrice({
+        basePrice: subtotal,
+        paymentMethod,
+        installments: paymentMethod === 'installments' ? selectedInstallments : undefined,
+        couponDiscount: discount,
+        quantity,
+      })
+    : null
 
-  const handleLoginSucces = () => {
-    setIsModalOpen(false);
-    setTimeout(() => {
-      setAlertState({
-        isOpen: true,
-        title: "Inicio de sesión exitoso",
-        description: "¡Bienvenido de vuelta!",
-      });
-    }, 200);
+  // Calcular total incluyendo matrícula si está agregada
+  const totalAmount = (priceCalculation?.total || 0) + (matriculaAdded ? matriculaAmount : 0)
+
+  const handleCouponApplied = (couponCode: string) => {
+    setAppliedCouponCode(couponCode)
   }
 
   const handleGetLinkToPay = async () => {
-  setDisableButton(true);
-  
-  try {
-    if (!user) {
-      throw new Error('Usuario no autenticado');
-    }
+    setDisableButton(true)
+    setError(null)
 
-    if (!subtotal) {
-      throw new Error('Subtotal no definido');
-    }
-
-    const totalAmount = subtotal - discount;
-    // const amountPerPayment = totalAmount / paymentCount;
-
-    // En tu función handleGetLinkToPay, reemplaza la validación actual con:
-console.log('Datos del producto recibidos:', {
-  name: data?.name,
-  subtitle: data?.subtitle,
-  kind: data?.kind,
-  dataCompleta: data // Mostrar todos los datos disponibles
-});
-
-if (!data) {
-  throw new Error('No se encontraron datos del producto');
-}
-
-const requiredFields = ['name', 'subtitle', 'kind'];
-const missingFields = requiredFields.filter(field => !data[field]);
-
-if (missingFields.length > 0) {
-  throw new Error(`Faltan campos requeridos: ${missingFields.join(', ')}`);
-}
-
-    // 2. Crear el pago en Wompi
-    console.log('Creando pago en Wompi...');
-    const resp = await createPaymentId(
-      totalAmount, 
-      `${data.name} - ${data.subtitle}`, 
-      data.kind
-    );
-
-    if (!resp?.id) {
-      throw new Error('No se pudo crear el pago en Wompi');
-    }
-
-const { data: enrollment, error: enrollmentError } = await supabase
-  .from('enrollments')
-  .insert({
-    cohort_id: selectedCohortId,  // Asegúrate de que esto sea un bigint
-    student_id: user.id,  // Asegúrate de que user.id sea un UUID
-    status: 'pending_payment',
-    agreed_price: totalAmount,  // Asegúrate de que sea un número
-  })
-  .select()
-  .single();
-
-if (enrollmentError) {
-  console.error('Error al crear matrícula:', enrollmentError);
-  throw new Error(`Error al crear la matrícula: ${enrollmentError.message}`);
-}
-
-    // 3. Preparar las facturas
-const currentDate = new Date();
-// Calcular el monto de cada cuota
-const baseAmount = Number(data.discount) || Number(data.default_price);
-if (isNaN(baseAmount) || baseAmount <= 0) {
-  throw new Error('El monto base no es válido');
-}
-
-if (!paymentCount || paymentCount < 1) {
-  throw new Error('El número de cuotas no es válido');
-}
-
-const amountPerPayment = Number((baseAmount / paymentCount).toFixed(2));
-
-// Crear las facturas
-const invoices = Array.from({ length: paymentCount }).map((_, index) => {
-  const dueDate = new Date();
-  dueDate.setMonth(dueDate.getMonth() + index);
-  
-  // Calcular el monto de la cuota
-  let paymentAmount;
-  if (index === paymentCount - 1) {
-    // Para la última cuota, asegurarse de que la suma sea exacta
-    const previousPayments = amountPerPayment * index;
-    paymentAmount = Number((baseAmount - previousPayments).toFixed(2));
-  } else {
-    paymentAmount = amountPerPayment;
-  }
-
-  // Validar que el monto sea un número válido
-  if (isNaN(paymentAmount) || paymentAmount <= 0) {
-    console.error('Monto de pago inválido:', {
-      index,
-      paymentAmount,
-      baseAmount,
-      amountPerPayment
-    });
-    throw new Error(`El monto de la cuota ${index + 1} no es válido`);
-  }
-
-  return {
-    enrollment_id: enrollment.id,
-    label: `Pago ${index + 1} de ${paymentCount} - ${data.name}`,
-    amount: paymentAmount,
-    due_date: dueDate.toISOString().split('T')[0],
-    status: 'pending',
-    meta: {
-      payment_id: resp.id,
-      product_type: isShort ? 'event' : 'program',
-      product_id: slugProgram || eventId || 'unknown',
-      user_id: user.id,
-      payment_number: index + 1,
-      total_payments: paymentCount
-    }
-  };
-});
-
-    // 4. Insertar facturas en Supabase
-    // Reemplaza la inserción con:
-console.log('Insertando facturas en Supabase...');
-const { data: createdInvoices, error: invoiceError } = await supabase
-  .from('invoices')
-  .insert(invoices)
-  .select();
-
-if (invoiceError) {
-  console.error('Error detallado de Supabase:', {
-    message: invoiceError.message,
-    details: invoiceError.details,
-    hint: invoiceError.hint,
-    code: invoiceError.code
-  });
-  throw new Error(`Error al crear facturas: ${JSON.stringify(invoiceError, null, 2)}`);
-}
-
-if (!createdInvoices || createdInvoices.length === 0) {
-  throw new Error('No se recibió confirmación de la creación de facturas');
-}
-
-console.log(`${createdInvoices.length} facturas creadas exitosamente:`, createdInvoices);
-
-    // 5. Redirigir al pago
-    console.log('Redirigiendo a Wompi...');
-    router.push(`https://checkout.wompi.co/l/${resp.id}`);
-
-  } catch (error) {
-    console.error('Error en handleGetLinkToPay:', {
-      error,
-      message: error instanceof Error ? error.message : 'Error desconocido',
-      stack: error instanceof Error ? error.stack : undefined
-    });
-    
-    setAlertState({
-      isOpen: true,
-      title: "Error",
-      description: error instanceof Error 
-        ? `Error: ${error.message}` 
-        : "Ocurrió un error al procesar tu solicitud. Por favor, inténtalo de nuevo.",
-    });
-  } finally {
-    setDisableButton(false);
-  }
-};
-
-  // Ajuste de estética: glassmorphism, fondo oscuro, bordes, sombras y colores coherentes
-  return (
-    <div className='bg-bgCard/80 backdrop-blur-md w-full flex flex-col gap-5 pt-16 md:pt-24 px-6 md:px-20 lg:px-14 pb-10 lg:pb-0 rounded-2xl shadow-2xl border border-blue-100/20 max-w-xl'>
-      <h2 className='text-4xl font-bold font-mono text-blueApp'>Resumen de pago</h2>
-      <div className='border-b border-blueApp/20 h-1'></div>
-      <div className='flex flex-col md:flex-row justify-between'>
-        <div className='flex gap-2'>
-          <Image
-            src={isShort ? data.heroImage : data.image}
-            alt={isShort ? data.title : data.name}
-            width={64}
-            height={64}
-            unoptimized // puedes quitar esto si usas imágenes del /public
-            className="w-32 h-32 rounded-md object-cover bg-center border border-blueApp/10 shadow-lg"
-          />
-          <div>
-            {
-              isShort
-                ? <p className='font-semibold text-white'>{data.title}</p>
-                : <p className='font-semibold max-w-64 text-white'>{data.name}</p>
-            }
-            {
-              isShort
-                ?
-                <span className='text-blueApp/80'>{data.type.charAt(0).toUpperCase() + data.type.slice(1)}</span>
-                :
-                <div className='flex flex-col text-sm'>
-                  <span className='text-blueApp/80'>{data.subtitle}</span>
-                  {/* <span className='text-blueApp/60'>Batch 02</span> */}
-                </div>
-            }
-          </div>
-        </div>
-        <div className='mt-5 md:mt-0'>
-          <p className='font-semibold text-blueApp text-xl'>
-            ${data.default_price?.toLocaleString()}
-          </p>
-          <span className='text-blueApp/70'>COP</span>
-        </div>
-      </div>
-      <div className='border-b border-blueApp/20 h-1'></div>
-
-      <Discounts setShowQuantity={setShowQuantity} setQuantity={setQuantity} subtotal={subtotal} quantity={quantity} discount={discount} setDiscount={setDiscount} ticket={ticket} slugProgram={slugProgram} eventId={eventId} data={data} isShort={isShort} />
-
-      <div className='border-b border-blueApp/20 h-1'></div>
-      <div className='flex justify-between items-center'>
-        <p className='font-semibold text-white'>Subtotal</p>
-        <p className='text-white'>{subtotal ? `$${subtotal.toLocaleString()}` : 'Sin elegir'}</p>
-      </div>
-      <div className='flex justify-between items-center'>
-        <p className='font-semibold text-white'>Descuento</p>
-        <p className='text-blueApp'>${discount?.toLocaleString()}</p>
-      </div>
-      <div className='border-b border-blueApp/20 h-1'></div>
-      <div className='flex justify-between items-center'>
-        <div>
-          <p className='font-semibold text-white'>Total</p>
-          <span className='text-blueApp/70 text-sm'>Pago por {isShort ? 'curso especializado' : 'diplomado'}</span>
-        </div>
-        <p className='font-semibold text-3xl md:text-4xl text-blueApp'>{subtotal ? `$${(subtotal - discount).toLocaleString()}` : 'Sin elegir'}</p>
-      </div>
-
-      <button onClick={() => {
-        if (!user) {
-          setIsModalOpen(true)
-          return
-        }
-        setShowModal(true)
-      }} disabled={slugProgram ? !subtotal || !selectedSchedule : !discountCode && ticket?.price !== 80000 && eventId === '0AV0Wdoz4lj57CbZ94eT' ? true : !subtotal} className='bg-blueApp py-3 disabled:bg-gray-400 text-white text-xl font-semibold my-5 rounded-md shadow-lg hover:bg-blueApp/90 transition-colors'>Pagar {subtotal ? `$${(subtotal - discount).toLocaleString()}` : '$0'}</button>
-      <p className='text-blueApp/70 text-sm'>Tus datos personales se utilizarán para procesar tu pedido, respaldar tu experiencia en este sitio web y para otros fines descritos en nuestra política de privacidad.</p>
-      {/* <AuthModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onLogin={handleLoginSucces} /> */}
-
-      {
-        showModal && (
-          <Modal disableButton={disableButton} slugProgram={slugProgram} titleEntity={slugProgram ? data.name : data.title} handleGoToPay={handleGetLinkToPay} quantity={quantity} setShowModal={setShowModal} eventId={eventId} />
-        )
+    try {
+      if (!user) {
+        throw new Error('Debes iniciar sesión para continuar con la inscripción.')
       }
 
-      {/* <AlertModal
-        isOpen={alertState.isOpen}
-        onClose={() => setAlertState({ isOpen: false, title: "", description: "" })}
-        title={alertState.title}
-        description={alertState.description}
-      /> */}
-    </div>)
-}
+      if (!subtotal || subtotal <= 0) {
+        throw new Error('El precio del programa no está disponible. Por favor, intenta nuevamente.')
+      }
 
-const createPaymentId = async (amount: number, name: string, type: string) => {
-  try {
-    const resp = await fetch(`https://${process.env.NEXT_PUBLIC_MODE_WOMPI}.wompi.co/v1/payment_links`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_WOMPI_SECRET_KEY}`,
-      },
-      body: JSON.stringify({
-        name,
-        description: 'Inscripción para' + type,
-        single_use: true,
-        collect_shipping: false,
-        amount_in_cents: amount * 100,
-        currency: "COP",
-        redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/confirmacion`,
-      }),
-    });
-    const createdLink = await resp.json();
-    return createdLink.data;
-  } catch (err) {
-    console.log(err);
+      if (!selectedCohortId) {
+        throw new Error('Por favor, selecciona un horario para continuar.')
+      }
+
+      if (!paymentMethod) {
+        throw new Error('Por favor, selecciona un método de pago para continuar.')
+      }
+
+      if (!data) {
+        throw new Error('No se encontraron datos del programa. Por favor, intenta nuevamente.')
+      }
+
+      const requiredFields = ['name', 'subtitle', 'kind']
+      const missingFields = requiredFields.filter((field) => !data[field as keyof Program])
+
+      if (missingFields.length > 0) {
+        throw new Error('La información del programa está incompleta. Por favor, intenta nuevamente.')
+      }
+
+      // 1. Crear enrollment o usar uno existente con pending_payment
+      let enrollment
+      const { data: newEnrollment, error: enrollmentError } = await (supabase as any)
+        .from('enrollments')
+        .insert({
+          cohort_id: selectedCohortId,
+          student_id: user.id,
+          status: 'pending_payment',
+          agreed_price: totalAmount,
+        })
+        .select()
+        .single()
+
+      if (enrollmentError) {
+        console.error('Error al crear matrícula:', enrollmentError)
+        
+        // Manejar errores específicos con mensajes amigables
+        if (enrollmentError.code === '23505') {
+          // Violación de constraint único (duplicado)
+          if (enrollmentError.message?.includes('enrollments_cohort_id_student_id_key')) {
+            // Verificar si existe un enrollment con estado pending_payment
+            const { data: existingEnrollment, error: fetchError } = await (supabase as any)
+              .from('enrollments')
+              .select('*')
+              .eq('cohort_id', selectedCohortId)
+              .eq('student_id', user.id)
+              .single()
+
+            if (!fetchError && existingEnrollment) {
+              if (existingEnrollment.status === 'pending_payment') {
+                // Usar el enrollment existente y actualizar el precio acordado
+                enrollment = existingEnrollment
+                
+                // Actualizar el precio acordado por si cambió
+                const { error: updateError } = await (supabase as any)
+                  .from('enrollments')
+                  .update({ agreed_price: totalAmount })
+                  .eq('id', enrollment.id)
+
+                if (updateError) {
+                  console.warn('No se pudo actualizar el precio del enrollment:', updateError)
+                }
+              } else {
+                // El enrollment existe pero no está en pending_payment
+                throw new Error('Ya estás inscrito en este programa. Si necesitas ayuda, por favor contacta con nuestro equipo de soporte.')
+              }
+            } else {
+              throw new Error('Ya existe una inscripción para este programa. Por favor, verifica tus inscripciones activas.')
+            }
+          } else {
+            throw new Error('Ya existe una inscripción para este programa. Por favor, verifica tus inscripciones activas.')
+          }
+        } else if (enrollmentError.code === '23503') {
+          // Violación de foreign key
+          throw new Error('El programa o cohorte seleccionado no está disponible. Por favor, intenta con otro programa.')
+        } else if (enrollmentError.code === '23514') {
+          // Violación de check constraint
+          throw new Error('Los datos proporcionados no son válidos. Por favor, verifica la información e intenta nuevamente.')
+        } else {
+          // Error genérico con mensaje más amigable
+          throw new Error('No pudimos procesar tu inscripción en este momento. Por favor, intenta nuevamente o contacta con soporte si el problema persiste.')
+        }
+      } else {
+        enrollment = newEnrollment
+      }
+
+      // Si no hay enrollment al final, lanzar error
+      if (!enrollment) {
+        throw new Error('No se pudo crear o recuperar la inscripción. Por favor, intenta nuevamente.')
+      }
+
+      // 2. Crear link de pago usando PaymentProvider
+      const paymentProvider = getPaymentProvider()
+      
+      // Calcular el monto del primer pago: si es a cuotas, solo el primer pago; si es de contado, el total
+      let paymentAmount = totalAmount
+      if (paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation?.installmentAmount) {
+        // Si hay matrícula agregada, dividirla también entre las cuotas
+        const matriculaPerInstallment = matriculaAdded ? matriculaAmount / selectedInstallments : 0
+        paymentAmount = priceCalculation.installmentAmount + matriculaPerInstallment
+      }
+      
+      let paymentLink
+      try {
+        paymentLink = await paymentProvider.createPaymentLink({
+          amount: Math.round(paymentAmount), // Redondear para evitar decimales
+          name: `${data.name} - ${data.subtitle}`,
+          description: `Inscripción para ${data.kind || 'programa'}`,
+          redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/confirmacion?id=${enrollment.id}`,
+          metadata: {
+            enrollment_id: enrollment.id,
+            program_id: data.id,
+            cohort_id: selectedCohortId,
+            payment_method: paymentMethod,
+            installments: selectedInstallments,
+          },
+        })
+      } catch (paymentError) {
+        console.error('Error al crear link de pago:', paymentError)
+        // Si falla la creación del link de pago, eliminar el enrollment creado
+        try {
+          await (supabase as any)
+            .from('enrollments')
+            .delete()
+            .eq('id', enrollment.id)
+        } catch (deleteError) {
+          console.error('Error al eliminar enrollment:', deleteError)
+        }
+        
+        throw new Error('No pudimos generar el link de pago. Por favor, intenta nuevamente o contacta con soporte.')
+      }
+
+      // 3. Crear facturas si es pago a cuotas (se crearán como 'pending', se marcarán como 'paid' en la confirmación)
+      if (paymentMethod === 'installments' && selectedInstallments > 1) {
+        const installments = calculateInstallments(totalAmount, selectedInstallments)
+
+        const invoices = installments.map((installment) => ({
+          enrollment_id: enrollment.id,
+          label: `Pago ${installment.number} de ${selectedInstallments} - ${data.name}`,
+          amount: installment.amount,
+          due_date: installment.dueDate,
+          status: 'pending', // Se marcará como 'paid' en la página de confirmación cuando el pago sea exitoso
+          meta: {
+            payment_id: paymentLink.id,
+            product_type: 'program',
+            product_id: slugProgram || data.code?.toString() || 'unknown',
+            user_id: user.id,
+            payment_number: installment.number,
+            total_payments: selectedInstallments,
+            payment_method: paymentMethod,
+            coupon_code: appliedCouponCode || null,
+            matricula_added: matriculaAdded,
+            matricula_amount: matriculaAmount || 0,
+          },
+        }))
+
+        const { error: invoiceError } = await (supabase as any)
+          .from('invoices')
+          .insert(invoices)
+
+        if (invoiceError) {
+          console.error('Error al crear facturas:', invoiceError)
+          // No lanzamos error aquí porque el enrollment ya se creó
+        }
+      } else {
+        // Pago de contado: crear un invoice pendiente que se marcará como pagado en la confirmación
+        const invoice = {
+          enrollment_id: enrollment.id,
+          label: `Pago completo - ${data.name}`,
+          amount: totalAmount,
+          due_date: new Date().toISOString().split('T')[0],
+          status: 'pending', // Se marcará como 'paid' en la página de confirmación
+          meta: {
+            payment_id: paymentLink.id,
+            product_type: 'program',
+            product_id: slugProgram || data.code?.toString() || 'unknown',
+            user_id: user.id,
+            payment_number: 1,
+            total_payments: 1,
+            payment_method: paymentMethod,
+            coupon_code: appliedCouponCode || null,
+            matricula_added: matriculaAdded,
+            matricula_amount: matriculaAmount || 0,
+          },
+        }
+
+        const { error: invoiceError } = await (supabase as any)
+          .from('invoices')
+          .insert([invoice])
+
+        if (invoiceError) {
+          console.error('Error al crear invoice:', invoiceError)
+        }
+      }
+
+      // 4. Redirigir al checkout del proveedor
+      router.push(paymentLink.url)
+    } catch (err) {
+      console.error('Error en handleGetLinkToPay:', err)
+      
+      // Mensaje de error más amigable
+      let errorMessage = 'Ocurrió un error al procesar tu solicitud. Por favor, inténtalo de nuevo.'
+      
+      if (err instanceof Error) {
+        errorMessage = err.message
+      } else if (typeof err === 'string') {
+        errorMessage = err
+      }
+      
+      setError(errorMessage)
+    } finally {
+      setDisableButton(false)
+    }
   }
-};
+
+  const isFormValid = subtotal && paymentMethod && selectedCohortId
+
+  // Calcular subtotal antes de cupón (subtotal + matrícula - descuento por contado)
+  const subtotalBeforeCoupon = (subtotal || 0) + 
+    (matriculaAdded ? matriculaAmount : 0) - 
+    (priceCalculation?.paymentMethodDiscount || 0)
+
+  return (
+    <div className={`bg-bgCard/80 backdrop-blur-md w-full flex flex-col gap-5 p-6 rounded-2xl shadow-2xl border border-blue-100/20 max-w-xl ${className || ''}`}>
+      <h2 className="text-4xl font-bold font-mono text-blueApp">Resumen de pago</h2>
+      <div className="border-b border-blueApp/20 h-1"></div>
+
+      {/* Listado de conceptos */}
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold text-white mb-3">Conceptos</h3>
+        
+        {/* Subtotal del programa */}
+        <div className="flex justify-between items-center">
+          <p className="text-gray-300 text-sm">Subtotal del programa</p>
+          <p className="text-white font-semibold">
+            {subtotal ? `$${subtotal.toLocaleString()}` : 'Sin elegir'}
+          </p>
+        </div>
+
+        {/* Matrícula anual */}
+        {matriculaAdded && matriculaAmount > 0 && (
+          <div className="flex justify-between items-center">
+            <p className="text-gray-300 text-sm">Matrícula anual</p>
+            <p className="text-white font-semibold">
+              ${matriculaAmount.toLocaleString()}
+            </p>
+          </div>
+        )}
+
+        {/* Descuento por pago de contado */}
+        {priceCalculation && priceCalculation.paymentMethodDiscount > 0 && (
+          <div className="flex justify-between items-center">
+            <p className="text-gray-300 text-sm">Descuento por pago de contado</p>
+            <p className="text-emerald-400 font-semibold">
+              -${priceCalculation.paymentMethodDiscount.toLocaleString()}
+            </p>
+          </div>
+        )}
+
+        {/* Subtotal antes de cupón */}
+        {subtotal && (
+          <div className="flex justify-between items-center pt-2 border-t border-zinc-700/50">
+            <p className="text-gray-300 text-sm font-medium">Subtotal</p>
+            <p className="text-white font-semibold">
+              ${subtotalBeforeCoupon.toLocaleString()}
+            </p>
+          </div>
+        )}
+
+        {/* Descuento por cupón */}
+        {discount > 0 && (
+          <div className="flex justify-between items-center">
+            <p className="text-gray-300 text-sm">Descuento por cupón</p>
+            <p className="text-emerald-400 font-semibold">
+              -${discount.toLocaleString()}
+            </p>
+          </div>
+        )}
+
+        {/* Ahorro total */}
+        {priceCalculation && priceCalculation.savings && priceCalculation.savings > 0 && (
+          <div className="flex justify-between items-center pt-2 border-t border-zinc-700/50">
+            <p className="text-emerald-400 text-sm font-semibold">Ahorro total</p>
+            <p className="text-emerald-400 font-bold">
+              ${priceCalculation.savings.toLocaleString()}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="border-b border-blueApp/20 h-1"></div>
+
+      {/* Código de descuento */}
+      {data.id && (
+        <DiscountCoupon
+          programId={data.id}
+          subtotal={subtotal || 0}
+          onDiscountChange={setDiscount}
+          onCouponApplied={handleCouponApplied}
+        />
+      )}
+
+      <div className="border-b border-blueApp/20 h-1"></div>
+
+      {/* Método de pago */}
+      <PaymentMethodDropdown
+        data={data}
+        selectedCohortId={selectedCohortId}
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+        selectedInstallments={selectedInstallments}
+        setSelectedInstallments={setSelectedInstallments}
+        onPriceChange={handlePriceChange}
+      />
+
+      <div className="border-b border-blueApp/20 h-1"></div>
+
+      {/* Mensaje de error */}
+      {error && (
+        <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 mt-0.5">
+              <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p className="text-red-400 font-medium mb-1">Error al procesar la inscripción</p>
+              <p className="text-red-300 text-sm">{error}</p>
+            </div>
+            <button
+              onClick={() => setError(null)}
+              className="shrink-0 text-red-400 hover:text-red-300 transition-colors"
+              aria-label="Cerrar mensaje de error"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Botón de pago */}
+      <button
+        onClick={() => {
+          if (!user) {
+            setShowQuickSignUp(true)
+            return
+          }
+          handleGetLinkToPay()
+        }}
+        disabled={!isFormValid || disableButton}
+        className="bg-blueApp py-3 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-xl font-semibold my-5 rounded-md shadow-lg hover:bg-blueApp/90 transition-colors"
+      >
+        {disableButton 
+          ? 'Procesando...' 
+          : (() => {
+              // Calcular el monto a mostrar: primera cuota si es a cuotas, total si es de contado
+              // Incluir matrícula en el cálculo si está agregada
+              let amountToShow = 0
+              if (priceCalculation) {
+                if (paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation.installmentAmount) {
+                  // Si hay matrícula agregada, dividirla también entre las cuotas
+                  const matriculaPerInstallment = matriculaAdded ? matriculaAmount / selectedInstallments : 0
+                  amountToShow = priceCalculation.installmentAmount + matriculaPerInstallment
+                } else {
+                  amountToShow = totalAmount
+                }
+              } else {
+                amountToShow = totalAmount
+              }
+              return `Pagar ${amountToShow > 0 ? `$${Math.round(amountToShow).toLocaleString()}` : '$0'}`
+            })()}
+      </button>
+
+      <p className="text-blueApp/70 text-xs">
+        Tus datos personales se utilizarán para procesar tu pedido, respaldar tu experiencia en este sitio web y para otros fines descritos en nuestra política de privacidad.
+      </p>
+
+      {/* QuickSignUp Modal */}
+      {showQuickSignUp && (
+        <QuickSignUp
+          onSuccess={() => {
+            setShowQuickSignUp(false)
+            // Refrescar para obtener el usuario actualizado
+            router.refresh()
+            // El usuario ahora está autenticado, proceder con el pago después de un breve delay
+            setTimeout(() => {
+              handleGetLinkToPay()
+            }, 1000)
+          }}
+          onCancel={() => setShowQuickSignUp(false)}
+        />
+      )}
+    </div>
+  )
+}

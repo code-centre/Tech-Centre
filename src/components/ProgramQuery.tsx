@@ -1,15 +1,10 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import type { Program } from '@/types/programs';
 
-export interface Program {
-  id: number;
-  name: string;
-  slug: string;
-  is_active: boolean;
-  code: string;
-  // Agrega más campos según necesites
-}
+// Re-exportar Program para compatibilidad con código existente
+export type { Program }
 
 function ProgramQuery({ onProgramsLoaded }: { onProgramsLoaded: (programs: any[]) => void }) {
   useEffect(() => {
@@ -28,7 +23,6 @@ function ProgramQuery({ onProgramsLoaded }: { onProgramsLoaded: (programs: any[]
           return;
         }
 
-        console.log('Programas encontrados:', programs);
         onProgramsLoaded(programs || []);
       } catch (error) {
         console.error('Error en la consulta:', error);

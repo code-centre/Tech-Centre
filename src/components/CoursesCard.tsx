@@ -1,172 +1,129 @@
 import React from 'react'
-import { ClockIcon, User, Award} from 'lucide-react'
-import HTMLReactParser from 'html-react-parser/lib/index'
+import { ClockIcon, Award, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { formatDate } from '../../utils/formatDate'
-import { useEffect, useState } from 'react'
-
-interface EventFCA {
-  id: string
-  title?: string
-  name?: string
-  description?: string
-  image?: string
-  level?: string
-  duration?: string
-  instructor?: string
-  heroImage?: string
-  date?: string
-  slug?: string
-  status?: string
-  type?: string
-  [key: string]: any // Para cualquier otra propiedad que pueda tener el objeto
-}
 
 interface CourseCardProps {
-  title?: string
+  title: string
   description?: string
   image?: string
+  heroImage?: string
   level?: string
   duration?: string
   instructor?: string
-  heroImage?: string
   date?: string
+  slug: string
   isShort?: boolean
-  slug?: string
-  eventData?: EventFCA
-  isDraft?: boolean
 }
 
 export function CourseCard({
-  title: propTitle,
-  description: propDescription,
-  image: propImage,
-  level: propLevel,
-  duration: propDuration,
-  heroImage: propHeroImage,
-  instructor: propInstructor,
-  date: propDate,
-  isShort: propIsShort,  slug: propSlug,
-  eventData,
-  isDraft: propIsDraft,
+  title,
+  description,
+  image,
+  heroImage,
+  level = 'BÁSICO',
+  duration,
+  instructor,
+  date,
+  slug,
+  isShort = false,
 }: CourseCardProps) {
-  const [short, setShort] = useState(false)
-  
-  const title = eventData?.title || eventData?.name || propTitle || '';
-  const description = eventData?.description || propDescription || '';
-  const image = eventData?.image || propImage || '';
-  const level = eventData?.level || propLevel || 'BÁSICO';
-  const duration = eventData?.duration || propDuration || '';
-  const instructor = eventData?.instructor || propInstructor || '';
-  const heroImage = eventData?.heroImage || propHeroImage || '';
-  const date = eventData?.date || propDate || '';
-  const slug = eventData?.slug || propSlug || '';
-  const isShort = propIsShort || (eventData?.type === 'curso especializado');
-  
+  const displayImage = image || heroImage || '/placeholder-course.jpg'
+  const truncatedDescription = description 
+    ? (typeof description === 'string' 
+        ? description.replace(/<[^>]*>/g, '').substring(0, isShort ? 100 : 200) + '...'
+        : '')
+    : ''
 
-  const isDraftStatus = propIsDraft || 
-                        eventData?.isDraft || 
-                        eventData?.status === 'draft' || 
-                        eventData?.status === 'Borrador';
-
-  useEffect(() => {
-    if (isShort) {
-      setShort(true)
-    }
-  }, [isShort])
   return (
-    <div className="bg-bgCard rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-zinc-800/30 group">
-      <div className="relative">
-        <div
-          className={`absolute top-4 left-4 ${level === 'BÁSICO'
-              ? 'bg-gradient-to-r from-blueApp to-blue-600'
-              : level === 'INTERMEDIO'
-                ? 'bg-gradient-to-r from-yellow-500 to-amber-600'
-                : 'bg-gradient-to-r from-blueApp to-blue-600'
-            } text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-lg backdrop-blur-sm border border-white/10`}
-        >
-          {level}
-        </div>        
-        {isShort && (
-          <div className="absolute top-4 right-4 bg-gradient-to-r from-darkBlue to-blue-900 text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-lg backdrop-blur-sm border border-white/10">
-            CURSO ESPECIALIZADO
-          </div>
-        )}
-        {isDraftStatus && (
-          <div className="absolute bottom-4 left-0 right-0 mx-auto w-max bg-amber-600 text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-lg backdrop-blur-sm border border-white/10 flex items-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            BORRADOR
-          </div>
-        )}
-        <div className="relative overflow-hidden">
+    <Link 
+      href={`/programas-academicos/${slug}`}
+      className="block group h-full cursor-pointer"
+    >
+      <div className="bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl shadow-lg overflow-hidden transition-all duration-300 h-full flex flex-col relative border border-zinc-700/50 hover:border-blueApp/50 hover:shadow-xl hover:shadow-blueApp/20 hover:-translate-y-1 active:scale-[0.98]">
+        {/* Image Section */}
+        <div className="relative h-48 overflow-hidden bg-zinc-800">
           <Image
-            src={image || '/placeholder.jpg'} 
+            src={displayImage}
             width={500}
             height={300}
-            alt={title || 'Curso'}
-            className="w-full h-52 object-cover transition-transform duration-700 group-hover:scale-110"
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            priority={false}
           />
-          {/* Overlay gradient para mejor legibilidad */}
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/70 to-transparent opacity-60"></div>
+          <div className="absolute inset-0 bg-linear-to-t from-zinc-900/60 via-transparent to-transparent"></div>
+        </div>
+
+        {/* Content Section */}
+        <div className="p-4 flex-1 flex flex-col">
+          {/* Title Section */}
+          <div className="mb-3">
+            <h3 className="text-lg font-bold text-white mb-1 line-clamp-2 group-hover:text-blueApp transition-colors duration-300 leading-tight">
+              {title}
+            </h3>
+          </div>
+
+          {/* Description */}
+          {truncatedDescription && (
+            <div className="text-gray-400 text-xs leading-relaxed mb-3 line-clamp-4">
+              {truncatedDescription}
+            </div>
+          )}
+
+          {/* Level badge */}
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <div className={`text-xs font-bold px-2 py-1 rounded-md border ${
+              level === 'BÁSICO'
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                : level === 'INTERMEDIO'
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                  : level === 'AVANZADO'
+                    ? 'bg-red-500/20 text-red-300 border-red-500/30'
+                    : 'bg-blueApp/20 text-blueApp border-blueApp/30'
+            }`}>
+              {level}
+            </div>
+          </div>
+
+          {/* Metadata */}
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            {duration && (
+              <div className="flex items-center gap-1.5 bg-zinc-800/60 rounded-md px-2 py-1 border border-zinc-700/50">
+                <ClockIcon className="h-3.5 w-3.5 text-blueApp" />
+                <span className="text-xs text-gray-300 font-medium">{duration}</span>
+              </div>
+            )}
+            
+            {date && (
+              <div className="flex items-center gap-1.5 bg-zinc-800/60 rounded-md px-2 py-1 border border-zinc-700/50">
+                <Calendar className="h-3.5 w-3.5 text-emerald-400" />
+                <span className="text-xs text-gray-300 font-medium">{formatDate(date)}</span>
+              </div>
+            )}
+
+            {instructor && (
+              <div className="flex items-center gap-1.5 bg-zinc-800/60 rounded-md px-2 py-1 border border-zinc-700/50">
+                <span className="text-xs text-gray-300 font-medium">{instructor}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="mt-auto pt-3 border-t border-zinc-700/30 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Award className="h-4 w-4 text-purple-400" />
+              <span className="text-xs text-gray-400">Certificación incluida</span>
+            </div>
+            <div className="flex items-center gap-1 text-blueApp opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span className="text-xs font-semibold">Ver más</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="p-6 space-y-4">
-        {date && (
-          <div className="flex items-center text-gray-300 text-sm">
-            <div className="bg-zinc-800 p-1.5 rounded-full mr-2 shadow-inner border border-zinc-700/40">
-              <ClockIcon className="h-3.5 w-3.5 text-blueApp" />
-            </div>
-            {formatDate(date)}
-          </div>
-        )}        
-        <h3 className="text-xl font-bold text-white mb-1 line-clamp-2 group-hover:text-blueApp transition-colors duration-300">{title}</h3>
-        <div className="text-gray-300 mb-2 line-clamp-3 text-sm leading-relaxed">
-          {typeof description === 'string' ? HTMLReactParser(description) : ''}
-        </div>
-        {!isShort && (
-          <div className="flex items-center text-gray-300 text-sm">
-            <div className="bg-zinc-800 p-1.5 rounded-full mr-2 shadow-inner border border-zinc-700/40">
-              <ClockIcon className="h-3.5 w-3.5 text-blueApp" />
-            </div>
-            <span>{duration}</span>
-          </div>
-        )}
-        {instructor && (
-          <div className="border-t border-zinc-700/50 pt-4 mt-3">
-            <div className="flex items-center">
-              <div className="bg-zinc-800 p-2 rounded-lg shadow-inner border border-zinc-700/40">
-                <User className="h-5 w-5 text-blueApp" />
-              </div>
-              <div className="ml-3">
-                <div className="text-sm text-gray-400">Instructor:</div>
-                <div className="font-medium text-white">{instructor}</div>
-              </div>
-            </div>
-          </div>
-        )}
-        <div className="border-t border-zinc-700/50 pt-4 mt-3">
-            <div className="flex items-center">
-              <div className="bg-zinc-800 p-2 rounded-lg shadow-inner border border-zinc-700/40">
-                <Award className="h-5 w-5 text-blueApp" />
-              </div>
-              <div className="ml-3">
-                <div className="text-sm text-gray-400">Requisito de certificación:</div>
-                <div className="font-medium text-white">Proyecto final</div>
-              </div>
-            </div>
-          </div>
-        <Link
-          href={`/programas-academicos/${slug}`}
-          className="mt-6 inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"        >
-          {isShort ? 'Ver curso especializado' : 'Ver diplomado'}
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
-        </Link>
-      </div>
-    </div>
+    </Link>
   )
 }

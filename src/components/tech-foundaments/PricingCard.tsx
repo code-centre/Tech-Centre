@@ -28,7 +28,7 @@ export default function PricingCard({
   const isPremium = type === "premium"
 
   return (
-    <div className={`relative flex flex-col w-full max-w-xs rounded-2xl overflow-hidden bg-gradient-to-b ${
+    <div className={`relative flex flex-col w-full max-w-xs rounded-2xl overflow-hidden bg-linear-to-b ${
       isPremium ? "from-zinc-800 to-zinc-900 border-blueApp" : "from-zinc-900 to-black border-zinc-700/40"
     } border p-1`}>
       {isPremium && (
@@ -78,7 +78,7 @@ export default function PricingCard({
         <ul className="space-y-3 mb-6">
           {features?.map((feature, i) => (
             <li key={i} className="flex items-start gap-2">
-              <div className={`flex-shrink-0 w-4 h-4 rounded-full ${isPremium ? "bg-blueApp" : "bg-zinc-700"} flex items-center justify-center mt-0.5`}>
+              <div className={`shrink-0 w-4 h-4 rounded-full ${isPremium ? "bg-blueApp" : "bg-zinc-700"} flex items-center justify-center mt-0.5`}>
                 <span className="text-white text-xs">✓</span>
               </div>
               <span className="text-gray-300 text-sm">{feature}</span>

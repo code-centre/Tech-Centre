@@ -1,13 +1,12 @@
 'use client'
 import { db } from '../../../firebase'
 import useUserStore from '../../../store/useUserStore';
-import { formatDate } from '../../../utils/formatDate';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react'
-import { useCollection } from 'react-firebase-hooks/firestore';
 import { CourseCard } from '../CoursesCard';
 import CourseCardPlaceholder from '../course/CourseCardPlaceholder';
+import type { Program } from '@/types/programs';
 
 
 export default function ProfileEvents() {
@@ -42,7 +41,7 @@ export default function ProfileEvents() {
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
-    })) as Program[];
+    })) as unknown as Program[];
   }
 
   useEffect(() => {
@@ -83,18 +82,19 @@ export default function ProfileEvents() {
 
                 <div className="grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                   {pastEvents.slice(0, visibleCount).map((diplomado) => (
-                    <Link key={diplomado.id} className='w-fit' href={`/programas-academicos/${diplomado.slug}`}>
-                      <CourseCard
-                        key={diplomado.id}
-                        title={diplomado.name}
-                        description={diplomado.description}
-                        image={diplomado.image}
-                        level={(diplomado.level || '').toString().toUpperCase()}
-                        duration={diplomado.duration}
-                        instructor={(diplomado.teacher || []).join(", ")}
-                        slug={diplomado.slug}
-                      />
-                    </Link>
+                    diplomado.slug ? (
+                      <Link key={diplomado.id} className='w-fit' href={`/programas-academicos/${diplomado.slug}`}>
+                        <CourseCard
+                          title={diplomado.name || ''}
+                          description={diplomado.description}
+                          image={diplomado.image}
+                          level={(diplomado.level || '').toString().toUpperCase()}
+                          duration={diplomado.duration}
+                          instructor={(diplomado.teacher || []).join(", ")}
+                          slug={diplomado.slug}
+                        />
+                      </Link>
+                    ) : null
                   ))}
                 </div>
                 {/* <ShowMoreButton count={3} items={pastEvents} setVisibleCount={setVisibleCount} visibleCount={visibleCount} /> */}
@@ -124,17 +124,18 @@ export default function ProfileEvents() {
 
                 <div className="grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                   {futureEvents.map((diplomado) => (
-                    <Link key={diplomado.id} className='w-fit' href={`/programas-academicos/${diplomado.slug}`}>
-                      <CourseCard
-                        key={diplomado.id}
-                        title={diplomado.name}
-                        description={diplomado.description}
-                        image={diplomado.image}
-                        level={(diplomado.level || '').toString().toUpperCase()}
-                        duration={diplomado.duration}
-                        instructor={(diplomado.teacher || []).join(", ")}
-                        slug={diplomado.slug} />
-                    </Link>
+                    diplomado.slug ? (
+                      <Link key={diplomado.id} className='w-fit' href={`/programas-academicos/${diplomado.slug}`}>
+                        <CourseCard
+                          title={diplomado.name || ''}
+                          description={diplomado.description}
+                          image={diplomado.image}
+                          level={(diplomado.level || '').toString().toUpperCase()}
+                          duration={diplomado.duration}
+                          instructor={(diplomado.teacher || []).join(", ")}
+                          slug={diplomado.slug} />
+                      </Link>
+                    ) : null
                   ))}
                 </div>
                 {/* <ShowMoreButton count={3} items={futureEvents} setVisibleCount={setVisibleCount} visibleCount={visibleCount} /> */}

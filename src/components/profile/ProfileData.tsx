@@ -1,490 +1,667 @@
-import React from 'react';
-import { db } from '../../../firebase'
-import useUserStore from '../../../store/useUserStore'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
-import { MailIcon, PhoneIcon, SaveIcon, UserIcon, IdCardIcon, MapPinIcon, BriefcaseIcon, CalendarIcon } from 'lucide-react'
-
+'use client'
 import { useState, useEffect } from 'react'
-import { cn } from '../../../utils/cn'
-import { useUser } from '@/lib/supabase';
-import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation'
+import { useUser } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
+import { User, Mail, Phone, MapPin, Calendar, IdCard, Briefcase, FileText, Camera, Save, X, Linkedin, Twitter, Instagram, Github } from 'lucide-react'
 import Image from 'next/image'
+import ButtonToEdit from '../ButtonToEdit'
+import ContainerButtonsEdit from '../ContainerButtonsEdit'
+
+interface FormFieldProps {
+  label: string
+  value: string
+  name: string
+  isEditing: boolean
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void
+  type?: 'text' | 'email' | 'tel' | 'date' | 'textarea'
+  options?: { value: string; label: string }[]
+  icon?: React.ReactNode
+  placeholder?: string
+}
+
+function FormField({ label, value, name, isEditing, onChange, type = 'text', options, icon, placeholder }: FormFieldProps) {
+  return (
+    <div className="space-y-2">
+      <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+        {icon}
+        {label}
+      </label>
+      {isEditing ? (
+        type === 'textarea' ? (
+          <textarea
+            name={name}
+            value={value}
+            onChange={onChange}
+            rows={3}
+            placeholder={placeholder}
+            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent resize-none"
+          />
+        ) : options ? (
+          <select
+            name={name}
+            value={value}
+            onChange={onChange}
+            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent"
+          >
+            {options.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type={type}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent"
+          />
+        )
+      ) : (
+        <p className="px-4 py-2 text-white bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px] flex items-center">
+          {value || <span className="text-gray-500 italic">No especificado</span>}
+        </p>
+      )}
+    </div>
+  )
+}
+
+interface SocialFieldProps {
+  label: string
+  value: string
+  name: string
+  isEditing: boolean
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  icon: React.ReactNode
+  placeholder?: string
+}
+
+function SocialField({ label, value, name, isEditing, onChange, icon, placeholder }: SocialFieldProps) {
+  const getDomain = (url: string) => {
+    if (!url || url.trim() === '') return ''
+    try {
+      const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`)
+      return urlObj.hostname.replace('www.', '')
+    } catch {
+      return url
+    }
+  }
+
+  // Normalizar el valor para verificar si tiene contenido
+  const hasValue = value && value.trim() !== ''
+
+  return (
+    <div className="space-y-2">
+      <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+        {icon}
+        {label}
+      </label>
+      {isEditing ? (
+        <input
+          type="url"
+          name={name}
+          value={value || ''}
+          onChange={onChange}
+          placeholder={placeholder || 'https://...'}
+          className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent"
+        />
+      ) : (
+        hasValue ? (
+          <a
+            href={value.startsWith('http') ? value : `https://${value}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 text-blueApp hover:text-blue-400 bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px] flex items-center gap-2 hover:border-blueApp/50 transition-colors"
+          >
+            {icon}
+            <span className="truncate">{getDomain(value)}</span>
+            <svg className="w-4 h-4 ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        ) : (
+          <p className="px-4 py-2 text-white bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px] flex items-center">
+            <span className="text-gray-500 italic">No especificado</span>
+          </p>
+        )
+      )}
+    </div>
+  )
+}
 
 export default function ProfileData() {
-  const { user } = useUser()
-  console.log('Usuario actual:', user)
+  const { user, loading } = useUser()
+  const router = useRouter()
+  const supabase = createClient()
   const [isEditing, setIsEditing] = useState(false)
-  const [gender, setGender] = useState(user?.gender)
-  const [phone, setPhone] = useState(user?.phone)
-  const [occupation, setOccupation] = useState(user?.occupation)
-  const [typeID, setTypeID] = useState<string>(user?.typeID ? user?.typeID : 'Sin asignar')
-  const [iDNumber, setIDNumber] = useState<string | number>(user?.idNumber ? user?.idNumber : 'Sin asignar')
-  const [city, setCity] = useState<string>(user?.city ? user?.city : 'Sin asignar')
-  const [address, setAddress] = useState<string>(user?.address ? user?.address : 'Sin asignar')
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
-    first_name: user?.first_name || '',
-    last_name: user?.last_name || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    id_type: user?.id_type || 'CC',
-    id_number: user?.id_number || '',
-    birthdate: user?.birthdate || '',
-    address: user?.address || '',
-    role: user?.role || '',
-    profile_image: user?.profile_image || '',
-    professional_title: user?.professional_title || '',
-    bio: user?.bio || ''
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    id_type: 'CC',
+    id_number: '',
+    birthdate: '',
+    address: '',
+    profile_image: '',
+    professional_title: '',
+    bio: '',
+    linkedin_url: '',
+    twitter_url: '',
+    instagram_url: '',
+    github_url: ''
   })
 
-  // Agrega esto después de la declaración de los estados
-useEffect(() => {
-  console.log('Datos del usuario:', user);
-  console.log('Estado actual del formData:', formData);
-  
-  // Actualizar formData cuando user cambie
-  if (user) {
-    setFormData({
-      first_name: user.first_name || '',
-      last_name: user.last_name || '',
-      email: user.email || '',
-      phone: user.phone || '',
-      id_type: user.id_type || 'CC',
-      id_number: user.id_number || '',
-      birthdate: user.birthdate || '',
-      address: user.address || '',
-      role: user.role || '',
-      profile_image: user.profile_image || '',
-      professional_title: user.professional_title || '',
-      bio: user.bio || ''
-    });
-  }
-}, [user]);  // Este efecto se ejecutará cuando el usuario cambie  
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        id_type: user.id_type || 'CC',
+        id_number: user.id_number || '',
+        birthdate: user.birthdate || '',
+        address: user.address || '',
+        profile_image: user.profile_image || '',
+        professional_title: user.professional_title || '',
+        bio: user.bio || '',
+        linkedin_url: user.linkedin_url || '',
+        twitter_url: user.twitter_url || '',
+        instagram_url: user.instagram_url || '',
+        github_url: user.github_url || ''
+      })
+    }
+  }, [user])  
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
       [name]: value
     }))
   }
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user?.id) return;
-    
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    if (!file) return null
+
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({
-          ...formData,
-          updated_at: new Date().toISOString()
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
+      const filePath = `profiles/profile_image/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('image')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
         })
-        .eq('user_id', user.id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      
-      // Update local state if needed
-      if (data) {
-        useUserStore.getState().setUser({
-          ...user,
-          ...data
-        });
-      }
-      
-      setIsEditing(false);
-      console.log('Perfil actualizado correctamente');
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('image')
+        .getPublicUrl(filePath)
+
+      return publicUrl
     } catch (error) {
-      console.error('Error al actualizar el perfil:', error);
-      alert('Error al actualizar el perfil. Por favor, inténtalo de nuevo.');
+      throw error
     }
-}
-
-  function calcularEdad(fechaNacimiento: string) {
-    const hoy = new Date();
-    const nacimiento = new Date(fechaNacimiento);
-
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mes = hoy.getMonth() - nacimiento.getMonth();
-
-    // Si el mes actual es menor al de nacimiento o está en el mismo mes pero el día es menor, restamos un año
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-      edad--;
-    }
-
-    return edad;
   }
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
 
-  const uploadImage = async (file: File) => {
-  console.log('Iniciando uploadImage con archivo:', file.name);
-  if (!file) {
-    console.log('No se seleccionó ningún archivo');
-    return null;
+    try {
+      const publicUrl = await uploadImage(file)
+      if (publicUrl) {
+        setFormData(prev => ({ ...prev, profile_image: publicUrl }))
+      }
+    } catch (error) {
+      setError('Error al subir la imagen. Por favor, inténtalo de nuevo.')
+    }
   }
 
-  try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-    const filePath = `profiles/profile_image/${fileName}`;
+  const handleSubmit = async () => {
+    // Obtener el ID del usuario (puede ser user.id o user.user_id)
+    const userId = user?.user_id || user?.id
     
-    console.log('Subiendo a Supabase...', { filePath });
-
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('image')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true
-      });
-
-    if (uploadError) {
-      console.error('Error en upload:', uploadError);
-      throw uploadError;
+    if (!userId) {
+      setError('No se pudo identificar tu usuario. Por favor, inicia sesión nuevamente.')
+      return
     }
 
-    console.log('Upload exitoso, obteniendo URL pública...');
-    const { data: { publicUrl } } = supabase.storage
-      .from('image')
-      .getPublicUrl(filePath);
+    setIsSaving(true)
+    setError('')
 
-    console.log('URL pública generada:', publicUrl);
-    return publicUrl;
+    try {
+      console.log('Iniciando actualización del perfil para usuario:', userId)
+      console.log('Datos a guardar:', formData)
 
-  } catch (error) {
-    console.error('Error en uploadImage:', error);
-    throw error;
+      // Preparar datos básicos que siempre existen
+      const updateData: any = {
+        first_name: formData.first_name?.trim() || null,
+        last_name: formData.last_name?.trim() || null,
+        email: formData.email?.trim() || null,
+        phone: formData.phone?.trim() || null,
+        id_type: formData.id_type || null,
+        id_number: formData.id_number?.trim() || null,
+        birthdate: formData.birthdate || null,
+        address: formData.address?.trim() || null,
+        profile_image: formData.profile_image || null,
+        professional_title: formData.professional_title?.trim() || null,
+        bio: formData.bio?.trim() || null,
+        updated_at: new Date().toISOString()
+      }
+
+      // Agregar campos de redes sociales (incluyendo valores vacíos para poder limpiarlos)
+      updateData.linkedin_url = formData.linkedin_url?.trim() || null
+      updateData.twitter_url = formData.twitter_url?.trim() || null
+      updateData.instagram_url = formData.instagram_url?.trim() || null
+      updateData.github_url = formData.github_url?.trim() || null
+
+      console.log('Datos preparados para actualizar:', updateData)
+
+      const { error: updateError, data } = await (supabase as any)
+        .from('profiles')
+        .update(updateData)
+        .eq('user_id', userId)
+        .select()
+
+      console.log('Respuesta de Supabase:', { error: updateError, data })
+
+      if (updateError) {
+        console.error('Error completo al actualizar perfil:', {
+          code: updateError.code,
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint
+        })
+        
+        // Si el error es porque falta una columna, mostrar mensaje más claro
+        if (updateError.code === 'PGRST204') {
+          setError('Algunas columnas no existen en la base de datos. Por favor, contacta al administrador.')
+        } else if (updateError.message) {
+          setError(`Error al guardar: ${updateError.message}`)
+        } else {
+          setError('Error al actualizar el perfil. Por favor, inténtalo de nuevo.')
+        }
+        setIsSaving(false)
+        return
+      }
+
+      if (!data || !data[0]) {
+        console.error('No se recibieron datos actualizados de Supabase')
+        setError('Los datos se guardaron pero no se pudieron recuperar. Por favor, recarga la página.')
+        setIsSaving(false)
+        setIsEditing(false)
+        router.refresh()
+        return
+      }
+
+      console.log('Datos actualizados exitosamente:', data[0])
+
+      // Actualizar formData con los datos guardados
+      setFormData({
+        first_name: data[0].first_name || '',
+        last_name: data[0].last_name || '',
+        email: data[0].email || '',
+        phone: data[0].phone || '',
+        id_type: data[0].id_type || 'CC',
+        id_number: data[0].id_number || '',
+        birthdate: data[0].birthdate || '',
+        address: data[0].address || '',
+        profile_image: data[0].profile_image || '',
+        professional_title: data[0].professional_title || '',
+        bio: data[0].bio || '',
+        linkedin_url: data[0].linkedin_url || '',
+        twitter_url: data[0].twitter_url || '',
+        instagram_url: data[0].instagram_url || '',
+        github_url: data[0].github_url || ''
+      })
+
+      // Actualizar el estado ANTES de refrescar
+      setIsSaving(false)
+      setIsEditing(false)
+      setError('')
+      
+      // Refrescar los datos sin recargar la página completa
+      router.refresh()
+    } catch (err: any) {
+      console.error('Error en handleSubmit:', err)
+      const errorMessage = err.message || 'Error al actualizar el perfil. Por favor, inténtalo de nuevo.'
+      setError(errorMessage)
+      setIsSaving(false)
+    }
   }
-};
-  useEffect(() => {
-    console.log('formData actualizado:', formData.profile_image);
-  }, [formData.profile_image]);
+
+  const handleCancel = () => {
+    if (user) {
+      setFormData({
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        id_type: user.id_type || 'CC',
+        id_number: user.id_number || '',
+        birthdate: user.birthdate || '',
+        address: user.address || '',
+        profile_image: user.profile_image || '',
+        professional_title: user.professional_title || '',
+        bio: user.bio || '',
+        linkedin_url: user.linkedin_url || '',
+        twitter_url: user.twitter_url || '',
+        instagram_url: user.instagram_url || '',
+        github_url: user.github_url || ''
+      })
+    }
+    setIsEditing(false)
+    setError('')
+  }
+
+  // Mostrar loader mientras carga
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blueApp border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-400 text-sm">Cargando información del perfil...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Si no hay usuario después de cargar, no mostrar nada
+  if (!user) {
+    return null
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-bgCard rounded-xl shadow-md overflow-hidden backdrop-blur-sm">
-        {/* foto, bio y titulo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-800/30 p-4 rounded-lg backdrop-blur-sm">
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Bio
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="bio"
-                value={formData.bio}
-                onChange={handleInputChange}
-                className="w-full bg-transparent border-b border-gray-700/50 py-2 text-white focus:outline-none focus:border-blue-400"
-              />
-            ) : (
-              <p className='text-sm text-white border-b border-gray-700/50 py-2 w-full'>
-                {formData.bio}
-              </p>
-            )}
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Titulo profesional
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="professional_title"
-                value={formData.professional_title}
-                onChange={handleInputChange}
-                className="w-full bg-transparent border-b border-gray-700/50 py-2 text-white focus:outline-none focus:border-blue-400"
-              />
-            ) : (
-              <p className='text-sm text-white border-b border-gray-700/50 py-2 w-full'>
-                {formData.professional_title}
-              </p>
-            )}
+    <section className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+          <div className="p-2 bg-blueApp/10 rounded-lg">
+            <User className="text-blueApp" size={24} />
           </div>
-          <div className="bg-gray-800/30 p-4 rounded-lg backdrop-blur-sm flex flex-col items-center">
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Foto
-            </label>
-            {isEditing ? (
-              <div className="w-full">
-                <input
-                  type="file"
-                  id="profile-image-upload"
-                  name="photo"
-                  accept="image/*"
-                  className="hidden" // Ocultamos el input original
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    console.log('Archivo seleccionado:', file?.name);
-                    if (!file) return;
+          Información Personal
+        </h2>
+        {!isEditing && (
+          <ButtonToEdit startEditing={() => setIsEditing(true)} />
+        )}
+      </div>
 
-                    try {
-                      console.log('Iniciando carga de imagen...');
-                      const publicUrl = await uploadImage(file);
-                      console.log('URL de la imagen subida:', publicUrl);
-                      
-                      if (publicUrl) {
-                        console.log('Actualizando estado con nueva imagen...');
-                        setFormData(prev => {
-                          console.log('Estado anterior:', prev.profile_image);
-                          const newState = {
-                            ...prev,
-                            profile_image: publicUrl
-                          };
-                          console.log('Nuevo estado:', newState.profile_image);
-                          return newState;
-                        });
-                      }
-                    } catch (error) {
-                      console.error('Error en onChange:', error);
-                      alert('Error al subir la imagen. Por favor, inténtalo de nuevo.');
-                    }
-                  }}
+      {/* Success Message */}
+      {!isEditing && !error && !isSaving && formData.first_name && (
+        <div className="p-4 bg-green-900/50 text-green-200 rounded-lg text-sm border border-green-800 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          Información guardada correctamente
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="p-4 bg-red-900/50 text-red-200 rounded-lg text-sm border border-red-800 flex items-start gap-2">
+          <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Profile Card */}
+      <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 shadow-xl overflow-hidden">
+        {/* Profile Image Section */}
+        <div className="bg-gradient-to-r from-blueApp/20 via-zinc-800 to-zinc-800 px-6 pt-8 pb-6">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+            <div className="relative">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white/10 shadow-xl ring-4 ring-blueApp/20">
+                <Image
+                  width={160}
+                  height={160}
+                  src={formData.profile_image || '/man-avatar.png'}
+                  alt={`${formData.first_name} ${formData.last_name}`}
+                  className="w-full h-full object-cover"
                 />
-                <div className="flex flex-col items-center gap-2">
-                  {/* Botón personalizado para abrir el selector de archivos */}
-                  <label 
-                    htmlFor="profile-image-upload"
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-center cursor-pointer"
-                  >
-                    Seleccionar imagen
+              </div>
+              {isEditing && (
+                <label className="absolute -bottom-2 -right-2 p-2 bg-blueApp hover:bg-blue-600 rounded-full shadow-lg transition-all duration-200 hover:scale-110 cursor-pointer">
+                  <Camera className="w-4 h-4 text-white" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
                   </label>
-                  
-                  {/* Vista previa de la imagen */}
-                  {formData.profile_image && (
-                    <div className="mt-2 flex flex-col items-center">
-                      <img 
-                        src={formData.profile_image} 
-                        alt="Vista previa" 
-                        className="h-32 w-32 object-cover rounded-md border-2 border-white/20"
-                      />
-                      <p className="text-xs text-gray-400 mt-1">
-                        Haz clic en la imagen para cambiarla
-                      </p>
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          try {
-                            const { error } = await supabase
-                              .from('profiles')
-                              .update({ profile_image: formData.profile_image })
-                              .eq('user_id', user?.id);
-                            
-                            if (error) throw error;
-                            
-                            alert('Imagen de perfil actualizada correctamente');
-                          } catch (error) {
-                            console.error('Error al guardar la imagen de perfil:', error);
-                            alert('Error al guardar la imagen de perfil');
-                          }
-                        }}
-                        className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
-                      >
-                        Guardar imagen de perfil
-                      </button>
+              )}
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                {formData.first_name} {formData.last_name}
+              </h3>
+              {formData.professional_title && (
+                <div className="flex items-center justify-center md:justify-start gap-2 text-blueApp">
+                  <Briefcase className="w-5 h-5" />
+                  <p className="text-lg font-medium">{formData.professional_title}</p>
                     </div>
                   )}
                 </div>
-              </div>
-            ) : (
-              <Image
-                src={formData.profile_image || '/3.webp'}
-                alt="Foto de perfil"
-                width={200}
-                height={200}
-                className="w-50 h-50 rounded-lg border-2 border-blueApp"
-              />
-            )}
           </div>
         </div>
-        {/* nombre y apellido */}
+
+        {/* Form Fields */}
+        <div className="p-6 space-y-6">
+          {/* Personal Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <User className="w-5 h-5 text-blueApp" />
+              Información Personal
+            </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-800/30 p-4 rounded-lg backdrop-blur-sm">
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Nombre
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
+              <FormField
+                label="Nombre"
                 name="first_name"
                 value={formData.first_name}
+                isEditing={isEditing}
                 onChange={handleInputChange}
-                className="w-full bg-transparent border-b border-gray-700/50 py-2 text-white focus:outline-none focus:border-blue-400"
+                icon={<User className="w-4 h-4" />}
+                placeholder="Ingresa tu nombre"
               />
-            ) : (
-              <p className='text-sm text-white border-b border-gray-700/50 py-2 w-full'>
-                {formData.first_name}
-              </p>
-            )}
-          </div>
-          <div className="bg-gray-800/30 p-4 rounded-lg backdrop-blur-sm">
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Apellidos
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
+              <FormField
+                label="Apellidos"
                 name="last_name"
                 value={formData.last_name}
+                isEditing={isEditing}
                 onChange={handleInputChange}
-                className="w-full bg-transparent border-b border-gray-700/50 py-2 text-white focus:outline-none focus:border-blue-400"
+                icon={<User className="w-4 h-4" />}
+                placeholder="Ingresa tus apellidos"
               />
-            ) : (
-              <p className='text-sm text-white border-b border-gray-700/50 py-2 w-full'>
-                {formData.last_name}
-              </p>
-            )}
-          </div>
-        </div>
-        {/* identificacion */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-800/30 p-4 rounded-lg backdrop-blur-sm">
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Tipo de documento
-            </label>
-            {isEditing ? (
-              <select
-                name="id_type"
-                value={formData.id_type}
-                onChange={handleInputChange}
-                className="w-full bg-gray-900/50 border-b border-gray-700/50 py-2 text-white focus:outline-none focus:border-blue-400"
-              >
-                <option value="">Seleccionar tipo de documento</option>
-                <option value="CC">Cédula de Ciudadanía (CC)</option>
-                <option value="CE">Cédula de Extranjería (CE)</option>
-                <option value="NIT">NIT</option>
-                <option value="PEP">PEP</option>
-                <option value="PASAPORTE">Pasaporte</option>
-              </select>
-            ) : (
-              <p className='text-sm text-white border-b border-gray-700/50 py-2 w-full'>
-                {formData.id_type}
-              </p>
-            )}
-          </div>
-          <div className="bg-gray-800/30 p-4 rounded-lg backdrop-blur-sm">
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Número de documento
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="id_number"
-                value={formData.id_number}
-                onChange={handleInputChange}
-                className="w-full bg-transparent border-b border-gray-700/50 py-2 text-white focus:outline-none focus:border-blue-400"
-              />
-            ) : (
-              <p className='text-sm text-white border-b border-gray-700/50 py-2 w-full'>
-                {formData.id_number}
-              </p>
-            )}
-          </div>
-        </div>
-        {/* email y celular*/}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-800/30 p-4 rounded-lg backdrop-blur-sm">
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Email
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
+              <FormField
+                label="Email"
                 name="email"
                 value={formData.email}
+                isEditing={isEditing}
                 onChange={handleInputChange}
-                className="w-full bg-transparent border-b border-gray-700/50 py-2 text-white focus:outline-none focus:border-blue-400"
+                type="email"
+                icon={<Mail className="w-4 h-4" />}
+                placeholder="ejemplo@correo.com"
               />
-            ) : (
-              <p className='text-sm text-white border-b border-gray-700/50 py-2 w-full'>
-                {formData.email}
-              </p>
-            )}
-          </div>
-          <div className="bg-gray-800/30 p-4 rounded-lg backdrop-blur-sm">
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Celular
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
+              <FormField
+                label="Teléfono"
                 name="phone"
                 value={formData.phone}
+                isEditing={isEditing}
                 onChange={handleInputChange}
-                className="w-full bg-transparent border-b border-gray-700/50 py-2 text-white focus:outline-none focus:border-blue-400"
+                type="tel"
+                icon={<Phone className="w-4 h-4" />}
+                placeholder="Ej: 3001234567"
               />
-            ) : (
-              <p className='text-sm text-white border-b border-gray-700/50 py-2 w-full'>
-                {formData.phone}
-              </p>
-            )}
+            </div>
           </div>
-        </div>
-        {/*nacimiento y direccion */}
+
+          {/* Identification */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <IdCard className="w-5 h-5 text-blueApp" />
+              Identificación
+            </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-800/30 p-4 rounded-lg backdrop-blur-sm">
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Nacimiento
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
+              <FormField
+                label="Tipo de documento"
+                name="id_type"
+                value={formData.id_type}
+                isEditing={isEditing}
+                onChange={handleInputChange}
+                options={[
+                  { value: 'CC', label: 'Cédula de Ciudadanía (CC)' },
+                  { value: 'CE', label: 'Cédula de Extranjería (CE)' },
+                  { value: 'TI', label: 'Tarjeta de Identidad (TI)' },
+                  { value: 'PASAPORTE', label: 'Pasaporte' }
+                ]}
+                icon={<IdCard className="w-4 h-4" />}
+              />
+              <FormField
+                label="Número de documento"
+                name="id_number"
+                value={formData.id_number}
+                isEditing={isEditing}
+                onChange={handleInputChange}
+                placeholder="Ej: 1234567890"
+              />
+            </div>
+          </div>
+
+          {/* Location & Date */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-blueApp" />
+              Ubicación y Fecha
+            </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="Fecha de nacimiento"
                 name="birthdate"
                 value={formData.birthdate}
+                isEditing={isEditing}
                 onChange={handleInputChange}
-                className="w-full bg-transparent border-b border-gray-700/50 py-2 text-white focus:outline-none focus:border-blue-400"
+                type="date"
+                icon={<Calendar className="w-4 h-4" />}
               />
-            ) : (
-              <p className='text-sm text-white border-b border-gray-700/50 py-2 w-full'>
-                {formData.birthdate}
-              </p>
-            )}
-          </div>
-          <div className="bg-gray-800/30 p-4 rounded-lg backdrop-blur-sm">
-            <label className="block text-sm font-medium text-blueApp mb-1">
-              Dirección
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
+              <FormField
+                label="Dirección"
                 name="address"
                 value={formData.address}
+                isEditing={isEditing}
                 onChange={handleInputChange}
-                className="w-full bg-transparent border-b border-gray-700/50 py-2 text-white focus:outline-none focus:border-blue-400"
+                icon={<MapPin className="w-4 h-4" />}
+                placeholder="Ej: Calle 123 #45-67, Barranquilla"
               />
-            ) : (
-              <p className='text-sm text-white border-b border-gray-700/50 py-2 w-full'>
-                {formData.address}
-              </p>
-            )}
-          </div>
-        </div>
-        {/* botones */}
-        <div className="px-6 py-5 bg-gray-900/50 border-t border-gray-700/30 flex justify-end gap-3">
-          {isEditing ? (
-            <div className="mt-6 flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-300 hover:bg-gray-700"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Guardar cambios
-              </button>
             </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Editar perfil
-            </button>
+          </div>
+
+          {/* Professional Info */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-blueApp" />
+              Información Profesional
+            </h3>
+            <div className="space-y-4">
+              <FormField
+                label="Título profesional"
+                name="professional_title"
+                value={formData.professional_title}
+                isEditing={isEditing}
+                onChange={handleInputChange}
+                icon={<Briefcase className="w-4 h-4" />}
+                placeholder="Ej: Desarrollador Full Stack"
+              />
+              <FormField
+                label="Biografía"
+                name="bio"
+                value={formData.bio}
+                isEditing={isEditing}
+                onChange={handleInputChange}
+                type="textarea"
+                icon={<FileText className="w-4 h-4" />}
+                placeholder="Cuéntanos sobre ti, tu experiencia y tus intereses..."
+              />
+            </div>
+          </div>
+
+          {/* Social Media */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <svg className="w-5 h-5 text-blueApp" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.896 3.305-2.185 4.344-.977.784-2.148 1.176-3.383 1.176-.896 0-1.747-.184-2.424-.52v-.136c0-1.011-.02-2.04-.06-3.08-.04-1.12-.08-2.24-.12-3.36-.04-1.04-.08-2.08-.12-3.12 0-.184.08-.36.24-.488.16-.12.36-.2.568-.2h2.488c.416 0 .736.32.736.736v.304c.896-.6 1.936-.904 3.12-.904 1.36 0 2.488.488 3.384 1.464.896.976 1.344 2.24 1.344 3.792v.304zm-5.568 7.68c1.36 0 2.488-.488 3.384-1.464.896-.976 1.344-2.24 1.344-3.792v-.304c-.896.6-1.936.904-3.12.904-1.36 0-2.488-.488-3.384-1.464-.896-.976-1.344-2.24-1.344-3.792v-.304c-.896-.6-1.936-.904-3.12-.904-1.36 0-2.488.488-3.384 1.464-.896.976-1.344 2.24-1.344 3.792 0 1.552.448 2.816 1.344 3.792.896.976 2.024 1.464 3.384 1.464z"/>
+              </svg>
+              Redes Sociales
+            </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SocialField
+                label="LinkedIn"
+                name="linkedin_url"
+                value={formData.linkedin_url}
+                isEditing={isEditing}
+                onChange={handleInputChange}
+                icon={<Linkedin className="w-4 h-4 text-blue-500" />}
+                placeholder="https://linkedin.com/in/tu-perfil"
+              />
+              <SocialField
+                label="Twitter / X"
+                name="twitter_url"
+                value={formData.twitter_url}
+                isEditing={isEditing}
+                onChange={handleInputChange}
+                icon={<Twitter className="w-4 h-4 text-blue-400" />}
+                placeholder="https://twitter.com/tu-usuario"
+              />
+              <SocialField
+                label="Instagram"
+                name="instagram_url"
+                value={formData.instagram_url}
+                isEditing={isEditing}
+                onChange={handleInputChange}
+                icon={<Instagram className="w-4 h-4 text-pink-500" />}
+                placeholder="https://instagram.com/tu-usuario"
+              />
+              <SocialField
+                label="GitHub"
+                name="github_url"
+                value={formData.github_url}
+                isEditing={isEditing}
+                onChange={handleInputChange}
+                icon={<Github className="w-4 h-4 text-gray-300" />}
+                placeholder="https://github.com/tu-usuario"
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          {isEditing && (
+            <div className="pt-6 border-t border-zinc-700/50">
+              <ContainerButtonsEdit
+                setFinishEdit={handleCancel}
+                onSave={handleSubmit}
+              />
+              {isSaving && (
+                <div className="mt-4 flex items-center gap-2 text-blue-400 text-sm">
+                  <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  <span>Guardando cambios...</span>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
-    </form>
+    </section>
   )
 }

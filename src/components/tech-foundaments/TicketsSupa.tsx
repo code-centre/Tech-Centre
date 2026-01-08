@@ -9,6 +9,7 @@ import AuthModal from "../AuthModal"
 import { useRouter } from "next/navigation"
 import AlertModal from "../AlertModal"
 import { supabase } from "@/lib/supabase"
+import type { Ticket } from "@/types/programs"
 
 interface ProgramData {
   id: number;
@@ -95,7 +96,12 @@ export function TicketsSupa({
 
   const handleBuyClick = async () => {
     if (user) {
-      router.push(`/checkout?slug=${programData?.code}`)
+      if (cohort?.id) {
+        router.push(`/checkout?cohortId=${cohort.id}`)
+      } else if (programData?.code) {
+        // Fallback al método anterior si no hay cohortId
+        router.push(`/checkout?slug=${programData.code}`)
+      }
     } else {
       setIsAuthModalOpen(true)
     }

@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react'
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { CourseCard } from '../CoursesCard';
 import CourseCardPlaceholder from '../course/CourseCardPlaceholder';
+import type { EventFCA } from '@/types/programs';
 
 
 export default function ProfileEvents() {
@@ -53,8 +54,8 @@ export default function ProfileEvents() {
       const now = new Date()
       setEvents(eventos);
 
-      setPastEvents(eventos.filter((event) => new Date(event.date) < now))
-      setFutureEvents(eventos.filter((event) => new Date(event.date) > now))
+      setPastEvents(eventos.filter((event) => event.date && new Date(event.date) < now))
+      setFutureEvents(eventos.filter((event) => event.date && new Date(event.date) > now))
       setLoadingEvents(false)
     }
     get()
@@ -84,14 +85,14 @@ export default function ProfileEvents() {
                   {pastEvents.slice(0, visibleCount).map((event) => (
                     <Link key={event.id} className='w-fit' href={`/programas-academicos/${event.slug}`}>
                       <CourseCard 
-                        title={event.title}
+                        title={event.title || ''}
                         description={event.description}
                         image={event.heroImage}
                         heroImage={event.heroImage}
                         isShort={true}
                         level={event.level || "BÁSICO"}   
                         date={event.date}
-                        slug={event.slug} />
+                        slug={event.slug || ''} />
                     </Link>
                   ))}
                 </div>
@@ -124,14 +125,14 @@ export default function ProfileEvents() {
                   {futureEvents.map((event) => (
                     <Link key={event.id} className='w-fit' href={`/programas-academicos/${event.slug}`}>
                       <CourseCard 
-                        title={event.title}
+                        title={event.title || ''}
                         description={event.description}
                         isShort={true}
                         image={event.heroImage}
                         heroImage={event.heroImage}
                         level={event.level || "BÁSICO"}   
                         date={event.date}
-                        slug={event.slug} />
+                        slug={event.slug || ''} />
                     </Link>
                   ))}
                 </div>

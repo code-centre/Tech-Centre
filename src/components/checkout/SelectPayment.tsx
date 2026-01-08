@@ -1,6 +1,7 @@
 import { Plus, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import type { Program } from '@/types/programs'
 
 interface Props {
   data: Program | any

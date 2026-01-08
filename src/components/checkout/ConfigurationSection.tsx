@@ -1,113 +1,100 @@
 'use client'
-import { Minus, Plus, X } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
-import SelectSchedule from './SelectSchedule'
-import SelectPayment from './SelectPayment'
+
+import { Minus, Plus } from 'lucide-react'
+import React, { useEffect } from 'react'
+import ProductSummary from './ProductSummary'
+import { supabase } from '@/lib/supabase'
+import type { Program } from '@/types/programs'
 
 interface Props {
-  data: Program | any
+  data: Program
   slugProgram: string | null
-  ticket: Ticket | null
   subtotal: number | null
   quantity: number
-  paymentMethod: string | null
-  selectedSchedule: string | null
-  setSelectedSchedule: (value: null | string) => void
-  setPaymentMethod: (value: null | string) => void
-  setSubtotal: (value: null | number) => void
+  paymentMethod: 'full' | 'installments' | null
+  setPaymentMethod: (value: 'full' | 'installments' | null) => void
+  setSubtotal: (value: number | null) => void
   setQuantity: (value: number) => void
-  setShowQuantity: (value: boolean) => void
-  showQuantity: boolean
-  schedules?: any[]
-  selectedCohortId: number | null;
-  setSelectedCohortId: (id: number) => void; // Agrega esta línea
-  selectedInstallments: number;
-  setSelectedInstallments: (installments: number) => void;
+  selectedCohortId: number | null
+  setSelectedCohortId: (id: number) => void
+  selectedInstallments: number
+  setSelectedInstallments: (installments: number) => void
+  onMatriculaAmountChange?: (amount: number) => void
+  onMatriculaStatusChange?: (shouldShow: boolean) => void
+  className?: string
 }
 
-export default function ConfigurationSection({ slugProgram, data, subtotal, setSubtotal, ticket, setQuantity, quantity, setPaymentMethod, paymentMethod, selectedSchedule, setSelectedSchedule, setShowQuantity, showQuantity, schedules, selectedCohortId, setSelectedCohortId, selectedInstallments, setSelectedInstallments }: Props) {
-  const [priceSelected, setPriceSelected] = useState<number>(data.discount ? data.discount : data.price)
-  console.log('selectedCohortId: en ConfigurationSection', selectedCohortId);
-
-
+export default function ConfigurationSection({
+  slugProgram,
+  data,
+  subtotal,
+  quantity,
+  paymentMethod,
+  setPaymentMethod,
+  setSubtotal,
+  setQuantity,
+  selectedCohortId,
+  setSelectedCohortId,
+  selectedInstallments,
+  setSelectedInstallments,
+  onMatriculaAmountChange,
+  onMatriculaStatusChange,
+  className,
+}: Props) {
+  // Cargar automáticamente la primera cohorte disponible
   useEffect(() => {
-    console.log('subtotal cambió a:', subtotal);
-    // Agrega un stack trace para ver de dónde viene el cambio
-    console.trace('Stack trace del cambio de subtotal');
-  }, [subtotal]);
+    const fetchFirstCohort = async () => {
+      if (!data?.id || selectedCohortId) return
 
-  const styleButton = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blueApp disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10 hover:border-blueApp'
+      try {
+        const { data: cohortData, error } = await (supabase as any)
+          .from('cohorts')
+          .select('id')
+          .eq('program_id', (data as any).id)
+          .limit(1)
+          .single()
 
-  const styleInput = 'flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blueApp w-22 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+        if (!error && cohortData) {
+          setSelectedCohortId(cohortData.id)
+        }
+      } catch (error) {
+        console.error('Error al cargar cohorte:', error)
+      }
+    }
 
-  // console.log('subtotal en ConfigurationSection:', subtotal);
+    fetchFirstCohort()
+  }, [data?.id, selectedCohortId, setSelectedCohortId])
+
+  const styleButton =
+    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blueApp disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10 hover:border-blueApp'
+
+  const styleInput =
+    'flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blueApp w-22 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+
   return (
-    <div className='w-full text-white flex flex-col gap-5 pt-24 pb-14 px-6 md:px-20 lg:px-14'>
-      <h2 className='text-4xl font-bold'>Confirmación de compra</h2>
-      <div className='border-b h-1'></div>
-      {
-        slugProgram &&
-        <p className='text-base'>Selecciona el horario y el metodo de pago para finalizar la compra.</p>
-      }
-      {
-        slugProgram &&
-        <SelectSchedule
-          data={data}
-          isShort={data.type === 'curso especializado'}
-          selectedSchedule={selectedSchedule}
-          schedules={data.schedules || schedules}
-          setSelectedSchedule={setSelectedSchedule}
-          selectedCohortId={selectedCohortId}
-          onCohortSelect={(cohortId) => {
-            // Esto actualizará el estado en page.tsx
-            setSelectedCohortId(cohortId);
-          }}
-        />
-      }
-      {
-        slugProgram &&
-        <>
-          {
-            <SelectPayment
-              data={data}
-              paymentMethod={paymentMethod}
-              priceSelected={data.type === 'curso especializado' ? data.tickets[0].price : priceSelected}
-              isShort={data.type === 'curso especializado'}
-              setPaymentMethod={setPaymentMethod}
-              setPriceSelected={setPriceSelected}
-              setQuantity={setQuantity}
-              setSubtotal={setSubtotal}
-              selectedInstallments={selectedInstallments}
-              setSelectedInstallments={setSelectedInstallments}
-            />
-          }
-        </>
-      }
-      {
-        !slugProgram &&
-        <>
-          <p className='font-semibold'>Beneficios de este evento</p>
-          <ul className='list-disc pl-4 -mt-2 disc marker:text-blueApp'>
-            {
-              ticket && ticket.benefits.map((benefit, i) => (
-                <li key={i}>{benefit}</li>
-              ))
-            }
-          </ul>
-        </>
-      }
-      {
-        showQuantity &&
-        <>
-          <h2 className='text-4xl font-bold mt-4'>Cantidad</h2>
-          <div className='h-1 border-b'></div>
-          {/* <p className='text-sm'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis nemo reiciendis aliquam sapiente. Adipisci repudiandae corrupti fugit impedit vel? Fugit ipsum cupiditate veniam aperiam rerum sit molestias ratione facere at.</p> */}
+    <div className={`w-full text-white flex flex-col gap-8 pb-14 px-6 ${className || ''}`}>
+      {/* Resumen del producto */}
+      <ProductSummary 
+        data={data} 
+        selectedCohortId={selectedCohortId}
+        onMatriculaAmountChange={onMatriculaAmountChange}
+        onMatriculaStatusChange={onMatriculaStatusChange}
+      />
 
-          <div className="grid grid-cols-[auto_1fr_auto] lg:flex lg:flex-row gap-1 m-0">
+      {/* Cantidad (opcional, solo si showQuantity está activo) */}
+      {quantity > 1 && (
+        <div className="space-y-4 pt-4 border-t border-zinc-700/50">
+          <div>
+            <h3 className="text-xl font-bold mb-2">Cantidad</h3>
+            <div className="h-0.5 bg-zinc-700/50"></div>
+          </div>
+
+          <div className="flex items-center gap-4">
             <button
               disabled={quantity <= 1}
               className={`${styleButton} disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              aria-label="Reducir cantidad"
             >
               <Minus className="h-4 w-4" />
             </button>
@@ -116,30 +103,27 @@ export default function ConfigurationSection({ slugProgram, data, subtotal, setS
               min="1"
               value={quantity}
               onChange={(e) => {
-                const value = parseInt(e.target.value, 10);
+                const value = parseInt(e.target.value, 10)
                 if (!isNaN(value) && value > 0) {
-                  setQuantity(value);
+                  setQuantity(value)
                 } else if (e.target.value === '') {
-                  setQuantity(1); // O manejar como desees el valor vacío
+                  setQuantity(1)
                 }
               }}
-              className={`${styleInput} w-full text-center`}
+              className={`${styleInput} w-24`}
+              aria-label="Cantidad"
             />
-            
             <button
-              className={`${styleButton} ${!subtotal ? 'opacity-50 cursor-not-allowed' : 'opacity-100 '}`}
-              onClick={() => {
-                console.log('Subtotal al hacer clic:', subtotal);
-                setQuantity(quantity + 1);
-              }}
-              // disabled={!subtotal}
+              className={styleButton}
+              onClick={() => setQuantity(quantity + 1)}
+              aria-label="Aumentar cantidad"
             >
               <Plus className="h-4 w-4" />
             </button>
+            <span className="text-gray-400 text-sm">unidad{quantity !== 1 ? 'es' : ''}</span>
           </div>
-        </>
-
-      }
+        </div>
+      )}
     </div>
   )
 }

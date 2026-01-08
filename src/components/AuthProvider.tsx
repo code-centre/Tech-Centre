@@ -1,8 +1,8 @@
 // src/components/AuthProvider.tsx
 'use client';
 
-import { SessionContextProvider } from '@supabase/auth-helpers-react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
+import { useState } from 'react';
 
 export default function AuthProvider({ 
   children,
@@ -11,14 +11,9 @@ export default function AuthProvider({
   children: React.ReactNode;
   initialSession: any;
 }) {
-  const supabase = createClientComponentClient();
+  const [supabaseClient] = useState(() => createClient());
   
-  return (
-    <SessionContextProvider 
-      supabaseClient={supabase} 
-      initialSession={initialSession}
-    >
-      {children}
-    </SessionContextProvider>
-  );
+  // El SessionContextProvider ya no es necesario con @supabase/ssr
+  // El cliente maneja la sesión automáticamente
+  return <>{children}</>;
 }

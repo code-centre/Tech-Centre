@@ -2,18 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-
-// import React, { useState, useEffect } from "react";
-// import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth'
-// import { auth, db } from "../../../firebase";
-// import { useRouter } from "next/navigation";
-// import useUserStore from "../../../store/useUserStore";
-// import { doc, getDoc } from "firebase/firestore";
-// import Link from "next/link";
-// import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
-// import SignInWithGoogle from "../../components/SignInWithGoogle";
 
 
 const Login = () => {
@@ -22,7 +12,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();

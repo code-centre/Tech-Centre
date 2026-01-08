@@ -1,10 +1,6 @@
 {
     "allies": [
         {
-            "name": "Inside Labs",
-            "logo": "/logos/inside-lab.webp"
-        },
-        {
             "name": "Synergy",
             "logo": "/logos/Logo-synergy-2.webp"
         },
@@ -19,14 +15,6 @@
         {
             "name": "Caribe Ventures",
             "logo": "/logos/LogoCaribeVentures.webp"
-        },
-        {
-            "name": "Feanware",
-            "logo": "/logos/logofeamware.webp"
-        },
-        {
-            "name": "LegalIA",
-            "logo": "/logos/LegalIA.webp"
         }
     ]
 }

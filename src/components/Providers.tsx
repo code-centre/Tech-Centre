@@ -1,20 +1,9 @@
 'use client'
 
-import { createBrowserClient } from '@supabase/ssr'
-import { SessionContextProvider } from '@supabase/auth-helpers-react'
-import { useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const [supabaseClient] = useState(() => 
-    createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-  )
-
-  return (
-    <SessionContextProvider supabaseClient={supabaseClient}>
-      {children}
-    </SessionContextProvider>
-  )
+  // Con @supabase/ssr, el cliente maneja la sesión automáticamente
+  // Ya no necesitamos SessionContextProvider
+  return <>{children}</>
 }

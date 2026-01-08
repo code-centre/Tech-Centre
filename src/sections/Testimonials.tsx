@@ -118,7 +118,7 @@ export default function Testimonials({ backgroundColor }: Props) {
               llevas dentro.
             </p>
             <div>
-              <p className="text-2xl font-bold text-blueApp">¡Qué esperas!</p>
+              <p className="text-2xl font-bold text-blueApp">¿¡Qué esperas!?</p>
               <div className="h-1 border-b  my-3"></div>
               <p className="text-lg text-white">Cupos limitados</p>
             </div>

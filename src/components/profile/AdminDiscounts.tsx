@@ -5,6 +5,7 @@ import { db } from '../../../firebase'
 import { TrashIcon } from 'lucide-react'
 import SearchBar from './SearchBar'
 import AdminDiscountsTable from './AdminDiscountsTable'
+import type { EventFCA, Program } from '@/types/programs'
 
 export default function AdminDiscounts() {
     const [events, setEvents] = useState<EventFCA[]>([])
@@ -118,12 +119,12 @@ export default function AdminDiscounts() {
         await deleteDoc(discountRef)
     }
 
-    const getProductTitle = (productId: string) => {
+    const getProductTitle = (productId: string): string => {
         const event = events.find(e => e.id === productId)
-        if (event) return event.title
+        if (event && event.title) return event.title
 
         const program = programs.find(p => p.slug === productId)
-        if (program) return program.name
+        if (program && program.name) return program.name
 
         return 'Producto no encontrado'
     }
@@ -131,7 +132,7 @@ export default function AdminDiscounts() {
     const futureEvents = () => {
         const now = new Date();
         const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
-        return events.filter(e => new Date(e.date) > colombiaTime);
+        return events.filter((e: EventFCA) => e.date && new Date(e.date) > colombiaTime);
     }
     
     return (
