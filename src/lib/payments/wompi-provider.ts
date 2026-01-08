@@ -43,6 +43,7 @@ export class WompiProvider implements PaymentProvider {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('Error al crear link de pago en Wompi:', errorData);
         throw new Error(
           `Error al crear link de pago en Wompi: ${errorData.message || response.statusText}`
         );

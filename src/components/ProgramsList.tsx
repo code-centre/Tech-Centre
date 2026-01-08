@@ -6,7 +6,7 @@ import { GraduationCap, BookOpen, Award, ArrowRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useUser } from '@/lib/supabase'
 import CardLoader from './loaders-skeletons/CardLoader'
-import EventCreationModal from './EventCreationModal'
+import ProgramCreationModal from './ProgramCreationModal'
 import type { Program, CourseListSupaProps } from '@/types/programs'
 
 // Re-exportar Program para compatibilidad con código existente
@@ -53,54 +53,84 @@ export function ProgramsList({
   programs: programsProp,
   backgroundColor = 'bg-background',
   showHeader = true,
-  fetchPrograms = false, // Si es true, hace fetch interno; si es false, usa programsProp
+  fetchPrograms = true, // Por defecto siempre hace fetch desde Supabase
   horizontalScroll = false // Si es true, muestra todos en una fila con scroll horizontal
 }: CourseListSupaProps) {
-  const [programs, setPrograms] = useState<Program[]>(programsProp || [])
-  const [loading, setLoading] = useState(fetchPrograms)
+  const [programs, setPrograms] = useState<Program[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const { user } = useUser()
   const isAdmin = user?.role === 'admin'
 
-  // Si fetchPrograms es true, hacer fetch interno
+  // Siempre hacer fetch desde Supabase
   useEffect(() => {
-    if (fetchPrograms) {
-      const fetchProgramsData = async () => {
-        try {
-          setLoading(true)
-          let query = supabase
-            .from('programs')
-            .select('*')
-          
-          // Si no es admin, solo mostrar programas activos
-          if (!isAdmin) {
-            query = query.eq('is_active', true)
-          }
-
-          const { data, error } = await query
-
-          if (error) throw error
-          
-          setPrograms(data || [])
-        } catch (err) {
-          console.error('Error cargando programas:', err)
-          setError('Error al cargar los programas')
-        } finally {
-          setLoading(false)
+    const fetchProgramsData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        let query = (supabase as any)
+          .from('programs')
+          .select('*')
+        
+        // Si no es admin, solo mostrar programas activos
+        if (!isAdmin) {
+          query = query.eq('is_active', true)
         }
+
+        // Ordenar por fecha de creación (más recientes primero)
+        query = query.order('created_at', { ascending: false })
+
+        const { data, error: queryError } = await query
+
+        if (queryError) throw queryError
+        
+        // Siempre usar los datos de Supabase
+        setPrograms(data || [])
+      } catch (err) {
+        console.error('Error cargando programas desde Supabase:', err)
+        setError('Error al cargar los programas')
+        // En caso de error, usar programas prop si están disponibles como fallback
+        if (programsProp && programsProp.length > 0) {
+          setPrograms(programsProp)
+        } else {
+          setPrograms([])
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProgramsData()
+  }, [isAdmin]) // Solo depende de isAdmin para refrescar cuando cambia el rol
+
+  // Manejar la creación de nuevos programas - refrescar desde Supabase
+  const handleProgramCreate = async (newProgram: Program) => {
+    // Refrescar la lista desde Supabase para asegurar datos actualizados
+    try {
+      let query = (supabase as any)
+        .from('programs')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (!isAdmin) {
+        query = query.eq('is_active', true)
       }
 
-      fetchProgramsData()
-    } else {
-      // Si no hace fetch, usar los programas pasados como prop
-      setPrograms(programsProp || [])
+      const { data, error } = await query
+      
+      if (!error && data) {
+        setPrograms(data)
+      } else {
+        // Fallback: agregar el nuevo programa manualmente
+        setPrograms(prev => [newProgram, ...prev])
+      }
+    } catch (err) {
+      console.error('Error al refrescar programas:', err)
+      // Fallback: agregar el nuevo programa manualmente
+      setPrograms(prev => [newProgram, ...prev])
     }
-  }, [fetchPrograms, isAdmin, programsProp])
-
-  // Manejar la creación de nuevos programas
-  const handleProgramCreate = (newProgram: any) => {
-    setPrograms(prev => [newProgram, ...prev])
   }
 
   // Agrupar programas por tipo - DEBE estar antes de los early returns
@@ -215,7 +245,7 @@ export function ProgramsList({
                               kind={program.kind}
                               description={program.description}
                               level={program.difficulty}
-                              duration={`${program.duration}`}
+                              duration={program.total_hours ? `${program.total_hours} horas` : program.duration || ''}
                               schedule={program.schedule || typeSchedule}
                               slug={program.slug || program.code.toString()}
                               isActive={!program.is_active}
@@ -314,10 +344,10 @@ export function ProgramsList({
 
       {/* Modal para crear nuevo programa */}
       {isAdmin && (
-        <EventCreationModal
+        <ProgramCreationModal
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
-          onEventCreate={handleProgramCreate}
+          onProgramCreate={handleProgramCreate}
         />
       )}
     </section>

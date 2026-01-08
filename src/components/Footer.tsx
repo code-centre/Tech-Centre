@@ -1,12 +1,10 @@
 'use client'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { MapPin, Phone, Mail, Facebook, Instagram, Twitter, Github, InstagramIcon } from 'lucide-react'
-import { useCollection } from 'react-firebase-hooks/firestore'
-import { collection, query, where } from 'firebase/firestore'
-import { db } from '../../firebase'
+import { MapPin, Phone, Mail, Facebook, InstagramIcon } from 'lucide-react'
 import Image from 'next/image'
 import { LinkedInIcon } from './Icons'
+import { supabase } from '@/lib/supabase'
 import type { Program, EventFCA } from '@/types/programs'
 
 interface FooterProps {
@@ -14,43 +12,32 @@ interface FooterProps {
   programasEducativos?: Program[];
   cortosFuturos?: EventFCA[];
 }
-export function Footer({ slug, programasEducativos = [], cortosFuturos = [] }: FooterProps) {
+export function Footer() {
+  const [programs, setPrograms] = useState<Program[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const [programasEducativosSnapshot, loading, error] = useCollection(
-    query(collection(db, 'programs'),
-      where('status', '==', 'Publicado'))
-  )
-  const [cursosCortos, loadingCursosCortos, errorCursosCortos] = useCollection(
-    query(collection(db, 'events'),
-      where('status', '==', 'published'),
-      where('type', '==', 'curso especializado'),)
-  )
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const { data, error } = await (supabase as any)
+          .from('programs')
+          .select('id, name, code, slug, is_active')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(6)
 
-  // Procesar los datos
-  const programasFromDB = programasEducativosSnapshot
-    ? programasEducativosSnapshot.docs.map(doc => ({ ...(doc.data() as Program), id: doc.id }))
-    : []
-  const cursosCortosFromDB = cursosCortos
-    ? cursosCortos.docs.map(doc => ({ ...(doc.data() as EventFCA), id: doc.id }))
-    : []
+        if (error) throw error
+        
+        setPrograms(data || [])
+      } catch (err) {
+        console.error('Error cargando programas para el footer:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  // Filtrar cursos futuros
-  const cortosFuturosFromDB = cursosCortosFromDB.filter((curso) => {
-    if (!curso.date) return false;
-    const fechaActual = new Date();
-    fechaActual.setHours(0, 0, 0, 0);
-
-    const fechaCurso = new Date(curso.date);
-    fechaCurso.setHours(0, 0, 0, 0);
-
-    return fechaCurso >= fechaActual;
-  });
-
-  const academicosFromProps = [...programasEducativos, ...cortosFuturos];
-  const academicos = academicosFromProps.length > 0
-    ? academicosFromProps
-    : [...programasFromDB, ...cortosFuturosFromDB];
-
+    fetchPrograms()
+  }, [])
 
   return (
     <footer className="bg-background text-white py-8">
@@ -117,51 +104,40 @@ export function Footer({ slug, programasEducativos = [], cortosFuturos = [] }: F
           {/* Programas Column */}
           <div>
             <h3 className="font-bold text-white mb-4">Programas y cursos</h3>
-            <ul className="space-y-2">
-              {academicos.length > 0 ? (
-                academicos.slice(0, 6).map((programa) => (
+            {loading ? (
+              <ul className="space-y-2">
+                <li className="text-gray-300 text-sm">Cargando...</li>
+              </ul>
+            ) : programs.length > 0 ? (
+              <ul className="space-y-2">
+                {programs.map((programa) => (
                   <li key={programa.id}>
-                    <Link href={`/programas-academicos/${programa.slug}`} className="text-gray-300 hover:text-blue-400 text-sm">
-                      {'name' in programa ? programa.name : ('title' in programa ? programa.title : 'Programa')}
+                    <Link 
+                      href={`/programas-academicos/${programa.slug || programa.code}`} 
+                      className="text-gray-300 hover:text-blue-400 text-sm transition-colors"
+                    >
+                      {programa.name}
                     </Link>
                   </li>
-                ))
-              ) : (
-                // Fallback a las opciones estáticas si no hay datos
-                <>
-                  <li>
-                    <Link href="/programas-academicos/desarrollo-web" className="text-gray-300 hover:text-blue-400 text-sm">
-                      Desarrollo Web
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/programas/diseno-ux-ui" className="text-gray-300 hover:text-blue-400 text-sm">
-                      Diseño UX/UI
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/programas/cloud-computing" className="text-gray-300 hover:text-blue-400 text-sm">
-                      Cloud Computing
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/programas/curso-de-python" className="text-gray-300 hover:text-blue-400 text-sm">
-                      Curso de Python
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/programas/curso-de-figma" className="text-gray-300 hover:text-blue-400 text-sm">
-                      Curso de Figma
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/programas/analitica-datos" className="text-gray-300 hover:text-blue-400 text-sm">
-                      Analítica de Datos
-                    </Link>
-                  </li>
-                </>
-              )}
-            </ul>
+                ))}
+                <li>
+                  <Link 
+                    href="/programas-academicos" 
+                    className="text-gray-300 hover:text-blue-400 text-sm font-medium transition-colors"
+                  >
+                    Ver todos →
+                  </Link>
+                </li>
+              </ul>
+            ) : (
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/programas-academicos" className="text-gray-300 hover:text-blue-400 text-sm">
+                    Ver programas
+                  </Link>
+                </li>
+              </ul>
+            )}
           </div>
 
           {/* Contacto Column */}

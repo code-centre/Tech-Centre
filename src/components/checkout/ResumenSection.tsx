@@ -181,13 +181,21 @@ export default function ResumenSection({
       // 2. Crear link de pago usando PaymentProvider
       const paymentProvider = getPaymentProvider()
       
+      // Calcular el monto del primer pago: si es a cuotas, solo el primer pago; si es de contado, el total
+      let paymentAmount = totalAmount
+      if (paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation?.installmentAmount) {
+        // Si hay matrícula agregada, dividirla también entre las cuotas
+        const matriculaPerInstallment = matriculaAdded ? matriculaAmount / selectedInstallments : 0
+        paymentAmount = priceCalculation.installmentAmount + matriculaPerInstallment
+      }
+      
       let paymentLink
       try {
         paymentLink = await paymentProvider.createPaymentLink({
-          amount: totalAmount,
+          amount: Math.round(paymentAmount), // Redondear para evitar decimales
           name: `${data.name} - ${data.subtitle}`,
           description: `Inscripción para ${data.kind || 'programa'}`,
-          redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/checkout/confirmacion`,
+          redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/confirmacion?id=${enrollment.id}`,
           metadata: {
             enrollment_id: enrollment.id,
             program_id: data.id,
@@ -211,29 +219,7 @@ export default function ResumenSection({
         throw new Error('No pudimos generar el link de pago. Por favor, intenta nuevamente o contacta con soporte.')
       }
 
-      // 3. Marcar matrícula como pagada si está agregada
-      if (matriculaAdded && matriculaAmount > 0) {
-        const matriculaMarked = await markMatriculaAsPaid(user.id)
-        if (!matriculaMarked) {
-          console.warn('No se pudo marcar la matrícula como pagada, pero el pago continuará')
-        }
-      }
-
-      // 4. Incrementar usos del cupón si se aplicó uno
-      if (appliedCouponCode) {
-        // Necesitamos obtener el ID del cupón desde el código
-        const { data: couponData } = await (supabase as any)
-          .from('discount_coupons')
-          .select('id')
-          .eq('code', appliedCouponCode.toUpperCase())
-          .single()
-
-        if (couponData?.id) {
-          await incrementCouponUses(couponData.id)
-        }
-      }
-
-      // 5. Crear facturas si es pago a cuotas
+      // 3. Crear facturas si es pago a cuotas (se crearán como 'pending', se marcarán como 'paid' en la confirmación)
       if (paymentMethod === 'installments' && selectedInstallments > 1) {
         const installments = calculateInstallments(totalAmount, selectedInstallments)
 
@@ -242,7 +228,7 @@ export default function ResumenSection({
           label: `Pago ${installment.number} de ${selectedInstallments} - ${data.name}`,
           amount: installment.amount,
           due_date: installment.dueDate,
-          status: 'pending',
+          status: 'pending', // Se marcará como 'paid' en la página de confirmación cuando el pago sea exitoso
           meta: {
             payment_id: paymentLink.id,
             product_type: 'program',
@@ -250,6 +236,10 @@ export default function ResumenSection({
             user_id: user.id,
             payment_number: installment.number,
             total_payments: selectedInstallments,
+            payment_method: paymentMethod,
+            coupon_code: appliedCouponCode || null,
+            matricula_added: matriculaAdded,
+            matricula_amount: matriculaAmount || 0,
           },
         }))
 
@@ -261,9 +251,38 @@ export default function ResumenSection({
           console.error('Error al crear facturas:', invoiceError)
           // No lanzamos error aquí porque el enrollment ya se creó
         }
+      } else {
+        // Pago de contado: crear un invoice pendiente que se marcará como pagado en la confirmación
+        const invoice = {
+          enrollment_id: enrollment.id,
+          label: `Pago completo - ${data.name}`,
+          amount: totalAmount,
+          due_date: new Date().toISOString().split('T')[0],
+          status: 'pending', // Se marcará como 'paid' en la página de confirmación
+          meta: {
+            payment_id: paymentLink.id,
+            product_type: 'program',
+            product_id: slugProgram || data.code?.toString() || 'unknown',
+            user_id: user.id,
+            payment_number: 1,
+            total_payments: 1,
+            payment_method: paymentMethod,
+            coupon_code: appliedCouponCode || null,
+            matricula_added: matriculaAdded,
+            matricula_amount: matriculaAmount || 0,
+          },
+        }
+
+        const { error: invoiceError } = await (supabase as any)
+          .from('invoices')
+          .insert([invoice])
+
+        if (invoiceError) {
+          console.error('Error al crear invoice:', invoiceError)
+        }
       }
 
-      // 6. Redirigir al checkout del proveedor
+      // 4. Redirigir al checkout del proveedor
       router.push(paymentLink.url)
     } catch (err) {
       console.error('Error en handleGetLinkToPay:', err)
