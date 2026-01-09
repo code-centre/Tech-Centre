@@ -14,7 +14,7 @@ export default function ProfilePage() {
         router.push('/')
       } else {
         // Usar push en lugar de replace para mantener el historial
-        router.push('/perfil/cursos')
+        router.push('/perfil/datos-personales')
       }
     }
   }, [user, loading, router])

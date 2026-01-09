@@ -12,6 +12,7 @@ export interface QuickSignUpResult {
     email: string
   }
   error?: string
+  requiresEmailVerification?: boolean
 }
 
 /**
@@ -72,20 +73,16 @@ export async function quickSignUp(
       }
     }
 
-    // 2. Esperar un momento para asegurar que la sesión esté establecida
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    // 2. Verificar si el correo requiere verificación
+    const requiresEmailVerification = !authData.user.email_confirmed_at
 
-    // 3. Verificar sesión
-    const { data: { session } } = await supabase.auth.getSession()
-
-    if (!session) {
-      return {
-        success: false,
-        error: 'No se pudo establecer la sesión. Por favor, intenta iniciar sesión manualmente.',
-      }
+    // 3. Si el correo requiere verificación, crear el perfil sin sesión
+    // Si no requiere verificación, esperar un momento para asegurar que la sesión esté establecida
+    if (!requiresEmailVerification) {
+      await new Promise((resolve) => setTimeout(resolve, 500))
     }
 
-    // 4. Crear perfil mínimo en Supabase
+    // 4. Crear perfil mínimo en Supabase (usando el user.id del authData)
     const profileData = {
       user_id: authData.user.id,
       email: email.trim().toLowerCase(),
@@ -121,6 +118,7 @@ export async function quickSignUp(
         id: authData.user.id,
         email: authData.user.email || email,
       },
+      requiresEmailVerification,
     }
   } catch (error) {
     console.error('Error en quickSignUp:', error)
