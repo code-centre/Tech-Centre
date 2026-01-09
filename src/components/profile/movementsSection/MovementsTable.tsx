@@ -3,9 +3,7 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import { ArrowUpDown, Trash2Icon, CheckSquareIcon } from 'lucide-react'
-import { useCollection } from "react-firebase-hooks/firestore"
-import { collection, deleteDoc, doc, getDoc } from "firebase/firestore"
-import { db } from "@/../firebase"
+
 
 type MovementType = "ingreso" | "egreso" | "transferencia" | "event" | "program"
 
@@ -38,51 +36,6 @@ export const MovementsTable: React.FC<MovementsTableProps> = ({ movements }) => 
     const [movimientos, setMovimientos] = useState<Movement[]>(movements)
     const [usersData, setUsersData] = useState<User[]>([])
     const [isLoading, setIsLoading] = useState(true)
-
-    const [eventsMovements, loadingMovements, errorMovements] = useCollection(
-        collection(db, "movements")
-    )
-    const [users, loadingUsers, errorUsers] = useCollection(
-        collection(db, "users")
-    )
-
-    useEffect(() => {
-        if (users) {
-            const usersList = users.docs.map((doc) => {
-                const data = doc.data()
-                return {
-                    id: doc.id,
-                    name: data.name || "",
-                    lastName: data.lastName || "",
-                    email: data.email || "",
-                }
-            })
-            setUsersData(usersList)
-        }
-    }, [users])
-
-    useEffect(() => {
-        if (eventsMovements) {
-            const fetchedMovements = eventsMovements.docs.map((doc) => {
-                const data = doc.data()
-                return {
-                    id: doc.id,
-                    date: data.date || "",
-                    userID: data.userID || "",
-                    amount: data.amount || data.subtotal || 0,
-                    type: data.type || "event",
-                    discount: data.discount || 0,
-                    total: data.total || 0,
-                    subtotal: data.subtotal || 0,
-                    status: data.status === "APPROVED" ? "APROBADO" :
-                        data.status === "PENDING" ? "PENDIENTE" :
-                            data.status || "Desconocido"
-                }
-            })
-            setMovimientos(fetchedMovements)
-            setIsLoading(false)
-        }
-    }, [eventsMovements])
 
     const getUserName = (userID: string) => {
         if (!userID) return "ID no disponible"
@@ -200,20 +153,6 @@ export const MovementsTable: React.FC<MovementsTableProps> = ({ movements }) => 
             setCurrentPage(page);
         }
     };
-
-    if (isLoading || loadingMovements || loadingUsers) {
-        return <div className="text-center py-8">Cargando datos...</div>
-    }
-
-    if (errorMovements || errorUsers) {
-        return <div className="text-center py-8 text-red-500">Error al cargar los datos</div>
-    }
-    
-    const handleDelete = async (id: string) => {
-        if (confirm("¿Estás seguro de que deseas eliminar este movimiento?")) {
-            await deleteDoc(doc(db, "movements", id))
-        }
-    }
 
     return (
         <div>
@@ -350,7 +289,7 @@ export const MovementsTable: React.FC<MovementsTableProps> = ({ movements }) => 
                                         <div className="flex justify-end space-x-2">
                                             <button
                                                 className="text-red-600 hover:text-red-900"
-                                                onClick={() => handleDelete(String(movement.id))}
+                                                // onClick={() => handleDelete(String(movement.id))}
                                             >
                                                 <Trash2Icon className="h-5 w-5" />
                                             </button>

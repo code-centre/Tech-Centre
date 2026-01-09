@@ -2,13 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { ClockIcon, MessageCircleIcon, MapPinIcon, EditIcon, PlusCircle } from "lucide-react"
-import PaymentEventCard from "./PaymentEventCard"
-import PricingCardCreationModal from "./PricingCardCreationModal"
 import useUserStore from "../../../store/useUserStore"
-import AuthModal from "../AuthModal"
 import { useRouter } from "next/navigation"
 import AlertModal from "../AlertModal"
-import { supabase } from "@/lib/supabase"
+// import { supabase } from "@/lib/supabase"
 import type { Ticket } from "@/types/programs"
 
 interface ProgramData {
@@ -849,7 +846,7 @@ export function TicketsSupa({
         </div>
       )}
 
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onLogin={handleLoginSuccess} />
+      {/* <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onLogin={handleLoginSuccess} /> */}
       <AlertModal
         isOpen={alertState.isOpen}
         onClose={() => setAlertState({ isOpen: false, title: "", description: "" })}

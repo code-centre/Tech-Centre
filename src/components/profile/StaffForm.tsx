@@ -2,9 +2,6 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { db } from '../../../firebase'
-import { collection, query, where } from "firebase/firestore"
-import { useCollection } from "react-firebase-hooks/firestore"
 
 interface Staff {
   id: string
@@ -41,19 +38,7 @@ export function StaffForm({
     assignedTo: "",
   })
 
-  const [eventsData, loading, error] = useCollection(
-    query(collection(db, "events"), where("type", "in", ["hackatón", "meetup", "conferencia"])),
-  )
-
-  useEffect(() => {
-    if (eventsData) {
-      const eventsList = eventsData.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as EventFCA[]
-      setEvents(eventsList)
-    }
-  }, [eventsData])
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target

@@ -1,10 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useCollection } from "react-firebase-hooks/firestore"
 import { useState, useEffect } from "react"
-import { collection } from "firebase/firestore"
-import { db } from "@/../firebase"
+
 
 interface Movement {
   id: string
@@ -19,47 +17,11 @@ interface Movement {
 
 export const Dashboard: React.FC = () => {
   const [movementsData, setMovementsData] = useState<Movement[]>([])
-  const [movements, loadingMovements, errorMovements] = useCollection(collection(db, "movements"))
-  const [eventsSnapshot, loadingEvents, errorEvents] = useCollection(collection(db, "events"));
-  const [eventsMap, setEventsMap] = useState<Map<string, any>>(new Map());
 
-  useEffect(() => {
-    if (!eventsSnapshot) return;
+ 
 
-    const newEventsMap = new Map();
-    eventsSnapshot.docs.forEach((doc) => {
-      const eventData = doc.data();
-      newEventsMap.set(doc.id, {
-        id: doc.id,
-        name: eventData.name || "",
-      });
-    });
-    setEventsMap(newEventsMap);
-  }, [eventsSnapshot]);
+    
 
-  useEffect(() => {
-    if (movements && !loadingMovements && !errorMovements) {
-      const fetchedMovements = movements.docs.map((doc) => {
-        const data = doc.data()
-        return {
-          id: doc.id,
-          date: data.date || "",
-          userID: data.userID || "",
-          subtotal: Number(data.subtotal) || 0,
-          type: data.type || "event",
-          discount: Number(data.discount) || 0,
-          total: Number(data.total) || 0,
-          status:
-            data.status === "APPROVED"
-              ? "APROBADO"
-              : data.status === "PENDING"
-                ? "PENDIENTE"
-                : data.status || "Desconocido",
-        }
-      })
-      setMovementsData(fetchedMovements)
-    }
-  }, [movements, loadingMovements, errorMovements, eventsMap])
 
   const approvedMovements = movementsData.filter(
     (movement) => movement.status === "APROBADO"
@@ -90,14 +52,7 @@ export const Dashboard: React.FC = () => {
     }).format(amount)
   }
 
-  if (loadingMovements) {
-    return <div className="p-4">Cargando datos...</div>
-  }
-
-  if (errorMovements) {
-    return <div className="p-4 text-red-500">Error al cargar datos: {errorMovements.message}</div>
-  }
-
+  
   return (
     <div className="mb-8">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Estadísticas del Periodo</h2>
