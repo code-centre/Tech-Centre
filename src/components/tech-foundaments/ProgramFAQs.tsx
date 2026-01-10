@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react'
 import ContainerButtonsEdit from '../ContainerButtonsEdit'
 import { ArrowDown, Trash2, Plus } from 'lucide-react'
 import ButtonToEdit from '../ButtonToEdit'
-import { useUser } from '@/lib/supabase'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient, useUser } from '@/lib/supabase'
 
 interface FaqItem {
   id?: number;
@@ -19,6 +18,7 @@ interface Props {
 }
 
 export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate }: Props) {
+  const supabase = useSupabaseClient()
   const { user } = useUser()
   const isAdmin = user?.role === 'admin'
   
@@ -96,7 +96,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
           faq => faq.pregunta.trim() !== '' && faq.respuesta.trim() !== ''
         )
 
-        const { error: updateError } = await (supabase as any)
+        const { error: updateError } = await supabase
           .from('programs')
           .update({
             faqs: cleanedFAQs,

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 import type { Program } from '@/types/programs'
 import { calculatePrice } from '@/lib/pricing/price-calculator'
 
@@ -29,6 +29,7 @@ export default function PaymentMethodDropdown({
   setSelectedInstallments,
   onPriceChange,
 }: Props) {
+  const supabase = useSupabaseClient()
   const [cohort, setCohort] = useState<Cohort | null>(null)
   const [loading, setLoading] = useState(false)
   const basePrice = data.default_price || 0
@@ -42,7 +43,7 @@ export default function PaymentMethodDropdown({
 
       try {
         setLoading(true)
-        const { data: cohortData, error } = await (supabase as any)
+        const { data: cohortData, error } = await supabase
           .from('cohorts')
           .select('id, maximum_payments')
           .eq('id', selectedCohortId)
@@ -59,7 +60,7 @@ export default function PaymentMethodDropdown({
     }
 
     fetchCohort()
-  }, [selectedCohortId])
+  }, [selectedCohortId, supabase])
 
   // Calcular precio de contado con descuento
   const fullPaymentCalculation = calculatePrice({

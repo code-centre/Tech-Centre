@@ -1,8 +1,7 @@
 "use client";
-import { useUser } from "@/lib/supabase";
+import { useSupabaseClient, useUser } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 // Definimos los tipos para los datos
 interface Cohort {
@@ -12,6 +11,7 @@ interface Cohort {
 }
 
 export default function CohortInstructor() {
+  const supabase = useSupabaseClient()
   const { user, loading } = useUser();
   const router = useRouter();
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
@@ -25,7 +25,7 @@ export default function CohortInstructor() {
         fetchInstructorCohorts();
       }
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, supabase]);
 
   const fetchInstructorCohorts = async () => {
     try {

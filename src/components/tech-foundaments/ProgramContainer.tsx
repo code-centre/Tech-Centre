@@ -8,8 +8,7 @@ import { ProgramTeacher } from './ProgramTeacher'
 import ProgramDetails from './ProgramDetails'
 import ProgramFAQs from './ProgramFAQs'
 import Location from './Location'
-import { useUser } from '@/lib/supabase'
-import { supabase } from '@/lib/supabase'; 
+import { useSupabaseClient, useUser } from '@/lib/supabase'
 import type { Program } from '@/types/programs'
 
 export interface ProgramProps {
@@ -17,6 +16,7 @@ export interface ProgramProps {
 }
 
 export default function ProgramContainer({ programData }: ProgramProps) {
+  const supabase = useSupabaseClient()
   const [cohorts, setCohorts] = useState<any[]>([]);
   const [currentProgramData, setCurrentProgramData] = useState<Program>(programData);
   const { user } = useUser()
@@ -59,7 +59,7 @@ export default function ProgramContainer({ programData }: ProgramProps) {
     } else {
       setCohorts([]);
     }
-  }, [programData?.id]);
+  }, [programData?.id, supabase]);
 
   // Actualizar programData cuando cambie desde el componente hijo
   useEffect(() => {

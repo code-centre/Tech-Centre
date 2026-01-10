@@ -5,8 +5,7 @@ import ConfigurationSection from '@/components/checkout/ConfigurationSection'
 import ResumenSection from '@/components/checkout/ResumenSection'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
-import { useUser } from '@/lib/supabase'
+import { useSupabaseClient, useUser } from '@/lib/supabase'
 import type { Program } from '@/types/programs'
 import { Loader2 } from 'lucide-react'
 
@@ -32,6 +31,7 @@ function CheckoutLoader() {
 }
 
 function ViewCheckoutContent() {
+  const supabase = useSupabaseClient()
   const searchParams = useSearchParams()
   const { user } = useUser()
   
@@ -67,7 +67,7 @@ function ViewCheckoutContent() {
           }
 
           // Obtener la cohorte con su programa
-          const { data: cohortData, error: cohortError } = await (supabase as any)
+          const { data: cohortData, error: cohortError } = await supabase
             .from('cohorts')
             .select(`
               *,
@@ -136,7 +136,7 @@ function ViewCheckoutContent() {
     }
 
     fetchData()
-  }, [cohortIdParam, slugProgram])
+  }, [cohortIdParam, slugProgram, supabase])
 
   if (loading) {
     return <CheckoutLoader />

@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Upload, FileText, Send, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
-import { useUser } from '@/lib/supabase'
+import { useSupabaseClient, useUser } from '@/lib/supabase'
 
 interface UploadResponse {
   data: any;  // O un tipo más específico si lo tienes
@@ -18,6 +17,7 @@ type UploadError = {
 };
 
 export default function InstructorPanel() {
+  const supabase = useSupabaseClient()
   const [file, setFile] = useState<File | null>(null)
   const [description, setDescription] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -147,7 +147,7 @@ export default function InstructorPanel() {
   
     // Crear el registro en la tabla assessments
     console.log('Iniciando inserción en la tabla assessments...');
-    const { data: insertedData, error } = await (supabase as any)
+    const { data: insertedData, error } = await supabase
         .from('assessments')
         .insert([{
         name: assessment.name,

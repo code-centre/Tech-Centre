@@ -3,7 +3,7 @@
 import { Minus, Plus } from 'lucide-react'
 import React, { useEffect } from 'react'
 import ProductSummary from './ProductSummary'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 import type { Program } from '@/types/programs'
 
 interface Props {
@@ -41,13 +41,15 @@ export default function ConfigurationSection({
   onMatriculaStatusChange,
   className,
 }: Props) {
+  const supabase = useSupabaseClient()
+  
   // Cargar automáticamente la primera cohorte disponible
   useEffect(() => {
     const fetchFirstCohort = async () => {
       if (!data?.id || selectedCohortId) return
 
       try {
-        const { data: cohortData, error } = await (supabase as any)
+        const { data: cohortData, error } = await supabase
           .from('cohorts')
           .select('id')
           .eq('program_id', (data as any).id)
@@ -63,7 +65,7 @@ export default function ConfigurationSection({
     }
 
     fetchFirstCohort()
-  }, [data?.id, selectedCohortId, setSelectedCohortId])
+  }, [data?.id, selectedCohortId, setSelectedCohortId, supabase])
 
   const styleButton =
     'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blueApp disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10 hover:border-blueApp'

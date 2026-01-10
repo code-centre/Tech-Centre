@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react'
 import HTMLReactParser from 'html-react-parser/lib/index'
 import Editor from '../Editor'
 import ButtonToEdit from '../ButtonToEdit'
-import { useUser } from '@/lib/supabase'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient, useUser } from '@/lib/supabase'
 
 interface Props {
   programData: string;
@@ -13,6 +12,7 @@ interface Props {
 }
 
 export function ProgramDescription({ programData, programId, onDescriptionUpdate }: Props) {
+  const supabase = useSupabaseClient()
   const [isEditing, setIsEditing] = useState(false)
   const [descriptionContent, setDescriptionContent] = useState(programData || '')
   const [originalContent, setOriginalContent] = useState(programData || '')
@@ -35,7 +35,7 @@ export function ProgramDescription({ programData, programId, onDescriptionUpdate
     setError('');
     
     try {
-      const { error: updateError } = await (supabase as any)
+      const { error: updateError } = await supabase
         .from('programs')
         .update({
           description: descriptionContent,

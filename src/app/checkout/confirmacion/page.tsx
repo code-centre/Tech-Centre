@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { getPaymentProvider } from '@/lib/payments/payment-factory'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 import { calculateInstallments } from '@/lib/pricing/price-calculator'
 import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service'
 import { incrementCouponUses } from '@/lib/discounts/coupon-service'
@@ -32,6 +32,7 @@ function ConfirmationLoader() {
 }
 
 function CheckoutContent() {
+  const supabase = useSupabaseClient()
   const searchParams = useSearchParams()
   const router = useRouter()
   const [statusTransaction, setStatusTransaction] = useState<string | null>(null)
@@ -54,7 +55,7 @@ function CheckoutContent() {
         setError(null)
 
         // 1. Obtener el enrollment con sus datos relacionados
-        const { data: enrollment, error: enrollmentError } = await (supabase as any)
+        const { data: enrollment, error: enrollmentError } = await supabase
           .from('enrollments')
           .select(`
             *,
@@ -79,7 +80,7 @@ function CheckoutContent() {
 
         // 2. Obtener el estado de la transacción desde el proveedor de pago
         // Buscar el payment_id en los metadatos o en invoices
-        const { data: invoices } = await (supabase as any)
+        const { data: invoices } = await supabase
           .from('invoices')
           .select('meta')
           .eq('enrollment_id', enrollmentId)
@@ -130,7 +131,7 @@ function CheckoutContent() {
     }
 
     processPaymentConfirmation()
-  }, [enrollmentId])
+  }, [enrollmentId, supabase])
 
   const handlePaymentSuccess = async (enrollment: any) => {
     if (processingPayment) return // Evitar procesamiento duplicado
@@ -142,7 +143,7 @@ function CheckoutContent() {
       const program = cohort?.programs ? (Array.isArray(cohort.programs) ? cohort.programs[0] : cohort.programs) : null
 
       // 1. Actualizar el status del enrollment a 'enrolled' o 'paid'
-      const { error: updateError } = await (supabase as any)
+      const { error: updateError } = await supabase
         .from('enrollments')
         .update({ 
           status: 'enrolled',
@@ -156,7 +157,7 @@ function CheckoutContent() {
       }
 
       // 2. Obtener información del pago desde invoices existentes
-      const { data: existingInvoices } = await (supabase as any)
+      const { data: existingInvoices } = await supabase
         .from('invoices')
         .select('*')
         .eq('enrollment_id', enrollment.id)
@@ -186,7 +187,7 @@ function CheckoutContent() {
           },
         }
 
-        const { error: invoiceError } = await (supabase as any)
+        const { error: invoiceError } = await supabase
           .from('invoices')
           .insert([invoice])
 
@@ -197,7 +198,7 @@ function CheckoutContent() {
         // Es pago a cuotas, actualizar el primer invoice a 'paid'
         const firstInvoice = existingInvoices.find((inv: any) => inv.meta?.payment_number === 1) || existingInvoices[0]
         if (firstInvoice.status === 'pending') {
-          const { error: updateInvoiceError } = await (supabase as any)
+          const { error: updateInvoiceError } = await supabase
             .from('invoices')
             .update({ 
               status: 'paid',
@@ -213,7 +214,7 @@ function CheckoutContent() {
         // Es un solo invoice (pago de contado), marcarlo como pagado
         const invoice = existingInvoices[0]
         if (invoice.status === 'pending') {
-          const { error: updateInvoiceError } = await (supabase as any)
+          const { error: updateInvoiceError } = await supabase
             .from('invoices')
             .update({ 
               status: 'paid',
@@ -235,7 +236,7 @@ function CheckoutContent() {
 
       if (matriculaAdded && matriculaAmount > 0) {
         try {
-          await markMatriculaAsPaid(enrollment.student_id)
+          await markMatriculaAsPaid(supabase, enrollment.student_id)
         } catch (matriculaError) {
           console.warn('Error al marcar matrícula como pagada:', matriculaError)
         }
@@ -245,7 +246,7 @@ function CheckoutContent() {
       const couponCode = firstInvoice?.meta?.coupon_code
       if (couponCode) {
         try {
-          const { data: couponData } = await (supabase as any)
+          const { data: couponData } = await supabase
             .from('discount_coupons')
             .select('id')
             .eq('code', couponCode.toUpperCase())

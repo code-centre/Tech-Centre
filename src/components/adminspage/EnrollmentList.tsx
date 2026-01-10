@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useSupabaseClient } from '@/lib/supabase';
 
 interface Profile {
   user_id: string;
@@ -45,6 +45,7 @@ interface EnrollmentListProps {
 }
 
 export function EnrollmentList({ onEnrollmentSelect }: EnrollmentListProps) {
+  const supabase = useSupabaseClient()
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -133,7 +134,7 @@ export function EnrollmentList({ onEnrollmentSelect }: EnrollmentListProps) {
     };
 
     fetchEnrollments();
-  }, []);
+  }, [supabase]);
 
   const filteredEnrollments = enrollments.filter(enrollment => {
     if (!searchTerm) return true;

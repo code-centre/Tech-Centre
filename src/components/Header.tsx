@@ -4,13 +4,13 @@ import Image from "next/image"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, GraduationCap } from "lucide-react"
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import { useUser } from '@/lib/supabase'
+import { useUser, useSupabaseClient } from '@/lib/supabase'
 import ProgramQuery from "./ProgramQuery"
 import type { Program } from '@/types/programs'
 
 export default function Header() {
   const { user, loading: loadingUser } = useUser()
+  const supabase = useSupabaseClient()
   const router = useRouter()
   const [supabasePrograms, setSupabasePrograms] = useState<Program[]>([])
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -22,17 +22,16 @@ export default function Header() {
   }, [])
 
   const handleSignOut = async () => {
+    console.log('Cerrando sesión')
     try {
       await supabase.auth.signOut()
+      console.log('Cerrando sesión exitosamente')
       router.push('/')
       router.refresh()
     } catch (error) {
       console.error('Error al cerrar sesión:', error)
     }
   }
-
-
-
 
   // Click outside handler for mobile menu
   const handleClickOutside = useCallback((event: MouseEvent | TouchEvent) => {

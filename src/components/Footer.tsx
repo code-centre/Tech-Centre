@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { MapPin, Phone, Mail, Facebook, InstagramIcon } from 'lucide-react'
 import Image from 'next/image'
 import { LinkedInIcon } from './Icons'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 import type { Program } from '@/types/programs'
 
 interface FooterProps {
@@ -12,13 +12,14 @@ interface FooterProps {
   programasEducativos?: Program[];
 }
 export function Footer() {
+  const supabase = useSupabaseClient()
   const [programs, setPrograms] = useState<Program[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from('programs')
           .select('id, name, code, is_active')
           .eq('is_active', true)
@@ -36,7 +37,7 @@ export function Footer() {
     }
 
     fetchPrograms()
-  }, [])
+  }, [supabase])
 
   return (
     <footer className="bg-background text-white py-8">

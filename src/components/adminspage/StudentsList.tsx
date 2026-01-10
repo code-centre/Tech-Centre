@@ -1,5 +1,5 @@
 'use client';
-import { supabase } from '@/lib/supabase';
+import { useSupabaseClient } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 
 interface Student {
@@ -23,6 +23,7 @@ interface StudentsListProps {
 }
 
 export function StudentsList({ filters = {} }: StudentsListProps) {
+  const supabase = useSupabaseClient()
   
   const [profiles, setProfiles] = useState<any[]>([]);
   const [editingProfile, setEditingProfile] = useState<any>(null);
@@ -32,7 +33,7 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from('profiles')
           .select('*');
 
@@ -49,7 +50,7 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
     };
 
     fetchProfiles();
-  }, []);
+  }, [supabase]);
 
   // Aplicar filtros a los perfiles
   const filteredProfiles = profiles.filter(profile => {
@@ -86,7 +87,7 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
     if (!editingProfile) return;
 
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('profiles')
         .update({
           first_name: editingProfile.first_name,
@@ -211,7 +212,7 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
                   onClick={async () => {
                     if (window.confirm('¿Estás seguro de que deseas eliminar este perfil?')) {
                       try {
-                        const { error } = await (supabase as any)
+                        const { error } = await supabase
                           .from('profiles')
                           .delete()
                           .eq('id', profile.id);

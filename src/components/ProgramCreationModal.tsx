@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { XIcon, Type, FileText, Tag, DollarSign, Clock, BookOpen } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useSupabaseClient } from "@/lib/supabase";
 import { generateSlug } from "@/../utils/generateSlug";
 import AlertModal from "./AlertModal";
 import type { Program } from "@/types/programs";
@@ -14,6 +14,7 @@ interface ProgramCreationModalProps {
 }
 
 export default function ProgramCreationModal({ isOpen, onClose, onProgramCreate }: ProgramCreationModalProps) {
+  const supabase = useSupabaseClient()
   const [name, setName] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [description, setDescription] = useState("");
@@ -47,7 +48,7 @@ export default function ProgramCreationModal({ isOpen, onClose, onProgramCreate 
       const code = generateSlug(name);
 
       // Validar que el código no exista
-      const { data: existingProgram } = await (supabase as any)
+      const { data: existingProgram } = await supabase
         .from('programs')
         .select('code')
         .eq('code', code)
@@ -76,7 +77,7 @@ export default function ProgramCreationModal({ isOpen, onClose, onProgramCreate 
         updated_at: new Date().toISOString(),
       };
 
-      const { data: newProgram, error: insertError } = await (supabase as any)
+      const { data: newProgram, error: insertError } = await supabase
         .from('programs')
         .insert([programData])
         .select()

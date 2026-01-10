@@ -2,9 +2,8 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useUser } from '@/lib/supabase';
+import { useSupabaseClient, useUser } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
 
 interface Syllabus {
   modulos: Array<{
@@ -30,6 +29,7 @@ interface CohortData {
 }
 
 export default function CohortPage() {
+  const supabase = useSupabaseClient()
   const params = useParams();
   const { user, loading } = useUser();
   const [cohortName, setCohortName] = useState('');
@@ -45,7 +45,7 @@ export default function CohortPage() {
       fetchSyllabus(decodedName);
       console.log("nombre decodificado",decodedName)
     }
-  }, [params.cohort]);
+  }, [params.cohort, supabase]);
 
   const fetchSyllabus = async (cohortName: string) => {
     try {

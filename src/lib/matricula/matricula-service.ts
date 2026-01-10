@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 
 export interface MatriculaConfig {
   id: string
@@ -17,12 +17,16 @@ export interface UserMatriculaStatus {
   description?: string | null
 }
 
+type SupabaseClient = ReturnType<typeof createClient>
+
 /**
  * Obtiene la configuración activa de matrícula desde la base de datos
  */
-export async function getMatriculaConfig(): Promise<MatriculaConfig | null> {
+export async function getMatriculaConfig(
+  supabaseClient: SupabaseClient
+): Promise<MatriculaConfig | null> {
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await (supabaseClient as any)
       .from('matricula_config')
       .select('*')
       .eq('is_active', true)
@@ -49,11 +53,14 @@ export async function getMatriculaConfig(): Promise<MatriculaConfig | null> {
 /**
  * Verifica si el usuario ha pagado la matrícula del año actual
  */
-export async function checkMatriculaPaid(userId: string): Promise<boolean> {
+export async function checkMatriculaPaid(
+  supabaseClient: SupabaseClient,
+  userId: string
+): Promise<boolean> {
   try {
     const currentYear = new Date().getFullYear()
 
-    const { data, error } = await (supabase as any)
+    const { data, error } = await (supabaseClient as any)
       .from('profiles')
       .select('matricula_paid, matricula_paid_year')
       .eq('user_id', userId)
@@ -88,11 +95,14 @@ export async function checkMatriculaPaid(userId: string): Promise<boolean> {
 /**
  * Marca la matrícula como pagada para el usuario y el año actual
  */
-export async function markMatriculaAsPaid(userId: string): Promise<boolean> {
+export async function markMatriculaAsPaid(
+  supabaseClient: SupabaseClient,
+  userId: string
+): Promise<boolean> {
   try {
     const currentYear = new Date().getFullYear()
 
-    const { error } = await (supabase as any)
+    const { error } = await (supabaseClient as any)
       .from('profiles')
       .update({
         matricula_paid: true,
@@ -117,9 +127,12 @@ export async function markMatriculaAsPaid(userId: string): Promise<boolean> {
  * Determina si se debe mostrar la matrícula en el checkout
  * Retorna el estado completo incluyendo el monto
  */
-export async function shouldShowMatricula(userId: string): Promise<UserMatriculaStatus> {
+export async function shouldShowMatricula(
+  supabaseClient: SupabaseClient,
+  userId: string
+): Promise<UserMatriculaStatus> {
   try {
-    const config = await getMatriculaConfig()
+    const config = await getMatriculaConfig(supabaseClient)
     
     if (!config || !config.is_active) {
       return {
@@ -131,7 +144,7 @@ export async function shouldShowMatricula(userId: string): Promise<UserMatricula
       }
     }
 
-    const hasPaid = await checkMatriculaPaid(userId)
+    const hasPaid = await checkMatriculaPaid(supabaseClient, userId)
 
     return {
       paid: hasPaid,
@@ -155,9 +168,11 @@ export async function shouldShowMatricula(userId: string): Promise<UserMatricula
 /**
  * Función para reiniciar matrículas (puede ser llamada desde un cron job o manualmente)
  */
-export async function resetMatriculasForNewYear(): Promise<boolean> {
+export async function resetMatriculasForNewYear(
+  supabaseClient: SupabaseClient
+): Promise<boolean> {
   try {
-    const { error } = await (supabase as any).rpc('check_and_reset_matricula')
+    const { error } = await (supabaseClient as any).rpc('check_and_reset_matricula')
 
     if (error) {
       console.error('Error al reiniciar matrículas:', error)

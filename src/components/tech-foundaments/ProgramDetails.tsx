@@ -4,8 +4,7 @@ import { Program } from '@/types/programs'
 import { useState } from 'react'
 import ButtonToEdit from '../ButtonToEdit'
 import ContainerButtonsEdit from '../ContainerButtonsEdit'
-import { useUser } from '@/lib/supabase'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient, useUser } from '@/lib/supabase'
 
 interface Props {
   programData: Program
@@ -15,6 +14,7 @@ interface Props {
 }
 
 export default function ProgramDetails({ programData, cohorts, user, onDetailsUpdate }: Props) {
+  const supabase = useSupabaseClient()
   const { user: currentUser } = useUser()
   const isAdmin = currentUser?.role === 'admin' || user?.role === 'admin'
   
@@ -40,7 +40,7 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
     setError('')
     
     try {
-      const { error: updateError } = await (supabase as any)
+      const { error: updateError } = await supabase
         .from('programs')
         .update({
           duration: editedData.duration,

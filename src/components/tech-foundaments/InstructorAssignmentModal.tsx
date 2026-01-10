@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X, Search, Loader2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 import Image from 'next/image'
 
 interface Profile {
@@ -23,6 +23,7 @@ interface Props {
 }
 
 export default function InstructorAssignmentModal({ cohortId, currentInstructor, onClose }: Props) {
+  const supabase = useSupabaseClient()
   const [searchTerm, setSearchTerm] = useState('')
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [loading, setLoading] = useState(false)
@@ -32,7 +33,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
 
   useEffect(() => {
     fetchInstructors()
-  }, [])
+  }, [supabase])
 
   const fetchInstructors = async () => {
     setLoading(true)
@@ -40,7 +41,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
     
     try {
       // Buscar usuarios con rol instructor o admin
-      const { data, error: fetchError } = await (supabase as any)
+      const { data, error: fetchError } = await supabase
         .from('profiles')
         .select('user_id, first_name, last_name, email, profile_image, professional_title, bio, linkedin_url')
         .in('role', ['instructor', 'admin'])
@@ -67,7 +68,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
     setError('')
     
     try {
-      const { data, error: searchError } = await (supabase as any)
+      const { data, error: searchError } = await supabase
         .from('profiles')
         .select('user_id, first_name, last_name, email, profile_image, professional_title, bio, linkedin_url')
         .in('role', ['instructor', 'admin'])
@@ -108,7 +109,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
       }
 
       // Primero, eliminar cualquier instructor existente para esta cohorte
-      const { error: deleteError } = await (supabase as any)
+      const { error: deleteError } = await supabase
         .from('cohort_instructors')
         .delete()
         .eq('cohort_id', cohortIdNum)
@@ -122,7 +123,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
       }
 
       // Luego, asignar el nuevo instructor
-      const { data, error: insertError } = await (supabase as any)
+      const { data, error: insertError } = await supabase
         .from('cohort_instructors')
         .insert({
           cohort_id: cohortIdNum,
@@ -170,7 +171,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
     setError('')
 
     try {
-      const { error: deleteError } = await (supabase as any)
+      const { error: deleteError } = await supabase
         .from('cohort_instructors')
         .delete()
         .eq('cohort_id', cohortId)

@@ -1,5 +1,5 @@
 'use client';
-import { supabase } from "@/lib/supabase";
+import { useSupabaseClient } from "@/lib/supabase";
 import { useEffect, useState } from 'react';
 
 interface Student {
@@ -30,6 +30,7 @@ interface Enrollment {
 
 
 export default function CohortListInstructor({ cohortName }: CohortListInstructorProps) {
+  const supabase = useSupabaseClient()
   const [cohortId, setCohortId] = useState<string | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +45,7 @@ useEffect(() => {
       console.log('Buscando cohorte con nombre:', cohortName);
       
       // 1. Buscar el ID del cohorte por su nombre
-      const { data: cohortData, error: cohortError } = await (supabase as any)
+      const { data: cohortData, error: cohortError } = await supabase
         .from('cohorts')
         .select('id')
         .eq('name', cohortName)
@@ -63,7 +64,7 @@ useEffect(() => {
 
       // 2. Buscar los estudiantes inscritos en este cohorte
       console.log('Buscando estudiantes para el cohorte ID:', cohortId);
-      const { data: enrollmentsData, error: enrollmentsError } = await (supabase as any)
+      const { data: enrollmentsData, error: enrollmentsError } = await supabase
         .from('enrollments')
         .select(`
           id,
@@ -107,7 +108,7 @@ useEffect(() => {
   };
 
   fetchCohortAndStudents();
-}, [cohortName]);
+}, [cohortName, supabase]);
 
   if (loading) {
     return (

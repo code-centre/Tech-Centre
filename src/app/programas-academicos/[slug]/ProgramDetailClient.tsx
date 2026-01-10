@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { useSupabaseClient } from "@/lib/supabase"
 import { Program } from "@/types/programs"
 import { ProgramsList } from "@/components/ProgramsList"
 import Loader from "@/components/Loader"
@@ -26,6 +26,7 @@ export default function ProgramDetailClient({
   const [programData, setProgramData] = useState<Program | null>(initialProgramData)
   const [allPrograms, setAllPrograms] = useState<Program[]>([])
   const [firstCohortId, setFirstCohortId] = useState<number | null>(initialCohortId)
+  const supabase = useSupabaseClient()
 
   useEffect(() => {
     if (initialProgramData) {
@@ -48,7 +49,7 @@ export default function ProgramDetailClient({
           setContentType("programa")
           
           // Obtener la primera cohorte disponible para el checkout
-          const { data: cohortData } = await (supabase as any)
+          const { data: cohortData } = await supabase
             .from('cohorts')
             .select('id')
             .eq('program_id', (supabaseProgram as any).id)
@@ -102,7 +103,7 @@ export default function ProgramDetailClient({
     }
 
     checkContentType()
-  }, [slug, initialProgramData])
+  }, [slug, initialProgramData, supabase])
 
   if (isLoading) {
     return (
@@ -145,14 +146,20 @@ export default function ProgramDetailClient({
             timeRequired={programData.duration || undefined}
             url={`${baseUrl}/programas-academicos/${programData.code || programData.slug}`}
           />
-          <main className="flex gap-8">
+          <main className="flex flex-col lg:flex-row gap-8 pb-32 lg:pb-0">
             <ProgramContainer programData={programData} />
               
-            <aside className="w-80 shrink-0 hidden lg:block">
+            {/* Desktop: Sidebar sticky */}
+            <aside className="w-full lg:w-80 shrink-0 hidden lg:block">
               <div className="sticky top-24">
                 <NavigationCard programData={programData} cohortId={firstCohortId} />
               </div>
             </aside>
+
+            {/* Mobile: Sticky bottom card */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 p-4 bg-background/95 backdrop-blur-sm border-t border-zinc-700/50 shadow-lg">
+              <NavigationCard programData={programData} cohortId={firstCohortId} />
+            </div>
           </main>
         </>
        )}

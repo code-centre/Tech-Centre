@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { GraduationCap, UserPlus, Pencil, Code as CodeIcon, Loader2, Linkedin, Twitter, Instagram, Github } from "lucide-react";
-import { useUser } from "@/lib/supabase";
-import { supabase } from "@/lib/supabase";
+import { useSupabaseClient, useUser } from "@/lib/supabase";
 import InstructorAssignmentModal from "./InstructorAssignmentModal";
 import Image from "next/image";
 
@@ -26,6 +25,7 @@ interface Props {
 }
 
 export function ProgramTeacher({ cohortId }: Props) {
+  const supabase = useSupabaseClient()
   const [instructor, setInstructor] = useState<Instructor | null>(null)
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -36,14 +36,14 @@ export function ProgramTeacher({ cohortId }: Props) {
     if (cohortId) {
       fetchInstructor()
     }
-  }, [cohortId])
+  }, [cohortId, supabase])
 
   const fetchInstructor = async () => {
     if (!cohortId) return
     
     setLoading(true)
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('cohort_instructors')
         .select(`
           instructor_id,

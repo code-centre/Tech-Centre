@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, X, XCircle, GraduationCap, Users, Clock, DollarSign, TrendingUp, Eye, EyeOff, Filter, Loader2, Calendar, BookOpen, Save } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { useUser } from '@/lib/supabase';
+import { useSupabaseClient, useUser } from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -35,6 +34,7 @@ type Program = {
 type FilterType = 'all' | 'active' | 'inactive';
 
 export default function ProgramsAdmon() {
+  const supabase = useSupabaseClient()
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -73,7 +73,7 @@ export default function ProgramsAdmon() {
   const fetchPrograms = async () => {
     try {
       setLoading(true);
-      const { data: programsData, error: programsError } = await (supabase as any)
+      const { data: programsData, error: programsError } = await supabase
         .from('programs')
         .select('*')
         .order('created_at', { ascending: false });
@@ -83,7 +83,7 @@ export default function ProgramsAdmon() {
       // Obtener cohortes para cada programa
       const programsWithCohorts = await Promise.all(
         (programsData || []).map(async (program: any) => {
-          const { data: cohortsData } = await (supabase as any)
+          const { data: cohortsData } = await supabase
             .from('cohorts')
             .select('id, name, start_date, end_date, modality, campus')
             .eq('program_id', program.id);
@@ -133,7 +133,7 @@ export default function ProgramsAdmon() {
   const handleToggleActive = async (programId: number, currentStatus: boolean) => {
     try {
       setTogglingActive(programId);
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('programs')
         .update({ is_active: !currentStatus, updated_at: new Date().toISOString() })
         .eq('id', programId);
@@ -180,7 +180,7 @@ export default function ProgramsAdmon() {
       
       if (editingId) {
         // Actualizar programa existente
-        const { data: updatedProgram, error: updateError } = await (supabase as any)
+        const { data: updatedProgram, error: updateError } = await supabase
           .from('programs')
           .update(programData)
           .eq('id', editingId)
@@ -192,7 +192,7 @@ export default function ProgramsAdmon() {
         }
         
         // Recargar cohortes
-        const { data: cohortsData, error: cohortsError } = await (supabase as any)
+        const { data: cohortsData, error: cohortsError } = await supabase
           .from('cohorts')
           .select('id, name, start_date, end_date, modality, campus')
           .eq('program_id', editingId);
@@ -209,7 +209,7 @@ export default function ProgramsAdmon() {
         alert('Programa actualizado exitosamente');
       } else {
         // Crear nuevo programa
-        const { data: newProgram, error: insertError } = await (supabase as any)
+        const { data: newProgram, error: insertError } = await supabase
           .from('programs')
           .insert([
             {
@@ -258,7 +258,7 @@ export default function ProgramsAdmon() {
   const handleDelete = async (id: number) => {
     if (confirm('¿Estás seguro de eliminar este programa? Esta acción no se puede deshacer.')) {
       try {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('programs')
           .delete()
           .eq('id', id);

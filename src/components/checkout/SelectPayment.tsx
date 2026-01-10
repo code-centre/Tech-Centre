@@ -1,6 +1,6 @@
 import { Plus, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 import type { Program } from '@/types/programs'
 
 interface Props {
@@ -26,6 +26,7 @@ interface PaymentPlan {
 }
 
 export default function SelectPayment({ data, paymentMethod, setPaymentMethod, setSubtotal, setPriceSelected, priceSelected, setQuantity, isShort, selectedInstallments, setSelectedInstallments }: Props) {
+  const supabase = useSupabaseClient()
   const [paymentPlans, setPaymentPlans] = useState<PaymentPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export default function SelectPayment({ data, paymentMethod, setPaymentMethod, s
     };
 
     fetchPaymentPlans();
-  }, [data?.id]);
+  }, [data?.id, supabase]);
 
   return (
     <section className='flex flex-col gap-5'>
