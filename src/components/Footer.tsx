@@ -28,7 +28,7 @@ export function Footer() {
 
         if (error) throw error
 
-        setPrograms(data || [])
+        setPrograms(data as Program[] || [])
       } catch (err) {
         console.error('Error cargando programas para el footer:', err)
       } finally {

@@ -46,7 +46,7 @@ export default function ResumenSection({
 }: Props) {
   const router = useRouter()
   const supabase = useSupabaseClient()
-  const { user, refreshUser } = useUser()
+  const { user } = useUser()
   const [discount, setDiscount] = useState<number>(0)
   const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null)
   const [showQuickSignUp, setShowQuickSignUp] = useState<boolean>(false)
