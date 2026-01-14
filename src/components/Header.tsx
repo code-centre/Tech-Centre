@@ -297,13 +297,13 @@ export default function Header() {
         <div
           ref={mobileMenuRef}
           onClick={(e) => e.stopPropagation()} // Prevent clicks within the menu from closing it
-          className={`lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-zinc-900/95 backdrop-blur-md border-l border-zinc-600 z-50 shadow-2xl transition-transform duration-300 ease-out ${
+          className={`lg:hidden fixed top-0 right-0 h-auto w-80 max-w-[85vw] bg-zinc-900/95 backdrop-blur-md border-l border-zinc-600 z-50 shadow-2xl transition-transform duration-300 ease-out ${
             isMenuOpen
               ? "translate-x-0"
               : "translate-x-full"
           }`}
         >
-          <div className="px-4 py-4 divide-y divide-gray-300 h-full overflow-y-auto">
+          <div className="px-4 py-4 divide-y divide-gray-300 h-auto overflow-y-auto">
             {/* Close button */}
             <div className="flex justify-end mb-4">
               <button
