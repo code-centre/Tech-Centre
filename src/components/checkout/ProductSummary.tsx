@@ -152,12 +152,12 @@ export default function ProductSummary({
       </div>
 
       {/* Matrícula anual - Primer elemento */}
-      {!loadingMatricula && showMatricula && matriculaAmount > 0 && (
+      {/* {!loadingMatricula && showMatricula && matriculaAmount > 0 && (
         <MatriculaItem
           amount={matriculaAmount}
           description={matriculaDescription}
         />
-      )}
+      )} */}
 
       {/* Información del programa */}
       <div className="flex flex-col md:flex-row gap-6 p-6 bg-zinc-800/50 rounded-xl border border-zinc-700/50">

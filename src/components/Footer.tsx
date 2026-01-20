@@ -152,13 +152,13 @@ export function Footer() {
               <li className="flex items-center">
                 <Phone className="h-5 w-5 text-blue-400 mr-2" />
                 <a href="tel:+573003234567" className="text-gray-300 hover:text-blue-400 text-sm">
-                  +57 300 323 4567
+                  +57 300 552 3872
                 </a>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 text-blue-400 mr-2" />
                 <a href="mailto:info@techcentre.edu.co" className="text-gray-300 hover:text-blue-400 text-sm">
-                  info@techcentre.edu.co
+                  admisiones@techcentre.co
                 </a>
               </li>
             </ul>
