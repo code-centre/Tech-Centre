@@ -1,31 +1,27 @@
 'use client';
-import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 
-type Status = 'student' | 'instructor' | 'admin' | 'lead' | 'all';
+// Actualizamos la interfaz eliminando 'status'
+interface FilterParams {
+  searchTerm?: string;
+  startDate?: string;
+  endDate?: string;
+}
 
 interface StudentsFilterProps {
-  onFilter: (filters: {
-    searchTerm?: string;
-    status?: 'student' | 'instructor' | 'admin' | 'lead';
-    startDate?: string;
-    endDate?: string;
-  }) => void;
+  onFilter: (filters: FilterParams) => void;
 }
 
 export function StudentsFilter({ onFilter }: StudentsFilterProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [status, setStatus] = useState<Status>('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
-    // Aplicar filtros con un pequeño retraso para evitar múltiples llamadas
     const timer = setTimeout(() => {
-      const filters: any = {};
+      const filters: FilterParams = {};
       
       if (searchTerm) filters.searchTerm = searchTerm;
-      if (status !== 'all') filters.status = status;
       if (startDate) filters.startDate = startDate;
       if (endDate) filters.endDate = endDate;
       
@@ -33,87 +29,77 @@ export function StudentsFilter({ onFilter }: StudentsFilterProps) {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, status, startDate, endDate, onFilter]);
+  }, [searchTerm, startDate, endDate, onFilter]);
 
   const handleClearFilters = () => {
     setSearchTerm('');
-    setStatus('all');
     setStartDate('');
     setEndDate('');
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow mb-6 mt-28 flex items-center justify-center">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* Búsqueda por nombre o email */}
+    // CAMBIO: bg-white -> bg-black, y añadí text-white para herencia general
+    <div className="bg-black p-4 rounded-lg shadow mb-6 mt-28">
+      {/* CAMBIO: lg:grid-cols-5 -> lg:grid-cols-4 porque quitamos una columna */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        {/* 1. Búsqueda */}
         <div className="lg:col-span-1">
-          <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-            Buscar por nombre o email
+          {/* CAMBIO: text-gray-700 -> text-gray-200 para contraste con fondo negro */}
+          <label htmlFor="search" className="block text-sm font-medium text-gray-200 mb-1">
+            Buscar
           </label>
           <input
             type="text"
             id="search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full border border-gray-600 rounded-md shadow-sm p-2 bg-gray-900 text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Nombre o email..."
           />
         </div>
 
-        {/* Filtro por rol */}
-        <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-            Rol
-          </label>
-          <select
-            id="status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as Status)}
-            className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="all">Todos los roles</option>
-            <option value="student">Estudiante</option>
-            <option value="instructor">Instructor</option>
-            <option value="admin">Administrador</option>
-            <option value="lead">Lead</option>
-          </select>
-        </div>
+        {/* (El campo Rol fue eliminado aquí) */}
 
-        {/* Filtro por fecha de inicio */}
+        {/* 2. Fecha desde */}
         <div>
-          <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="startDate" className="block text-sm font-medium text-gray-200 mb-1">
             Fecha desde
           </label>
+          {/* He oscurecido también los inputs (bg-gray-900) para que combinen mejor con el fondo negro, pero manteniendo legibilidad */}
           <input
             type="date"
             id="startDate"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full border border-gray-600 rounded-md shadow-sm p-2 bg-gray-900 text-white focus:ring-blue-500 focus:border-blue-500 color-scheme-dark"
           />
         </div>
 
-        {/* Filtro por fecha de fin */}
+        {/* 3. Fecha hasta */}
         <div>
-          <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="endDate" className="block text-sm font-medium text-gray-200 mb-1">
             Fecha hasta
           </label>
-          <div className="flex space-x-2">
-            <input
-              type="date"
-              id="endDate"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <button
-              onClick={handleClearFilters}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Limpiar
-            </button>
-          </div>
+          <input
+            type="date"
+            id="endDate"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="w-full border border-gray-600 rounded-md shadow-sm p-2 bg-gray-900 text-white focus:ring-blue-500 focus:border-blue-500 color-scheme-dark"
+          />
         </div>
+
+        {/* 4. Botón Limpiar */}
+        <div className="flex items-end">
+          <button
+            onClick={handleClearFilters}
+            className="w-full px-3 py-2 border border-gray-600 rounded-md text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            Limpiar Filtros
+          </button>
+        </div>
+
       </div>
     </div>
   );
