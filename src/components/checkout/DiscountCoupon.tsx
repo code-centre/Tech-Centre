@@ -77,7 +77,7 @@ export default function DiscountCoupon({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
-        <Tag className="w-5 h-5 text-blueApp" />
+        <Tag className="w-5 h-5 text-secondary" />
         <label className="text-sm font-semibold text-white">
           Código de descuento o cupón
         </label>
@@ -118,26 +118,26 @@ export default function DiscountCoupon({
                 setSuccess(false)
               }}
               placeholder="Ingresa tu código de descuento"
-              className={`w-full py-3 px-4 border rounded-lg focus-visible:ring-2 focus-visible:ring-blueApp focus-visible:outline-none bg-zinc-800 text-white placeholder:text-gray-500 transition-all ${
+              className={`w-full py-3 px-4 border rounded-lg focus-visible:ring-2 focus-visible:ring-secondary focus-visible:outline-none bg-zinc-800 text-white placeholder:text-gray-500 transition-all ${
                 error
                   ? 'border-red-500 focus-visible:ring-red-500'
                   : success
                   ? 'border-emerald-500 focus-visible:ring-emerald-500'
-                  : 'border-zinc-700 focus-visible:border-blueApp'
+                  : 'border-zinc-700 focus-visible:border-secondary'
               }`}
               type="text"
               disabled={loading}
             />
             {loading && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                <Loader2 className="w-5 h-5 animate-spin text-blueApp" />
+                <Loader2 className="w-5 h-5 animate-spin text-secondary" />
               </div>
             )}
           </div>
           <button
             type="submit"
             disabled={loading || !couponCode.trim()}
-            className="px-6 py-3 bg-blueApp hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex-shrink-0"
+            className="px-6 py-3 bg-secondary hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex-shrink-0"
           >
             {loading ? 'Aplicando...' : 'Aplicar'}
           </button>

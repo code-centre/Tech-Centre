@@ -41,7 +41,7 @@ export default function Reviews() {
     return (
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="w-8 h-8 border-4 border-blueApp border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin mx-auto"></div>
         </div>
       </section>
     );
@@ -55,7 +55,7 @@ export default function Reviews() {
     <section className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-blueApp">Lo que dicen nuestros estudiantes</h2>
+          <h2 className="text-3xl font-bold text-secondary">Lo que dicen nuestros estudiantes</h2>
           <p className="mt-4 text-lg text-white">
             Conoce las experiencias de quienes ya han transformado su carrera con nosotros
           </p>
@@ -74,7 +74,7 @@ export default function Reviews() {
                 className="bg-zinc-900 w-[350px] p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow border border-zinc-800 shrink-0"
               >
                 <div className="flex items-center justify-center mb-4">
-                  <div className="text-4xl font-bold text-blueApp">&ldquo;</div>
+                  <div className="text-4xl font-bold text-secondary">&ldquo;</div>
                 </div>
 
                 <p className="text-white text-center mb-6 italic line-clamp-4">
@@ -90,7 +90,7 @@ export default function Reviews() {
                     className="rounded-full"
                   />
                   <div>
-                    <h4 className="font-medium text-blueApp">{review.author_name}</h4>
+                    <h4 className="font-medium text-secondary">{review.author_name}</h4>
                     <div className="flex items-center gap-1 mt-1">
                       {[...Array(5)].map((_, i) => (
                         <Star
@@ -111,7 +111,7 @@ export default function Reviews() {
             href={`https://www.google.com/maps/search/?api=1&query=Tech+Centre&query_place_id=${placeId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blueApp hover:underline font-medium inline-flex items-center gap-2"
+            className="text-secondary hover:underline font-medium inline-flex items-center gap-2"
           >
             Ver todas nuestras reseñas en Google Maps
             <span>→</span>

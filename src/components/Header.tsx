@@ -6,6 +6,7 @@ import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, Gradua
 import { useRouter } from 'next/navigation'
 import { useUser, useSupabaseClient } from '@/lib/supabase'
 import ProgramQuery from "./ProgramQuery"
+import { ThemeToggle } from "./ThemeToggle"
 import type { Program } from '@/types/programs'
 
 export default function Header() {
@@ -57,14 +58,14 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm shadow-lg">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-bg-primary/80 backdrop-blur-sm shadow-lg border-b border-border-color">
       <ProgramQuery onProgramsLoaded={handleProgramsLoaded} />
 
       <div className="max-w-7xl mx-auto container px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex-shrink-0">
             <Image
-              src="/tech-center-logos/Logotechcentrehorizontal.png"
+              src="/tech-center-logos/logo-primary-extendido.png"
               alt="Logo de Tech-Centre"
               width={160}
               height={40}
@@ -77,12 +78,12 @@ export default function Header() {
             {/* Programas Dropdown */}
             <div className="relative group">
               <button
-                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                className="flex items-center space-x-2 text-text-primary hover:text-secondary 
                 font-medium transition-all duration-200 group cursor-pointer"
               >
                 <span
                   className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                  after:w-0 after:bg-secondary after:transition-all group-hover:after:w-full"
                 >
                   Programas
                 </span>
@@ -91,27 +92,27 @@ export default function Header() {
 
               <div
                 className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-80 bg-zinc-900 backdrop-blur-md rounded-xl 
-                shadow-lg border border-white/20 py-3 transition-all duration-200"
+                absolute top-full left-0 mt-2 w-80 bg-bg-card backdrop-blur-md rounded-xl 
+                shadow-lg border border-border-color py-3 transition-all duration-200"
               >
                 <div className="px-4 py-2">
                   <Link
                     href="/programas-academicos"
-                    className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
-                      rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
+                    className="block px-3 py-2 text-sm font-medium text-secondary hover:bg-bg-secondary 
+                      rounded-md transition-all duration-200 mb-2 border-b border-border-color"
                   >
                     Oferta académica
                   </Link>
                   <div
                     className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin 
-                    scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40"
+                    scrollbar-thumb-secondary/20 hover:scrollbar-thumb-secondary/40"
                   >
                     {supabasePrograms.map((program) => (
                       <Link
                         key={program.id}
                         href={`/programas-academicos/${program.code}`}
-                        className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                          hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                        className="block px-3 py-2 text-sm text-text-primary hover:bg-bg-secondary 
+                          hover:text-secondary rounded-md transition-all duration-200 animate-fade-in-up"
                       >
                         {program.name}
                       </Link>
@@ -126,12 +127,12 @@ export default function Header() {
                 href="https://www.codigoabierto.tech/eventos"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                className="flex items-center space-x-2 text-text-primary hover:text-secondary 
                 font-medium transition-all duration-200 group"
               >
                 <span
                   className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                  after:w-0 after:bg-secondary after:transition-all group-hover:after:w-full"
                 >
                   Comunidad
                 </span>
@@ -141,13 +142,16 @@ export default function Header() {
 
           {/* User Actions */}
           {loadingUser ? (
-            <div className="h-10 w-24 bg-gray-200/20 rounded-md animate-pulse"></div>
+            <div className="h-10 w-24 bg-bg-secondary/20 rounded-md animate-pulse"></div>
           ) : user ? (
             <div className="hidden lg:flex items-center space-x-4">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+              
               {/* User Profile Dropdown */}
               <div className="relative group">
-                <button className="flex items-center bg-white/10 px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer">
-                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blueApp/50 mr-3 flex-shrink-0">
+                <button className="flex items-center bg-bg-secondary/50 px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer border border-border-color">
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-secondary/50 mr-3 flex-shrink-0">
                     {user.profile_image ? (
                       <Image
                         src={user.profile_image}
@@ -157,81 +161,81 @@ export default function Header() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-blueApp flex items-center justify-center text-white font-semibold">
+                      <div className="w-full h-full bg-secondary flex items-center justify-center text-white font-semibold">
                         {user.first_name?.charAt(0).toUpperCase() || 'U'}
                       </div>
                     )}
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="flex flex-col">
-                      <span className="text-white font-medium text-sm">
+                      <span className="text-text-primary font-medium text-sm">
                         Hola, {user.first_name || 'Usuario'}
                       </span>
-                      <span className="text-xs text-white/80">
+                      <span className="text-xs text-text-muted">
                         Mi cuenta
                       </span>
                     </div>
-                    <ChevronDown className="w-4 h-4 text-white/80 transition-transform duration-300 group-hover:rotate-180" />
+                    <ChevronDown className="w-4 h-4 text-text-muted transition-transform duration-300 group-hover:rotate-180" />
                   </div>
                 </button>
 
                 {/* Dropdown Menu */}
-                <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full right-0 mt-2 w-64 bg-zinc-900 backdrop-blur-md rounded-xl shadow-lg border border-white/20 py-3 transition-all duration-200 z-50">
+                <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full right-0 mt-2 w-64 bg-bg-card backdrop-blur-md rounded-xl shadow-lg border border-border-color py-3 transition-all duration-200 z-50">
                   {/* Profile Link */}
                   <Link
                     href="/perfil"
-                    className="flex items-center space-x-3 px-4 py-3 text-white hover:bg-zinc-800 transition-all duration-200"
+                    className="flex items-center space-x-3 px-4 py-3 text-text-primary hover:bg-bg-secondary transition-all duration-200"
                   >
-                    <UserIcon className="w-5 h-5 text-blueApp" />
+                    <UserIcon className="w-5 h-5 text-secondary" />
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Ver perfil</span>
-                      <span className="text-xs text-gray-400">Gestiona tu cuenta</span>
+                      <span className="text-xs text-text-muted">Gestiona tu cuenta</span>
                     </div>
                   </Link>
 
                   {/* Admin Section - Only show if user is admin */}
                   {user?.role === 'admin' && (
                     <>
-                      <div className="border-t border-zinc-700/50 my-2"></div>
+                      <div className="border-t border-border-color my-2"></div>
                       <div className="px-4 py-2">
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                        <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                           Administración
                         </p>
                       </div>
                       <Link
                         href="/admin/estudiantes"
-                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-zinc-800 transition-all duration-200"
+                        className="flex items-center space-x-3 px-4 py-2 text-text-primary hover:bg-bg-secondary transition-all duration-200"
                       >
-                        <Users className="w-4 h-4 text-blueApp" />
+                        <Users className="w-4 h-4 text-secondary" />
                         <span className="text-sm">Lista estudiantes</span>
                       </Link>
                       <Link
                         href="/admin/pagos"
-                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-zinc-800 transition-all duration-200"
+                        className="flex items-center space-x-3 px-4 py-2 text-text-primary hover:bg-bg-secondary transition-all duration-200"
                       >
-                        <FileText className="w-4 h-4 text-blueApp" />
+                        <FileText className="w-4 h-4 text-secondary" />
                         <span className="text-sm">Lista de pagos</span>
                       </Link>
                       <Link
                         href="/admin/programas"
-                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-zinc-800 transition-all duration-200"
+                        className="flex items-center space-x-3 px-4 py-2 text-text-primary hover:bg-bg-secondary transition-all duration-200"
                       >
-                        <GraduationCap className="w-4 h-4 text-blueApp" />
+                        <GraduationCap className="w-4 h-4 text-secondary" />
                         <span className="text-sm">Lista de programas</span>
                       </Link>
                     </>
                   )}
 
                   {/* Logout */}
-                  <div className="border-t border-zinc-700/50 my-2"></div>
+                  <div className="border-t border-border-color my-2"></div>
                   <button
                     onClick={handleSignOut}
-                    className="flex cursor-pointer items-center space-x-3 px-4 py-3 text-white hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full"
+                    className="flex cursor-pointer items-center space-x-3 px-4 py-3 text-text-primary hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full"
                   >
                     <LogOut className="w-5 h-5" />
                     <div className="flex flex-col items-start">
                       <span className="text-sm font-medium">Cerrar sesión</span>
-                      <span className="text-xs text-gray-400">Salir de tu cuenta</span>
+                      <span className="text-xs text-text-muted">Salir de tu cuenta</span>
                     </div>
                   </button>
                 </div>
@@ -239,13 +243,16 @@ export default function Header() {
             </div>
           ) : (
             <div className="hidden lg:flex items-center space-x-4">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+              
               <Link
                 href="/registro"
-                className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blueApp hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
+                className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-secondary hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
                 >
-                <span className="absolute inset-0 bg-blueApp opacity-0 
+                <span className="absolute inset-0 bg-secondary opacity-0 
                   group-hover:opacity-100 transition-opacity duration-300"></span>
-                <span className="relative">
+                <span className="relative text-white">
                   Registrarse
                 </span>
                 <svg
@@ -264,52 +271,55 @@ export default function Header() {
               </Link>
               <Link
                 href="/iniciar-sesion"
-                className="relative px-4 py-2 text-white font-medium group overflow-hidden"
+                className="relative px-4 py-2 text-text-primary font-medium group overflow-hidden"
               >
-                <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
+                <span className="relative z-10 transition-colors duration-300 group-hover:text-text-primary">
                   Iniciar sesión
                 </span>
-                <div className="absolute inset-0 bg-blueApp transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
+                <div className="absolute inset-0 bg-secondary transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
               </Link>
             </div>
           )}
 
 
-          <button
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent click from propagating to the backdrop
-              e.preventDefault(); // Prevent default action
-              requestAnimationFrame(() => {
-                setIsMenuOpen(!isMenuOpen);
-              });
-            }}
-            className="lg:hidden p-2 hover:animate-pulse hover:animate-once cursor-pointer"
-          >
-            {isMenuOpen ? (
-              <X className="w-6 h-6 animate-fade-in animate-duration-200 text-white" />
-            ) : (
-              <Menu className="w-6 h-6 animate-fade-in animate-duration-200 text-white" />
-            )}
-          </button>
+          <div className="lg:hidden flex items-center space-x-2">
+            <ThemeToggle />
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent click from propagating to the backdrop
+                e.preventDefault(); // Prevent default action
+                requestAnimationFrame(() => {
+                  setIsMenuOpen(!isMenuOpen);
+                });
+              }}
+              className="p-2 hover:animate-pulse hover:animate-once cursor-pointer"
+            >
+              {isMenuOpen ? (
+                <X className="w-6 h-6 animate-fade-in animate-duration-200 text-text-primary" />
+              ) : (
+                <Menu className="w-6 h-6 animate-fade-in animate-duration-200 text-text-primary" />
+              )}
+            </button>
+          </div>
         </div>
         {/* Mobile Sidebar - Slides in from right */}
         <div
           ref={mobileMenuRef}
           onClick={(e) => e.stopPropagation()} // Prevent clicks within the menu from closing it
-          className={`lg:hidden fixed top-0 right-0 h-auto w-80 max-w-[85vw] bg-zinc-900/95 backdrop-blur-md border-l border-zinc-600 z-50 shadow-2xl transition-transform duration-300 ease-out ${
+          className={`lg:hidden fixed top-0 right-0 h-auto w-80 max-w-[85vw] bg-bg-card/95 backdrop-blur-md border-l border-border-color z-50 shadow-2xl transition-transform duration-300 ease-out ${
             isMenuOpen
               ? "translate-x-0"
               : "translate-x-full"
           }`}
         >
-          <div className="px-4 py-4 divide-y divide-gray-300 h-auto overflow-y-auto">
+          <div className="px-4 py-4 divide-y divide-border-color h-auto overflow-y-auto">
             {/* Close button */}
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="p-2 hover:bg-zinc-800 rounded-lg transition-colors duration-200"
+                className="p-2 hover:bg-bg-secondary rounded-lg transition-colors duration-200"
               >
-                <X className="w-6 h-6 text-white" />
+                <X className="w-6 h-6 text-text-primary" />
               </button>
             </div>
 
@@ -317,7 +327,7 @@ export default function Header() {
             <div className="py-2">
               <Link
                 href="/programas-academicos"
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
+                className="flex items-center justify-between w-full py-3 text-text-primary font-semibold hover:text-secondary transition-colors duration-200"
                 onClick={() => {
                   setIsMenuOpen(false)
                   setMobileDropdown(null)
@@ -331,7 +341,7 @@ export default function Header() {
             <div className="py-2">
               <a
                 href="https://www.codigoabierto.tech/eventos"
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
+                className="flex items-center justify-between w-full py-3 text-text-primary font-semibold hover:text-secondary transition-colors duration-200"
                 onClick={() => {
                   setIsMenuOpen(false)
                   setMobileDropdown(null)
@@ -348,10 +358,10 @@ export default function Header() {
                   {/* Profile Section */}
                   <Link
                     href="/perfil"
-                    className="flex items-center space-x-3 px-4 py-3 text-white bg-blueApp/20 hover:bg-blueApp/30 rounded-lg transition-all duration-300 w-full"
+                    className="flex items-center space-x-3 px-4 py-3 text-text-primary bg-secondary/20 hover:bg-secondary/30 rounded-lg transition-all duration-300 w-full"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blueApp/50 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-secondary/50 flex-shrink-0">
                       {user.profile_image ? (
                         <Image
                           src={user.profile_image}
@@ -361,7 +371,7 @@ export default function Header() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-blueApp flex items-center justify-center text-white font-semibold">
+                        <div className="w-full h-full bg-secondary flex items-center justify-center text-white font-semibold">
                           {user.first_name?.charAt(0).toUpperCase() || 'U'}
                         </div>
                       )}
@@ -375,7 +385,7 @@ export default function Header() {
                       handleSignOut()
                       setIsMenuOpen(false)
                     }}
-                    className="px-4 py-3 text-white bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-all duration-300 w-full flex items-center justify-center space-x-2"
+                    className="px-4 py-3 text-text-primary bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-all duration-300 w-full flex items-center justify-center space-x-2"
                   >
                     <LogOut className="w-5 h-5" />
                     <span>Cerrar Sesión</span>
@@ -386,7 +396,7 @@ export default function Header() {
                     <div className="py-2">
                       <button
                         onClick={() => toggleMobileDropdown("admin-mobile")}
-                        className="flex items-center justify-between w-full py-3 px-4 text-white font-semibold bg-zinc-800/50 hover:bg-zinc-800 rounded-lg transition-colors duration-200"
+                        className="flex items-center justify-between w-full py-3 px-4 text-text-primary font-semibold bg-bg-secondary/50 hover:bg-bg-secondary rounded-lg transition-colors duration-200"
                       >
                         <span>Admin</span>
                         <ChevronDown
@@ -403,7 +413,7 @@ export default function Header() {
                         <div className="mt-2 pl-4 space-y-2">
                           <Link
                             href="/admin/estudiantes"
-                            className="block py-2 px-3 text-sm text-white hover:text-blueApp hover:bg-zinc-800/30 rounded-md transition-all duration-200"
+                            className="block py-2 px-3 text-sm text-text-primary hover:text-secondary hover:bg-bg-secondary/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
@@ -413,7 +423,7 @@ export default function Header() {
                           </Link>
                           <Link
                             href="/admin/pagos"
-                            className="block py-2 px-3 text-sm text-white hover:text-blueApp hover:bg-zinc-800/30 rounded-md transition-all duration-200"
+                            className="block py-2 px-3 text-sm text-text-primary hover:text-secondary hover:bg-bg-secondary/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
@@ -423,7 +433,7 @@ export default function Header() {
                           </Link>
                           <Link
                             href="/admin/programas"
-                            className="block py-2 px-3 text-sm text-white hover:text-blueApp hover:bg-zinc-800/30 rounded-md transition-all duration-200"
+                            className="block py-2 px-3 text-sm text-text-primary hover:text-secondary hover:bg-bg-secondary/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
@@ -440,10 +450,10 @@ export default function Header() {
                 <div className="flex flex-col items-start space-y-3">
                   <Link
                     href="/registro"
-                    className="px-4 py-3 text-white bg-blueApp hover:bg-blue-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium flex items-center justify-center space-x-2"
+                    className="px-4 py-3 text-white bg-secondary hover:bg-secondary/90 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium flex items-center justify-center space-x-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <span>Registrarse</span>
+                    <span className="text-white">Registrarse</span>
                     <svg
                       className="w-4 h-4 transition-transform duration-300 transform hover:translate-x-1"
                       fill="none"
@@ -460,7 +470,7 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/iniciar-sesion"
-                    className="px-4 py-3 text-blueApp border-2 border-blueApp hover:bg-blueApp hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium"
+                    className="px-4 py-3 text-secondary border-2 border-secondary hover:bg-secondary hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Iniciar Sesión

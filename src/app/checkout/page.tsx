@@ -23,7 +23,7 @@ function CheckoutLoader() {
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="w-12 h-12 animate-spin text-blueApp" />
+        <Loader2 className="w-12 h-12 animate-spin text-secondary" />
         <p className="text-gray-400">Cargando información del programa...</p>
       </div>
     </div>

@@ -109,7 +109,7 @@ export default function Testimonials({ backgroundColor }: Props) {
               <h2 className="text-2xl md:text-4xl font-semibold text-white">
                 Escucha los testimonios
               </h2>
-              <h3 className="text-4xl md:text-5xl font-semibold text-blueApp">
+              <h3 className="text-4xl md:text-5xl font-semibold text-secondary">
                 De personas que cambiaron sus vidas
               </h3>
             </div>
@@ -118,7 +118,7 @@ export default function Testimonials({ backgroundColor }: Props) {
               llevas dentro.
             </p>
             <div>
-              <p className="text-2xl font-bold text-blueApp">¿¡Qué esperas!?</p>
+              <p className="text-2xl font-bold text-secondary">¿¡Qué esperas!?</p>
               <div className="h-1 border-b  my-3"></div>
               <p className="text-lg text-white">Cupos limitados</p>
             </div>

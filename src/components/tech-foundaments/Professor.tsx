@@ -24,7 +24,7 @@ export function Professor({ speakers = [] }: { speakers?: Speaker[] }) {
       {/* Header with gradient */}
       <div className="bg-gradient-to-br from-bgCard via-zinc-700 to-zinc-900 p-6 text-white">
         <h2 className="text-2xl font-bold mb-1 tracking-tight flex items-center gap-2">
-          <GraduationCap className="text-blueApp" size={24} />
+          <GraduationCap className="text-secondary" size={24} />
           Profesor{speakers.length > 1 ? 'es' : ''}
         </h2>
       </div>
@@ -45,7 +45,7 @@ export function Professor({ speakers = [] }: { speakers?: Speaker[] }) {
 
               {/* Foto del profesor */}
               <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
-                <div className="w-60 h-60 rounded-full overflow-hidden border-2 border-blueApp shadow-lg shadow-black/30 group-hover:border-blue-400 transition-all">
+                <div className="w-60 h-60 rounded-full overflow-hidden border-2 border-secondary shadow-lg shadow-black/30 group-hover:border-blue-400 transition-all">
                   <Image
                     width={200}
                     height={200}
@@ -91,7 +91,7 @@ export function Professor({ speakers = [] }: { speakers?: Speaker[] }) {
               {speaker.bio && (
                 <div className="bg-zinc-800/70 w-full rounded-lg p-4 mb-4 border border-zinc-700/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <Book className="text-blueApp h-4 w-4" />
+                    <Book className="text-secondary h-4 w-4" />
                     <h4 className="text-white text-sm font-medium">Biografía</h4>
                   </div>
                   <p className="text-gray-300 text-sm leading-relaxed">{speaker.bio}</p>
@@ -104,7 +104,7 @@ export function Professor({ speakers = [] }: { speakers?: Speaker[] }) {
                   href={speaker.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 mt-2 text-sm text-blueApp hover:text-blue-400 transition-colors"
+                  className="flex items-center justify-center gap-2 mt-2 text-sm text-secondary hover:text-blue-400 transition-colors"
                 >
                   <LinkedinIcon size={16} />
                   <span>Ver perfil profesional</span>

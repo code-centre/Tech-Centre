@@ -40,31 +40,31 @@ export function Footer() {
   }, [supabase])
 
   return (
-    <footer className="bg-background text-white py-8">
+    <footer className="bg-bg-primary text-text-primary py-8 border-t border-border-color">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Tech Centre Column */}
           <div>
-            <h3 className="font-bold text-blue-400 mb-4 flex items-center">
+            <h3 className="font-bold text-secondary mb-4 flex items-center">
               <Image
-                src="/tech-center-logos/TechCentreLogoColor.png"
+                src="/tech-center-logos/logo-primary.png"
                 alt="Tech Centre Logo"
                 width={100}
                 height={100}
                 className="mr-2"
               />
             </h3>
-            <p className="text-sm text-gray-300 mb-4">
+            <p className="text-sm text-text-muted mb-4">
               Formamos a los profesionales tech del futuro con programas prácticos y actualizados.
             </p>
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com/profile.php?id=100092748068869" className="text-white hover:text-blue-400">
+              <a href="https://www.facebook.com/profile.php?id=100092748068869" className="text-text-primary hover:text-secondary transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="https://www.instagram.com/techcentre.co/" className="text-white hover:text-blue-400">
+              <a href="https://www.instagram.com/techcentre.co/" className="text-text-primary hover:text-secondary transition-colors">
                 <InstagramIcon className="h-5 w-5" />
               </a>
-              <a href="https://www.linkedin.com/company/tech-centrebaq/" className="text-white hover:text-blue-400">
+              <a href="https://www.linkedin.com/company/tech-centrebaq/" className="text-text-primary hover:text-secondary transition-colors">
                 <LinkedInIcon className="h-5 w-5" />
               </a> 
             </div>
@@ -72,30 +72,30 @@ export function Footer() {
 
           {/* Enlaces rápidos Column */}
           <div>
-            <h3 className="font-bold text-white mb-4">Enlaces rápidos</h3>
+            <h3 className="font-bold text-text-primary mb-4">Enlaces rápidos</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/#quienes-somos" className="text-gray-300 hover:text-blue-400 text-sm">
+                <Link href="/#quienes-somos" className="text-text-muted hover:text-secondary text-sm transition-colors">
                   Quiénes somos
                 </Link>
               </li>
               <li>
-                <Link href="/#cursos" className="text-gray-300 hover:text-blue-400 text-sm">
+                <Link href="/#cursos" className="text-text-muted hover:text-secondary text-sm transition-colors">
                   Oferta académica
                 </Link>
               </li>
               <li>
-                <Link href="/#testimonios" className="text-gray-300 hover:text-blue-400 text-sm">
+                <Link href="/#testimonios" className="text-text-muted hover:text-secondary text-sm transition-colors">
                   Testimonios
                 </Link>
               </li>              
               <li>
-                <div className="text-gray-300 opacity-50 cursor-not-allowed text-sm">
+                <div className="text-text-muted opacity-50 cursor-not-allowed text-sm">
                   Noticias
                 </div>
               </li>
               <li>
-                <div className="text-gray-300 opacity-50 cursor-not-allowed text-sm">
+                <div className="text-text-muted opacity-50 cursor-not-allowed text-sm">
                   Preguntas frecuentes
                 </div>
               </li>
@@ -103,10 +103,10 @@ export function Footer() {
           </div>
           {/* Programas Column */}
           <div>
-            <h3 className="font-bold text-white mb-4">Programas y cursos</h3>
+            <h3 className="font-bold text-text-primary mb-4">Programas y cursos</h3>
             {loading ? (
               <ul className="space-y-2">
-                <li className="text-gray-300 text-sm">Cargando programas...</li>
+                <li className="text-text-muted text-sm">Cargando programas...</li>
               </ul>
             ) : programs.length > 0 ? (
               <ul className="space-y-2">
@@ -114,7 +114,7 @@ export function Footer() {
                   <li key={programa.id}>
                     <Link 
                       href={`/programas-academicos/${programa.slug || programa.code}`} 
-                      className="text-gray-300 hover:text-blue-400 text-sm transition-colors"
+                      className="text-text-muted hover:text-secondary text-sm transition-colors"
                     >
                       {programa.name}
                     </Link>
@@ -123,7 +123,7 @@ export function Footer() {
                 <li>
                   <Link 
                     href="/programas-academicos" 
-                    className="text-gray-300 hover:text-blue-400 text-sm font-medium transition-colors"
+                    className="text-text-muted hover:text-secondary text-sm font-medium transition-colors"
                   >
                     Ver todos →
                   </Link>
@@ -132,7 +132,7 @@ export function Footer() {
             ) : (
               <ul className="space-y-2">
                 <li>
-                  <Link href="/programas-academicos" className="text-gray-300 hover:text-blue-400 text-sm">
+                  <Link href="/programas-academicos" className="text-text-muted hover:text-secondary text-sm transition-colors">
                     Ver programas
                   </Link>
                 </li>
@@ -142,30 +142,30 @@ export function Footer() {
 
           {/* Contacto Column */}
           <div id="contacto">
-            <h3 className="font-bold text-white mb-4">Contacto</h3>
+            <h3 className="font-bold text-text-primary mb-4">Contacto</h3>
             <ul className="space-y-4">
               <li className="flex items-start">
-                <MapPin className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
-                <span className="text-gray-300 text-sm">
+                <MapPin className="h-5 w-5 text-secondary mr-2 mt-0.5" />
+                <span className="text-text-muted text-sm">
                   Cra. 50 # 72-126, Centro Histórico, Barranquilla
                 </span>
               </li>
               <li className="flex items-center">
-                <Phone className="h-5 w-5 text-blue-400 mr-2" />
-                <a href="tel:+573003234567" className="text-gray-300 hover:text-blue-400 text-sm">
+                <Phone className="h-5 w-5 text-secondary mr-2" />
+                <a href="tel:+573003234567" className="text-text-muted hover:text-secondary text-sm transition-colors">
                   +57 300 552 3872
                 </a>
               </li>
               <li className="flex items-center">
-                <Mail className="h-5 w-5 text-blue-400 mr-2" />
-                <a href="mailto:info@techcentre.edu.co" className="text-gray-300 hover:text-blue-400 text-sm">
+                <Mail className="h-5 w-5 text-secondary mr-2" />
+                <a href="mailto:info@techcentre.edu.co" className="text-text-muted hover:text-secondary text-sm transition-colors">
                   admisiones@techcentre.co
                 </a>
               </li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-gray-800 mt-8 pt-6 text-center text-gray-400 text-sm">
+        <div className="border-t border-border-color mt-8 pt-6 text-center text-text-muted text-sm">
           <p>© 2025 · Tech Centre. Todos los derechos reservados.</p>
         </div>
       </div>

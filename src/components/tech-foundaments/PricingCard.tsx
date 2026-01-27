@@ -29,10 +29,10 @@ export default function PricingCard({
 
   return (
     <div className={`relative flex flex-col w-full max-w-xs rounded-2xl overflow-hidden bg-linear-to-b ${
-      isPremium ? "from-zinc-800 to-zinc-900 border-blueApp" : "from-zinc-900 to-black border-zinc-700/40"
+      isPremium ? "from-zinc-800 to-zinc-900 border-secondary" : "from-zinc-900 to-black border-zinc-700/40"
     } border p-1`}>
       {isPremium && (
-        <div className="absolute -right-10 -top-10 w-28 h-28 rounded-full bg-blueApp/5 blur-3xl"></div>
+        <div className="absolute -right-10 -top-10 w-28 h-28 rounded-full bg-secondary/5 blur-3xl"></div>
       )}
       
       {/* Edit button */}
@@ -47,7 +47,7 @@ export default function PricingCard({
       <div className={`p-6 rounded-xl ${isPremium ? "bg-zinc-800/70" : "bg-zinc-900/70"}`}>
         {/* Tipo de ticket */}
         <div className="flex items-center justify-between">
-          <div className={`px-3 py-1 rounded-full text-xs font-semibold ${isPremium ? "bg-blueApp/20 text-blue-300" : "bg-zinc-800 text-gray-300"}`}>
+          <div className={`px-3 py-1 rounded-full text-xs font-semibold ${isPremium ? "bg-secondary/20 text-blue-300" : "bg-zinc-800 text-gray-300"}`}>
             {type === "premium" 
               ? "Premium"
               : type === "general" 
@@ -78,7 +78,7 @@ export default function PricingCard({
         <ul className="space-y-3 mb-6">
           {features?.map((feature, i) => (
             <li key={i} className="flex items-start gap-2">
-              <div className={`shrink-0 w-4 h-4 rounded-full ${isPremium ? "bg-blueApp" : "bg-zinc-700"} flex items-center justify-center mt-0.5`}>
+              <div className={`shrink-0 w-4 h-4 rounded-full ${isPremium ? "bg-secondary" : "bg-zinc-700"} flex items-center justify-center mt-0.5`}>
                 <span className="text-white text-xs">✓</span>
               </div>
               <span className="text-gray-300 text-sm">{feature}</span>
