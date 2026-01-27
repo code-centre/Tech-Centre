@@ -4,7 +4,7 @@ import { GraduationCap, Clock, BookOpen, Badge, Calendar, Sparkles, ArrowRight, 
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useSupabaseClient } from '@/lib/supabase';
 import { formatDate } from '../../../utils/formatDate';
 
 interface ProfileCursosMatriculadosProps {
@@ -35,6 +35,7 @@ interface EnrolledCourse {
 }
 
 export default function ProfileCursosMatriculados({ user }: ProfileCursosMatriculadosProps) {
+  const supabase = useSupabaseClient()
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +44,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
     const fetchEnrollments = async () => {
         try {
             setLoading(true);
-            const { data: enrollments, error } = await (supabase as any)
+            const { data: enrollments, error } = await supabase
             .from('enrollments')
             .select(`
                 *,
@@ -84,7 +85,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
         };
 
     fetchEnrollments();
-  }, []);
+  }, [user?.id, supabase]);
 
   if (loading) {
     return (

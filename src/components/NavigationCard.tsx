@@ -3,7 +3,7 @@ import { formatPrice } from "../../utils/formatCurrency";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useSupabaseClient } from "@/lib/supabase";
 import type { Program } from "@/types/programs";
 
 interface NavigationCardProps {
@@ -16,6 +16,7 @@ interface Cohort {
 }
 
 export default function NavigationCard({ programData, cohortId }: NavigationCardProps) {
+  const supabase = useSupabaseClient()
   const router = useRouter();
   const [cohort, setCohort] = useState<Cohort | null>(null);
 
@@ -24,7 +25,7 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
 
     const fetchCohort = async () => {
       try {
-        const { data: cohortData, error } = await (supabase as any)
+        const { data: cohortData, error } = await supabase
           .from('cohorts')
           .select('maximum_payments')
           .eq('id', cohortId)
@@ -39,7 +40,7 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
     };
 
     fetchCohort();
-  }, [cohortId]);
+  }, [cohortId, supabase]);
 
   const handleBuyClick = () => {
     if (cohortId) {
@@ -48,7 +49,7 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
   }
 
   return (
-    <div className="sticky top-4 rounded-2xl shadow-lg overflow-hidden max-w-sm w-full h-fit py-4">
+    <div className="sticky top-4 lg:sticky lg:top-4 rounded-2xl shadow-lg overflow-hidden max-w-sm w-full h-fit py-4 relative">
       {/* Background image covering the entire card */}
       <Image
         src="/SmokeBg.webp"

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Enrollment } from './EnrollmentList';
-import { supabase } from '@/lib/supabase';
+import { useSupabaseClient } from '@/lib/supabase';
 
 interface Invoice {
   id: number;
@@ -21,6 +21,7 @@ interface InvoicesProps {
 }
 
 export function Invoices({ enrollment }: InvoicesProps) {
+  const supabase = useSupabaseClient()
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +54,7 @@ export function Invoices({ enrollment }: InvoicesProps) {
     };
 
     fetchInvoices();
-  }, [enrollment]);
+  }, [enrollment, supabase]);
 
   if (!enrollment) {
     return <div className="p-4 bg-gray-100 rounded-lg">Selecciona una matrícula para ver las facturas</div>;

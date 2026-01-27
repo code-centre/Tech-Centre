@@ -1,6 +1,6 @@
 import { Plus, X } from 'lucide-react'
 import React, { useEffect , useState} from 'react'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 import type { Program, EventFCA } from '@/types/programs'
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function SelectSchedule({ data, selectedSchedule, setSelectedSchedule, isShort, onCohortSelect, selectedCohortId }: Props) {
-
+  const supabase = useSupabaseClient()
   const [cohort, setCohort] = useState<any>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
@@ -45,7 +45,7 @@ export default function SelectSchedule({ data, selectedSchedule, setSelectedSche
     }
 
     fetchCohort()
-  }, [data?.id]) // Only re-run if data.id changes
+  }, [data?.id, supabase]) // Only re-run if data.id changes
 
   if (loading) return <div>Cargando información de la cohorte...</div>
   if (error) return <div className="text-red-500">{error}</div>

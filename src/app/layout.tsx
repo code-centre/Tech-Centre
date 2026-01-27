@@ -4,7 +4,6 @@ import { League_Spartan, Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { createClient } from '@/lib/supabase/server';
 import AuthProvider from "@/components/AuthProvider";
 import { OrganizationSchema, EducationalOrganizationSchema } from "@/components/seo/StructuredData";
 
@@ -114,9 +113,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-
   return (
     <html lang="es">
      <body
@@ -136,6 +132,15 @@ export default async function RootLayout({
             addressCountry: "CO",
           }}
         />
+
+         <AuthProvider>
+          <Header />
+          <main>
+            {children}
+          </main>
+          <Footer />
+        </AuthProvider>
+        
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-YCK2DMSV9J"
@@ -149,13 +154,6 @@ export default async function RootLayout({
             gtag('config', 'G-YCK2DMSV9J');
           `}
         </Script>
-         <AuthProvider initialSession={session}>
-          <Header />
-          <main>
-            {children}
-          </main>
-          <Footer />
-        </AuthProvider>
       </body>
     </html>
   );

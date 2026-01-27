@@ -5,11 +5,10 @@ import React, { useState } from 'react'
 import DiscountCoupon from './DiscountCoupon'
 import QuickSignUp from './QuickSignUp'
 import PaymentMethodDropdown from './PaymentMethodDropdown'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient, useUser } from '@/lib/supabase'
 import { getPaymentProvider } from '@/lib/payments/payment-factory'
 import { calculatePrice, calculateInstallments } from '@/lib/pricing/price-calculator'
 import { incrementCouponUses } from '@/lib/discounts/coupon-service'
-import { useUser } from '@/lib/supabase'
 import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service'
 import type { Program } from '@/types/programs'
 
@@ -46,7 +45,8 @@ export default function ResumenSection({
   className,
 }: Props) {
   const router = useRouter()
-  const { user, refreshUser } = useUser()
+  const supabase = useSupabaseClient()
+  const { user } = useUser()
   const [discount, setDiscount] = useState<number>(0)
   const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null)
   const [showQuickSignUp, setShowQuickSignUp] = useState<boolean>(false)
@@ -109,7 +109,7 @@ export default function ResumenSection({
 
       // 1. Crear enrollment o usar uno existente con pending_payment
       let enrollment
-      const { data: newEnrollment, error: enrollmentError } = await (supabase as any)
+      const { data: newEnrollment, error: enrollmentError } = await supabase
         .from('enrollments')
         .insert({
           cohort_id: selectedCohortId,
@@ -128,7 +128,7 @@ export default function ResumenSection({
           // Violación de constraint único (duplicado)
           if (enrollmentError.message?.includes('enrollments_cohort_id_student_id_key')) {
             // Verificar si existe un enrollment con estado pending_payment
-            const { data: existingEnrollment, error: fetchError } = await (supabase as any)
+            const { data: existingEnrollment, error: fetchError } = await supabase
               .from('enrollments')
               .select('*')
               .eq('cohort_id', selectedCohortId)
@@ -141,7 +141,7 @@ export default function ResumenSection({
                 enrollment = existingEnrollment
                 
                 // Actualizar el precio acordado por si cambió
-                const { error: updateError } = await (supabase as any)
+                const { error: updateError } = await supabase
                   .from('enrollments')
                   .update({ agreed_price: totalAmount })
                   .eq('id', enrollment.id)
@@ -208,7 +208,7 @@ export default function ResumenSection({
         console.error('Error al crear link de pago:', paymentError)
         // Si falla la creación del link de pago, eliminar el enrollment creado
         try {
-          await (supabase as any)
+          await supabase
             .from('enrollments')
             .delete()
             .eq('id', enrollment.id)
@@ -243,7 +243,7 @@ export default function ResumenSection({
           },
         }))
 
-        const { error: invoiceError } = await (supabase as any)
+        const { error: invoiceError } = await supabase
           .from('invoices')
           .insert(invoices)
 
@@ -273,7 +273,7 @@ export default function ResumenSection({
           },
         }
 
-        const { error: invoiceError } = await (supabase as any)
+        const { error: invoiceError } = await supabase
           .from('invoices')
           .insert([invoice])
 

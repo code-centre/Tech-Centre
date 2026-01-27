@@ -5,7 +5,10 @@ import { ClockIcon, MessageCircleIcon, MapPinIcon, EditIcon, PlusCircle } from "
 import useUserStore from "../../../store/useUserStore"
 import { useRouter } from "next/navigation"
 import AlertModal from "../AlertModal"
+<<<<<<< HEAD
 // import { supabase } from "@/lib/supabase"
+=======
+>>>>>>> main
 import type { Ticket } from "@/types/programs"
 
 interface ProgramData {

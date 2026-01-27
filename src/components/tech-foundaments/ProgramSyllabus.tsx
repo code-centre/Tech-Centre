@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import ButtonToEdit from '@/components/ButtonToEdit';
 import ContainerButtonsEdit from '@/components/ContainerButtonsEdit';
 import { SyllabusData, Module } from '@/types/programs';
-import { supabase } from '@/lib/supabase';
-import { useUser } from '@/lib/supabase';
+import { useSupabaseClient, useUser } from '@/lib/supabase';
 
 interface Props {
   syllabusData: SyllabusData;
@@ -14,6 +13,7 @@ interface Props {
 }
 
 export default function ProgramSyllabus({ syllabusData, programId, onSyllabusUpdate }: Props) {
+  const supabase = useSupabaseClient()
   const { user } = useUser();
   const isAdmin = user?.role === 'admin';
   
@@ -58,7 +58,7 @@ export default function ProgramSyllabus({ syllabusData, programId, onSyllabusUpd
       }));
 
       // Actualizar en Supabase
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('programs')
         .update({
           syllabus: { modules: cleanedSyllabus },

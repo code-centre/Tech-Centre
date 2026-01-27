@@ -1,5 +1,5 @@
 'use client';
-import { supabase } from '@/lib/supabase';
+import { useSupabaseClient } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 
 // Tipos
@@ -28,6 +28,8 @@ interface StudentsListProps {
 }
 
 export function StudentsList({ filters = {} }: StudentsListProps) {
+  const supabase = useSupabaseClient();
+
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -63,7 +65,7 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
     };
 
     fetchProfiles();
-  }, []);
+  }, [supabase]);
 
   // Lógica de filtrado unificada (Filtros props + Tab activa)
   const filteredProfiles = profiles.filter(profile => {
@@ -95,7 +97,7 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
     if (!editingProfile) return;
 
     try {
-      const { data, error } = await (supabase as any) 
+      const { data, error } = await supabase
         .from('profiles')
         .update({
           first_name: editingProfile.first_name,
@@ -141,7 +143,6 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      
       {/* --- ZONA DE TABS --- */}
       <div className="border-b border-gray-800">
         <nav className="-mb-px flex space-x-8" aria-label="Tabs">

@@ -4,10 +4,9 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Calendar, Clock } from 'lucide-react'
 import HTMLReactParser from 'html-react-parser/lib/index'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient, useUser } from '@/lib/supabase'
 import { formatDate } from '../../../utils/formatDate'
 import { shouldShowMatricula } from '@/lib/matricula/matricula-service'
-import { useUser } from '@/lib/supabase'
 import MatriculaItem from './MatriculaItem'
 import type { Program } from '@/types/programs'
 
@@ -36,6 +35,7 @@ export default function ProductSummary({
   onMatriculaAmountChange,
   onMatriculaStatusChange,
 }: Props) {
+  const supabase = useSupabaseClient()
   const { user } = useUser()
   const [cohortInfo, setCohortInfo] = useState<CohortInfo | null>(null)
   const [showMatricula, setShowMatricula] = useState<boolean>(false)
@@ -52,7 +52,7 @@ export default function ProductSummary({
       }
 
       try {
-        const { data: cohortData, error: cohortError } = await (supabase as any)
+        const { data: cohortData, error: cohortError } = await supabase
           .from('cohorts')
           .select('start_date, schedule')
           .eq('id', selectedCohortId)
@@ -73,7 +73,7 @@ export default function ProductSummary({
     }
 
     fetchCohortInfo()
-  }, [selectedCohortId])
+  }, [selectedCohortId, supabase])
 
   // Verificar si se debe mostrar la matrícula
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function ProductSummary({
 
       try {
         setLoadingMatricula(true)
-        const matriculaStatus = await shouldShowMatricula(user.id)
+        const matriculaStatus = await shouldShowMatricula(supabase, user.id)
         setShowMatricula(matriculaStatus.shouldShow)
         setMatriculaAmount(matriculaStatus.amount)
         setMatriculaDescription(matriculaStatus.description || `Matrícula requerida para el año ${new Date().getFullYear()}`)
@@ -111,7 +111,7 @@ export default function ProductSummary({
 
     checkMatricula()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id])
+  }, [user?.id, supabase])
 
   // Formatear horario
   const formatSchedule = () => {

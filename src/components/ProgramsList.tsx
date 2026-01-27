@@ -3,8 +3,7 @@ import React, { useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ProgramCard } from './ProgramCard'
 import { GraduationCap, BookOpen, Award, ArrowRight } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
-import { useUser } from '@/lib/supabase'
+import { useSupabaseClient, useUser } from '@/lib/supabase'
 import CardLoader from './loaders-skeletons/CardLoader'
 import ProgramCreationModal from './ProgramCreationModal'
 import type { Program, CourseListSupaProps } from '@/types/programs'
@@ -56,6 +55,7 @@ export function ProgramsList({
   fetchPrograms = true, // Por defecto siempre hace fetch desde Supabase
   horizontalScroll = false // Si es true, muestra todos en una fila con scroll horizontal
 }: CourseListSupaProps) {
+  const supabase = useSupabaseClient()
   const [programs, setPrograms] = useState<Program[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -70,7 +70,7 @@ export function ProgramsList({
         setLoading(true)
         setError(null)
         
-        let query = (supabase as any)
+        let query = supabase
           .from('programs')
           .select('*')
         
@@ -103,13 +103,13 @@ export function ProgramsList({
     }
 
     fetchProgramsData()
-  }, [isAdmin]) // Solo depende de isAdmin para refrescar cuando cambia el rol
+  }, [isAdmin, supabase]) // Solo depende de isAdmin para refrescar cuando cambia el rol
 
   // Manejar la creación de nuevos programas - refrescar desde Supabase
   const handleProgramCreate = async (newProgram: Program) => {
     // Refrescar la lista desde Supabase para asegurar datos actualizados
     try {
-      let query = (supabase as any)
+      let query = supabase
         .from('programs')
         .select('*')
         .order('created_at', { ascending: false })

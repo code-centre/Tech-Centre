@@ -2,7 +2,7 @@
 
 import { Check, Percent, CreditCard, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 import type { Program } from '@/types/programs'
 import { calculatePrice } from '@/lib/pricing/price-calculator'
 
@@ -30,6 +30,7 @@ export default function PaymentOptions({
   setSelectedInstallments,
   onPriceChange,
 }: Props) {
+  const supabase = useSupabaseClient()
   const [cohort, setCohort] = useState<Cohort | null>(null)
   const [loading, setLoading] = useState(false)
   const basePrice = data.default_price || 0
@@ -60,7 +61,7 @@ export default function PaymentOptions({
     }
 
     fetchCohort()
-  }, [selectedCohortId])
+  }, [selectedCohortId, supabase])
 
   // Calcular precios cuando cambia el método de pago
   useEffect(() => {
