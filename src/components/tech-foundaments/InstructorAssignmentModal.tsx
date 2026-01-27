@@ -220,11 +220,11 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="Buscar por nombre o email..."
-                className="flex-1 px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="flex-1 px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-zuccini"
               />
               <button
                 onClick={handleSearch}
-                className="px-4 py-2 bg-blueApp hover:bg-blue-600 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-zuccini hover:bg-blue-600 text-white rounded-lg transition-colors"
               >
                 <Search className="w-5 h-5" />
               </button>
@@ -241,7 +241,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
           {/* Loading */}
           {loading && (
             <div className="flex justify-center items-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin text-blueApp" />
+              <Loader2 className="w-8 h-8 animate-spin text-zuccini" />
             </div>
           )}
 
@@ -257,7 +257,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
                     onClick={() => setSelectedInstructor(profile)}
                     className={`p-4 rounded-lg border cursor-pointer transition-all ${
                       selectedInstructor?.user_id === profile.user_id
-                        ? 'border-blueApp bg-blueApp/10'
+                        ? 'border-zuccini bg-zuccini/10'
                         : 'border-zinc-700 bg-zinc-800/50 hover:border-zinc-600'
                     }`}
                   >
@@ -309,7 +309,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
             <button
               onClick={handleAssign}
               disabled={!selectedInstructor || saving}
-              className="px-4 py-2 bg-blueApp hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 bg-zuccini hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {saving ? (
                 <>

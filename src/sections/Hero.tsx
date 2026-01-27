@@ -49,7 +49,7 @@ export function Hero() {
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <a
                 href="#cursos"
-                className="px-8 py-3 text-center bg-white text-blueApp font-medium rounded-md hover:bg-blue-50 transition-colors"
+                className="px-8 py-3 text-center bg-white text-zuccini font-medium rounded-md hover:bg-blue-50 transition-colors"
               >
                 Ver programas académicos
               </a>
@@ -57,13 +57,13 @@ export function Hero() {
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4">
               <a
                 href="#testimonio"
-                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-blueApp transition-colors"
+                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-zuccini transition-colors"
               >
                 Impacto
               </a>
               <a
                 href="#contacto"
-                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-blueApp transition-colors"
+                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-zuccini transition-colors"
               >
                 Contáctanos
               </a>
@@ -76,8 +76,8 @@ export function Hero() {
               <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
               
               {/* Marco con borde brillante */}
-              <div className="p-1 z-2 bg-gradient-to-r from-blueApp via-blue-100 to-blueApp rounded-lg rotate-1 shadow-2xl">
-                <div className="p-1 z-4 bg-gradient-to-r from-lightBlue via-blue-300 to-blueApp rounded-lg -rotate-2">
+              <div className="p-1 z-2 bg-gradient-to-r from-zuccini via-blue-100 to-zuccini rounded-lg rotate-1 shadow-2xl">
+                <div className="p-1 z-4 bg-gradient-to-r from-lightBlue via-blue-300 to-zuccini rounded-lg -rotate-2">
                   <Carrusel
                     items={heroData}
                     type="hero"

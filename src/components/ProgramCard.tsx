@@ -55,7 +55,7 @@ export function ProgramCard({
       href={`/programas-academicos/${slug}`}
       className="block group h-full cursor-pointer"
     >
-      <div className="bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl shadow-lg overflow-hidden transition-all duration-300 h-full flex flex-col relative border border-zinc-700/50 hover:border-blueApp/50 hover:shadow-xl hover:shadow-blueApp/20 hover:-translate-y-1 active:scale-[0.98]">
+      <div className="bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl shadow-lg overflow-hidden transition-all duration-300 h-full flex flex-col relative border border-zinc-700/50 hover:border-zuccini/50 hover:shadow-xl hover:shadow-zuccini/20 hover:-translate-y-1 active:scale-[0.98]">
         {/* Image Section - Limpia sin elementos encima */}
         <div className="relative h-48 overflow-hidden bg-zinc-800">
           <Image
@@ -74,7 +74,7 @@ export function ProgramCard({
         <div className="p-4 flex-1 flex flex-col">
           {/* Title Section */}
           <div className="mb-3">
-            <h3 className="text-lg font-bold text-white mb-1 line-clamp-2 group-hover:text-blueApp transition-colors duration-300 leading-tight">
+            <h3 className="text-lg font-bold text-white mb-1 line-clamp-2 group-hover:text-zuccini transition-colors duration-300 leading-tight">
               {title}
             </h3>
             {subtitle && (
@@ -104,13 +104,13 @@ export function ProgramCard({
                   ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
                   : level === 'AVANZADO'
                     ? 'bg-red-500/20 text-red-300 border-red-500/30'
-                    : 'bg-blueApp/20 text-blueApp border-blueApp/30'
+                    : 'bg-zuccini/20 text-zuccini border-zuccini/30'
             }`}>
               {level}
             </div>
             {/* Tipo badge */}
             {kind && (
-              <div className="bg-blueApp/20 text-blueApp text-xs font-semibold px-2 py-1 rounded-md border border-blueApp/30">
+              <div className="bg-zuccini/20 text-zuccini text-xs font-semibold px-2 py-1 rounded-md border border-zuccini/30">
                 {typeof kind === 'string' ? kind.replace(/<[^>]*>/g, '').substring(0, 15) : kind}
               </div>
             )}
@@ -127,7 +127,7 @@ export function ProgramCard({
             {/* Duración */}
             {duration && (
               <div className="flex items-center gap-1.5 bg-zinc-800/60 rounded-md px-2 py-1 border border-zinc-700/50">
-                <ClockIcon className="h-3.5 w-3.5 text-blueApp" />
+                <ClockIcon className="h-3.5 w-3.5 text-zuccini" />
                 <span className="text-xs text-gray-300 font-medium">{duration}</span>
               </div>
             )}
@@ -155,7 +155,7 @@ export function ProgramCard({
               <Award className="h-4 w-4 text-purple-400" />
               <span className="text-xs text-gray-400">Certificación incluida</span>
             </div>
-            <div className="flex items-center gap-1 text-blueApp opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="flex items-center gap-1 text-zuccini opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <span className="text-xs font-semibold">Ver más</span>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

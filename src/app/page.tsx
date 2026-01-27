@@ -68,6 +68,9 @@ export default function Home() {
         itemClassName="group z-10"
         imageClassName=""
       />
+      <div className="">
+        <h3> primary</h3>
+      </div>
       <div id="programs">
         <AcademicOffer />
       </div>

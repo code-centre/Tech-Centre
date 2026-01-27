@@ -39,7 +39,7 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
         <div className="min-h-screen mt-32 bg-background py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <div className="bg-bgCard rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-zinc-800/30 group  sm:rounded-lg p-8">
-              <h2 className="text-2xl font-bold text-blueApp mb-4">¡Gracias por tu interés!</h2>
+              <h2 className="text-2xl font-bold text-zuccini mb-4">¡Gracias por tu interés!</h2>
               <p className="text-white">
                 Actualmente no tenemos vacantes disponibles, pero puedes dejarnos tus datos y te contactaremos cuando tengamos nuevas oportunidades.
               </p>
@@ -55,11 +55,11 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
                     <input
                       type="email"
                       placeholder="tu@email.com"
-                      className="flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-blueApp shadow-sm focus:border-blueApp focus:ring-blueApp sm:text-sm"
+                      className="flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-zuccini shadow-sm focus:border-zuccini focus:ring-zuccini sm:text-sm"
                     />
                     <button
                       type="button"
-                      className="mt-6 inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300" 
+                      className="mt-6 inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-zuccini to-blue-600 hover:from-blue-600 hover:to-zuccini shadow-lg shadow-zuccini/20 hover:shadow-zuccini/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300" 
                     >
                       Notificarme
                     </button>
@@ -75,7 +75,7 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
     <div className="min-h-screen mt-32 bg-background py-12 px-4 sm:px-6 lg:px-8">
     <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-blueApp">Solicitar Trabajo</h1>
+        <h1 className="text-3xl font-bold text-zuccini">Solicitar Trabajo</h1>
         <p className="mt-2 text-lg text-white">
             Completa el formulario para postularte a nuestras ofertas de empleo
         </p>
@@ -85,7 +85,7 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-                <label htmlFor="nombre" className="block text-sm font-medium text-blueApp">
+                <label htmlFor="nombre" className="block text-sm font-medium text-zuccini">
                 Nombre completo *
                 </label>
                 <input
@@ -95,12 +95,12 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
                 required
                 value={formData.nombre}
                 onChange={handleChange}
-                className="mt-1 bg-white block w-full rounded-md border-blueApp shadow-sm focus:border-blueApp focus:ring-blueApp sm:text-sm p-2 border-2"
+                className="mt-1 bg-white block w-full rounded-md border-zuccini shadow-sm focus:border-zuccini focus:ring-zuccini sm:text-sm p-2 border-2"
                 />
             </div>
 
             <div>
-                <label htmlFor="email" className="block text-sm font-medium text-blueApp">
+                <label htmlFor="email" className="block text-sm font-medium text-zuccini">
                 Correo electrónico *
                 </label>
                 <input
@@ -110,12 +110,12 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 bg-white block w-full rounded-md border-blueApp shadow-sm focus:border-blueApp focus:ring-blueApp sm:text-sm p-2 border-2"
+                className="mt-1 bg-white block w-full rounded-md border-zuccini shadow-sm focus:border-zuccini focus:ring-zuccini sm:text-sm p-2 border-2"
                 />
             </div>
 
             <div>
-                <label htmlFor="telefono" className="block text-sm font-medium text-blueApp">
+                <label htmlFor="telefono" className="block text-sm font-medium text-zuccini">
                 Teléfono *
                 </label>
                 <input
@@ -125,12 +125,12 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
                 required
                 value={formData.telefono}
                 onChange={handleChange}
-                className="mt-1 bg-white block w-full rounded-md border-blueApp shadow-sm focus:border-blueApp focus:ring-blueApp sm:text-sm p-2 border-2"
+                className="mt-1 bg-white block w-full rounded-md border-zuccini shadow-sm focus:border-zuccini focus:ring-zuccini sm:text-sm p-2 border-2"
                 />
             </div>
 
             <div>
-                <label htmlFor="puesto" className="block text-sm font-medium text-blueApp">
+                <label htmlFor="puesto" className="block text-sm font-medium text-zuccini">
                 Puesto al que aplicas *
                 </label>
                 <select
@@ -139,7 +139,7 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
                 required
                 value={formData.puesto}
                 onChange={handleChange}
-                className="mt-1 bg-white block w-full rounded-md border-blueApp shadow-sm focus:border-blueApp focus:ring-blueApp sm:text-sm p-2 border-2"
+                className="mt-1 bg-white block w-full rounded-md border-zuccini shadow-sm focus:border-zuccini focus:ring-zuccini sm:text-sm p-2 border-2"
                 >
                 <option value="">Selecciona un puesto</option>
                 <option value="desarrollador-frontend">Desarrollador Frontend</option>
@@ -151,7 +151,7 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
             </div>
 
             <div>
-            <label htmlFor="experiencia" className="block text-sm font-medium text-blueApp">
+            <label htmlFor="experiencia" className="block text-sm font-medium text-zuccini">
                 Años de experiencia *
             </label>
             <select
@@ -160,7 +160,7 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
                 required
                 value={formData.experiencia}
                 onChange={handleChange}
-                className="mt-1 bg-white block w-full rounded-md border-blueApp shadow-sm focus:border-blueApp focus:ring-blueApp sm:text-sm p-2 border-2"
+                className="mt-1 bg-white block w-full rounded-md border-zuccini shadow-sm focus:border-zuccini focus:ring-zuccini sm:text-sm p-2 border-2"
             >
                 <option value="">Selecciona años de experiencia</option>
                 <option value="0-1">0-1 años</option>
@@ -171,7 +171,7 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
             </div>
 
             <div>
-            <label htmlFor="mensaje" className="block text-sm font-medium text-blueApp">
+            <label htmlFor="mensaje" className="block text-sm font-medium text-zuccini">
                 Mensaje de presentación *
             </label>
             <div className="mt-1">
@@ -182,18 +182,18 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
                 required
                 value={formData.mensaje}
                 onChange={handleChange}
-                className="mt-1 bg-white block w-full rounded-md border-blueApp shadow-sm focus:border-blueApp focus:ring-blueApp sm:text-sm p-2 border-2"
+                className="mt-1 bg-white block w-full rounded-md border-zuccini shadow-sm focus:border-zuccini focus:ring-zuccini sm:text-sm p-2 border-2"
                 placeholder="Cuéntanos por qué eres el candidato ideal para este puesto..."
                 />
             </div>
             </div>
 
             <div>
-            <label className="block text-sm font-medium text-blueApp">Hoja de vida (PDF) *</label>
+            <label className="block text-sm font-medium text-zuccini">Hoja de vida (PDF) *</label>
             <div className="mt-2 flex items-center">
                 <label
                 htmlFor="archivo"
-                className="mt-1  bg-blueApp block cursor-pointer rounded-md border-white shadow-sm focus:border-blueApp focus:ring-blueApp sm:text-sm p-2 border"
+                className="mt-1  bg-zuccini block cursor-pointer rounded-md border-white shadow-sm focus:border-zuccini focus:ring-zuccini sm:text-sm p-2 border"
                 >
                 <span>Subir archivo</span>
                 <input
@@ -210,10 +210,10 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
                 {formData.archivo ? formData.archivo.name : 'No se ha seleccionado ningún archivo'}
                 </p>
             </div>
-            <p className="mt-1 text-xs text-blueApp">
+            <p className="mt-1 text-xs text-zuccini">
                 Sube tu hoja de vida en formato PDF (máx. 5MB)
             </p>
-            <p className="mt-1 text-xs text-blueApp">
+            <p className="mt-1 text-xs text-zuccini">
                 (*) Campo obligatorio.
             </p>
             </div>
@@ -221,7 +221,7 @@ export default function SolicitarTrabajo({ hayOfertas }: SolicitarTrabajoProps) 
             <div className="pt-4">
             <button
                 type="button"
-                className="mt-6 inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300" 
+                className="mt-6 inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-zuccini to-blue-600 hover:from-blue-600 hover:to-zuccini shadow-lg shadow-zuccini/20 hover:shadow-zuccini/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300" 
             >
                 Enviar solicitud
             </button>

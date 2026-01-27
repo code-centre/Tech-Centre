@@ -103,7 +103,7 @@ export default function ProgramSyllabus({ syllabusData, programId, onSyllabusUpd
   return (
     <section className="flex flex-col gap-2">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-blueApp">Temario</h2>
+        <h2 className="text-2xl font-bold text-zuccini">Temario</h2>
       </div>
 
       <div className="flex flex-col gap-6">
@@ -115,7 +115,7 @@ export default function ProgramSyllabus({ syllabusData, programId, onSyllabusUpd
                   <input
                     value={module.title}
                     onChange={(e) => handleModuleTitleChange(i, e.target.value)}
-                    className="border border-gray-600 px-3 py-2 rounded-md w-full bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blueApp"
+                    className="border border-gray-600 px-3 py-2 rounded-md w-full bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-zuccini"
                     placeholder="Título del módulo"
                   />
                 </div>
@@ -146,7 +146,7 @@ export default function ProgramSyllabus({ syllabusData, programId, onSyllabusUpd
                       <input
                         value={topic}
                         onChange={(e) => handleTopicChange(i, j, e.target.value)}
-                        className="border border-gray-600 px-2 py-1 rounded-md flex-1 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blueApp"
+                        className="border border-gray-600 px-2 py-1 rounded-md flex-1 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-zuccini"
                         placeholder="Nuevo tema"
                       />
                       <button

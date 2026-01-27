@@ -311,8 +311,8 @@ export default function ResumenSection({
 
   return (
     <div className={`bg-bgCard/80 backdrop-blur-md w-full flex flex-col gap-5 p-6 rounded-2xl shadow-2xl border border-blue-100/20 max-w-xl ${className || ''}`}>
-      <h2 className="text-4xl font-bold font-mono text-blueApp">Resumen de pago</h2>
-      <div className="border-b border-blueApp/20 h-1"></div>
+      <h2 className="text-4xl font-bold font-mono text-zuccini">Resumen de pago</h2>
+      <div className="border-b border-zuccini/20 h-1"></div>
 
       {/* Listado de conceptos */}
       <div className="space-y-3">
@@ -377,7 +377,7 @@ export default function ResumenSection({
         )}
       </div>
 
-      <div className="border-b border-blueApp/20 h-1"></div>
+      <div className="border-b border-zuccini/20 h-1"></div>
 
       {/* Código de descuento */}
       {data.id && (
@@ -389,7 +389,7 @@ export default function ResumenSection({
         />
       )}
 
-      <div className="border-b border-blueApp/20 h-1"></div>
+      <div className="border-b border-zuccini/20 h-1"></div>
 
       {/* Método de pago */}
       <PaymentMethodDropdown
@@ -402,7 +402,7 @@ export default function ResumenSection({
         onPriceChange={handlePriceChange}
       />
 
-      <div className="border-b border-blueApp/20 h-1"></div>
+      <div className="border-b border-zuccini/20 h-1"></div>
 
       {/* Mensaje de error */}
       {error && (
@@ -440,7 +440,7 @@ export default function ResumenSection({
           handleGetLinkToPay()
         }}
         disabled={!isFormValid || disableButton}
-        className="bg-blueApp py-3 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-xl font-semibold my-5 rounded-md shadow-lg hover:bg-blueApp/90 transition-colors"
+        className="bg-zuccini py-3 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-xl font-semibold my-5 rounded-md shadow-lg hover:bg-zuccini/90 transition-colors"
       >
         {disableButton 
           ? 'Procesando...' 
@@ -463,7 +463,7 @@ export default function ResumenSection({
             })()}
       </button>
 
-      <p className="text-blueApp/70 text-xs">
+      <p className="text-zuccini/70 text-xs">
         Tus datos personales se utilizarán para procesar tu pedido, respaldar tu experiencia en este sitio web y para otros fines descritos en nuestra política de privacidad.
       </p>
 

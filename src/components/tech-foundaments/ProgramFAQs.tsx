@@ -216,7 +216,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
                     value={item.pregunta}
                     onChange={(e) => handleQuestionChange(i, e.target.value)}
                     className="w-full px-4 py-3 font-medium text-white bg-gray-800 border border-gray-600 rounded-lg
-                    focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-blueApp
+                    focus:outline-none focus:ring-2 focus:ring-zuccini focus:border-zuccini
                     transition-all duration-200"
                     type="text"
                     placeholder="Escribe la pregunta..."
@@ -225,7 +225,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
                     value={item.respuesta}
                     onChange={(e) => handleAnswerChange(i, e.target.value)}
                     className="w-full px-4 py-3 text-gray-200 bg-gray-800 border border-gray-600 rounded-lg min-h-[100px]
-                    focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-blueApp
+                    focus:outline-none focus:ring-2 focus:ring-zuccini focus:border-zuccini
                     transition-all duration-200 resize-y"
                     placeholder="Escribe la respuesta..."
                   />
@@ -254,7 +254,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
                       {i + 1}. {item.pregunta}
                     </h3>
                     <div className="flex gap-2 items-center">
-                      <span className="text-blueApp transform group-open:rotate-180 transition-transform duration-300">
+                      <span className="text-zuccini transform group-open:rotate-180 transition-transform duration-300">
                         <ArrowDown />
                       </span>
                       {isAdmin && (

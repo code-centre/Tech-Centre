@@ -167,7 +167,7 @@ export default function ProductSummary({
             alt={data.name}
             width={120}
             height={120}
-            className="w-32 h-32 rounded-lg object-cover bg-center border border-blueApp/10 shadow-lg"
+            className="w-32 h-32 rounded-lg object-cover bg-center border border-zuccini/10 shadow-lg"
           />
         </div>
         
@@ -175,7 +175,7 @@ export default function ProductSummary({
           <div>
             <h3 className="text-2xl font-bold text-white mb-1">{data.name}</h3>
             {data.subtitle && (
-              <p className="text-blueApp/80 text-lg">{data.subtitle}</p>
+              <p className="text-zuccini/80 text-lg">{data.subtitle}</p>
             )}
           </div>
 
@@ -191,7 +191,7 @@ export default function ProductSummary({
             <div className="space-y-3">
               {cohortInfo.start_date && (
                 <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-blueApp shrink-0" />
+                  <Calendar className="w-5 h-5 text-zuccini shrink-0" />
                   <div>
                     <p className="text-xs text-gray-400 mb-0.5">Fecha de inicio</p>
                     <p className="text-white font-semibold">{formatDate(cohortInfo.start_date)}</p>
@@ -200,7 +200,7 @@ export default function ProductSummary({
               )}
               {formatSchedule() && (
                 <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-blueApp shrink-0" />
+                  <Clock className="w-5 h-5 text-zuccini shrink-0" />
                   <div>
                     <p className="text-xs text-gray-400 mb-0.5">Horario</p>
                     <p className="text-white font-semibold">{formatSchedule()}</p>

@@ -35,7 +35,7 @@ export default function ProfileSectionPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blueApp border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-zuccini border-t-transparent rounded-full animate-spin"></div>
           <p className="text-gray-400 text-sm">Cargando...</p>
         </div>
       </div>
@@ -55,7 +55,7 @@ export default function ProfileSectionPage() {
       ) : activeSection === 'cursos' ? (
         <ProfileCursosMatriculados user={user} />
       ) : (
-        <p className="text-blueApp">No tienes acceso a esta sección</p>
+        <p className="text-zuccini">No tienes acceso a esta sección</p>
       )}
     </>
   )

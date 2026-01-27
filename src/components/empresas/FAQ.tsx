@@ -38,7 +38,7 @@ export default function FAQ() {
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl text-blueApp font-bold mb-4">Preguntas frecuentes</h2>
+            <h2 className="text-3xl text-zuccini font-bold mb-4">Preguntas frecuentes</h2>
             <p className="text-white">
               Encuentra respuestas a las dudas más comunes sobre nuestros programas para empresas.
             </p>
@@ -52,7 +52,7 @@ export default function FAQ() {
                   onClick={() => toggleFAQ(index)}
                 >
                   <span className="font-medium text-lg">{faq.question}</span>
-                  {openIndex === index ? <ChevronUp className="h-5 w-5 text-blueApp" /> : <ChevronDown className="h-5 w-5 text-blueApp" />}
+                  {openIndex === index ? <ChevronUp className="h-5 w-5 text-zuccini" /> : <ChevronDown className="h-5 w-5 text-zuccini" />}
                 </button>
                 {openIndex === index && (
                   <div className="p-6 bg-bgCard">
@@ -64,10 +64,10 @@ export default function FAQ() {
           </div>
 
           <div className="mt-12 text-center">
-            <p className="text-blueApp mb-6">¿No encontraste lo que buscabas?</p>
+            <p className="text-zuccini mb-6">¿No encontraste lo que buscabas?</p>
               <button
                 type="button"
-                className=" inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300" 
+                className=" inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-zuccini to-blue-600 hover:from-blue-600 hover:to-zuccini shadow-lg shadow-zuccini/20 hover:shadow-zuccini/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300" 
               >
                 <a href="#contacto">
                     Contáctanos

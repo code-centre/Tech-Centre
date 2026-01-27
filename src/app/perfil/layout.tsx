@@ -43,7 +43,7 @@ export default function ProfileLayout({
     return (
       <div className="flex items-center justify-center mt-20 h-screen">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blueApp border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-zuccini border-t-transparent rounded-full animate-spin"></div>
           <p className="text-gray-400 text-sm">Cargando...</p>
         </div>
       </div>
@@ -74,7 +74,7 @@ export default function ProfileLayout({
                 href={sectionPath}
                 scroll={false}
                 prefetch={true}
-                className={`w-full flex items-center px-2 gap-3 py-2 rounded-md text-sm font-medium mb-2 ${activeSection === section.id ? 'bg-blue-50 text-blueApp' : 'text-gray-600 hover:bg-gray-50'}`}
+                className={`w-full flex items-center px-2 gap-3 py-2 rounded-md text-sm font-medium mb-2 ${activeSection === section.id ? 'bg-blue-50 text-zuccini' : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <Icon size={20} />
                 {section.label}

@@ -65,7 +65,7 @@ export default function ScheduleSupa({ data }: Props) {
       <div className="container mx-auto px-4">
         <div className="mb-10 text-center">
           <h2 className="text-4xl font-bold mb-4">Horarios disponibles</h2>
-          <div className="w-24 h-1 bg-[var(--color-blueApp)] mx-auto"></div>
+          <div className="w-24 h-1 bg-[var(--color-zuccini)] mx-auto"></div>
         </div>
         
         <div className="flex flex-wrap justify-center gap-6 w-full max-w-6xl mx-auto">
@@ -76,8 +76,8 @@ export default function ScheduleSupa({ data }: Props) {
                 <div key={index} className="relative w-full min-w-[320px]">
                   <div className="bg-[var(--background-card)] rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:transform hover:-translate-y-1 border border-gray-700">
                     <div className="flex items-center gap-3 mb-5">
-                      <div className="p-3 rounded-full bg-[var(--color-blueApp)]/10">
-                        <Calendar className="w-6 h-6 text-[var(--color-blueApp)]" />
+                      <div className="p-3 rounded-full bg-[var(--color-zuccini)]/10">
+                        <Calendar className="w-6 h-6 text-[var(--color-zuccini)]" />
                       </div>
                       <h3 className="text-2xl font-semibold">
                         {schedule.dias || "Día no especificado"}
@@ -86,7 +86,7 @@ export default function ScheduleSupa({ data }: Props) {
 
                     <div className="space-y-4">
                       <div className="flex items-start gap-3 ml-4">
-                        <ClockIcon className="w-5 h-5 text-[var(--color-blueApp)] mt-0.5" />
+                        <ClockIcon className="w-5 h-5 text-[var(--color-zuccini)] mt-0.5" />
                         <span className="font-medium">
                           {schedule.horas || "Horario no especificado"}
                         </span>

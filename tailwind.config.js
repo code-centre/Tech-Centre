@@ -14,6 +14,7 @@ module.exports = {
         lightBlue: 'var(--color-lightBlue)',
         darkBlue: 'var(--color-darkBlue)',
         bgCard: 'var(--color-bgCard)',
+        
       },
       fontFamily: {
         'sans': ['var(--font-poppins)', 'sans-serif'],

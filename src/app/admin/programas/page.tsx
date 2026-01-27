@@ -16,7 +16,7 @@ export default function ProgramsAdminPage() {
   return (
     <AdminRoute>
     <main className="container mx-auto p-6 mt-24">
-      <h1 className="text-3xl text-blueApp text-center font-bold mb-8">Administración de Programas</h1>
+      <h1 className="text-3xl text-zuccini text-center font-bold mb-8">Administración de Programas</h1>
        <ProgramsAdmon /> 
     </main>
     </AdminRoute>

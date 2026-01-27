@@ -130,7 +130,7 @@ export default function PaymentOptions({
         <h2 className="text-4xl font-bold mt-4">Opciones de pago</h2>
         <div className="h-1 border-b"></div>
         <div className="flex items-center justify-center py-8">
-          <div className="w-8 h-8 border-4 border-blueApp border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-zuccini border-t-transparent rounded-full animate-spin"></div>
         </div>
       </section>
     )
@@ -163,8 +163,8 @@ export default function PaymentOptions({
       </div>
 
       {paymentMethod && (
-        <div className="bg-blueApp/10 border border-blueApp/30 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-blueApp font-semibold">
+        <div className="bg-zuccini/10 border border-zuccini/30 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-zuccini font-semibold">
             <Check className="w-5 h-5" />
             <span>
               {paymentMethod === 'full'
@@ -180,7 +180,7 @@ export default function PaymentOptions({
           {/* Opción de Pago de Contado */}
           <div
             onClick={handleSelectFull}
-            className="group relative p-6 bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border-2 border-zinc-700 hover:border-blueApp/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blueApp/20 hover:-translate-y-1"
+            className="group relative p-6 bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border-2 border-zinc-700 hover:border-zuccini/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-zuccini/20 hover:-translate-y-1"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="p-3 bg-emerald-500/20 rounded-lg">
@@ -230,8 +230,8 @@ export default function PaymentOptions({
           {/* Opción de Cuotas */}
           <div className="p-6 bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border-2 border-zinc-700">
             <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-blueApp/20 rounded-lg">
-                <CreditCard className="w-6 h-6 text-blueApp" />
+              <div className="p-3 bg-zuccini/20 rounded-lg">
+                <CreditCard className="w-6 h-6 text-zuccini" />
               </div>
             </div>
 
@@ -251,7 +251,7 @@ export default function PaymentOptions({
                     <button
                       key={numInstallments}
                       onClick={() => handleSelectInstallments(numInstallments)}
-                      className="w-full p-4 bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700 hover:border-blueApp/50 rounded-lg transition-all duration-200 text-left group"
+                      className="w-full p-4 bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700 hover:border-zuccini/50 rounded-lg transition-all duration-200 text-left group"
                     >
                       <div className="flex items-center justify-between">
                         <div>

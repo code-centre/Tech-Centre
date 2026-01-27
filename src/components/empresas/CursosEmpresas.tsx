@@ -37,7 +37,7 @@ export default function CursosEmpresas() {
     <section id="pasantias" className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl text-blueApp font-bold mb-4">Nuestros Cursos para Empresas</h2>
+          <h2 className="text-3xl text-zuccini font-bold mb-4">Nuestros Cursos para Empresas</h2>
           <p className="text-white max-w-2xl mx-auto">
             Programas de formación diseñados para potenciar las habilidades de su equipo y llevar su negocio al siguiente nivel.
           </p>
@@ -50,19 +50,19 @@ export default function CursosEmpresas() {
               className="flex flex-col h-full bg-bgCard rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-zinc-800/30 group gap-4 p-6"
             >
               <div className="h-1/4">
-                <h2 className="text-xl font-bold text-blueApp">{curso.title}</h2>
+                <h2 className="text-xl font-bold text-zuccini">{curso.title}</h2>
               </div>
               <div className="flex-grow h-1/2">
-                <span className="text-blueApp font-bold">¿Qué es?</span>
+                <span className="text-zuccini font-bold">¿Qué es?</span>
                 <p className="text-white border-b-2 border-zinc-800/30">{curso.description}</p>
               </div>
               <div className="flex-grow h-1/2">
-                <span className="text-blueApp font-bold">¿Cómo funciona?</span>
+                <span className="text-zuccini font-bold">¿Cómo funciona?</span>
                 <p className="text-white border-b-2 border-zinc-800/30">{curso.description}</p>
               </div>
               <div className="space-y-4 h-1/3">
                 <div className="flex-grow">
-                  <span className="text-blueApp font-bold">Ideal para:</span>
+                  <span className="text-zuccini font-bold">Ideal para:</span>
                   <p className="text-white border-b-2 border-zinc-800/30">{curso.description}</p>
                 </div>
                 <div className="text-sm flex items-center gap-2 justify-center flex-col text-white">
@@ -70,10 +70,10 @@ export default function CursosEmpresas() {
                   <span
                   className={`inline-block  ${
                     curso.level === 'BÁSICO'
-                      ? 'bg-gradient-to-r from-blueApp to-blue-600'
+                      ? 'bg-gradient-to-r from-zuccini to-blue-600'
                       : curso.level === 'INTERMEDIO'
                       ? 'bg-gradient-to-r from-yellow-500 to-amber-600'
-                      : 'bg-gradient-to-r from-blueApp to-blue-600'
+                      : 'bg-gradient-to-r from-zuccini to-blue-600'
                   } text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-lg backdrop-blur-sm border border-white/10 `}
                 >
                   {curso.level}
@@ -83,7 +83,7 @@ export default function CursosEmpresas() {
               <div className="mt-auto pt-4">
                 <Link 
                   href={`/cursos/${curso.id}`}
-                  className="block w-full text-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+                  className="block w-full text-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-zuccini to-blue-600 hover:from-blue-600 hover:to-zuccini shadow-lg shadow-zuccini/20 hover:shadow-zuccini/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
                 >
                   Más información
                 </Link>
@@ -95,7 +95,7 @@ export default function CursosEmpresas() {
         <div className="mt-6 text-center">
           <button
             type="button"
-            className="mt-6 inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300" 
+            className="mt-6 inline-flex items-center px-5 py-2.5 border border-blue-500/30 text-sm font-medium rounded-xl text-white bg-gradient-to-r from-zuccini to-blue-600 hover:from-blue-600 hover:to-zuccini shadow-lg shadow-zuccini/20 hover:shadow-zuccini/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300" 
           >
             <Link href="/cursos">
               Ver todos los cursos

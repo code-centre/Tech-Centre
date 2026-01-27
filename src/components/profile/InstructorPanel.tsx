@@ -206,7 +206,7 @@ export default function InstructorPanel() {
         {showForm && (
             <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4">
                 <div className="space-y-2 bg-white p-4 rounded-xl">
-                <label className="block text-sm font-medium text-blueApp">Nombre de la evaluación*</label>
+                <label className="block text-sm font-medium text-zuccini">Nombre de la evaluación*</label>
                 <input
                     type="text"
                     name="name"
@@ -218,7 +218,7 @@ export default function InstructorPanel() {
                 </div>
 
                 <div className="space-y-2 bg-white p-4 rounded-xl">
-                <label className="block text-sm font-medium text-blueApp">Descripción*</label>
+                <label className="block text-sm font-medium text-zuccini">Descripción*</label>
                 <textarea
                     name="description"
                     value={assessment.description}
@@ -231,7 +231,7 @@ export default function InstructorPanel() {
 
                 <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl">
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-blueApp">Valor máximo*</label>
+                    <label className="block text-sm font-medium text-zuccini">Valor máximo*</label>
                     <input
                     type="number"
                     name="max_value"
@@ -245,7 +245,7 @@ export default function InstructorPanel() {
                 </div>
 
                 <div className="space-y-2 bg-white">
-                    <label className="block text-sm font-medium text-blueApp">Peso (opcional)</label>
+                    <label className="block text-sm font-medium text-zuccini">Peso (opcional)</label>
                     <input
                     type="number"
                     name="weight"
@@ -260,7 +260,7 @@ export default function InstructorPanel() {
                 </div>
 
                 <div className="space-y-2 bg-white p-4 rounded-xl">
-                <label className="block text-sm font-medium text-blueApp">Fecha de entrega*</label>
+                <label className="block text-sm font-medium text-zuccini">Fecha de entrega*</label>
                 <input
                     type="datetime-local"
                     name="due_at"
@@ -273,7 +273,7 @@ export default function InstructorPanel() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2 bg-white p-4 rounded-xl">
-                    <label className="block text-sm font-medium text-blueApp">Módulo ID</label>
+                    <label className="block text-sm font-medium text-zuccini">Módulo ID</label>
                     <input
                       type="number"
                       name="module_id"
@@ -285,7 +285,7 @@ export default function InstructorPanel() {
                     />
                   </div>
                   <div className="space-y-2 bg-white p-4 rounded-xl">
-                    <label className="block text-sm font-medium text-blueApp">Cohorte ID</label>
+                    <label className="block text-sm font-medium text-zuccini">Cohorte ID</label>
                     <input
                       type="number"
                       name="cohort_id"
@@ -299,7 +299,7 @@ export default function InstructorPanel() {
                 </div>
 
                 <div className="space-y-2 bg-white p-4 rounded-xl">
-                <label className="block text-sm font-medium text-blueApp">Archivo adjunto (opcional)</label>
+                <label className="block text-sm font-medium text-zuccini">Archivo adjunto (opcional)</label>
                 <input
                     type="file"
                     onChange={handleFileChange}

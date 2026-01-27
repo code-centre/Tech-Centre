@@ -35,14 +35,14 @@ function FormField({ label, value, name, isEditing, onChange, type = 'text', opt
             onChange={onChange}
             rows={3}
             placeholder={placeholder}
-            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent resize-none"
+            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zuccini focus:border-transparent resize-none"
           />
         ) : options ? (
           <select
             name={name}
             value={value}
             onChange={onChange}
-            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent"
+            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-zuccini focus:border-transparent"
           >
             {options.map(option => (
               <option key={option.value} value={option.value}>
@@ -57,7 +57,7 @@ function FormField({ label, value, name, isEditing, onChange, type = 'text', opt
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent"
+            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zuccini focus:border-transparent"
           />
         )
       ) : (
@@ -106,7 +106,7 @@ function SocialField({ label, value, name, isEditing, onChange, icon, placeholde
           value={value || ''}
           onChange={onChange}
           placeholder={placeholder || 'https://...'}
-          className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent"
+          className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zuccini focus:border-transparent"
         />
       ) : (
         hasValue ? (
@@ -114,7 +114,7 @@ function SocialField({ label, value, name, isEditing, onChange, icon, placeholde
             href={value.startsWith('http') ? value : `https://${value}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 text-blueApp hover:text-blue-400 bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px] flex items-center gap-2 hover:border-blueApp/50 transition-colors"
+            className="px-4 py-2 text-zuccini hover:text-blue-400 bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px] flex items-center gap-2 hover:border-zuccini/50 transition-colors"
           >
             {icon}
             <span className="truncate">{getDomain(value)}</span>
@@ -370,7 +370,7 @@ export default function ProfileData() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blueApp border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-zuccini border-t-transparent rounded-full animate-spin"></div>
           <p className="text-gray-400 text-sm">Cargando información del perfil...</p>
         </div>
       </div>
@@ -387,8 +387,8 @@ export default function ProfileData() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-          <div className="p-2 bg-blueApp/10 rounded-lg">
-            <User className="text-blueApp" size={24} />
+          <div className="p-2 bg-zuccini/10 rounded-lg">
+            <User className="text-zuccini" size={24} />
           </div>
           Información Personal
         </h2>
@@ -420,10 +420,10 @@ export default function ProfileData() {
       {/* Profile Card */}
       <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 shadow-xl overflow-hidden">
         {/* Profile Image Section */}
-        <div className="bg-gradient-to-r from-blueApp/20 via-zinc-800 to-zinc-800 px-6 pt-8 pb-6">
+        <div className="bg-gradient-to-r from-zuccini/20 via-zinc-800 to-zinc-800 px-6 pt-8 pb-6">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <div className="relative">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white/10 shadow-xl ring-4 ring-blueApp/20">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white/10 shadow-xl ring-4 ring-zuccini/20">
                 <Image
                   width={160}
                   height={160}
@@ -433,7 +433,7 @@ export default function ProfileData() {
                 />
               </div>
               {isEditing && (
-                <label className="absolute -bottom-2 -right-2 p-2 bg-blueApp hover:bg-blue-600 rounded-full shadow-lg transition-all duration-200 hover:scale-110 cursor-pointer">
+                <label className="absolute -bottom-2 -right-2 p-2 bg-zuccini hover:bg-blue-600 rounded-full shadow-lg transition-all duration-200 hover:scale-110 cursor-pointer">
                   <Camera className="w-4 h-4 text-white" />
                   <input
                     type="file"
@@ -449,7 +449,7 @@ export default function ProfileData() {
                 {formData.first_name} {formData.last_name}
               </h3>
               {formData.professional_title && (
-                <div className="flex items-center justify-center md:justify-start gap-2 text-blueApp">
+                <div className="flex items-center justify-center md:justify-start gap-2 text-zuccini">
                   <Briefcase className="w-5 h-5" />
                   <p className="text-lg font-medium">{formData.professional_title}</p>
                     </div>
@@ -463,7 +463,7 @@ export default function ProfileData() {
           {/* Personal Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <User className="w-5 h-5 text-blueApp" />
+              <User className="w-5 h-5 text-zuccini" />
               Información Personal
             </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -511,7 +511,7 @@ export default function ProfileData() {
           {/* Identification */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <IdCard className="w-5 h-5 text-blueApp" />
+              <IdCard className="w-5 h-5 text-zuccini" />
               Identificación
             </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -543,7 +543,7 @@ export default function ProfileData() {
           {/* Location & Date */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-blueApp" />
+              <MapPin className="w-5 h-5 text-zuccini" />
               Ubicación y Fecha
             </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -571,7 +571,7 @@ export default function ProfileData() {
           {/* Professional Info */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-blueApp" />
+              <Briefcase className="w-5 h-5 text-zuccini" />
               Información Profesional
             </h3>
             <div className="space-y-4">
@@ -600,7 +600,7 @@ export default function ProfileData() {
           {/* Social Media */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <svg className="w-5 h-5 text-blueApp" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-zuccini" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.896 3.305-2.185 4.344-.977.784-2.148 1.176-3.383 1.176-.896 0-1.747-.184-2.424-.52v-.136c0-1.011-.02-2.04-.06-3.08-.04-1.12-.08-2.24-.12-3.36-.04-1.04-.08-2.08-.12-3.12 0-.184.08-.36.24-.488.16-.12.36-.2.568-.2h2.488c.416 0 .736.32.736.736v.304c.896-.6 1.936-.904 3.12-.904 1.36 0 2.488.488 3.384 1.464.896.976 1.344 2.24 1.344 3.792v.304zm-5.568 7.68c1.36 0 2.488-.488 3.384-1.464.896-.976 1.344-2.24 1.344-3.792v-.304c-.896.6-1.936.904-3.12.904-1.36 0-2.488-.488-3.384-1.464-.896-.976-1.344-2.24-1.344-3.792v-.304c-.896-.6-1.936-.904-3.12-.904-1.36 0-2.488.488-3.384 1.464-.896.976-1.344 2.24-1.344 3.792 0 1.552.448 2.816 1.344 3.792.896.976 2.024 1.464 3.384 1.464z"/>
               </svg>
               Redes Sociales

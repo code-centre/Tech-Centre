@@ -78,12 +78,12 @@ export default function Header() {
             {/* Programas Dropdown */}
             <div className="relative group">
               <button
-                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                className="flex items-center space-x-2 text-white hover:text-zuccini 
                 font-medium transition-all duration-200 group cursor-pointer"
               >
                 <span
                   className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                  after:w-0 after:bg-zuccini after:transition-all group-hover:after:w-full"
                 >
                   Programas
                 </span>
@@ -98,21 +98,21 @@ export default function Header() {
                 <div className="px-4 py-2">
                   <Link
                     href="/programas-academicos"
-                    className="block px-3 py-2 text-sm font-medium text-blueApp hover:bg-blue-50 
+                    className="block px-3 py-2 text-sm font-medium text-zuccini hover:bg-blue-50 
                       rounded-md transition-all duration-200 mb-2 border-b border-gray-100"
                   >
                     Oferta académica
                   </Link>
                   <div
                     className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin 
-                    scrollbar-thumb-blueApp/20 hover:scrollbar-thumb-blueApp/40"
+                    scrollbar-thumb-zuccini/20 hover:scrollbar-thumb-zuccini/40"
                   >
                     {supabasePrograms.map((program) => (
                       <Link
                         key={program.id}
                         href={`/programas-academicos/${program.code}`}
                         className="block px-3 py-2 text-sm text-white hover:bg-blue-50 
-                          hover:text-blueApp rounded-md transition-all duration-200 animate-fade-in-up"
+                          hover:text-zuccini rounded-md transition-all duration-200 animate-fade-in-up"
                       >
                         {program.name}
                       </Link>
@@ -127,12 +127,12 @@ export default function Header() {
                 href="https://www.codigoabierto.tech/eventos"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-white hover:text-blueApp 
+                className="flex items-center space-x-2 text-white hover:text-zuccini 
                 font-medium transition-all duration-200 group"
               >
                 <span
                   className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-blueApp after:transition-all group-hover:after:w-full"
+                  after:w-0 after:bg-zuccini after:transition-all group-hover:after:w-full"
                 >
                   Comunidad
                 </span>
@@ -148,7 +148,7 @@ export default function Header() {
               {/* User Profile Dropdown */}
               <div className="relative group">
                 <button className="flex items-center bg-white/10 px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer">
-                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blueApp/50 mr-3 flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-zuccini/50 mr-3 flex-shrink-0">
                     {user.profile_image ? (
                       <Image
                         src={user.profile_image}
@@ -158,7 +158,7 @@ export default function Header() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-blueApp flex items-center justify-center text-white font-semibold">
+                      <div className="w-full h-full bg-zuccini flex items-center justify-center text-white font-semibold">
                         {user.first_name?.charAt(0).toUpperCase() || 'U'}
                       </div>
                     )}
@@ -183,7 +183,7 @@ export default function Header() {
                     href="/perfil"
                     className="flex items-center space-x-3 px-4 py-3 text-white hover:bg-zinc-800 transition-all duration-200"
                   >
-                    <UserIcon className="w-5 h-5 text-blueApp" />
+                    <UserIcon className="w-5 h-5 text-zuccini" />
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Ver perfil</span>
                       <span className="text-xs text-gray-400">Gestiona tu cuenta</span>
@@ -203,21 +203,21 @@ export default function Header() {
                         href="/admin/estudiantes"
                         className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-zinc-800 transition-all duration-200"
                       >
-                        <Users className="w-4 h-4 text-blueApp" />
+                        <Users className="w-4 h-4 text-zuccini" />
                         <span className="text-sm">Lista estudiantes</span>
                       </Link>
                       <Link
                         href="/admin/pagos"
                         className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-zinc-800 transition-all duration-200"
                       >
-                        <FileText className="w-4 h-4 text-blueApp" />
+                        <FileText className="w-4 h-4 text-zuccini" />
                         <span className="text-sm">Lista de pagos</span>
                       </Link>
                       <Link
                         href="/admin/programas"
                         className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-zinc-800 transition-all duration-200"
                       >
-                        <GraduationCap className="w-4 h-4 text-blueApp" />
+                        <GraduationCap className="w-4 h-4 text-zuccini" />
                         <span className="text-sm">Lista de programas</span>
                       </Link>
                     </>
@@ -242,9 +242,9 @@ export default function Header() {
             <div className="hidden lg:flex items-center space-x-4">
               <Link
                 href="/registro"
-                className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-blueApp hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
+                className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-zuccini hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
                 >
-                <span className="absolute inset-0 bg-blueApp opacity-0 
+                <span className="absolute inset-0 bg-zuccini opacity-0 
                   group-hover:opacity-100 transition-opacity duration-300"></span>
                 <span className="relative">
                   Registrarse
@@ -270,7 +270,7 @@ export default function Header() {
                 <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
                   Iniciar sesión
                 </span>
-                <div className="absolute inset-0 bg-blueApp transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
+                <div className="absolute inset-0 bg-zuccini transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
               </Link>
             </div>
           )}
@@ -318,7 +318,7 @@ export default function Header() {
             <div className="py-2">
               <Link
                 href="/programas-academicos"
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-zuccini transition-colors duration-200"
                 onClick={() => {
                   setIsMenuOpen(false)
                   setMobileDropdown(null)
@@ -332,7 +332,7 @@ export default function Header() {
             <div className="py-2">
               <a
                 href="https://www.codigoabierto.tech/eventos"
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-blueApp transition-colors duration-200"
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-zuccini transition-colors duration-200"
                 onClick={() => {
                   setIsMenuOpen(false)
                   setMobileDropdown(null)
@@ -349,10 +349,10 @@ export default function Header() {
                   {/* Profile Section */}
                   <Link
                     href="/perfil"
-                    className="flex items-center space-x-3 px-4 py-3 text-white bg-blueApp/20 hover:bg-blueApp/30 rounded-lg transition-all duration-300 w-full"
+                    className="flex items-center space-x-3 px-4 py-3 text-white bg-zuccini/20 hover:bg-zuccini/30 rounded-lg transition-all duration-300 w-full"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blueApp/50 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-zuccini/50 flex-shrink-0">
                       {user.profile_image ? (
                         <Image
                           src={user.profile_image}
@@ -362,7 +362,7 @@ export default function Header() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-blueApp flex items-center justify-center text-white font-semibold">
+                        <div className="w-full h-full bg-zuccini flex items-center justify-center text-white font-semibold">
                           {user.first_name?.charAt(0).toUpperCase() || 'U'}
                         </div>
                       )}
@@ -404,7 +404,7 @@ export default function Header() {
                         <div className="mt-2 pl-4 space-y-2">
                           <Link
                             href="/admin/estudiantes"
-                            className="block py-2 px-3 text-sm text-white hover:text-blueApp hover:bg-zinc-800/30 rounded-md transition-all duration-200"
+                            className="block py-2 px-3 text-sm text-white hover:text-zuccini hover:bg-zinc-800/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
@@ -414,7 +414,7 @@ export default function Header() {
                           </Link>
                           <Link
                             href="/admin/pagos"
-                            className="block py-2 px-3 text-sm text-white hover:text-blueApp hover:bg-zinc-800/30 rounded-md transition-all duration-200"
+                            className="block py-2 px-3 text-sm text-white hover:text-zuccini hover:bg-zinc-800/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
@@ -424,7 +424,7 @@ export default function Header() {
                           </Link>
                           <Link
                             href="/admin/programas"
-                            className="block py-2 px-3 text-sm text-white hover:text-blueApp hover:bg-zinc-800/30 rounded-md transition-all duration-200"
+                            className="block py-2 px-3 text-sm text-white hover:text-zuccini hover:bg-zinc-800/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
@@ -441,7 +441,7 @@ export default function Header() {
                 <div className="flex flex-col items-start space-y-3">
                   <Link
                     href="/registro"
-                    className="px-4 py-3 text-white bg-blueApp hover:bg-blue-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium flex items-center justify-center space-x-2"
+                    className="px-4 py-3 text-white bg-zuccini hover:bg-blue-600 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium flex items-center justify-center space-x-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <span>Registrarse</span>
@@ -461,7 +461,7 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/iniciar-sesion"
-                    className="px-4 py-3 text-blueApp border-2 border-blueApp hover:bg-blueApp hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium"
+                    className="px-4 py-3 text-zuccini border-2 border-zuccini hover:bg-zuccini hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Iniciar Sesión

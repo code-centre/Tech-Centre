@@ -90,14 +90,14 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-blueApp/10 rounded-lg">
-            <GraduationCap className="text-blueApp" size={24} />
+          <div className="p-2 bg-zuccini/10 rounded-lg">
+            <GraduationCap className="text-zuccini" size={24} />
           </div>
           <h2 className="text-2xl font-bold text-white">Mis Cursos Matriculados</h2>
         </div>
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-blueApp" />
+            <Loader2 className="w-10 h-10 animate-spin text-zuccini" />
             <p className="text-gray-400 text-sm">Cargando tus cursos...</p>
           </div>
         </div>
@@ -109,8 +109,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-blueApp/10 rounded-lg">
-            <GraduationCap className="text-blueApp" size={24} />
+          <div className="p-2 bg-zuccini/10 rounded-lg">
+            <GraduationCap className="text-zuccini" size={24} />
           </div>
           <h2 className="text-2xl font-bold text-white">Mis Cursos Matriculados</h2>
         </div>
@@ -126,8 +126,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blueApp/10 rounded-lg">
-            <GraduationCap className="text-blueApp" size={24} />
+          <div className="p-2 bg-zuccini/10 rounded-lg">
+            <GraduationCap className="text-zuccini" size={24} />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-white">Mis Cursos Matriculados</h2>
@@ -144,8 +144,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
       {enrolledCourses.length === 0 ? (
         <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-xl">
           <div className="px-8 py-16 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blueApp/20 to-blue-600/20 mb-6">
-              <Sparkles className="w-10 h-10 text-blueApp" />
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-zuccini/20 to-blue-600/20 mb-6">
+              <Sparkles className="w-10 h-10 text-zuccini" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-3">
               ¡Comienza tu viaje de aprendizaje!
@@ -158,7 +158,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
           </p>
             <Link 
               href="/programas-academicos"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-blueApp hover:bg-blue-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-blueApp/20 hover:-translate-y-1 active:translate-y-0"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-zuccini hover:bg-blue-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-zuccini/20 hover:-translate-y-1 active:translate-y-0"
             >
               <BookOpen className="w-5 h-5" />
               <span>Explorar Cursos Disponibles</span>
@@ -180,7 +180,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                 href={`/programas-academicos/${program?.id || course.cohorts?.program_id}`}
                 className="group block h-full"
               >
-                <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-lg hover:shadow-xl hover:shadow-blueApp/20 transition-all duration-300 hover:-translate-y-2 hover:border-blueApp/50 h-full flex flex-col">
+                <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-lg hover:shadow-xl hover:shadow-zuccini/20 transition-all duration-300 hover:-translate-y-2 hover:border-zuccini/50 h-full flex flex-col">
                   {/* Image Section */}
                   <div className="relative h-48 overflow-hidden">
                     {program?.image ? (
@@ -192,8 +192,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blueApp/20 to-blue-600/20 flex items-center justify-center">
-                        <GraduationCap className="w-16 h-16 text-blueApp/50" />
+                      <div className="w-full h-full bg-gradient-to-br from-zuccini/20 to-blue-600/20 flex items-center justify-center">
+                        <GraduationCap className="w-16 h-16 text-zuccini/50" />
                       </div>
                     )}
                     
@@ -207,7 +207,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                               ? 'bg-gradient-to-r from-amber-500 to-orange-600'
                               : difficulty === 'AVANZADO'
                                 ? 'bg-gradient-to-r from-red-500 to-rose-600'
-                                : 'bg-gradient-to-r from-blueApp to-blue-600'
+                                : 'bg-gradient-to-r from-zuccini to-blue-600'
                         } text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-white/20 flex items-center gap-1.5`}
                       >
                         <TrendingUp className="h-3 w-3" />
@@ -233,7 +233,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                   {/* Content Section */}
                   <div className="p-6 flex-1 flex flex-col">
                     {/* Title */}
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blueApp transition-colors duration-200 line-clamp-2">
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-zuccini transition-colors duration-200 line-clamp-2">
                       {program?.name || 'Curso sin nombre'}
                     </h3>
                     
@@ -244,7 +244,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                     {/* Dates */}
                     {(startDate || endDate) && (
                       <div className="flex items-center gap-2 text-sm text-gray-400 mb-4 pb-4 border-b border-zinc-700/50">
-                        <Calendar className="w-4 h-4 text-blueApp flex-shrink-0" />
+                        <Calendar className="w-4 h-4 text-zuccini flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           {startDate && (
                             <p className="truncate">
@@ -267,7 +267,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                       {course.cohorts?.modality && (
                         <div className="flex items-center gap-3 text-sm text-gray-300">
                           <div className="flex items-center justify-center w-8 h-8 bg-zinc-800/60 rounded-lg border border-zinc-700/50">
-                            <BookOpen className="w-4 h-4 text-blueApp" />
+                            <BookOpen className="w-4 h-4 text-zuccini" />
                           </div>
                           <span>{course.cohorts.modality}</span>
                         </div>
@@ -276,7 +276,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                       {program?.total_hours && (
                         <div className="flex items-center gap-3 text-sm text-gray-300">
                           <div className="flex items-center justify-center w-8 h-8 bg-zinc-800/60 rounded-lg border border-zinc-700/50">
-                            <Clock className="w-4 h-4 text-blueApp" />
+                            <Clock className="w-4 h-4 text-zuccini" />
                           </div>
                           <span>{program.total_hours} horas</span>
                   </div>
@@ -285,7 +285,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
 
                     {/* View Course Link */}
                     <div className="mt-6 pt-4 border-t border-zinc-700/50">
-                      <div className="flex items-center gap-2 text-blueApp text-sm font-medium group-hover:gap-3 transition-all duration-200">
+                      <div className="flex items-center gap-2 text-zuccini text-sm font-medium group-hover:gap-3 transition-all duration-200">
                         <span>Ver detalles del curso</span>
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                   </div>

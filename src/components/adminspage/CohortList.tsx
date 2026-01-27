@@ -198,7 +198,7 @@ export default function CohortList({ cohorts: initialCohorts, programId }: { coh
   return (
     <div className="space-y-4 bg-bgCard rounded-lg">
       <div className="flex justify-between items-center p-4">
-        <h2 className="text-xl font-semibold text-blueApp">Cohortes</h2>
+        <h2 className="text-xl font-semibold text-zuccini">Cohortes</h2>
         <button 
           onClick={() => openModal()}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"

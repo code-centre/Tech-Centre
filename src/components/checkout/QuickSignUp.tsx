@@ -188,7 +188,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
               <button
                 onClick={handleCheckVerification}
                 disabled={checkingVerification}
-                className="w-full px-4 py-3 bg-blueApp hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full px-4 py-3 bg-zuccini hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 {checkingVerification ? (
                   <>
@@ -233,7 +233,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
                   setError(null)
                 }}
                 placeholder="tu@email.com"
-                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zuccini focus:border-transparent transition-all"
                 required
                 disabled={loading}
               />
@@ -257,7 +257,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
                   setError(null)
                 }}
                 placeholder="Mínimo 6 caracteres"
-                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zuccini focus:border-transparent transition-all"
                 required
                 minLength={6}
                 disabled={loading}
@@ -282,7 +282,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
                   setError(null)
                 }}
                 placeholder="Repite tu contraseña"
-                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zuccini focus:border-transparent transition-all"
                 required
                 disabled={loading}
               />
@@ -311,7 +311,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
               <button
                 type="submit"
                 disabled={loading || !email || !password || !confirmPassword}
-                className="flex-1 px-4 py-3 bg-blueApp hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 bg-zuccini hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

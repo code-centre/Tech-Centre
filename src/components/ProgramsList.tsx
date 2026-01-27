@@ -258,7 +258,7 @@ export function ProgramsList({
                   <div className="flex justify-center mt-6">
                     <Link
                       href="/programas-academicos"
-                      className="group inline-flex items-center gap-2 px-6 py-3 bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/50 hover:border-blueApp/50 rounded-lg text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-blueApp/20"
+                      className="group inline-flex items-center gap-2 px-6 py-3 bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/50 hover:border-zuccini/50 rounded-lg text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-zuccini/20"
                     >
                       <span>Ver todos los programas</span>
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -284,7 +284,7 @@ export function ProgramsList({
                             </div>
                             <div className="relative flex justify-center">
                               <div className="bg-background px-4">
-                                <div className="h-1 w-24 bg-linear-to-r from-transparent via-blueApp to-transparent"></div>
+                                <div className="h-1 w-24 bg-linear-to-r from-transparent via-zuccini to-transparent"></div>
                               </div>
                             </div>
                           </div>
@@ -292,7 +292,7 @@ export function ProgramsList({
                         
                         {/* Título de la sección */}
                         <div className="flex items-center gap-4 mb-6">
-                          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br from-blueApp/20 to-blueApp/10 border border-blueApp/30 text-blueApp">
+                          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br from-zuccini/20 to-zuccini/10 border border-zuccini/30 text-zuccini">
                             {typeIcon}
                           </div>
                           <div>

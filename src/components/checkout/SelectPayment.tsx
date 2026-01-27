@@ -65,7 +65,7 @@ export default function SelectPayment({ data, paymentMethod, setPaymentMethod, s
       {paymentMethod &&
         <p className='flex items-center gap-2'>
           Opción de pago seleccionado:
-          <span className='text-blueApp font-semibold'>
+          <span className='text-zuccini font-semibold'>
             {paymentPlans.find(plan => plan.id === paymentMethod)?.name || 'Método de pago'}
           </span>
           <button onClick={() => {
@@ -87,7 +87,7 @@ export default function SelectPayment({ data, paymentMethod, setPaymentMethod, s
             >
               <div className='flex items-center justify-between'>
                 <p className=''>
-                  <span className='text-blueApp font-semibold text-lg'>{plan.name} | </span>
+                  <span className='text-zuccini font-semibold text-lg'>{plan.name} | </span>
 
                   <span className='text-white'>
                     {plan.installments > 1
@@ -120,7 +120,7 @@ export default function SelectPayment({ data, paymentMethod, setPaymentMethod, s
         <div className='flex flex-col gap-2'>
           <div className='flex items-center justify-between'>
             <p className=''>
-              <span className='text-blueApp font-semibold text-lg'>{paymentPlans[0].name} | </span>
+              <span className='text-zuccini font-semibold text-lg'>{paymentPlans[0].name} | </span>
               ${data.default_price} COP
               {paymentPlans[0].discount_percent &&
                 <span> (Descuento del {paymentPlans[0].discount_percent} %)</span>
@@ -130,8 +130,8 @@ export default function SelectPayment({ data, paymentMethod, setPaymentMethod, s
                   setPaymentMethod('full')
                   setSubtotal(data.discount ? data.discount : data.price)
                   setPriceSelected(data.discount ? data.discount : data.price)
-                }} className='border-2 border-blueApp hover:bg-blueApp group transition-colors rounded-md'>
-                  <Plus className='text-blueApp w-5 h-5 group-hover:text-white transition-colors' />
+                }} className='border-2 border-zuccini hover:bg-zuccini group transition-colors rounded-md'>
+                  <Plus className='text-zuccini w-5 h-5 group-hover:text-white transition-colors' />
                 </button>
           </div>
         </div >

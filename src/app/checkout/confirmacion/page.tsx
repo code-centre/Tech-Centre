@@ -24,7 +24,7 @@ function ConfirmationLoader() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="w-12 h-12 animate-spin text-blueApp" />
+        <Loader2 className="w-12 h-12 animate-spin text-zuccini" />
         <p className="text-gray-400">Verificando estado del pago...</p>
       </div>
     </div>
@@ -294,7 +294,7 @@ function CheckoutContent() {
             <p className="text-gray-400">{error}</p>
             <Link
               href="/"
-              className="bg-blueApp hover:bg-blue-600 transition-all duration-300 text-white py-3 px-6 rounded-md font-semibold"
+              className="bg-zuccini hover:bg-blue-600 transition-all duration-300 text-white py-3 px-6 rounded-md font-semibold"
             >
               Volver al inicio
             </Link>
@@ -369,7 +369,7 @@ function CheckoutContent() {
               )}
               <Link
                 href="/"
-                className="bg-blueApp hover:bg-blue-600 transition-all duration-300 text-white py-3 px-6 rounded-md font-semibold"
+                className="bg-zuccini hover:bg-blue-600 transition-all duration-300 text-white py-3 px-6 rounded-md font-semibold"
               >
                 Volver al inicio
               </Link>

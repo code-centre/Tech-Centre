@@ -127,7 +127,7 @@ export default function PaymentMethodDropdown({
           Método de pago
         </label>
         <div className="flex items-center justify-center py-4">
-          <div className="w-6 h-6 border-4 border-blueApp border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-6 h-6 border-4 border-zuccini border-t-transparent rounded-full animate-spin"></div>
         </div>
       </div>
     )
@@ -142,7 +142,7 @@ export default function PaymentMethodDropdown({
         id="payment-method"
         value={getSelectValue()}
         onChange={handleSelectChange}
-        className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-transparent transition-colors"
+        className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-zuccini focus:border-transparent transition-colors"
       >
         <option value="">Selecciona un método de pago</option>
         <option value="full">

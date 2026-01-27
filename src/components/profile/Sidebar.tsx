@@ -31,7 +31,7 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
       <div className="p-6 border-b border-zinc-700/50">
         <div className="flex items-center gap-4 mb-4">
           <div className="relative">
-            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blueApp/50 shadow-lg ring-2 ring-blueApp/20">
+            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-zuccini/50 shadow-lg ring-2 ring-zuccini/20">
               {user?.profile_image ? (
                 <Image
                   src={user.profile_image}
@@ -41,7 +41,7 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-linear-to-br from-blueApp to-blue-600 flex items-center justify-center text-white font-bold text-xl">
+                <div className="w-full h-full bg-linear-to-br from-zuccini to-blue-600 flex items-center justify-center text-white font-bold text-xl">
                   {user?.first_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
                 </div>
               )}
@@ -81,14 +81,14 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
                 relative overflow-hidden group
                 ${
                   isActive
-                    ? 'bg-linear-to-r from-blueApp/20 to-blueApp/10 text-blueApp shadow-lg shadow-blueApp/10 border border-blueApp/30'
+                    ? 'bg-linear-to-r from-zuccini/20 to-zuccini/10 text-zuccini shadow-lg shadow-zuccini/10 border border-zuccini/30'
                     : 'text-gray-300 hover:text-white hover:bg-zinc-800/50 border border-transparent'
                 }
               `}
             >
               {/* Active indicator */}
               {isActive && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blueApp rounded-r-full"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-zuccini rounded-r-full"></div>
               )}
               
               {/* Icon */}
@@ -98,7 +98,7 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
               `}>
                 <Icon 
                   size={20} 
-                  className={isActive ? 'text-blueApp' : 'text-gray-400 group-hover:text-blueApp'}
+                  className={isActive ? 'text-zuccini' : 'text-gray-400 group-hover:text-zuccini'}
                 />
               </div>
               
@@ -111,7 +111,7 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
               </span>
 
               {/* Hover effect */}
-              <div className="absolute inset-0 bg-linear-to-r from-blueApp/0 to-blueApp/0 group-hover:from-blueApp/5 group-hover:to-transparent transition-all duration-200 rounded-lg"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-zuccini/0 to-zuccini/0 group-hover:from-zuccini/5 group-hover:to-transparent transition-all duration-200 rounded-lg"></div>
             </Link>
           )
         })}
