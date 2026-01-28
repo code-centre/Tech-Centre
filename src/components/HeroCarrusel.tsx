@@ -5,6 +5,7 @@ import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules'
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Sparkles } from 'lucide-react'
+import ModalLead from './ModalLead'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
@@ -44,6 +45,7 @@ export function HeroCarrusel({
   contentClassName = ''
 }: CarruselProps) {
   const [mounted, setMounted] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -126,6 +128,9 @@ export function HeroCarrusel({
         ))}
       </div>
       
+      {/* Modal Lead - Solo para usuarios no autenticados */}
+      <ModalLead isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      
       {/* Content */}
       <div className="relative z-10 h-full">
         <Swiper {...swiperConfig}>
@@ -180,8 +185,8 @@ export function HeroCarrusel({
                       {item.description}
                     </p>
 
-                    {/* CTA Button */}
-                    <div className="pt-4">
+                    {/* CTA Buttons */}
+                    <div className="pt-4 flex flex-col sm:flex-row gap-3">
                       <Link
                         href={item.link || '#'}
                         className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-1"
@@ -189,6 +194,14 @@ export function HeroCarrusel({
                         <span>{item.cta}</span>
                         <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
                       </Link>
+                      
+                      <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="group inline-flex items-center gap-3 px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white/30 hover:bg-white/10 hover:border-white/50 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-white/25 transform hover:-translate-y-1"
+                      >
+                        <span>Solicitar información</span>
+                        <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
+                      </button>
                     </div>
 
                     {/* Stats or additional info */}
