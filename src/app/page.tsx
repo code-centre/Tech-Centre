@@ -6,8 +6,8 @@ import NoticiasSection from "@/sections/Noticias";
 import { Ubication } from "@/sections/ubication";
 import HeroCarrusel from "@/components/HeroCarrusel";
 import { AliadosSection } from '@/components/aliadosSection';
-import heroData from '../../data/herocarrusel.json'
 import AcademicOffer from "@/sections/AcademicOffer";
+import { HowYouLearn } from "@/sections/HowYouLearn";
 import { LocalBusinessSchema } from "@/components/seo/StructuredData";
 
 export const metadata: Metadata = {
@@ -61,18 +61,14 @@ export default function Home() {
     <>
       <LocalBusinessSchema />
       <HeroCarrusel 
-        items={heroData}
-        type="hero"
-        effect="fade"
-        className="w-full z-10 rounded-lg mt-24"
-        itemClassName="group z-10"
-        imageClassName=""
+        className="w-full z-10 rounded-lg mt-12"
       />
-      <div id="programs">
-        <AcademicOffer />
-      </div>
+      <HowYouLearn />
       <div id="quienes-somos">
         <WhoWeAre />
+      </div>
+      <div id="programs">
+        <AcademicOffer />
       </div>
       <div id="ubicacion">
         <Ubication />

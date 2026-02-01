@@ -58,7 +58,7 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-bg-primary/80 backdrop-blur-sm shadow-lg border-b border-border-color">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0E1116]/80 backdrop-blur-sm shadow-lg border-b border-[#374151]">
       <ProgramQuery onProgramsLoaded={handleProgramsLoaded} />
 
       <div className="max-w-7xl mx-auto container px-4 sm:px-6">
@@ -78,12 +78,12 @@ export default function Header() {
             {/* Programas Dropdown */}
             <div className="relative group">
               <button
-                className="flex items-center space-x-2 text-text-primary hover:text-secondary 
+                className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
                 font-medium transition-all duration-200 group cursor-pointer"
               >
                 <span
                   className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-secondary after:transition-all group-hover:after:w-full"
+                  after:w-0 after:bg-[#2FB7C4] after:transition-all group-hover:after:w-full"
                 >
                   Programas
                 </span>
@@ -92,14 +92,14 @@ export default function Header() {
 
               <div
                 className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-80 bg-bg-card backdrop-blur-md rounded-xl 
-                shadow-lg border border-border-color py-3 transition-all duration-200"
+                absolute top-full left-0 mt-2 w-80 bg-[#0E1116] backdrop-blur-md rounded-xl 
+                shadow-lg border border-[#374151] py-3 transition-all duration-200"
               >
                 <div className="px-4 py-2">
                   <Link
                     href="/programas-academicos"
-                    className="block px-3 py-2 text-sm font-medium text-secondary hover:bg-bg-secondary 
-                      rounded-md transition-all duration-200 mb-2 border-b border-border-color"
+                    className="block px-3 py-2 text-sm font-medium text-[#2FB7C4] hover:bg-[#1A1F2E] 
+                      rounded-md transition-all duration-200 mb-2 border-b border-[#374151]"
                   >
                     Oferta académica
                   </Link>
@@ -111,8 +111,8 @@ export default function Header() {
                       <Link
                         key={program.id}
                         href={`/programas-academicos/${program.code}`}
-                        className="block px-3 py-2 text-sm text-text-primary hover:bg-bg-secondary 
-                          hover:text-secondary rounded-md transition-all duration-200 animate-fade-in-up"
+                        className="block px-3 py-2 text-sm text-white hover:bg-[#1A1F2E] 
+                          hover:text-[#2FB7C4] rounded-md transition-all duration-200 animate-fade-in-up"
                       >
                         {program.name}
                       </Link>
@@ -127,12 +127,12 @@ export default function Header() {
                 href="https://www.codigoabierto.tech/eventos"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-text-primary hover:text-secondary 
+                className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
                 font-medium transition-all duration-200 group"
               >
                 <span
                   className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-secondary after:transition-all group-hover:after:w-full"
+                  after:w-0 after:bg-[#2FB7C4] after:transition-all group-hover:after:w-full"
                 >
                   Comunidad
                 </span>
@@ -142,7 +142,7 @@ export default function Header() {
 
           {/* User Actions */}
           {loadingUser ? (
-            <div className="h-10 w-24 bg-bg-secondary/20 rounded-md animate-pulse"></div>
+            <div className="h-10 w-24 bg-[#1A1F2E]/20 rounded-md animate-pulse"></div>
           ) : user ? (
             <div className="hidden lg:flex items-center space-x-4">
               {/* Theme Toggle */}
@@ -150,8 +150,8 @@ export default function Header() {
               
               {/* User Profile Dropdown */}
               <div className="relative group">
-                <button className="flex items-center bg-bg-secondary/50 px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer border border-border-color">
-                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-secondary/50 mr-3 flex-shrink-0">
+                <button className="flex items-center bg-[#1A1F2E]/50 px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#2FB7C4]/50 mr-3 flex-shrink-0">
                     {user.profile_image ? (
                       <Image
                         src={user.profile_image}
@@ -161,81 +161,81 @@ export default function Header() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-secondary flex items-center justify-center text-white font-semibold">
+                      <div className="w-full h-full bg-[#2FB7C4] flex items-center justify-center text-white font-semibold">
                         {user.first_name?.charAt(0).toUpperCase() || 'U'}
                       </div>
                     )}
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="flex flex-col">
-                      <span className="text-text-primary font-medium text-sm">
+                      <span className="text-white font-medium text-sm">
                         Hola, {user.first_name || 'Usuario'}
                       </span>
-                      <span className="text-xs text-text-muted">
+                      <span className="text-xs text-white/80">
                         Mi cuenta
                       </span>
                     </div>
-                    <ChevronDown className="w-4 h-4 text-text-muted transition-transform duration-300 group-hover:rotate-180" />
+                    <ChevronDown className="w-4 h-4 text-white/80 transition-transform duration-300 group-hover:rotate-180" />
                   </div>
                 </button>
 
                 {/* Dropdown Menu */}
-                <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full right-0 mt-2 w-64 bg-bg-card backdrop-blur-md rounded-xl shadow-lg border border-border-color py-3 transition-all duration-200 z-50">
+                <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full right-0 mt-2 w-64 bg-[#0E1116] backdrop-blur-md rounded-xl shadow-lg border border-[#374151] py-3 transition-all duration-200 z-50">
                   {/* Profile Link */}
                   <Link
                     href="/perfil"
-                    className="flex items-center space-x-3 px-4 py-3 text-text-primary hover:bg-bg-secondary transition-all duration-200"
+                    className="flex items-center space-x-3 px-4 py-3 text-white hover:bg-[#1A1F2E] transition-all duration-200"
                   >
-                    <UserIcon className="w-5 h-5 text-secondary" />
+                    <UserIcon className="w-5 h-5 text-[#2FB7C4]" />
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Ver perfil</span>
-                      <span className="text-xs text-text-muted">Gestiona tu cuenta</span>
+                      <span className="text-xs text-white/60">Gestiona tu cuenta</span>
                     </div>
                   </Link>
 
                   {/* Admin Section - Only show if user is admin */}
                   {user?.role === 'admin' && (
                     <>
-                      <div className="border-t border-border-color my-2"></div>
+                      <div className="border-t border-[#374151] my-2"></div>
                       <div className="px-4 py-2">
-                        <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+                        <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
                           Administración
                         </p>
                       </div>
                       <Link
                         href="/admin/estudiantes"
-                        className="flex items-center space-x-3 px-4 py-2 text-text-primary hover:bg-bg-secondary transition-all duration-200"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
                       >
-                        <Users className="w-4 h-4 text-secondary" />
+                        <Users className="w-4 h-4 text-[#2FB7C4]" />
                         <span className="text-sm">Lista estudiantes</span>
                       </Link>
                       <Link
                         href="/admin/pagos"
-                        className="flex items-center space-x-3 px-4 py-2 text-text-primary hover:bg-bg-secondary transition-all duration-200"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
                       >
-                        <FileText className="w-4 h-4 text-secondary" />
+                        <FileText className="w-4 h-4 text-[#2FB7C4]" />
                         <span className="text-sm">Lista de pagos</span>
                       </Link>
                       <Link
                         href="/admin/programas"
-                        className="flex items-center space-x-3 px-4 py-2 text-text-primary hover:bg-bg-secondary transition-all duration-200"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
                       >
-                        <GraduationCap className="w-4 h-4 text-secondary" />
+                        <GraduationCap className="w-4 h-4 text-[#2FB7C4]" />
                         <span className="text-sm">Lista de programas</span>
                       </Link>
                     </>
                   )}
 
                   {/* Logout */}
-                  <div className="border-t border-border-color my-2"></div>
+                  <div className="border-t border-[#374151] my-2"></div>
                   <button
                     onClick={handleSignOut}
-                    className="flex cursor-pointer items-center space-x-3 px-4 py-3 text-text-primary hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full"
+                    className="flex cursor-pointer items-center space-x-3 px-4 py-3 text-white hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full"
                   >
                     <LogOut className="w-5 h-5" />
                     <div className="flex flex-col items-start">
                       <span className="text-sm font-medium">Cerrar sesión</span>
-                      <span className="text-xs text-text-muted">Salir de tu cuenta</span>
+                      <span className="text-xs text-white/60">Salir de tu cuenta</span>
                     </div>
                   </button>
                 </div>
@@ -248,9 +248,9 @@ export default function Header() {
               
               <Link
                 href="/registro"
-                className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-secondary hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
+                className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-[#2FB7C4] hover:bg-[#2FB7C4]/90 focus:outline-none focus:ring-2 focus:ring-[#2FB7C4] focus:ring-offset-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
                 >
-                <span className="absolute inset-0 bg-secondary opacity-0 
+                <span className="absolute inset-0 bg-[#2FB7C4] opacity-0 
                   group-hover:opacity-100 transition-opacity duration-300"></span>
                 <span className="relative text-white">
                   Registrarse
@@ -271,12 +271,12 @@ export default function Header() {
               </Link>
               <Link
                 href="/iniciar-sesion"
-                className="relative px-4 py-2 text-text-primary font-medium group overflow-hidden"
+                className="relative px-4 py-2 text-white font-medium group overflow-hidden"
               >
-                <span className="relative z-10 transition-colors duration-300 group-hover:text-text-primary">
+                <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
                   Iniciar sesión
                 </span>
-                <div className="absolute inset-0 bg-secondary transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
+                <div className="absolute inset-0 bg-[#2FB7C4] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 rounded-md"></div>
               </Link>
             </div>
           )}
@@ -295,9 +295,9 @@ export default function Header() {
               className="p-2 hover:animate-pulse hover:animate-once cursor-pointer"
             >
               {isMenuOpen ? (
-                <X className="w-6 h-6 animate-fade-in animate-duration-200 text-text-primary" />
+                <X className="w-6 h-6 animate-fade-in animate-duration-200 text-white" />
               ) : (
-                <Menu className="w-6 h-6 animate-fade-in animate-duration-200 text-text-primary" />
+                <Menu className="w-6 h-6 animate-fade-in animate-duration-200 text-white" />
               )}
             </button>
           </div>
@@ -306,20 +306,20 @@ export default function Header() {
         <div
           ref={mobileMenuRef}
           onClick={(e) => e.stopPropagation()} // Prevent clicks within the menu from closing it
-          className={`lg:hidden fixed top-0 right-0 h-auto w-80 max-w-[85vw] bg-bg-card/95 backdrop-blur-md border-l border-border-color z-50 shadow-2xl transition-transform duration-300 ease-out ${
+          className={`lg:hidden fixed top-0 right-0 h-auto w-80 max-w-[85vw] bg-[#0E1116]/95 backdrop-blur-md border-l border-[#374151] z-50 shadow-2xl transition-transform duration-300 ease-out ${
             isMenuOpen
               ? "translate-x-0"
               : "translate-x-full"
           }`}
         >
-          <div className="px-4 py-4 divide-y divide-border-color h-auto overflow-y-auto">
+          <div className="px-4 py-4 divide-y divide-[#374151] h-auto overflow-y-auto">
             {/* Close button */}
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="p-2 hover:bg-bg-secondary rounded-lg transition-colors duration-200"
+                className="p-2 hover:bg-[#1A1F2E] rounded-lg transition-colors duration-200"
               >
-                <X className="w-6 h-6 text-text-primary" />
+                <X className="w-6 h-6 text-white" />
               </button>
             </div>
 
@@ -327,7 +327,7 @@ export default function Header() {
             <div className="py-2">
               <Link
                 href="/programas-academicos"
-                className="flex items-center justify-between w-full py-3 text-text-primary font-semibold hover:text-secondary transition-colors duration-200"
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#2FB7C4] transition-colors duration-200"
                 onClick={() => {
                   setIsMenuOpen(false)
                   setMobileDropdown(null)
@@ -341,7 +341,7 @@ export default function Header() {
             <div className="py-2">
               <a
                 href="https://www.codigoabierto.tech/eventos"
-                className="flex items-center justify-between w-full py-3 text-text-primary font-semibold hover:text-secondary transition-colors duration-200"
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#2FB7C4] transition-colors duration-200"
                 onClick={() => {
                   setIsMenuOpen(false)
                   setMobileDropdown(null)
@@ -358,10 +358,10 @@ export default function Header() {
                   {/* Profile Section */}
                   <Link
                     href="/perfil"
-                    className="flex items-center space-x-3 px-4 py-3 text-text-primary bg-secondary/20 hover:bg-secondary/30 rounded-lg transition-all duration-300 w-full"
+                    className="flex items-center space-x-3 px-4 py-3 text-white bg-[#2FB7C4]/20 hover:bg-[#2FB7C4]/30 rounded-lg transition-all duration-300 w-full"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-secondary/50 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#2FB7C4]/50 flex-shrink-0">
                       {user.profile_image ? (
                         <Image
                           src={user.profile_image}
@@ -371,12 +371,12 @@ export default function Header() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-secondary flex items-center justify-center text-white font-semibold">
+                        <div className="w-full h-full bg-[#2FB7C4] flex items-center justify-center text-white font-semibold">
                           {user.first_name?.charAt(0).toUpperCase() || 'U'}
                         </div>
                       )}
                     </div>
-                    <span className="font-medium">Hola, {user.first_name || 'Usuario'}</span>
+                    <span className="font-medium text-white">Hola, {user.first_name || 'Usuario'}</span>
                   </Link>
 
                   {/* Logout Button */}
@@ -385,7 +385,7 @@ export default function Header() {
                       handleSignOut()
                       setIsMenuOpen(false)
                     }}
-                    className="px-4 py-3 text-text-primary bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-all duration-300 w-full flex items-center justify-center space-x-2"
+                    className="px-4 py-3 text-white bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-all duration-300 w-full flex items-center justify-center space-x-2"
                   >
                     <LogOut className="w-5 h-5" />
                     <span>Cerrar Sesión</span>
@@ -396,7 +396,7 @@ export default function Header() {
                     <div className="py-2">
                       <button
                         onClick={() => toggleMobileDropdown("admin-mobile")}
-                        className="flex items-center justify-between w-full py-3 px-4 text-text-primary font-semibold bg-bg-secondary/50 hover:bg-bg-secondary rounded-lg transition-colors duration-200"
+                        className="flex items-center justify-between w-full py-3 px-4 text-white font-semibold bg-[#1A1F2E]/50 hover:bg-[#1A1F2E] rounded-lg transition-colors duration-200"
                       >
                         <span>Admin</span>
                         <ChevronDown
@@ -413,7 +413,7 @@ export default function Header() {
                         <div className="mt-2 pl-4 space-y-2">
                           <Link
                             href="/admin/estudiantes"
-                            className="block py-2 px-3 text-sm text-text-primary hover:text-secondary hover:bg-bg-secondary/30 rounded-md transition-all duration-200"
+                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
@@ -423,7 +423,7 @@ export default function Header() {
                           </Link>
                           <Link
                             href="/admin/pagos"
-                            className="block py-2 px-3 text-sm text-text-primary hover:text-secondary hover:bg-bg-secondary/30 rounded-md transition-all duration-200"
+                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
@@ -433,7 +433,7 @@ export default function Header() {
                           </Link>
                           <Link
                             href="/admin/programas"
-                            className="block py-2 px-3 text-sm text-text-primary hover:text-secondary hover:bg-bg-secondary/30 rounded-md transition-all duration-200"
+                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
@@ -450,7 +450,7 @@ export default function Header() {
                 <div className="flex flex-col items-start space-y-3">
                   <Link
                     href="/registro"
-                    className="px-4 py-3 text-white bg-secondary hover:bg-secondary/90 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium flex items-center justify-center space-x-2"
+                    className="px-4 py-3 text-white bg-[#2FB7C4] hover:bg-[#2FB7C4]/90 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium flex items-center justify-center space-x-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <span className="text-white">Registrarse</span>
@@ -470,7 +470,7 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/iniciar-sesion"
-                    className="px-4 py-3 text-secondary border-2 border-secondary hover:bg-secondary hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium"
+                    className="px-4 py-3 text-[#2FB7C4] border-2 border-[#2FB7C4] hover:bg-[#2FB7C4] hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Iniciar Sesión
