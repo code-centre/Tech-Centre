@@ -59,6 +59,7 @@ export interface Program {
   faqs: any[];
   slug?: string;
   syllabus?: SyllabusData;
+  audience?: string; // Descripción de para quién es el programa
   [key: string]: any; // Para propiedades adicionales dinámicas
 }
 

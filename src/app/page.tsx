@@ -6,8 +6,8 @@ import NoticiasSection from "@/sections/Noticias";
 import { Ubication } from "@/sections/ubication";
 import HeroCarrusel from "@/components/HeroCarrusel";
 import { AliadosSection } from '@/components/aliadosSection';
+import HowYouLearn from "@/sections/HowYouLearn";
 import AcademicOffer from "@/sections/AcademicOffer";
-import { HowYouLearn } from "@/sections/HowYouLearn";
 import { LocalBusinessSchema } from "@/components/seo/StructuredData";
 
 export const metadata: Metadata = {

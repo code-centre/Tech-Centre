@@ -39,6 +39,8 @@ interface Props {
   backgroundColor?: string
 }
 
+const placeId = "ChIJv01Wyvot9I4RUtzmOXikbpM";
+
 export default function Testimonials({ backgroundColor }: Props) {
   const [videosList, setVideosList] = useState(videos);
 
@@ -54,8 +56,14 @@ export default function Testimonials({ backgroundColor }: Props) {
     );
   };
   return (
-    <div id="testimonio" className='bg-background'>
-      <Wrapper styles="max-w-6xl flex flex-col gap-14 w-full py-14">
+    <div id="testimonio" className='bg-background relative overflow-hidden'>
+      {/* Visual shift: subtle gradient overlay */}
+      <div className="absolute inset-0 bg-linear-to-b from-transparent via-foreground/5 to-transparent pointer-events-none"></div>
+      
+      {/* Border divider for visual separation */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-border-color to-transparent"></div>
+      
+      <Wrapper styles="max-w-6xl flex flex-col gap-14 w-full py-14 sm:py-20 relative z-10">
         <section className="grid gap-10 grid-cols-1 lg:grid-cols-[2.5fr_3fr]">
           <div className=" flex flex-col-reverse lg:flex-row gap-5 w-full">
             <div className="flex flex-row flex-wrap lg:flex-nowrap lg:flex-col gap-5">
@@ -64,9 +72,10 @@ export default function Testimonials({ backgroundColor }: Props) {
                   return (
                     <img
                       onClick={() => handleHighlight(video.srcVideo)}
-                      className="w-24 h-24 rounded-lg object-cover cursor-pointer"
+                      className="w-24 h-24 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity border border-border-color"
                       src={video.cover}
                       key={video.cover}
+                      alt={`Testimonio ${video.id}`}
                     ></img>
                   );
                 }
@@ -76,7 +85,7 @@ export default function Testimonials({ backgroundColor }: Props) {
               .filter((video) => video.highlight === true)
               .map((video) => (
                 <div
-                  className="relative w-full h-[450px] rounded-lg overflow-hidden "
+                  className="relative w-full h-[450px] rounded-lg overflow-hidden shadow-xl"
                   key={video.srcVideo}
                 >
                   <iframe
@@ -93,42 +102,41 @@ export default function Testimonials({ backgroundColor }: Props) {
                       height: "100%",
                     }}
                   ></iframe>
-                  {/* <video src={video.srcVideo} autoPlay controls className='object-cover h-[450px] w-full'></video> */}
-                  <div className="absolute h-36 gradient top-0 z-10 w-full text-white p-4 flex flex-col gap-1">
-                    {/* <p className='font-bold'>{video.name}</p>
-                          <p className='font-light'>Frontend Developer - Colombia</p> */}
-                    <p className="bg-gray-400 px-3 text-sm  rounded-full w-fit">
+                  <div className="absolute h-36 gradient top-0 z-10 w-full text-foreground p-4 flex flex-col gap-1">
+                    <p className="bg-text-muted/20 backdrop-blur-sm px-3 text-sm rounded-full w-fit text-foreground border border-border-color/50">
                       Testimonio #{video.id}
                     </p>
                   </div>
                 </div>
               ))}
           </div>
-          <div className=" self-center flex flex-col gap-4">
+          <div className=" self-center flex flex-col gap-6">
             <div>
-              <h2 className="text-2xl md:text-4xl font-semibold text-white">
+              <h2 className="text-2xl md:text-4xl font-semibold text-text-primary">
                 Escucha los testimonios
               </h2>
               <h3 className="text-4xl md:text-5xl font-semibold text-secondary">
                 De personas que cambiaron sus vidas
               </h3>
             </div>
-            <p className="text-lg text-white">
-              No dejes pasar esta oportunidad y despierta al genio tech que
-              llevas dentro.
+            <p className="text-lg text-text-primary leading-relaxed">
+              No dejes pasar esta oportunidad y{' '}
+              <span className="text-secondary font-semibold">despierta al genio tech que llevas dentro.</span>
             </p>
-            <div>
-              <p className="text-2xl font-bold text-secondary">¿¡Qué esperas!?</p>
-              <div className="h-1 border-b  my-3"></div>
-              <p className="text-lg text-white">Cupos limitados</p>
+            
+            <div className="flex flex-col gap-4">
+              <Link
+                href="/#programs"
+                className="btn-primary"
+              >
+                Pre-inscribirme
+              </Link>
+              
+              {/* Microcopy anti-fricción */}
+              <p className="text-sm text-text-muted text-center leading-relaxed">
+                Grupos pequeños · Clases presenciales · Cupos limitados
+              </p>
             </div>
-
-            <Link
-              href="/#programs"
-              className="bg-[#00a1f9] hover:bg-blue-500 py-2 px-5 text-center text-white uppercase rounded-md transition-colors duration-300 font-semibold"
-            >
-              ¡Inscríbete ya!
-            </Link>
           </div>
         </section>
       </Wrapper>

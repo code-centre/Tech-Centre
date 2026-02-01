@@ -1,49 +1,46 @@
 'use client'
 import React from 'react'
-import { useEffect, useRef } from 'react'
-import { CircleCheckBig } from 'lucide-react'
+import { CircleCheckBig, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const differents = [
   {
     highlight: "Metodología de aprendizaje experiencial:",
-    description: "Aprende haciendo. Desde el primer día participarás en proyectos reales, retos prácticos y dinámicas que reflejan el mundo laboral."
+    description: "Construyes desde el primer día, enfrentando retos reales similares a los del mundo laboral."
   },
   {
     highlight: "Profesores activos en la industria:",
-    description: "Nuestros mentores son profesionales que trabajan en empresas tecnológicas reales y te enseñarán lo que hoy se está buscando en el mercado."
+    description: "Te enseñan personas que hoy están construyendo tecnología, no solo explicándola."
   },
   {
     highlight: "Clases presenciales y grupos semipersonalizados:",
-    description: "Recibe acompañamiento cercano, resuelve tus dudas en tiempo real y aprende en un entorno colaborativo."
+    description: "No eres un número más. Los grupos pequeños permiten acompañamiento real y aprendizaje colaborativo."
   },
   {
     highlight: "Comunidad Tech en expansión:",
-    description: "Conéctate con una red de profesionales, emprendedores y expertos que están construyendo el futuro tecnológico del Caribe."
+    description: "Formas parte de una comunidad que sigue creciendo, dentro y fuera del aula, en eventos, proyectos y conexiones reales."
   }
 ];
 
 export function WhoWeAre() {
 
   return (
-    <div className="relative text-white overflow-hidden py-16">
+    <section className="relative overflow-hidden py-16 who-we-are-gradient">
+      {/* Elementos decorativos flotantes */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-secondary/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-primary/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
       <div className="relative z-10 mx-auto px-4 sm:px-6 max-w-7xl">
+        <header className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Aquí se forma el talento tech del Caribe</h2>
+          <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">Personas reales, aprendiendo y construyendo tecnología para el mundo real.</p>
+        </header>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h3 className="text-xl text-center font-bold mb-6 text-white">Formación pensada para la industria real</h3>
-            <ul className="list-disc list-inside text-gray-200">
-              {differents.map((item, index) => (
-                <div key={index} className="mb-2 py-3">
-                  <p className="text-gray-200">
-                    <CircleCheckBig className="inline-block mr-2 text-green-500" />
-                    <span className="font-bold text-sky-200">{item.highlight} </span>
-                 {item.description}</p>
-                </div>
-              ))}
-            </ul>
-          </div>
-          <div>
+        <article className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-12 items-center">
+          <figure>
             <Image
               src="/techcentre-hero.jpg"
               width={700}
@@ -51,9 +48,32 @@ export function WhoWeAre() {
               alt="Equipo de Tech Centre"
               className="rounded-lg shadow-xl w-full h-[400px] object-cover"
             />
+          </figure>
+          <div>
+            <h3 className="text-xl text-center font-bold mb-6 text-white">¿Qué nos diferencia?</h3>
+            <ul className="space-y-4 mb-8">
+              {differents.map((item, index) => (
+                <li key={index} className="py-3">
+                  <p className="text-white/90">
+                    <CircleCheckBig className="inline-block mr-2 text-green-400 dark:text-green-300" size={20} />
+                    <span className="font-bold text-white">{item.highlight} </span>
+                    <span className="text-white/80">{item.description}</span>
+                  </p>
+                </li>
+              ))}
+            </ul>
+            <div className="text-center mt-8">
+              <Link
+                href="#testimonio"
+                className="who-we-are-cta inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                Ver testimonios
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
           </div>
-        </div>   
-        </div>
-    </div>
+        </article>   
+      </div>
+    </section>
   )
 }
