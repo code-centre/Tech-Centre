@@ -119,7 +119,7 @@ export default function ProgramDetailClient({
 
   return (
     <>
-      {contentType === "programa" && programData && (
+      {programData && (
         <>
           <CourseSchema
             name={programData.name || ''}

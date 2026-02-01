@@ -41,6 +41,7 @@ export interface SyllabusData {
  */
 export interface Program {
   id: number;
+  start_date: string;
   code: string;
   name: string;
   kind?: string;

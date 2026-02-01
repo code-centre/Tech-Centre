@@ -95,7 +95,7 @@ export default function ProgramContainer({ programData }: ProgramProps) {
   };
 
   return (
-    <main className="max-w-7xl flex flex-col gap-16 text-white">
+    <main className="max-w-7xl flex flex-col gap-8 text-white">
       <ProgramHero
         heroImage={currentProgramData?.image || ''} 
         video={currentProgramData?.video || ''}

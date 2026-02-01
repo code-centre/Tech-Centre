@@ -79,7 +79,7 @@ export function ProgramDescription({ programData, programId, onDescriptionUpdate
     <section>
       <div className="flex flex-col">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Detalles de este programa</h2>
+          <h2 className="text-xl font-bold">Detalles del programa</h2>
           {isAdmin && !isEditing && (
             <ButtonToEdit startEditing={handleStartEdit} />
           )}

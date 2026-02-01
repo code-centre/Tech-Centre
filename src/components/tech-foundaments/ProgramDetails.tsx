@@ -90,8 +90,7 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
 
   return (
     <section className="bg-bgCard backdrop-blur-sm p-8 rounded-2xl border border-blue-100/20 shadow-lg">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Detalles del Programa</h2>
+      <div className="flex justify-between items-center">
         {isAdmin && !isEditing && (
           <ButtonToEdit startEditing={handleStartEdit} />
         )}

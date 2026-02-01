@@ -33,7 +33,7 @@ export const AliadosSection = () => {
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-3 mb-4">
               <h3 className="text-4xl font-bold text-secondary">
-                Aliados Estratégicos
+                Aliados que confían en el talento del Caribe
               </h3>
             </div>
             <div className="w-64 h-0.5 bg-linear-to-r from-transparent via-border-color to-transparent mx-auto"></div>
