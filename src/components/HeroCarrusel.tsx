@@ -199,7 +199,7 @@ export function HeroCarrusel({
                         onClick={() => setIsModalOpen(true)}
                         className="group inline-flex items-center gap-3 px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white/30 hover:bg-white/10 hover:border-white/50 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-white/25 transform hover:-translate-y-1"
                       >
-                        <span>Solicitar información</span>
+                        <span>Pre-inscripciòn</span>
                         <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
                       </button>
                     </div>
