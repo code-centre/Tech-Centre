@@ -100,14 +100,14 @@ export function Carrusel({
             </div>
             {(item.title || item.description) && (
               <div className={`p-4 flex flex-col gap-2 flex-grow ${contentClassName}`}>
-                {item.title && <h3 className="text-lg font-semibold text-blueApp">{item.title}</h3>}
+                {item.title && <h3 className="text-lg font-semibold text-secondary">{item.title}</h3>}
                 {item.description && <p className="text-sm text-white">{item.description}</p>}
                 {item.link && (
                   <a
                     href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blueApp underline text-sm mt-auto inline-block"
+                    className="text-secondary underline text-sm mt-auto inline-block"
                   >
                     Ver más →
                   </a>

@@ -332,8 +332,8 @@ export default function ProgramsAdmon() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <div className="p-2 bg-blueApp/10 rounded-lg">
-              <GraduationCap className="text-blueApp" size={28} />
+            <div className="p-2 bg-secondary/10 rounded-lg">
+              <GraduationCap className="text-secondary" size={28} />
             </div>
             Dashboard de Programas
           </h1>
@@ -342,7 +342,7 @@ export default function ProgramsAdmon() {
         {!isAdding && !editingId && (
           <button 
             onClick={() => setIsAdding(true)}
-            className="px-6 py-3 bg-blueApp hover:bg-blue-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-blueApp/20 hover:-translate-y-1 active:translate-y-0 flex items-center gap-2"
+            className="px-6 py-3 bg-secondary hover:bg-blue-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-secondary/20 hover:-translate-y-1 active:translate-y-0 flex items-center gap-2"
           >
             <Plus size={20} />
             Nuevo Programa
@@ -358,8 +358,8 @@ export default function ProgramsAdmon() {
               <p className="text-gray-400 text-sm mb-1">Total Programas</p>
               <p className="text-3xl font-bold text-white">{stats.total}</p>
             </div>
-            <div className="p-3 bg-blueApp/10 rounded-lg">
-              <GraduationCap className="text-blueApp" size={24} />
+            <div className="p-3 bg-secondary/10 rounded-lg">
+              <GraduationCap className="text-secondary" size={24} />
             </div>
           </div>
         </div>
@@ -392,10 +392,10 @@ export default function ProgramsAdmon() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-400 text-sm mb-1">Con Cohortes</p>
-              <p className="text-3xl font-bold text-blueApp">{stats.withCohorts}</p>
+              <p className="text-3xl font-bold text-secondary">{stats.withCohorts}</p>
             </div>
-            <div className="p-3 bg-blueApp/10 rounded-lg">
-              <Users className="text-blueApp" size={24} />
+            <div className="p-3 bg-secondary/10 rounded-lg">
+              <Users className="text-secondary" size={24} />
             </div>
           </div>
         </div>
@@ -411,7 +411,7 @@ export default function ProgramsAdmon() {
               onClick={() => setFilter(filterType)}
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                 filter === filterType
-                  ? 'bg-blueApp text-white shadow-lg'
+                  ? 'bg-secondary text-white shadow-lg'
                   : 'bg-zinc-800 text-gray-300 hover:bg-zinc-700'
               }`}
             >
@@ -453,7 +453,7 @@ export default function ProgramsAdmon() {
                         type="text"
                         value={currentProgram.name}
                         onChange={(e) => setCurrentProgram({...currentProgram, name: e.target.value})}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary"
                         placeholder="Nombre del programa"
                         required
                     />
@@ -465,7 +465,7 @@ export default function ProgramsAdmon() {
                         type="text"
                         value={currentProgram.code}
                         onChange={(e) => setCurrentProgram({...currentProgram, code: e.target.value})}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary"
                         placeholder="Código del programa"
                     />
                     </div>
@@ -475,7 +475,7 @@ export default function ProgramsAdmon() {
                     <select
                         value={currentProgram.difficulty}
                 onChange={(e) => setCurrentProgram({...currentProgram, difficulty: e.target.value as 'beginner' | 'intermediate' | 'advanced'})}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-secondary"
                     >
                         <option value="beginner">Principiante</option>
                         <option value="intermediate">Intermedio</option>
@@ -489,7 +489,7 @@ export default function ProgramsAdmon() {
                         type="text"
                         value={currentProgram.kind}
                         onChange={(e) => setCurrentProgram({...currentProgram, kind: e.target.value})}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary"
                         placeholder="Tipo de programa"
                     />
                     </div>
@@ -500,7 +500,7 @@ export default function ProgramsAdmon() {
                         type="number"
                         value={currentProgram.total_hours}
                 onChange={(e) => setCurrentProgram({...currentProgram, total_hours: parseInt(e.target.value) || 0})}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary"
                         placeholder="Duración del programa en horas"
                     />
                     </div>
@@ -511,7 +511,7 @@ export default function ProgramsAdmon() {
                         type="number"
                         value={currentProgram.default_price}
                 onChange={(e) => setCurrentProgram({...currentProgram, default_price: parseInt(e.target.value) || 0})}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary"
                         placeholder="Precio por defecto del programa"
                     />
                     </div>
@@ -522,7 +522,7 @@ export default function ProgramsAdmon() {
                 type="url"
                 value={currentProgram.image || ''}
                 onChange={(e) => setCurrentProgram({...currentProgram, image: e.target.value})}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary"
                 placeholder="https://ejemplo.com/imagen.jpg"
               />
             </div>
@@ -533,7 +533,7 @@ export default function ProgramsAdmon() {
                 type="text"
                 value={currentProgram.schedule || ''}
                 onChange={(e) => setCurrentProgram({...currentProgram, schedule: e.target.value})}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary"
                 placeholder="Ej: Lunes a jueves 7pm a 9pm"
               />
             </div>
@@ -543,7 +543,7 @@ export default function ProgramsAdmon() {
                     <select
                         value={currentProgram.is_active.toString()}
                         onChange={(e) => setCurrentProgram({...currentProgram, is_active: e.target.value === 'true'})}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-secondary"
                     >
                         <option value="true">Activo</option>
                         <option value="false">Inactivo</option>
@@ -555,7 +555,7 @@ export default function ProgramsAdmon() {
               <textarea
                 value={currentProgram.description || ''}
                 onChange={(e) => setCurrentProgram({...currentProgram, description: e.target.value})}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary"
                 rows={3}
                 placeholder="Descripción del programa"
               />
@@ -572,7 +572,7 @@ export default function ProgramsAdmon() {
                   // Permitir edición libre del texto
                   setCurrentProgram({...currentProgram, syllabus: value});
                 }}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blueApp"
+                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-secondary"
                 rows={5}
                 placeholder='Syllabus del programa en formato JSON, ej: {"modules": []}'
               />
@@ -592,7 +592,7 @@ export default function ProgramsAdmon() {
               </button>
               <button
                 type="submit"
-                className="px-6 py-3 bg-blueApp hover:bg-blue-600 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 py-3 bg-secondary hover:bg-blue-600 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 disabled={saving}
               >
                 {saving ? (
@@ -616,7 +616,7 @@ export default function ProgramsAdmon() {
       {loading && !isAdding && !editingId ? (
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-12 h-12 animate-spin text-blueApp" />
+            <Loader2 className="w-12 h-12 animate-spin text-secondary" />
             <p className="text-gray-400">Cargando programas...</p>
           </div>
         </div>
@@ -635,7 +635,7 @@ export default function ProgramsAdmon() {
             filteredPrograms.map((program) => (
               <div
                 key={program.id}
-                className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-lg hover:shadow-xl hover:shadow-blueApp/20 transition-all duration-300 hover:-translate-y-1 flex flex-col"
+                className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-lg hover:shadow-xl hover:shadow-secondary/20 transition-all duration-300 hover:-translate-y-1 flex flex-col"
               >
                 {/* Imagen */}
                 {program.image && (
@@ -709,15 +709,15 @@ export default function ProgramsAdmon() {
                   {/* Información del programa */}
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-gray-300">
-                      <Clock className="w-4 h-4 text-blueApp" />
+                      <Clock className="w-4 h-4 text-secondary" />
                       <span>{program.total_hours} horas</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-300">
-                      <DollarSign className="w-4 h-4 text-blueApp" />
+                      <DollarSign className="w-4 h-4 text-secondary" />
                       <span>${program.default_price.toLocaleString()}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-300">
-                      <BookOpen className="w-4 h-4 text-blueApp" />
+                      <BookOpen className="w-4 h-4 text-secondary" />
                       <span>{program.kind}</span>
                     </div>
                   </div>
@@ -726,7 +726,7 @@ export default function ProgramsAdmon() {
                   {program.cohorts && program.cohorts.length > 0 && (
                     <div className="mb-4 pb-4 border-t border-zinc-700/50 pt-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <Users className="w-4 h-4 text-blueApp" />
+                        <Users className="w-4 h-4 text-secondary" />
                         <span className="text-sm font-semibold text-white">
                           {program.cohorts.length} {program.cohorts.length === 1 ? 'Cohorte' : 'Cohortes'}
                         </span>
@@ -754,7 +754,7 @@ export default function ProgramsAdmon() {
                   <div className="mt-auto pt-4 border-t border-zinc-700/50 flex items-center gap-2">
                     <Link
                       href={`/admin/programas/${program.id}`}
-                      className="flex-1 px-4 py-2 bg-blueApp/10 hover:bg-blueApp/20 text-blueApp font-medium rounded-lg transition-all duration-200 text-center text-sm"
+                      className="flex-1 px-4 py-2 bg-secondary/10 hover:bg-secondary/20 text-secondary font-medium rounded-lg transition-all duration-200 text-center text-sm"
                     >
                       Ver Detalles
                     </Link>
@@ -802,7 +802,7 @@ export default function ProgramsAdmon() {
               <button
                 type="button"
                 onClick={closeSyllabusModal}
-                className="px-6 py-2 bg-blueApp text-white rounded-lg hover:bg-blue-600 transition-all duration-200"
+                className="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-blue-600 transition-all duration-200"
               >
                 Cerrar
               </button>

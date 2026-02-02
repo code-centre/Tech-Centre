@@ -14,7 +14,7 @@ import 'swiper/css/pagination'
 
 export default function NoticiasSection() {
     return (
-        <div className="bg-background text-blueApp py-4">
+        <div className="bg-background text-secondary py-4">
             <Wrapper styles="max-w-6xl w-full">
                 <h2 className="text-3xl md:text-5xl font-bold text-center mb-12 tracking-tight leading-snug">
                     Reconocimientos en prensa
@@ -46,14 +46,14 @@ export default function NoticiasSection() {
                                     className="w-full h-64 object-cover"
                                 />
                                 <div className="p-4 flex flex-col gap-2 flex-grow">
-                                    <h3 className="text-lg font-semibold text-blueApp">
+                                    <h3 className="text-lg font-semibold text-secondary">
                                         {noticia.titulo}
                                     </h3>
                                     <p className="text-sm text-white">{noticia.descripcion}</p>
                                     <Link
                                         href={noticia.link}
                                         target="_blank"
-                                        className="text-blueApp underline text-sm mt-auto"
+                                        className="text-secondary underline text-sm mt-auto"
                                     >
                                         Leer más →
                                     </Link>

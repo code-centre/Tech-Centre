@@ -61,7 +61,7 @@ export function Invoices({ enrollment }: InvoicesProps) {
   }
 
   if (loading) {
-    return <div className="p-4 text-blueApp">Cargando facturas...</div>;
+    return <div className="p-4 text-secondary">Cargando facturas...</div>;
   }
 
   if (error) {

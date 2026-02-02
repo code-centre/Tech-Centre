@@ -107,7 +107,7 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
         {/* Inicio de clases - Solo lectura (viene de cohorte) */}
         <div className="flex flex-col items-center text-center p-4 bg-zinc-600 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
           <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center mb-3">
-            <GraduationCap className="w-6 h-6 text-blueApp" />
+            <GraduationCap className="w-6 h-6 text-secondary" />
           </div>
           <span className="text-sm font-medium text-white mb-1">Inicio de clases</span>
           <span className='text-sm text-white'> 
@@ -129,7 +129,7 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
         {/* Duración - Editable */}
         <div className="flex flex-col items-center text-center p-4 bg-zinc-600 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
           <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center mb-3">
-            <CalendarClock className="w-6 h-6 text-blueApp" />
+            <CalendarClock className="w-6 h-6 text-secondary" />
           </div>
           <span className="text-sm font-medium text-white mb-1">Duración</span>
           {isEditing ? (
@@ -137,7 +137,7 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
               type="text"
               value={editedData.duration}
               onChange={(e) => handleFieldChange('duration', e.target.value)}
-              className="w-full px-2 py-1 text-xs text-white font-semibold bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-blueApp text-center"
+              className="w-full px-2 py-1 text-xs text-white font-semibold bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary text-center"
               placeholder="Ej: 120 horas"
             />
           ) : (
@@ -148,14 +148,14 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
         {/* Dificultad - Editable */}
         <div className="flex flex-col items-center text-center p-4 bg-zinc-600 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
           <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center mb-3">
-            <Network className="w-6 h-6 text-blueApp" />
+            <Network className="w-6 h-6 text-secondary" />
           </div>
           <span className="text-sm font-medium text-white mb-1">Dificultad</span>
           {isEditing ? (
             <select
               value={editedData.difficulty}
               onChange={(e) => handleFieldChange('difficulty', e.target.value)}
-              className="w-full px-2 py-1 text-xs text-white font-semibold bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blueApp focus:border-blueApp text-center"
+              className="w-full px-2 py-1 text-xs text-white font-semibold bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary text-center"
             >
               <option value="Principiante">Principiante</option>
               <option value="Intermedio">Intermedio</option>
@@ -171,7 +171,7 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
         {/* Horario - Solo lectura (viene de cohorte) */}
         <div className="flex flex-col items-center text-center p-4 bg-zinc-600 rounded-xl border border-blue-100/30 hover:bg-blue-50/70 transition-all duration-300">
           <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center mb-3">
-            <MapPin className="w-6 h-6 text-blueApp" />
+            <MapPin className="w-6 h-6 text-secondary" />
           </div>
           <span className="text-sm font-medium text-white mb-1">Horario</span>
           <span className="text-xs text-white font-semibold">{cohorts[0]?.schedule?.days || 'Por definir'}</span>

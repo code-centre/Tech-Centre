@@ -55,16 +55,16 @@ export function Ubication() {
         <div className="bg-white rounded-lg p-6 shadow-lg">
             <div className="flex items-center mb-4 justify-between">
                 <div className="flex items-center">
-                    <div className="bg-blueApp rounded-full p-3 mr-4">
+                    <div className="bg-secondary rounded-full p-3 mr-4">
                         <MapPin className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                        <h4 className="font-bold text-blueApp">Encuentranos en el corazón de Barranquilla:</h4>
+                        <h4 className="font-bold text-secondary">Encuentranos en el corazón de Barranquilla:</h4>
                         <p className="text-gray-600 text-sm">Cra. 50 #72-126, el Prado, Casa de la tecnologia, Barranquilla, Atlántico</p>
                     </div>
                 </div>
                 <div className="flex items-center">
-                    <a href="https://www.google.com/maps/search/?api=1&query=Tech+Centre&query_place_id=ChIJv01Wyvot9I4RUtzmOXikbpM" className="text-blueApp font-bold bg-blueApp text-white rounded-lg px-4 py-2 text-sm hover:underline" target="_blank" rel="noopener noreferrer">Cómo llegar</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Tech+Centre&query_place_id=ChIJv01Wyvot9I4RUtzmOXikbpM" className="text-secondary font-bold bg-secondary text-white rounded-lg px-4 py-2 text-sm hover:underline" target="_blank" rel="noopener noreferrer">Cómo llegar</a>
                 </div>
             </div>
             <iframe

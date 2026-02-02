@@ -116,15 +116,15 @@ export function ProgramTeacher({ cohortId }: Props) {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <div className="p-2 bg-blueApp/10 rounded-lg">
-              <GraduationCap className="text-blueApp" size={24} />
+            <div className="p-2 bg-secondary/10 rounded-lg">
+              <GraduationCap className="text-secondary" size={24} />
             </div>
             Profesor del Programa
           </h2>
           {isAdmin && instructor && (
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-800 hover:border-blueApp/50 transition-all duration-200 flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-800 hover:border-secondary/50 transition-all duration-200 flex items-center gap-2"
               aria-label="Editar profesor"
             >
               <Pencil className="w-4 h-4" />
@@ -137,18 +137,18 @@ export function ProgramTeacher({ cohortId }: Props) {
         {loading ? (
           <div className="flex justify-center items-center py-16 bg-zinc-900/50 rounded-xl border border-zinc-800/50">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 animate-spin text-blueApp" />
+              <Loader2 className="w-8 h-8 animate-spin text-secondary" />
               <p className="text-gray-400 text-sm">Cargando información del profesor...</p>
             </div>
           </div>
         ) : instructor ? (
           <div className="bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-xl">
             {/* Profile Header */}
-            <div className="relative bg-linear-to-r from-blueApp/20 via-zinc-800 to-zinc-800 px-6 pt-8 pb-20">
+            <div className="relative bg-linear-to-r from-secondary/20 via-zinc-800 to-zinc-800 px-6 pt-8 pb-20">
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 {/* Avatar */}
                 <div className="relative">
-                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white/10 shadow-xl ring-4 ring-blueApp/20">
+                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white/10 shadow-xl ring-4 ring-secondary/20">
                     <Image
                       width={160}
                       height={160}
@@ -161,7 +161,7 @@ export function ProgramTeacher({ cohortId }: Props) {
                   {isAdmin && (
                     <button
                       onClick={() => setIsModalOpen(true)}
-                      className="absolute -bottom-2 -right-2 p-2 bg-blueApp hover:bg-blue-600 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                      className="absolute -bottom-2 -right-2 p-2 bg-secondary hover:bg-blue-600 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
                       aria-label="Editar profesor"
                     >
                       <Pencil className="w-4 h-4 text-white" />
@@ -175,7 +175,7 @@ export function ProgramTeacher({ cohortId }: Props) {
                     {instructor.first_name} {instructor.last_name}
                   </h3>
                   {instructor.professional_title && (
-                    <div className="flex items-center justify-center md:justify-start gap-2 text-blueApp">
+                    <div className="flex items-center justify-center md:justify-start gap-2 text-secondary">
                       <GraduationCap className="w-5 h-5" />
                       <p className="text-lg font-medium">{instructor.professional_title}</p>
                     </div>
@@ -243,7 +243,7 @@ export function ProgramTeacher({ cohortId }: Props) {
               {instructor.bio && (
                 <div className="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700/30">
                   <div className="flex items-start gap-3">
-                    <CodeIcon className="w-5 h-5 text-blueApp mt-0.5 shrink-0" />
+                    <CodeIcon className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
                     <div className="flex-1">
                       <h4 className="text-sm font-semibold text-gray-400 mb-2">Sobre el profesor</h4>
                       <p className="text-gray-300 leading-relaxed">{instructor.bio}</p>
@@ -268,7 +268,7 @@ export function ProgramTeacher({ cohortId }: Props) {
               {isAdmin && (
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="px-6 py-3 bg-blueApp hover:bg-blue-600 text-white font-medium rounded-lg transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-blueApp/20"
+                  className="px-6 py-3 bg-secondary hover:bg-blue-600 text-white font-medium rounded-lg transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-secondary/20"
                 >
                   <UserPlus className="w-5 h-5" />
                   Asignar Profesor

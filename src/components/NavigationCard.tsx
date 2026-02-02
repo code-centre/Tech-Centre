@@ -95,7 +95,7 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
 
           <button
             onClick={handleBuyClick}
-            className="w-full cursor-pointer bg-white text-blueApp py-4 px-6 my-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+            className="w-full cursor-pointer bg-white text-secondary py-4 px-6 my-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
               <span>Quiero inscribirme</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />

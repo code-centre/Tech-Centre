@@ -1,23 +1,93 @@
 @import "tailwindcss";
 
-:root {
-  --background: #1f1c1b;
-  --foreground: #171717;
-  --background-card:#393432;
+/* Parabole font face */
+@font-face {
+  font-family: 'Parabole';
+  src: url('/Parabole.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
+/* Light theme (default) */
+:root {
+  /* Colors */
+  --primary: #0F3D4C;
+  --secondary: #2FB7C4;
+  --highlight: #1F6AE1;
+  --background: #E6E8EB;
+  --background-light: #E6E8EB;
+  
+  /* Semantic colors for light theme */
+  --bg-primary: #E6E8EB;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --text-primary: #000000;
+  --text-secondary: #2FB7C4;
+  --text-muted: #6B7280;
+  --border-color: #E5E7EB;
+  --foreground: #000000;
+  
+  /* Button colors */
+  --button-bg: var(--secondary);
+  --button-text: #FFFFFF;
+  
+  /* Legacy colors (for backward compatibility during migration) */
+  --background-card: #FFFFFF;
+  --color-lightBlue: #2FB7C4;
+  --color-bgCard: #FFFFFF;
+  --color-blueApp: #0F3D4C;
+  --color-grayApp: #DBDBDB;
+  --color-darkBlue: #1F6AE1;
+}
 
+/* Dark theme */
+[data-theme="dark"] {
+  /* Colors */
+  --primary: #0F3D4C;
+  --secondary: #2FB7C4;
+  --highlight: #1F6AE1;
+  --background: #0E1116;
+  --background-light: #E6E8EB;
+  
+  /* Semantic colors for dark theme */
+  --bg-primary: #0E1116;
+  --bg-secondary: #1A1F2E;
+  --bg-card: #1A1F2E;
+  --text-primary: #FFFFFF;
+  --text-secondary: #2FB7C4;
+  --text-muted: #9CA3AF;
+  --border-color: #374151;
+  --foreground: #FFFFFF;
+  
+  /* Button colors */
+  --button-bg: var(--secondary);
+  --button-text: #FFFFFF;
+  
+  /* Legacy colors (for backward compatibility during migration) */
+  --background-card: #1A1F2E;
+  --color-lightBlue: #2FB7C4;
+  --color-bgCard: #1A1F2E;
+  --color-blueApp: #0F3D4C;
+  --color-grayApp: #4B5563;
+  --color-darkBlue: #1F6AE1;
+}
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-league-spartan: var(--font-league-spartan);
-  --font-poppins: var(--font-poppins);
-  --color-lightBlue: #e1f3fe;
+  --font-space-grotesk: var(--font-space-grotesk);
+  --font-parabole: 'Parabole', sans-serif;
+  --color-lightBlue: var(--color-lightBlue);
   --color-bgCard: var(--background-card);
-  --color-blueApp: #00a1f9;
-  --color-grayApp: #dbdbdb;
-  --color-darkBlue: #0d47a1;
+  --color-blueApp: var(--color-blueApp);
+  --color-grayApp: var(--color-grayApp);
+  --color-darkBlue: var(--color-darkBlue);
+  --primary: var(--primary);
+  --secondary: var(--secondary);
+  --highlight: var(--highlight);
+  --background: var(--background);
+  --background-light: var(--background-light);
 }
 
 /* Máscara de gradiente para transición entre secciones - efecto más agresivo y corto */
@@ -32,13 +102,6 @@
     rgba(0, 0, 0, 0.9) 14%, rgba(0, 0, 0, 1) 16%);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1f1c1b;
-    /* --background: #0a0a0a; */
-    /* --foreground: #ededed; */
-  }
-}
 @keyframes scroll {
   from {
     transform: translateX(0);
@@ -57,17 +120,28 @@
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-poppins, Arial, Helvetica, sans-serif);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-space-grotesk, Arial, Helvetica, sans-serif);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.font-space-grotesk {
+  font-family: var(--font-space-grotesk, Arial, Helvetica, sans-serif);
+}
+
+.font-parabole {
+  font-family: var(--font-parabole, Arial, Helvetica, sans-serif);
+}
+
+/* Legacy font classes (for backward compatibility) */
 .font-league-spartan {
-  font-family: var(--font-league-spartan, Arial, Helvetica, sans-serif);
+  font-family: var(--font-space-grotesk, Arial, Helvetica, sans-serif);
+  font-weight: 700;
 }
 
 .font-poppins {
-  font-family: var(--font-poppins, Arial, Helvetica, sans-serif);
+  font-family: var(--font-space-grotesk, Arial, Helvetica, sans-serif);
 }
 
 /* Scroll suave para toda la aplicación */

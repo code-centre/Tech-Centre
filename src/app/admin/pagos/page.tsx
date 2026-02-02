@@ -25,7 +25,7 @@ export default function PagosPage() {
   return (
     <main>
       <div className="container mx-auto px-4 py-8 mt-20">
-        <h1 className="text-2xl font-bold text-center text-blueApp mb-8">Gestión de Pagos</h1>
+        <h1 className="text-2xl font-bold text-center text-secondary mb-8">Gestión de Pagos</h1>
         
         <div className="flex flex-col gap-6 ">
           {/* Lista de estudiantes */}

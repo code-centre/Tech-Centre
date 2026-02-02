@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function Loader() {
   
-  const logoUrl = '/tech-center-logos/Logo-horizontal-blanco.png';
+  const logoUrl = '/tech-center-logos/logo-blanco-extendido.png';
 
   const spinnerColor = '#00a1f9';
 

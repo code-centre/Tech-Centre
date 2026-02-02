@@ -30,7 +30,7 @@ export const AdminSidebar = ({ activeSection, onSectionChange, sections }: Sideb
             <button
               key={section.id}
               onClick={() => onSectionChange(section.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium mb-1 ${activeSection === section.id ? 'bg-blue-50 text-blueApp' : 'text-gray-600 hover:bg-gray-50'}`}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium mb-1 ${activeSection === section.id ? 'bg-blue-50 text-secondary' : 'text-gray-600 hover:bg-gray-50'}`}
             >
               <Icon size={20} />
               {section.label}

@@ -43,13 +43,13 @@ export function Hero() {
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
             Descubre el poder de la tecnología con clases presenciales y proyectos reales
             </h1>
-            <p className="text-xl mb-8 text-blue-100">
+            <p className="text-xl mb-8 text-white/90">
               Cursos y diplomados en desarrollo web, mobile, diseño UX/UI, data, y más con nuestra modalidad de aprendizaje experiencia
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <a
                 href="#cursos"
-                className="px-8 py-3 text-center bg-white text-blueApp font-medium rounded-md hover:bg-blue-50 transition-colors"
+                className="px-8 py-3 text-center bg-white text-primary font-medium rounded-md hover:bg-bg-secondary transition-colors"
               >
                 Ver programas académicos
               </a>
@@ -57,13 +57,13 @@ export function Hero() {
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-4">
               <a
                 href="#testimonio"
-                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-blueApp transition-colors"
+                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medium rounded-md hover:bg-white hover:text-primary transition-colors"
               >
                 Impacto
               </a>
               <a
                 href="#contacto"
-                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medi  um rounded-md hover:bg-white hover:text-blueApp transition-colors"
+                className="px-8 py-3 text-center bg-transparent border border-white text-white font-medium rounded-md hover:bg-white hover:text-primary transition-colors"
               >
                 Contáctanos
               </a>
@@ -72,12 +72,12 @@ export function Hero() {
           <div className="">
             <div className="relative group">
               {/* Efectos decorativos */}
-              <div className="absolute -left-4 -top-4 w-24 h-24 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-              <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
+              <div className="absolute -left-4 -top-4 w-24 h-24 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+              <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-highlight/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
               
               {/* Marco con borde brillante */}
-              <div className="p-1 z-2 bg-gradient-to-r from-blueApp via-blue-100 to-blueApp rounded-lg rotate-1 shadow-2xl">
-                <div className="p-1 z-4 bg-gradient-to-r from-lightBlue via-blue-300 to-blueApp rounded-lg -rotate-2">
+              <div className="p-1 z-2 bg-gradient-to-r from-secondary via-secondary/50 to-secondary rounded-lg rotate-1 shadow-2xl">
+                <div className="p-1 z-4 bg-gradient-to-r from-secondary/30 via-secondary/60 to-secondary rounded-lg -rotate-2">
                   <Carrusel
                     items={heroData}
                     type="hero"
@@ -97,19 +97,19 @@ export function Hero() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="p-4">
               <div className="font-bold text-3xl">10+</div>
-              <div className="text-blue-200">Cursos y Diplomados</div>
+              <div className="text-white/80">Cursos y Diplomados</div>
             </div>
             <div className="p-4">
               <div className="font-bold text-3xl">100+</div>
-              <div className="text-blue-200">Estudiantes</div>
+              <div className="text-white/80">Estudiantes</div>
             </div>
             <div className="p-4">
               <div className="font-bold text-3xl">20+</div>
-              <div className="text-blue-200">Expertos</div>
+              <div className="text-white/80">Expertos</div>
             </div>
             <div className="p-4">
               <div className="font-bold text-3xl">95%</div>
-              <div className="text-blue-200">Tasa de empleo</div>
+              <div className="text-white/80">Tasa de empleo</div>
             </div>
           </div>
         </div>

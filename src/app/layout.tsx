@@ -1,22 +1,18 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { League_Spartan, Poppins } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { OrganizationSchema, EducationalOrganizationSchema } from "@/components/seo/StructuredData";
 
-const leagueSpartan = League_Spartan({
-  variable: "--font-league-spartan",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -114,32 +110,53 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
+      <Script
+        id="theme-init"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                var theme = localStorage.getItem('theme');
+                if (theme === 'dark' || theme === 'light') {
+                  document.documentElement.setAttribute('data-theme', theme);
+                } else {
+                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                }
+              } catch (e) {}
+            })();
+          `,
+        }}
+      />
      <body
-        className={`${leagueSpartan.variable} ${poppins.variable} antialiased`}
+        className={`${spaceGrotesk.variable} antialiased`}
       >
-        <OrganizationSchema
-          address={{
-            addressLocality: "Barranquilla",
-            addressRegion: "Atlántico",
-            addressCountry: "CO",
-          }}
-        />
-        <EducationalOrganizationSchema
-          address={{
-            addressLocality: "Barranquilla",
-            addressRegion: "Atlántico",
-            addressCountry: "CO",
-          }}
-        />
+        <ThemeProvider>
+          <OrganizationSchema
+            address={{
+              addressLocality: "Barranquilla",
+              addressRegion: "Atlántico",
+              addressCountry: "CO",
+            }}
+          />
+          <EducationalOrganizationSchema
+            address={{
+              addressLocality: "Barranquilla",
+              addressRegion: "Atlántico",
+              addressCountry: "CO",
+            }}
+          />
 
-         <AuthProvider>
-          <Header />
-          <main>
-            {children}
-          </main>
-          <Footer />
-        </AuthProvider>
+          <AuthProvider>
+            <Header />
+            <main>
+              {children}
+            </main>
+            <Footer />
+          </AuthProvider>
+        </ThemeProvider>
         
         {/* Google Analytics */}
         <Script

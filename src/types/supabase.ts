@@ -45,6 +45,37 @@ export interface Database {
       id_type: IdType;
     };
     Tables: {
+      leads: {
+        Row: {
+          id: bigint;
+          source: string;
+          full_name: string;
+          email: string;
+          phone: string;
+          interested_program_id: bigint;
+          stage: string;
+          notes: string;
+          created_at: string;
+        };
+        Insert: {
+          source?: string;
+          full_name: string;
+          email: string;
+          phone: string;
+          interested_program_id?: bigint;
+          stage?: string;
+          notes?: string;
+        };
+        Update: {
+          source?: string;
+          full_name?: string;
+          email?: string;
+          phone?: string;
+          interested_program_id?: bigint;
+          stage?: string;
+          notes?: string;
+        };
+      };
       profiles: {
         Row: {
           user_id: string;  // uuid

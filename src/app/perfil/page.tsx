@@ -23,7 +23,7 @@ export default function ProfilePage() {
   return (
     <div className="flex items-center justify-center mt-20 h-screen">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-4 border-blueApp border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
         <p className="text-gray-400 text-sm">Cargando...</p>
       </div>
     </div>

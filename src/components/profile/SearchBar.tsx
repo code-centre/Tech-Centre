@@ -45,7 +45,7 @@ export default function SearchBar({ onNameSearch, onProductSearch, setIsCreating
                     </div>
                 </div>
             </div>
-            <button onClick={() => setIsCreating(true)} className="bg-blueApp hover:bg-blueApp/80 text-white py-2 px-4 rounded-md">Crear Código</button>
+            <button onClick={() => setIsCreating(true)} className="bg-secondary hover:bg-secondary/80 text-white py-2 px-4 rounded-md">Crear Código</button>
         </div>
     )
 }
