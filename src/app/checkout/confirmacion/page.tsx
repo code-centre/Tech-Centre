@@ -9,6 +9,7 @@ import { useSupabaseClient } from '@/lib/supabase'
 import { calculateInstallments } from '@/lib/pricing/price-calculator'
 import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service'
 import { incrementCouponUses } from '@/lib/discounts/coupon-service'
+import { ProfessorWelcome } from '@/components/checkout/ProfessorWelcome'
 
 export default function CheckoutPage() {
   return (
@@ -24,7 +25,7 @@ function ConfirmationLoader() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="w-12 h-12 animate-spin text-blueApp" />
+        <Loader2 className="w-12 h-12 animate-spin text-secondary" />
         <p className="text-gray-400">Verificando estado del pago...</p>
       </div>
     </div>
@@ -40,6 +41,7 @@ function CheckoutContent() {
   const [error, setError] = useState<string | null>(null)
   const [processingPayment, setProcessingPayment] = useState(false)
   const [program, setProgram] = useState<any>(null)
+  const [cohortId, setCohortId] = useState<number | null>(null)
   const enrollmentId = searchParams.get('id') // Este es el enrollment_id
 
   useEffect(() => {
@@ -76,6 +78,10 @@ function CheckoutContent() {
         const programData = cohort?.programs ? (Array.isArray(cohort.programs) ? cohort.programs[0] : cohort.programs) : null
         if (programData) {
           setProgram(programData)
+        }
+        // Extraer el cohortId para el componente de bienvenida del profesor
+        if (cohort?.id) {
+          setCohortId(cohort.id)
         }
 
         // 2. Obtener el estado de la transacción desde el proveedor de pago
@@ -274,16 +280,12 @@ function CheckoutContent() {
 
   return (
     <section>
-      <div
-        className="fixed inset-0 -z-10 flex items-center justify-center"
-        style={{
-          backgroundImage: `url('/loader-image.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
+      {/* Background image con el mismo estilo que HeroCarrusel */}
+      <div 
+        className="fixed inset-0 -z-10 background-image-confirmation"
+        aria-hidden="true"
       />
-      <div className="absolute inset-0 bg-black/40 -z-10" />
+      <div className="fixed inset-0 bg-black/40 -z-10" />
       
       <div className="mx-auto items-center justify-center min-h-screen px-5 flex flex-col gap-8">
         {loading ? (
@@ -295,7 +297,7 @@ function CheckoutContent() {
             <p className="text-gray-400">{error}</p>
             <Link
               href="/"
-              className="bg-blueApp hover:bg-blue-600 transition-all duration-300 text-white py-3 px-6 rounded-md font-semibold"
+              className="bg-secondary hover:bg-blue-600 transition-all duration-300 text-white py-3 px-6 rounded-md font-semibold"
             >
               Volver al inicio
             </Link>
@@ -315,9 +317,14 @@ function CheckoutContent() {
                 <p className="text-gray-400">
                   Tu inscripción al programa {program?.name} ha sido confirmada exitosamente.
                 </p>
-                <p className="text-sm text-gray-500">
-                  Recibirás un correo electrónico con los detalles de tu inscripción y las instrucciones para asistir a clases.
-                </p>
+                
+                {/* Componente de bienvenida del profesor */}
+                {cohortId && (
+                  <ProfessorWelcome 
+                    cohortId={cohortId}
+                    programName={program?.name}
+                  />
+                )}
               </>
             )}
 
@@ -363,14 +370,14 @@ function CheckoutContent() {
               {isApproved && (
                 <Link
                   href="/perfil/cursos"
-                  className="bg-emerald-500 hover:bg-emerald-600 transition-all duration-300 text-white py-3 px-6 rounded-md font-semibold"
+                  className="btn-primary group"
                 >
                   Ver mis cursos
                 </Link>
               )}
               <Link
                 href="/"
-                className="bg-blueApp hover:bg-blue-600 transition-all duration-300 text-white py-3 px-6 rounded-md font-semibold"
+                className="bg-secondary hover:bg-blue-600 transition-all duration-300 text-white py-3 px-6 rounded-md font-semibold"
               >
                 Volver al inicio
               </Link>
@@ -378,6 +385,31 @@ function CheckoutContent() {
           </section>
         )}
       </div>
+
+      {/* Custom styles para el fondo */}
+      <style jsx>{`
+        /* Background image con animación y blur - mismo estilo que HeroCarrusel */
+        .background-image-confirmation {
+          background-image: url('/background-texture.png');
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          animation: background-pan-confirmation 30s ease-in-out infinite;
+          filter: blur(12px) brightness(0.5) saturate(1);
+          transform: scale(1.1);
+        }
+
+        @keyframes background-pan-confirmation {
+          0%, 100% {
+            background-position: center center;
+            transform: scale(1.1);
+          }
+          50% {
+            background-position: 60% 40%;
+            transform: scale(1.15);
+          }
+        }
+      `}</style>
     </section>
   )
 }

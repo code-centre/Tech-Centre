@@ -89,7 +89,7 @@ const LocationModalEditing = ({ eventData, onClose, onLocationCreate, onSaveLoca
       <div className="bg-bgCard rounded-lg w-full max-w-4xl overflow-hidden shadow-xl border border-zinc-800/30">
         <div className="flex justify-between items-center p-4 border-b border-zinc-800/30">
           <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-            <MapPin className="text-blueApp" />
+            <MapPin className="text-secondary" />
             Editar Ubicación
           </h2>
           <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-full">
@@ -152,7 +152,7 @@ const LocationModalEditing = ({ eventData, onClose, onLocationCreate, onSaveLoca
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-blueApp text-white rounded hover:bg-blue-600 transition-colors disabled:bg-blue-700/50 flex items-center gap-2"
+                  className="px-4 py-2 bg-secondary text-white rounded hover:bg-blue-600 transition-colors disabled:bg-blue-700/50 flex items-center gap-2"
                 >
                   {isSubmitting ? (
                     <>

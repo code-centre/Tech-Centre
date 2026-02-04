@@ -119,7 +119,7 @@ export default function ProgramDetailClient({
 
   return (
     <>
-      {contentType === "programa" && programData && (
+      {programData && (
         <>
           <CourseSchema
             name={programData.name || ''}
@@ -146,8 +146,10 @@ export default function ProgramDetailClient({
             timeRequired={programData.duration || undefined}
             url={`${baseUrl}/programas-academicos/${programData.code || programData.slug}`}
           />
-          <main className="flex flex-col lg:flex-row gap-8 pb-32 lg:pb-0">
-            <ProgramContainer programData={programData} />
+          <main className="flex flex-col lg:flex-row gap-6 lg:gap-8 pb-32 lg:pb-0 px-4 sm:px-6 lg:px-8">
+            <div className="flex-1 min-w-0">
+              <ProgramContainer programData={programData} />
+            </div>
               
             {/* Desktop: Sidebar sticky */}
             <aside className="w-full lg:w-80 shrink-0 hidden lg:block">

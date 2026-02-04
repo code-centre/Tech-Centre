@@ -103,31 +103,31 @@ export default function ProgramSyllabus({ syllabusData, programId, onSyllabusUpd
   return (
     <section className="flex flex-col gap-2">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-blueApp">Temario</h2>
+        <h2 className="text-2xl font-bold card-text-primary">Temario</h2>
       </div>
 
       <div className="flex flex-col gap-6">
         {editedSyllabus?.map((module, i) => (
-          <details key={module.id} className="group border-b border-gray-700 pb-4">
+          <details key={module.id} className="group border-b border-gray-300 dark:border-gray-700 pb-4">
             <summary className="flex justify-between items-center font-medium cursor-pointer list-none">
               {editingModuleIndex === i ? (
                 <div className="w-full flex flex-col gap-2">
                   <input
                     value={module.title}
                     onChange={(e) => handleModuleTitleChange(i, e.target.value)}
-                    className="border border-gray-600 px-3 py-2 rounded-md w-full bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blueApp"
+                    className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-md w-full bg-white dark:bg-gray-800 text-text-primary focus:outline-none focus:ring-2 focus:ring-secondary"
                     placeholder="Título del módulo"
                   />
                 </div>
               ) : (
                 <div className="flex gap-2 items-center">
-                  <h3 className="text-xl text-white">
+                  <h3 className="text-xl card-text-primary">
                     {i + 1}. {module.title} 
                   </h3>
                 </div>
               )}
               <div className="flex gap-2 items-center">
-                <span className="group-open:rotate-180 transition-transform duration-300 text-blue-400">
+                <span className="group-open:rotate-180 transition-transform duration-300 card-text-primary">
                   <ArrowDown />
                 </span>
                 {isAdmin && editingModuleIndex !== i && (
@@ -138,20 +138,20 @@ export default function ProgramSyllabus({ syllabusData, programId, onSyllabusUpd
               </div>
             </summary>
 
-            <ul className="list-disc marker:text-blue-400 pl-6 mt-4 space-y-2">
+            <ul className="list-disc marker:text-secondary pl-6 mt-4 space-y-2">
               {editedSyllabus[i].topics.map((topic, j) => (
-                <li key={j} className="text-gray-200">
+                <li key={j} className="card-text-muted">
                   {editingModuleIndex === i ? (
                     <div className="flex items-center gap-2">
                       <input
                         value={topic}
                         onChange={(e) => handleTopicChange(i, j, e.target.value)}
-                        className="border border-gray-600 px-2 py-1 rounded-md flex-1 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blueApp"
+                        className="border border-gray-300 dark:border-gray-600 px-2 py-1 rounded-md flex-1 bg-white dark:bg-gray-800 text-text-primary focus:outline-none focus:ring-2 focus:ring-secondary"
                         placeholder="Nuevo tema"
                       />
                       <button
                         onClick={() => handleRemoveTopic(i, j)}
-                        className="text-red-400 hover:text-red-300 p-1 flex-shrink-0"
+                        className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-1 shrink-0"
                         type="button"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -166,7 +166,7 @@ export default function ProgramSyllabus({ syllabusData, programId, onSyllabusUpd
                 <li>
                   <button
                     onClick={() => handleAddTopic(i)}
-                    className="mt-2 text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1"
+                    className="mt-2 text-secondary hover:text-secondary/80 text-sm flex items-center gap-1"
                     type="button"
                   >
                     + Agregar tema
@@ -182,7 +182,7 @@ export default function ProgramSyllabus({ syllabusData, programId, onSyllabusUpd
                   setFinishEdit={handleCancel}
                 />
                 {isSaving && (
-                  <span className="ml-4 text-gray-400 text-sm">Guardando...</span>
+                  <span className="ml-4 text-text-muted text-sm">Guardando...</span>
                 )}
               </div>
             )}

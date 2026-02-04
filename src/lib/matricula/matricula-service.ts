@@ -151,7 +151,7 @@ export async function shouldShowMatricula(
       paidYear: null, // Se obtendrá de la consulta si es necesario
       shouldShow: !hasPaid,
       amount: Number(config.amount),
-      description: config.description || `Matrícula requerida para el año ${new Date().getFullYear()}`,
+      description: config.description || `Matrícula anual Tech Centre - ${new Date().getFullYear()}`,
     }
   } catch (error) {
     console.error('Error al verificar si se debe mostrar matrícula:', error)

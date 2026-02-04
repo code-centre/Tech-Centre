@@ -41,6 +41,7 @@ export interface SyllabusData {
  */
 export interface Program {
   id: number;
+  start_date: string;
   code: string;
   name: string;
   kind?: string;
@@ -59,6 +60,7 @@ export interface Program {
   faqs: any[];
   slug?: string;
   syllabus?: SyllabusData;
+  audience?: string; // Descripción de para quién es el programa
   [key: string]: any; // Para propiedades adicionales dinámicas
 }
 

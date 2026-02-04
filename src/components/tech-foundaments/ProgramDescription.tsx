@@ -76,42 +76,40 @@ export function ProgramDescription({ programData, programId, onDescriptionUpdate
   };
 
   return (
-    <section>
-      <div className="flex flex-col">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Detalles de este programa</h2>
-          {isAdmin && !isEditing && (
-            <ButtonToEdit startEditing={handleStartEdit} />
+    <article className="backdrop-blur-sm p-6 md:p-8 rounded-2xl dark:border-border-color">
+      <header className="flex justify-between items-center mb-6">
+        <h2 className="text-xl md:text-2xl font-bold card-text-primary">Descripción del programa</h2>
+        {isAdmin && !isEditing && (
+          <ButtonToEdit startEditing={handleStartEdit} />
+        )}
+      </header>
+      
+      {isEditing ? (
+        <div className="space-y-4">
+          <Editor
+            value={descriptionContent}
+            onChange={(content) => setDescriptionContent(content)}
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
+          {isSaving && (
+            <p className="text-text-muted text-sm">Guardando...</p>
+          )}
+          {error && (
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg text-sm border border-red-200 dark:border-red-800">
+              {error}
+            </div>
           )}
         </div>
-        
-        {isEditing ? (
-          <div className="space-y-4">
-            <Editor
-              value={descriptionContent}
-              onChange={(content) => setDescriptionContent(content)}
-              onSave={handleSave}
-              onCancel={handleCancel}
-            />
-            {isSaving && (
-              <p className="text-gray-400 text-sm">Guardando...</p>
-            )}
-            {error && (
-              <div className="p-3 bg-red-900/50 text-red-200 rounded-lg text-sm border border-red-800">
-                {error}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-gray-300 text-md leading-relaxed text-left">
-            {descriptionContent ? (
-              HTMLReactParser(descriptionContent)
-            ) : (
-              <p className="text-gray-500 italic">No hay descripción disponible.</p>
-            )}
-          </div>
-        )}
-      </div>
-    </section>
+      ) : (
+        <div className="program-description-content text-base md:text-lg leading-relaxed card-text-primary">
+          {descriptionContent ? (
+            HTMLReactParser(descriptionContent)
+          ) : (
+            <p className="text-text-muted italic">No hay descripción disponible.</p>
+          )}
+        </div>
+      )}
+    </article>
   )
 }

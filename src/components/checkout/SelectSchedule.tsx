@@ -55,7 +55,7 @@ export default function SelectSchedule({ data, selectedSchedule, setSelectedSche
     <section className='flex flex-col gap-1'>
       {
         selectedSchedule ? (
-          <p className='text-blueApp font-semibold flex flex-col md:flex-row gap-2 md:items-center'>
+          <p className='text-secondary font-semibold flex flex-col md:flex-row gap-2 md:items-center'>
             <span className='font-normal text-white'>Horario seleccionado:</span>
             {selectedSchedule}
             <button 
@@ -79,7 +79,7 @@ export default function SelectSchedule({ data, selectedSchedule, setSelectedSche
                       <div className="flex flex-col md:flex-row md:items-center gap-2">
                         <div className="flex items-center gap-2 text-sm">
                           {cohortItem.schedule?.clases?.horas?.[0] && (
-                            <span className="text-blueApp">{cohortItem.schedule.clases.horas[0]}</span>
+                            <span className="text-secondary">{cohortItem.schedule.clases.horas[0]}</span>
                           )}
                           {cohortItem.schedule?.clases?.dias?.[0] && (
                             <span className="text-white">| {cohortItem.schedule.clases.dias[0]}</span>

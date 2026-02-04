@@ -48,38 +48,33 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
     }
   }
 
-  return (
-    <div className="sticky top-4 lg:sticky lg:top-4 rounded-2xl shadow-lg overflow-hidden max-w-sm w-full h-fit py-4 relative">
-      {/* Background image covering the entire card */}
-      <Image
-        src="/SmokeBg.webp"
-        alt="Background"
-        fill
-        className="object-cover"
-      />
-      {/* Dark overlay for better text readability */}
-      <div className="absolute inset-0 bg-linear-to-br from-blue-900/80 via-blue-800/80 to-purple-900/80"></div>
+  const handlePreEnrollClick = () => {
+    router.push(`/programas-academicos/${programData?.code || programData?.slug}/apartar-cupo`);
+  }
 
-      <div className="px-6 pb-1 relative z-10">
+  return (
+    <section className="sticky top-4 lg:sticky lg:top-4 w-full lg:max-w-sm h-fit bg-(--card-diplomado-bg) rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border [border-color:var(--card-diplomado-border)] dark:border-border-color">
+      <article className="p-4 sm:p-6 md:p-8 flex flex-col gap-4 sm:gap-6">
         <div className="text-center">
-          <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium mb-4">
-            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+          <div className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-full bg-secondary/10 dark:bg-secondary/20 text-secondary border border-secondary/30 dark:border-secondary/40 text-xs font-medium mb-4">
+            <div className="w-2 h-2 bg-secondary rounded-full mr-2 animate-pulse"></div>
             Inscripciones abiertas
           </div> 
-          <h3 className="text-2xl mb-1 font-semibold tracking-wide text-white">{programData?.name}</h3>
-          <h4 className="text-lg font-semibold text-gray-300 mb-3 line-clamp-2 leading-snug">
+          
+          <h3 className="hidden sm:block text-xl md:text-2xl mb-2 font-bold card-text-primary">{programData?.name}</h3>
+          <h4 className="hidden sm:block text-base font-semibold card-text-muted mb-4 line-clamp-2 leading-snug">
             {programData?.subtitle}
           </h4>
          
           {programData?.discount ? (
-            <div className="text-xl font-bold text-white flex flex-col items-center justify-center">
-              <span>¡Precio en oferta!</span>
-              {formatPrice(programData.discount)}
+            <div className="hidden sm:flex text-xl font-bold card-text-primary flex-col items-center justify-center mb-1">
+              <span className="text-sm font-medium card-text-muted mb-1">¡Precio en oferta!</span>
+              <span className="text-secondary text-2xl">{formatPrice(programData.discount)}</span>
             </div>
           ) : (
-            <div className="text-xl font-bold text-white flex flex-col items-center justify-center">
-              <span>Precio</span>
-              {formatPrice(programData?.default_price || 0, programData?.currency || "COP")}
+            <div className="hidden sm:flex text-xl font-bold card-text-primary flex-col items-center justify-center mb-1">
+              <span className="text-sm font-medium card-text-muted mb-1">Precio</span>
+              <span className="text-secondary text-2xl">{formatPrice(programData?.default_price || 0, programData?.currency || "COP")}</span>
             </div>
           )}
 
@@ -87,23 +82,38 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
             const basePrice = programData.discount || programData.default_price || 0;
             const installmentPrice = Math.round(basePrice / cohort.maximum_payments);
             return (
-              <div className="text-sm text-white/80">
+              <div className="hidden sm:block text-sm card-text-muted mt-2">
                 Hasta {cohort.maximum_payments} cuotas de {formatPrice(installmentPrice, programData.currency || "COP")}
               </div>
             );
           })()}
 
-          <button
-            onClick={handleBuyClick}
-            className="w-full cursor-pointer bg-white text-blueApp py-4 px-6 my-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
-              <span>Quiero inscribirme</span>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </button>
+          <div className="flex flex-col gap-3 sm:mt-6">
+            <button
+              onClick={handleBuyClick}
+              className="btn-primary w-full group cursor-pointer"
+            >
+              <span>Inscribirme</span>
+              <svg className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
+
+            <button
+              onClick={handlePreEnrollClick}
+              className="group w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-transparent card-text-primary font-semibold rounded-xl border-2 border-secondary/50 dark:border-secondary/40 hover:bg-secondary/10 dark:hover:bg-secondary/20 hover:border-secondary dark:hover:border-secondary/60 transition-all duration-300 cursor-pointer">
+              <svg className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <span>Apartar mi cupo</span>
+            </button>
+            <p className="hidden sm:block text-xs card-text-muted text-center mt-1">
+              Sin compromiso · Te contactamos para resolver dudas
+            </p>
+          </div>
 
         </div>
-      </div>
-    </div>
+      </article>
+    </section>
   );
 }

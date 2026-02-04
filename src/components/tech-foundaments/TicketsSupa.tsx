@@ -5,10 +5,6 @@ import { ClockIcon, MessageCircleIcon, MapPinIcon, EditIcon, PlusCircle } from "
 import useUserStore from "../../../store/useUserStore"
 import { useRouter } from "next/navigation"
 import AlertModal from "../AlertModal"
-<<<<<<< HEAD
-// import { supabase } from "@/lib/supabase"
-=======
->>>>>>> main
 import type { Ticket } from "@/types/programs"
 
 interface ProgramData {
@@ -176,7 +172,7 @@ export function TicketsSupa({
           {user?.rol === "admin" && (
             <button
               onClick={handleCreateTicket}
-              className="flex items-center gap-2 px-3 py-1 bg-blueApp hover:bg-blue-600 text-white text-sm rounded-md transition-colors"
+              className="flex items-center gap-2 px-3 py-1 bg-secondary hover:bg-blue-600 text-white text-sm rounded-md transition-colors"
             >
               <PlusCircle size={14} />
               <span>Nuevo Ticket</span>
@@ -235,7 +231,7 @@ export function TicketsSupa({
                 <>
                   <button
                     onClick={handleCreateTicket}
-                    className="flex items-center gap-2 px-3 py-1 bg-blueApp hover:bg-blue-600 text-white text-sm rounded-md transition-colors"
+                    className="flex items-center gap-2 px-3 py-1 bg-secondary hover:bg-blue-600 text-white text-sm rounded-md transition-colors"
                   >
                     <PlusCircle size={14} />
                     <span>Nuevo Ticket</span>
@@ -347,7 +343,7 @@ export function TicketsSupa({
                     onClick={() => setSelectedTicket(index)}
                     className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap min-w-[100px] transition-all ${
                       selectedTicket === index
-                        ? "bg-blueApp text-white shadow-lg shadow-blueApp/20"
+                        ? "bg-secondary text-white shadow-lg shadow-secondary/20"
                         : "bg-zinc-800 text-gray-300 hover:bg-zinc-700"
                     }`}
                   >
@@ -361,19 +357,19 @@ export function TicketsSupa({
             <div className="p-6 space-y-5">
               <div className="flex items-center justify-between py-3 border-b border-zinc-700/50 group hover:border-zinc-600/70 transition-all">
                 <div className="flex items-center gap-3 text-gray-700">
-                  <div className="bg-zinc-900 p-2 rounded-lg shadow-inner border border-zinc-800 group-hover:border-blueApp/30 transition-all">
-                    <MapPinIcon size={18} className="text-blueApp" />
+                  <div className="bg-zinc-900 p-2 rounded-lg shadow-inner border border-zinc-800 group-hover:border-secondary/30 transition-all">
+                    <MapPinIcon size={18} className="text-secondary" />
                   </div>
                   <span className="font-medium text-white text-base">Modalidad</span>
                 </div>
-                <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-blueApp/20 transition-colors">
+                <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-secondary/20 transition-colors">
                   {cohort?.modality}
                 </div>
               </div>
               <div className="flex items-center justify-between py-3 border-b border-zinc-700/50 group hover:border-zinc-600/70 transition-all">
                 <div className="flex items-center gap-3 text-gray-700">
-                  <div className="bg-zinc-900 p-2 rounded-lg shadow-inner border border-zinc-800 group-hover:border-blueApp/30 transition-all">
-                    <ClockIcon size={18} className="text-blueApp" />
+                  <div className="bg-zinc-900 p-2 rounded-lg shadow-inner border border-zinc-800 group-hover:border-secondary/30 transition-all">
+                    <ClockIcon size={18} className="text-secondary" />
                   </div>
                   <span className="font-medium text-white text-base">Duración</span>
                 </div>
@@ -441,7 +437,7 @@ export function TicketsSupa({
                   </div>
                 ) : (
                   <div className="flex items-center">
-                    <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-blueApp/20 transition-colors">
+                    <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-secondary/20 transition-colors">
                       {duration}
                     </div>
                     {/* {saveChanges && user?.rol === "admin" && (
@@ -457,12 +453,12 @@ export function TicketsSupa({
               </div>
               <div className="flex items-center justify-between py-3 border-b border-zinc-700/50 group hover:border-zinc-600/70 transition-all">
                 <div className="flex items-center gap-3 text-gray-700">
-                  <div className="bg-zinc-900 p-2 rounded-lg shadow-inner border border-zinc-800 group-hover:border-blueApp/30 transition-all">
-                    <ClockIcon size={18} className="text-blueApp" />
+                  <div className="bg-zinc-900 p-2 rounded-lg shadow-inner border border-zinc-800 group-hover:border-secondary/30 transition-all">
+                    <ClockIcon size={18} className="text-secondary" />
                   </div>
                   <span className="font-medium text-white text-base">Dificultad</span>
                 </div>
-                <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-blueApp/20 transition-colors">
+                <div className="bg-zinc-900 text-white px-4 py-1.5 rounded-full text-sm font-medium border border-zinc-800/80 shadow-sm hover:border-secondary/20 transition-colors">
                   {programData?.difficulty}
                 </div>
               </div>
@@ -671,7 +667,7 @@ export function TicketsSupa({
                     {/* {currentTicket.benefits && currentTicket.benefits.length > 0 ? (
                       currentTicket.benefits.map((benefit, i) => (
                         <li key={i} className="flex items-start gap-2 text-gray-300 text-sm">
-                          <span className="text-blueApp mt-0.5">✓</span>
+                          <span className="text-secondary mt-0.5">✓</span>
                           <span>{benefit}</span>
                         </li>
                       ))
@@ -773,14 +769,14 @@ export function TicketsSupa({
               {/* Payment options section */}
               <div className="mt-5 bg-zinc-900/90 p-5 rounded-xl shadow-lg border border-zinc-800/40 relative overflow-hidden group">
                 {/* Línea decorativa */}
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blueApp"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-secondary"></div>
 
                 {/* Efecto decorativo */}
-                <div className="absolute -right-10 -top-10 w-24 h-24 rounded-full bg-blueApp/5 blur-2xl group-hover:bg-blueApp/10 transition-all duration-700"></div>
+                <div className="absolute -right-10 -top-10 w-24 h-24 rounded-full bg-secondary/5 blur-2xl group-hover:bg-secondary/10 transition-all duration-700"></div>
 
                 <div className="flex items-center gap-3 mb-4">
                   <div className="bg-zinc-800 p-2 rounded-lg shadow-inner border border-zinc-700/40">
-                    <svg className="w-4 h-4 text-blueApp" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -796,11 +792,11 @@ export function TicketsSupa({
                     paymentPlans.map((plan, index) => (
                   <div key={index} className="flex items-center justify-between py-2.5 px-4 bg-zinc-800/80 hover:bg-zinc-800 rounded-lg shadow-sm border border-zinc-700/20 transition-colors duration-200">
                     <div className="flex items-center gap-3" >
-                        <div className="w-2.5 h-2.5 bg-blueApp rounded-full"></div>
+                        <div className="w-2.5 h-2.5 bg-secondary rounded-full"></div>
                         <span className="text-sm font-medium text-gray-200">{plan.name}</span>
                       </div>
                       <div className="text-right">
-                        <span className="font-bold text-blueApp">
+                        <span className="font-bold text-secondary">
                             {new Intl.NumberFormat('es-CO', {
                               style: 'currency',
                               currency: 'COP',
@@ -814,7 +810,7 @@ export function TicketsSupa({
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-zinc-700/30">
-                  <p className="text-xs text-blueApp text-center font-medium">
+                  <p className="text-xs text-secondary text-center font-medium">
                     💳 Acepta todas las tarjetas de crédito
                   </p>
                 </div>
@@ -824,9 +820,9 @@ export function TicketsSupa({
               <div className="mt-6 space-y-3">
                 <button
                   onClick={handleBuyClick}
-                  className="w-full bg-gradient-to-r from-blueApp to-blue-600 hover:from-blue-600 hover:to-blueApp 
+                  className="w-full bg-gradient-to-r from-secondary to-blue-600 hover:from-blue-600 hover:to-secondary 
                     text-white font-medium py-3.5 px-5 rounded-xl transition-all duration-300 block text-center
-                    shadow-lg shadow-blueApp/20 hover:shadow-blueApp/30 border border-blue-500/30
+                    shadow-lg shadow-secondary/20 hover:shadow-secondary/30 border border-blue-500/30
                     transform hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm"
                 >
                   Inscribirme ahora

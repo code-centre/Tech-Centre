@@ -74,7 +74,7 @@ export function PayCheck({ studentId, enrollmentId, amount, onPaymentSuccess }: 
             value={amount}
             // onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
-            className="w-full px-3 py-2 border border-blueApp bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-secondary bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             required
           />
         </div>
@@ -87,7 +87,7 @@ export function PayCheck({ studentId, enrollmentId, amount, onPaymentSuccess }: 
             id="paymentMethod"
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
-            className="w-full px-3 py-2 border border-blueApp bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-secondary bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="transfer">Transferencia</option>
             <option value="cash">Efectivo</option>
@@ -106,7 +106,7 @@ export function PayCheck({ studentId, enrollmentId, amount, onPaymentSuccess }: 
               value={reference}
               onChange={(e) => setReference(e.target.value)}
               placeholder="Ej: TRF-123456"
-              className="w-full px-3 py-2 border border-blueApp bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-secondary bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               required={paymentMethod === 'transfer'}
             />
           </div>

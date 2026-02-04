@@ -21,10 +21,10 @@ export default function ViewCheckoutPage() {
 
 function CheckoutLoader() {
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center h-screen bg-bg-primary">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="w-12 h-12 animate-spin text-blueApp" />
-        <p className="text-gray-400">Cargando información del programa...</p>
+        <Loader2 className="w-12 h-12 animate-spin text-secondary" />
+        <p className="text-text-muted">Cargando información del programa...</p>
       </div>
     </div>
   )
@@ -146,52 +146,59 @@ function ViewCheckoutContent() {
     return (
       <div className="flex justify-center items-center h-screen px-4">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Error</h2>
-          <p className="text-gray-400">{error || 'No se pudo cargar la información del programa'}</p>
+          <h2 className="text-2xl font-bold text-text-primary mb-4">Error</h2>
+          <p className="text-text-muted">{error || 'No se pudo cargar la información del programa'}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <main className="mt-26 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-8">
-      <ConfigurationSection
-        data={data}
-        slugProgram={cohortIdParam || slugProgram}
-        subtotal={subtotal}
-        quantity={quantity}
-        paymentMethod={paymentMethod}
-        setPaymentMethod={setPaymentMethod}
-        setSubtotal={setSubtotal}
-        setQuantity={setQuantity}
-        selectedCohortId={selectedCohortId}
-        setSelectedCohortId={setSelectedCohortId}
-        selectedInstallments={selectedInstallments}
-        setSelectedInstallments={setSelectedInstallments}
-        onMatriculaAmountChange={(amount) => {
-          setMatriculaAmount(amount)
-        }}
-        onMatriculaStatusChange={(shouldShow) => {
-          setMatriculaShouldShow(shouldShow)
-        }}
-        className="lg:col-span-2"
-      />
-      
-      <div className="lg:sticky lg:top-24 lg:h-fit lg:col-span-1">
-        <ResumenSection
-          data={data}
-          slugProgram={cohortIdParam || slugProgram}
-          subtotal={subtotal}
-          quantity={quantity}
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
-          selectedCohortId={selectedCohortId}
-          selectedInstallments={selectedInstallments}
-          setSelectedInstallments={setSelectedInstallments}
-          setSubtotal={setSubtotal}
-          matriculaAdded={matriculaShouldShow}
-          matriculaAmount={matriculaAmount}
-        />
+    <main className="mt-26 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 bg-bg-primary min-h-screen">
+      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8">
+        {/* Panel izquierdo: Resumen del programa */}
+        <div className="w-full lg:col-span-2">
+          <ConfigurationSection
+            data={data}
+            slugProgram={cohortIdParam || slugProgram}
+            subtotal={subtotal}
+            quantity={quantity}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+            setSubtotal={setSubtotal}
+            setQuantity={setQuantity}
+            selectedCohortId={selectedCohortId}
+            setSelectedCohortId={setSelectedCohortId}
+            selectedInstallments={selectedInstallments}
+            setSelectedInstallments={setSelectedInstallments}
+            onMatriculaAmountChange={(amount) => {
+              setMatriculaAmount(amount)
+            }}
+            onMatriculaStatusChange={(shouldShow) => {
+              setMatriculaShouldShow(shouldShow)
+            }}
+            matriculaAdded={matriculaShouldShow}
+            matriculaAmount={matriculaAmount}
+          />
+        </div>
+        
+        {/* Panel derecho: Resumen de pago - sticky en desktop, debajo en mobile */}
+        <div className="w-full lg:sticky lg:top-24 lg:h-fit rounded-xl bg-(--card-diplomado-bg)">
+          <ResumenSection
+            data={data}
+            slugProgram={cohortIdParam || slugProgram}
+            subtotal={subtotal}
+            quantity={quantity}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+            selectedCohortId={selectedCohortId}
+            selectedInstallments={selectedInstallments}
+            setSelectedInstallments={setSelectedInstallments}
+            setSubtotal={setSubtotal}
+            matriculaAdded={matriculaShouldShow}
+            matriculaAmount={matriculaAmount}
+          />
+        </div>
       </div>
     </main>
   )
