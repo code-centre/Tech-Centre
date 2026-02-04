@@ -228,7 +228,7 @@ export default function ProgramCardOptimized({ program, cohort }: ProgramCardPro
         <div className="flex flex-col gap-2 mt-auto">
           <Link
             href={`/checkout?slug=${slug}&cohortId=${cohort.id}`}
-            className="group flex items-center justify-center gap-2 px-4 py-3 bg-secondary text-white font-semibold rounded-lg hover:bg-secondary/90 dark:bg-[#1E9FAE] dark:hover:bg-[#1A8F9D] transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-secondary/30 dark:shadow-secondary/40 dark:hover:shadow-secondary/50 transform hover:-translate-y-0.5 active:scale-[0.98]"
+            className="group flex items-center justify-center gap-2 px-4 py-3 bg-secondary text-white font-semibold rounded-lg hover:bg-secondary/90 dark:bg-(--secondary) dark:hover:bg-[#1A8F9D] transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-secondary/30 dark:shadow-secondary/40 dark:hover:shadow-secondary/50 transform hover:-translate-y-0.5 active:scale-[0.98] btn-primary"
           >
             <span>Quiero inscribirme</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
