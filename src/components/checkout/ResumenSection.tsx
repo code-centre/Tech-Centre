@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
+import { Lock, Mail, Check, ChevronDown } from 'lucide-react'
 import DiscountCoupon from './DiscountCoupon'
 import QuickSignUp from './QuickSignUp'
 import PaymentMethodDropdown from './PaymentMethodDropdown'
@@ -29,6 +30,170 @@ interface Props {
   className?: string
 }
 
+// Subcomponente: Bloque Total
+function PaymentTotal({
+  programName,
+  totalAmount,
+  subtotal,
+  priceCalculation,
+  paymentMethod,
+  selectedInstallments,
+}: {
+  programName: string
+  totalAmount: number
+  subtotal: number | null
+  priceCalculation: ReturnType<typeof calculatePrice> | null
+  paymentMethod: 'full' | 'installments' | null
+  selectedInstallments: number
+}) {
+  // Si no hay método de pago seleccionado, mostrar el precio del programa
+  const displayAmount = paymentMethod ? totalAmount : (subtotal || 0)
+  
+  return (
+    <div className="space-y-3">
+      <h2 className="text-2xl font-bold text-text-primary">Resumen de pago</h2>
+      
+      <div className="space-y-2">
+        <p className="text-sm text-text-muted">{programName}</p>
+        <div>
+          <p className="text-4xl font-bold text-text-primary">
+            ${Math.round(displayAmount).toLocaleString()} COP
+          </p>
+          <p className="text-xs text-text-muted mt-1">
+            {paymentMethod ? 'Precio final · Sin costos ocultos' : 'Precio del programa'}
+          </p>
+          {paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation?.installmentAmount && (
+            <p className="text-xs text-emerald-400 mt-1">
+              {selectedInstallments} cuotas sin interés
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Subcomponente: Bloque Acción (CTA)
+function PaymentAction({
+  paymentMethod,
+  setPaymentMethod,
+  selectedCohortId,
+  selectedInstallments,
+  setSelectedInstallments,
+  data,
+  onPriceChange,
+  isFormValid,
+  disableButton,
+  totalAmount,
+  priceCalculation,
+  matriculaAdded,
+  matriculaAmount,
+  onPayClick,
+}: {
+  paymentMethod: 'full' | 'installments' | null
+  setPaymentMethod: (value: 'full' | 'installments' | null) => void
+  selectedCohortId: number | null
+  selectedInstallments: number
+  setSelectedInstallments: (installments: number) => void
+  data: Program
+  onPriceChange: (price: number) => void
+  isFormValid: boolean
+  disableButton: boolean
+  totalAmount: number
+  priceCalculation: ReturnType<typeof calculatePrice> | null
+  matriculaAdded: boolean
+  matriculaAmount: number
+  onPayClick: () => void
+}) {
+  const getButtonText = () => {
+    if (disableButton) return 'Procesando...'
+    if (!paymentMethod) return 'Selecciona un método de pago'
+    
+    let amountToShow = 0
+    if (priceCalculation) {
+      if (paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation.installmentAmount) {
+        const matriculaPerInstallment = matriculaAdded ? matriculaAmount / selectedInstallments : 0
+        amountToShow = priceCalculation.installmentAmount + matriculaPerInstallment
+        return `Pagar primera cuota $${Math.round(amountToShow).toLocaleString()}`
+      } else {
+        amountToShow = totalAmount
+        return `Pagar $${Math.round(amountToShow).toLocaleString()}`
+      }
+    }
+    return 'Selecciona un método de pago'
+  }
+
+  return (
+    <div className="space-y-4">
+      <PaymentMethodDropdown
+        data={data}
+        selectedCohortId={selectedCohortId}
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+        selectedInstallments={selectedInstallments}
+        setSelectedInstallments={setSelectedInstallments}
+        onPriceChange={onPriceChange}
+      />
+      
+      <button
+        onClick={onPayClick}
+        disabled={!isFormValid || disableButton}
+        className="btn-primary w-full py-4 text-lg font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none disabled:opacity-60"
+      >
+        {getButtonText()}
+      </button>
+    </div>
+  )
+}
+
+// Subcomponente: Bloque Confianza
+function PaymentTrust() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="space-y-4">
+      {/* Iconos de confianza */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-sm text-text-muted">
+          <Lock className="w-4 h-4 text-secondary shrink-0" />
+          <span>Pago seguro procesado por Wompi</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-text-muted">
+          <Mail className="w-4 h-4 text-secondary shrink-0" />
+          <span>Recibirás confirmación por correo</span>
+        </div>
+      </div>
+
+      {/* Acordeón: ¿Qué sigue después de pagar? */}
+      <div>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full cursor-pointer list-none flex items-center justify-between text-sm font-medium text-text-primary hover:text-secondary transition-colors"
+        >
+          <span>¿Qué sigue después de pagar?</span>
+          <ChevronDown className={`w-4 h-4 text-text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        {isOpen && (
+          <ul className="mt-3 space-y-2 text-sm text-text-muted pl-6">
+            <li className="flex items-start gap-2">
+              <Check className="w-4 h-4 text-secondary mt-0.5 shrink-0" />
+              <span>Confirmación inmediata por correo</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <Check className="w-4 h-4 text-secondary mt-0.5 shrink-0" />
+              <span>Acceso a la comunidad Tech Centre</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <Check className="w-4 h-4 text-secondary mt-0.5 shrink-0" />
+              <span>Información de inicio y materiales previos</span>
+            </li>
+          </ul>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function ResumenSection({
   data,
   slugProgram,
@@ -52,6 +217,7 @@ export default function ResumenSection({
   const [showQuickSignUp, setShowQuickSignUp] = useState<boolean>(false)
   const [disableButton, setDisableButton] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  const [showCoupon, setShowCoupon] = useState<boolean>(false)
 
   const handlePriceChange = (price: number) => {
     setSubtotal(price)
@@ -81,7 +247,8 @@ export default function ResumenSection({
 
     try {
       if (!user) {
-        throw new Error('Debes iniciar sesión para continuar con la inscripción.')
+        setShowQuickSignUp(true)
+        return
       }
 
       if (!subtotal || subtotal <= 0) {
@@ -302,108 +469,18 @@ export default function ResumenSection({
     }
   }
 
+  const handlePayClick = () => {
+    if (!user) {
+      setShowQuickSignUp(true)
+      return
+    }
+    handleGetLinkToPay()
+  }
+
   const isFormValid = subtotal && paymentMethod && selectedCohortId
 
-  // Calcular subtotal antes de cupón (subtotal + matrícula - descuento por contado)
-  const subtotalBeforeCoupon = (subtotal || 0) + 
-    (matriculaAdded ? matriculaAmount : 0) - 
-    (priceCalculation?.paymentMethodDiscount || 0)
-
   return (
-    <div className={`bg-bgCard/80 backdrop-blur-md w-full flex flex-col gap-5 p-6 rounded-2xl shadow-2xl border border-blue-100/20 max-w-xl ${className || ''}`}>
-      <h2 className="text-4xl font-bold font-mono text-secondary">Resumen de pago</h2>
-      <div className="border-b border-secondary/20 h-1"></div>
-
-      {/* Listado de conceptos */}
-      <div className="space-y-3">
-        <h3 className="text-lg font-semibold text-white mb-3">Conceptos</h3>
-        
-        {/* Subtotal del programa */}
-        <div className="flex justify-between items-center">
-          <p className="text-gray-300 text-sm">Subtotal del programa</p>
-          <p className="text-white font-semibold">
-            {subtotal ? `$${subtotal.toLocaleString()}` : 'Sin elegir'}
-          </p>
-        </div>
-
-        {/* Matrícula anual */}
-        {matriculaAdded && matriculaAmount > 0 && (
-          <div className="flex justify-between items-center">
-            <p className="text-gray-300 text-sm">Matrícula anual</p>
-            <p className="text-white font-semibold">
-              ${matriculaAmount.toLocaleString()}
-            </p>
-          </div>
-        )}
-
-        {/* Descuento por pago de contado */}
-        {priceCalculation && priceCalculation.paymentMethodDiscount > 0 && (
-          <div className="flex justify-between items-center">
-            <p className="text-gray-300 text-sm">Descuento por pago de contado</p>
-            <p className="text-emerald-400 font-semibold">
-              -${priceCalculation.paymentMethodDiscount.toLocaleString()}
-            </p>
-          </div>
-        )}
-
-        {/* Subtotal antes de cupón */}
-        {subtotal && (
-          <div className="flex justify-between items-center pt-2 border-t border-zinc-700/50">
-            <p className="text-gray-300 text-sm font-medium">Subtotal</p>
-            <p className="text-white font-semibold">
-              ${subtotalBeforeCoupon.toLocaleString()}
-            </p>
-          </div>
-        )}
-
-        {/* Descuento por cupón */}
-        {discount > 0 && (
-          <div className="flex justify-between items-center">
-            <p className="text-gray-300 text-sm">Descuento por cupón</p>
-            <p className="text-emerald-400 font-semibold">
-              -${discount.toLocaleString()}
-            </p>
-          </div>
-        )}
-
-        {/* Ahorro total */}
-        {priceCalculation && priceCalculation.savings && priceCalculation.savings > 0 && (
-          <div className="flex justify-between items-center pt-2 border-t border-zinc-700/50">
-            <p className="text-emerald-400 text-sm font-semibold">Ahorro total</p>
-            <p className="text-emerald-400 font-bold">
-              ${priceCalculation.savings.toLocaleString()}
-            </p>
-          </div>
-        )}
-      </div>
-
-      <div className="border-b border-secondary/20 h-1"></div>
-
-      {/* Código de descuento */}
-      {data.id && (
-        <DiscountCoupon
-          programId={data.id}
-          subtotal={subtotal || 0}
-          onDiscountChange={setDiscount}
-          onCouponApplied={handleCouponApplied}
-        />
-      )}
-
-      <div className="border-b border-secondary/20 h-1"></div>
-
-      {/* Método de pago */}
-      <PaymentMethodDropdown
-        data={data}
-        selectedCohortId={selectedCohortId}
-        paymentMethod={paymentMethod}
-        setPaymentMethod={setPaymentMethod}
-        selectedInstallments={selectedInstallments}
-        setSelectedInstallments={setSelectedInstallments}
-        onPriceChange={handlePriceChange}
-      />
-
-      <div className="border-b border-secondary/20 h-1"></div>
-
+    <div className={`bg-bg-card w-full flex flex-col gap-6 lg:gap-8 p-6 lg:p-8 rounded-2xl shadow-xl border border-border-color max-w-xl ${className || ''}`}>
       {/* Mensaje de error */}
       {error && (
         <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
@@ -430,42 +507,73 @@ export default function ResumenSection({
         </div>
       )}
 
-      {/* Botón de pago */}
-      <button
-        onClick={() => {
-          if (!user) {
-            setShowQuickSignUp(true)
-            return
-          }
-          handleGetLinkToPay()
-        }}
-        disabled={!isFormValid || disableButton}
-        className="bg-secondary py-3 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-xl font-semibold my-5 rounded-md shadow-lg hover:bg-secondary/90 transition-colors"
-      >
-        {disableButton 
-          ? 'Procesando...' 
-          : (() => {
-              // Calcular el monto a mostrar: primera cuota si es a cuotas, total si es de contado
-              // Incluir matrícula en el cálculo si está agregada
-              let amountToShow = 0
-              if (priceCalculation) {
-                if (paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation.installmentAmount) {
-                  // Si hay matrícula agregada, dividirla también entre las cuotas
-                  const matriculaPerInstallment = matriculaAdded ? matriculaAmount / selectedInstallments : 0
-                  amountToShow = priceCalculation.installmentAmount + matriculaPerInstallment
-                } else {
-                  amountToShow = totalAmount
-                }
-              } else {
-                amountToShow = totalAmount
-              }
-              return `Pagar ${amountToShow > 0 ? `$${Math.round(amountToShow).toLocaleString()}` : '$0'}`
-            })()}
-      </button>
+      {/* A. Bloque Total */}
+      <PaymentTotal
+        programName={data.name}
+        totalAmount={totalAmount}
+        subtotal={subtotal}
+        priceCalculation={priceCalculation}
+        paymentMethod={paymentMethod}
+        selectedInstallments={selectedInstallments}
+      />
 
-      <p className="text-secondary/70 text-xs">
-        Tus datos personales se utilizarán para procesar tu pedido, respaldar tu experiencia en este sitio web y para otros fines descritos en nuestra política de privacidad.
-      </p>
+      {/* Cupón (opcional, colapsado por defecto) */}
+      {data.id && (
+        <>
+          {!showCoupon && discount === 0 ? (
+            <button
+              onClick={() => setShowCoupon(true)}
+              className="text-sm text-secondary hover:text-secondary/80 text-left w-full"
+            >
+              ¿Tienes un código de descuento?
+            </button>
+          ) : (
+            <DiscountCoupon
+              programId={data.id}
+              subtotal={subtotal || 0}
+              onDiscountChange={setDiscount}
+              onCouponApplied={handleCouponApplied}
+            />
+          )}
+        </>
+      )}
+
+      {/* B. Bloque Acción (CTA) - Más prominente */}
+      <div className="pt-2">
+        <PaymentAction
+          paymentMethod={paymentMethod}
+          setPaymentMethod={setPaymentMethod}
+          selectedCohortId={selectedCohortId}
+          selectedInstallments={selectedInstallments}
+          setSelectedInstallments={setSelectedInstallments}
+          data={data}
+          onPriceChange={handlePriceChange}
+          isFormValid={!!isFormValid}
+          disableButton={disableButton}
+          totalAmount={totalAmount}
+          priceCalculation={priceCalculation}
+          matriculaAdded={matriculaAdded}
+          matriculaAmount={matriculaAmount}
+          onPayClick={handlePayClick}
+        />
+      </div>
+
+      {/* C. Bloque Confianza */}
+      <PaymentTrust />
+
+      {/* Copy legal (muted, pequeño, al final) */}
+      <div className="text-text-muted/70 text-xs space-y-1 pt-4 border-t border-border-color">
+        <p>
+          Tus datos personales se utilizarán únicamente para procesar tu inscripción y mejorar tu experiencia.
+        </p>
+        <p>
+          Consulta nuestra{' '}
+          <a href="/politica-privacidad" className="underline hover:text-secondary transition-colors">
+            política de privacidad
+          </a>
+          .
+        </p>
+      </div>
 
       {/* QuickSignUp Modal */}
       {showQuickSignUp && (

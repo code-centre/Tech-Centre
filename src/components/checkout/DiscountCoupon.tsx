@@ -78,7 +78,7 @@ export default function DiscountCoupon({
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <Tag className="w-5 h-5 text-secondary" />
-        <label className="text-sm font-semibold text-white">
+        <label className="text-sm font-semibold text-text-primary">
           Código de descuento o cupón
         </label>
       </div>
@@ -118,12 +118,12 @@ export default function DiscountCoupon({
                 setSuccess(false)
               }}
               placeholder="Ingresa tu código de descuento"
-              className={`w-full py-3 px-4 border rounded-lg focus-visible:ring-2 focus-visible:ring-secondary focus-visible:outline-none bg-zinc-800 text-white placeholder:text-gray-500 transition-all ${
+              className={`w-full py-3 px-4 border rounded-lg focus-visible:ring-2 focus-visible:ring-secondary focus-visible:outline-none bg-bg-card text-text-primary placeholder:text-text-muted transition-all ${
                 error
                   ? 'border-red-500 focus-visible:ring-red-500'
                   : success
                   ? 'border-emerald-500 focus-visible:ring-emerald-500'
-                  : 'border-zinc-700 focus-visible:border-secondary'
+                  : 'border-border-color focus-visible:border-secondary'
               }`}
               type="text"
               disabled={loading}
@@ -137,7 +137,7 @@ export default function DiscountCoupon({
           <button
             type="submit"
             disabled={loading || !couponCode.trim()}
-            className="px-6 py-3 bg-secondary hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex-shrink-0"
+            className="px-6 py-3 bg-secondary hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors shrink-0"
           >
             {loading ? 'Aplicando...' : 'Aplicar'}
           </button>
@@ -146,14 +146,14 @@ export default function DiscountCoupon({
 
       {error && (
         <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-          <XCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+          <XCircle className="w-5 h-5 text-red-400 shrink-0" />
           <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
 
       {success && !appliedCoupon && (
         <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
-          <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+          <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
           <p className="text-emerald-400 text-sm">Código de descuento aplicado correctamente</p>
         </div>
       )}

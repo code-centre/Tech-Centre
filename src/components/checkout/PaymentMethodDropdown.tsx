@@ -95,7 +95,8 @@ export default function PaymentMethodDropdown({
     } else {
       setPaymentMethod(null)
       setSelectedInstallments(1)
-      onPriceChange(0)
+      // Mantener el precio base del programa cuando se deselecciona el método
+      onPriceChange(basePrice)
     }
   }
 
@@ -111,10 +112,10 @@ export default function PaymentMethodDropdown({
   if (!selectedCohortId) {
     return (
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white">
+        <label className="block text-sm font-medium text-text-primary">
           Método de pago
         </label>
-        <p className="text-gray-400 text-sm">
+        <p className="text-text-muted text-sm">
           Por favor, selecciona un horario primero para ver las opciones de pago disponibles.
         </p>
       </div>
@@ -124,7 +125,7 @@ export default function PaymentMethodDropdown({
   if (loading) {
     return (
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white">
+        <label className="block text-sm font-medium text-text-primary">
           Método de pago
         </label>
         <div className="flex items-center justify-center py-4">
@@ -136,14 +137,14 @@ export default function PaymentMethodDropdown({
 
   return (
     <div className="space-y-2">
-      <label htmlFor="payment-method" className="block text-sm font-medium text-white">
+      <label htmlFor="payment-method" className="block text-sm font-medium text-text-primary">
         Método de pago
       </label>
       <select
         id="payment-method"
         value={getSelectValue()}
         onChange={handleSelectChange}
-        className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-colors"
+        className="w-full px-4 py-3 bg-bg-card border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-colors"
       >
         <option value="">Selecciona un método de pago</option>
         <option value="full">

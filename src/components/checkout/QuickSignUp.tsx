@@ -130,12 +130,12 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-700 w-full max-w-md p-6 md:p-8">
+      <div className="bg-bg-card rounded-2xl shadow-2xl border border-border-color w-full max-w-md p-6 md:p-8">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white mb-2">
+          <h2 className="text-2xl font-bold text-text-primary mb-2">
             Crear cuenta rápida
           </h2>
-          <p className="text-gray-400 text-sm">
+          <p className="text-text-muted text-sm">
             Ingresa tu correo y contraseña para continuar con tu compra. Podrás completar tu perfil después.
           </p>
         </div>
@@ -148,7 +148,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
             <p className="text-emerald-400 font-semibold text-center">
               ¡Cuenta verificada exitosamente!
             </p>
-            <p className="text-gray-400 text-sm text-center">
+            <p className="text-text-muted text-sm text-center">
               Redirigiendo...
             </p>
           </div>
@@ -161,16 +161,16 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
               <p className="text-blue-400 font-semibold text-lg">
                 Verifica tu correo electrónico
               </p>
-              <p className="text-gray-300 text-sm">
+              <p className="text-text-muted text-sm">
                 Hemos enviado un correo de confirmación a:
               </p>
-              <p className="text-white font-medium">
+              <p className="text-text-primary font-medium">
                 {email}
               </p>
-              <p className="text-gray-400 text-sm">
+              <p className="text-text-muted text-sm">
                 Por favor, revisa tu bandeja de entrada y haz clic en el enlace de confirmación para verificar tu cuenta.
               </p>
-              <p className="text-gray-500 text-xs mt-4">
+              <p className="text-text-muted/70 text-xs mt-4">
                 ¿No recibiste el correo? Revisa tu carpeta de spam o solicita un nuevo correo de verificación.
               </p>
             </div>
@@ -206,7 +206,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
                 <button
                   onClick={onCancel}
                   disabled={checkingVerification}
-                  className="w-full px-4 py-3 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-800 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+                  className="w-full px-4 py-3 bg-bg-secondary hover:bg-bg-secondary/80 disabled:bg-bg-secondary disabled:cursor-not-allowed text-text-primary font-semibold rounded-lg transition-colors"
                 >
                   Cancelar
                 </button>
@@ -219,7 +219,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
             <div>
               <label
                 htmlFor="email"
-                className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2"
+                className="flex items-center gap-2 text-sm font-medium text-text-primary mb-2"
               >
                 <Mail className="w-4 h-4" />
                 Correo electrónico
@@ -233,7 +233,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
                   setError(null)
                 }}
                 placeholder="tu@email.com"
-                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-bg-card border border-border-color rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
                 required
                 disabled={loading}
               />
@@ -243,7 +243,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
             <div>
               <label
                 htmlFor="password"
-                className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2"
+                className="flex items-center gap-2 text-sm font-medium text-text-primary mb-2"
               >
                 <Lock className="w-4 h-4" />
                 Contraseña
@@ -257,7 +257,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
                   setError(null)
                 }}
                 placeholder="Mínimo 6 caracteres"
-                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-bg-card border border-border-color rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
                 required
                 minLength={6}
                 disabled={loading}
@@ -268,7 +268,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2"
+                className="flex items-center gap-2 text-sm font-medium text-text-primary mb-2"
               >
                 <Lock className="w-4 h-4" />
                 Confirmar contraseña
@@ -282,7 +282,7 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
                   setError(null)
                 }}
                 placeholder="Repite tu contraseña"
-                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-bg-card border border-border-color rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent transition-all"
                 required
                 disabled={loading}
               />
