@@ -13,7 +13,7 @@ interface HeroCarruselProps {
 
 export function HeroCarrusel({
   title = "Aprende la tecnología que mueve la industria hoy.",
-  description = "Programas presenciales y prácticos en software, datos e inteligencia artificial, guiados por profesionales activos en el mercado.",
+  description = "Programas presenciales y prácticos en software, datos, diseño e inteligencia artificial, guiados por profesionales activos en el mercado.",
   link = "/programas-academicos",
   cta = "Ver programas",
   className = '',

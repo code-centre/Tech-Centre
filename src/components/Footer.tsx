@@ -167,6 +167,15 @@ export function Footer() {
         </div>
         <div className="border-t border-border-color mt-8 pt-6 text-center text-text-muted text-sm">
           <p>© 2025 · Tech Centre. Todos los derechos reservados.</p>
+          <div className="flex flex-wrap justify-center items-center gap-3 mt-3">
+            <Link href="/terminos-y-condiciones" className="hover:text-secondary transition-colors">
+              Términos y Condiciones
+            </Link>
+            <span className="text-text-muted">|</span>
+            <Link href="/aviso-de-privacidad" className="hover:text-secondary transition-colors">
+              Aviso de Privacidad
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

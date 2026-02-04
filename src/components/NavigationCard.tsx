@@ -109,7 +109,7 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
               <span>Apartar mi cupo</span>
             </button>
             <p className="hidden sm:block text-xs card-text-muted text-center mt-1">
-              Sin compromiso · Cupos limitados
+              Sin compromiso · Te contactamos para resolver dudas
             </p>
           </div>
 

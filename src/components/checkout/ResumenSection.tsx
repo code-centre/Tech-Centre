@@ -619,7 +619,7 @@ export default function ResumenSection({
         </p>
         <p>
           Consulta nuestra{' '}
-          <a href="/politica-privacidad" className="underline hover:text-secondary transition-colors">
+          <a href="/aviso-de-privacidad" className="underline hover:text-secondary transition-colors">
             política de privacidad
           </a>
           .

@@ -230,13 +230,13 @@ export default function ProgramCardOptimized({ program, cohort }: ProgramCardPro
             href={`/checkout?slug=${slug}&cohortId=${cohort.id}`}
             className="group flex items-center justify-center gap-2 px-4 py-3 bg-secondary text-white font-semibold rounded-lg hover:bg-secondary/90 dark:bg-[#1E9FAE] dark:hover:bg-[#1A8F9D] transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-secondary/30 dark:shadow-secondary/40 dark:hover:shadow-secondary/50 transform hover:-translate-y-0.5 active:scale-[0.98]"
           >
-            <span>Pre-inscribirme</span>
+            <span>Quiero inscribirme</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
           {/* Micro-copy de reducción de fricción */}
-          <p className="text-[11px] card-text-muted opacity-70 text-center">
+          {/* <p className="text-[11px] card-text-muted opacity-70 text-center">
             Sin compromiso. Te contactamos para orientarte.
-          </p>
+          </p> */}
           <Link
             href={`/programas-academicos/${slug}`}
             className="flex items-center justify-center gap-2 px-4 py-2.5 card-text-primary font-medium rounded-lg border card-border-subtle hover:border-secondary/50 hover:bg-white/5 dark:hover:bg-white/5 transition-all duration-300"
