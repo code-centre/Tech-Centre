@@ -118,7 +118,7 @@ export default function PaymentOptions({
       <section className="flex flex-col gap-5">
         <h2 className="text-4xl font-bold mt-4">Opciones de pago</h2>
         <div className="h-1 border-b"></div>
-        <p className="text-gray-400">
+        <p className="text-text-muted">
           Por favor, selecciona un horario primero para ver las opciones de pago disponibles.
         </p>
       </section>
@@ -131,7 +131,7 @@ export default function PaymentOptions({
         <h2 className="text-4xl font-bold mt-4">Opciones de pago</h2>
         <div className="h-1 border-b"></div>
         <div className="flex items-center justify-center py-8">
-          <div className="w-8 h-8 border-4 border-blueApp border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
         </div>
       </section>
     )
@@ -158,14 +158,14 @@ export default function PaymentOptions({
 
       <div className="space-y-2">
         <p className="font-semibold text-lg">Financiación del curso</p>
-        <p className="text-gray-400">
+        <p className="text-text-muted">
           Queremos que formes parte de esta experiencia. Elige entre pagar de contado con un 10% de descuento o dividirlo en cuotas cómodas.
         </p>
       </div>
 
       {paymentMethod && (
-        <div className="bg-blueApp/10 border border-blueApp/30 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-blueApp font-semibold">
+        <div className="bg-secondary/10 border border-secondary/30 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-secondary font-semibold">
             <Check className="w-5 h-5" />
             <span>
               {paymentMethod === 'full'
@@ -181,7 +181,7 @@ export default function PaymentOptions({
           {/* Opción de Pago de Contado */}
           <div
             onClick={handleSelectFull}
-            className="group relative p-6 bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border-2 border-zinc-700 hover:border-blueApp/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blueApp/20 hover:-translate-y-1"
+            className="group relative p-6 bg-bg-card rounded-xl border-2 border-border-color hover:border-secondary/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-secondary/20 hover:-translate-y-1"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="p-3 bg-emerald-500/20 rounded-lg">
@@ -192,27 +192,27 @@ export default function PaymentOptions({
               </div>
             </div>
 
-            <h3 className="text-xl font-bold text-white mb-2">Pago de contado</h3>
-            <p className="text-gray-400 text-sm mb-4">
+            <h3 className="text-xl font-bold text-text-primary mb-2">Pago de contado</h3>
+            <p className="text-text-muted text-sm mb-4">
               Ahorra un 10% pagando todo de una vez
             </p>
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-gray-400 text-sm">Precio original:</span>
-                <span className="text-gray-500 line-through">
+                <span className="text-text-muted text-sm">Precio original:</span>
+                <span className="text-text-muted/70 line-through">
                   ${basePrice.toLocaleString()} COP
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-400 text-sm">Descuento:</span>
+                <span className="text-text-muted text-sm">Descuento:</span>
                 <span className="text-emerald-400 font-semibold">
                   -${fullPaymentCalculation.paymentMethodDiscount.toLocaleString()} COP
                 </span>
               </div>
-              <div className="border-t border-zinc-700 pt-2 mt-2">
+              <div className="border-t border-border-color pt-2 mt-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-white font-semibold">Total a pagar:</span>
+                  <span className="text-text-primary font-semibold">Total a pagar:</span>
                   <span className="text-2xl font-bold text-emerald-400">
                     ${fullPaymentCalculation.total.toLocaleString()} COP
                   </span>
@@ -220,7 +220,7 @@ export default function PaymentOptions({
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-zinc-700">
+            <div className="mt-4 pt-4 border-t border-border-color">
               <div className="flex items-center gap-2 text-emerald-400 text-sm">
                 <Check className="w-4 h-4" />
                 <span>Ahorras ${fullPaymentCalculation.savings?.toLocaleString()} COP</span>
@@ -229,15 +229,15 @@ export default function PaymentOptions({
           </div>
 
           {/* Opción de Cuotas */}
-          <div className="p-6 bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border-2 border-zinc-700">
+          <div className="p-6 bg-bg-card rounded-xl border-2 border-border-color">
             <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-blueApp/20 rounded-lg">
-                <CreditCard className="w-6 h-6 text-blueApp" />
+              <div className="p-3 bg-secondary/20 rounded-lg">
+                <CreditCard className="w-6 h-6 text-secondary" />
               </div>
             </div>
 
-            <h3 className="text-xl font-bold text-white mb-2">Pago en cuotas</h3>
-            <p className="text-gray-400 text-sm mb-4">
+            <h3 className="text-xl font-bold text-text-primary mb-2">Pago en cuotas</h3>
+            <p className="text-text-muted text-sm mb-4">
               Divide tu pago en hasta {maxInstallments} cuotas mensuales
             </p>
 
@@ -252,23 +252,23 @@ export default function PaymentOptions({
                     <button
                       key={numInstallments}
                       onClick={() => handleSelectInstallments(numInstallments)}
-                      className="w-full p-4 bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700 hover:border-blueApp/50 rounded-lg transition-all duration-200 text-left group"
+                      className="w-full p-4 bg-bg-card hover:bg-bg-secondary border border-border-color hover:border-secondary/50 rounded-lg transition-all duration-200 text-left group"
                     >
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-white font-semibold">
+                            <span className="text-text-primary font-semibold">
                               {numInstallments} cuotas
                             </span>
                           </div>
-                          <div className="text-2xl font-bold text-white">
+                          <div className="text-2xl font-bold text-text-primary">
                             ${installmentAmount.toLocaleString()} COP
                           </div>
-                          <div className="text-xs text-gray-400 mt-1">/ mes</div>
+                          <div className="text-xs text-text-muted mt-1">/ mes</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs text-gray-500 mb-1">Total</div>
-                          <div className="text-sm text-gray-400">
+                          <div className="text-xs text-text-muted/70 mb-1">Total</div>
+                          <div className="text-sm text-text-muted">
                             ${totalAmount.toLocaleString()} COP
                           </div>
                         </div>
@@ -277,7 +277,7 @@ export default function PaymentOptions({
                   )
                 })
               ) : (
-                <div className="p-4 bg-zinc-800/30 rounded-lg text-center text-gray-400 text-sm">
+                <div className="p-4 bg-bg-card rounded-lg text-center text-text-muted text-sm border border-border-color">
                   No hay opciones de cuotas disponibles para esta cohorte
                 </div>
               )}

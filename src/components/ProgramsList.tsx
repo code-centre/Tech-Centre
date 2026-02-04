@@ -1,15 +1,21 @@
 'use client'
 import React, { useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ProgramCard } from './ProgramCard'
+import ProgramCardOptimized from './ProgramCardOptimized'
 import { GraduationCap, BookOpen, Award, ArrowRight } from 'lucide-react'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
 import CardLoader from './loaders-skeletons/CardLoader'
 import ProgramCreationModal from './ProgramCreationModal'
 import type { Program, CourseListSupaProps } from '@/types/programs'
+import type { Cohort } from '@/types/cohorts'
 
 // Re-exportar Program para compatibilidad con código existente
 export type { Program }
+
+interface ProgramWithCohort {
+  program: Program
+  cohort: Cohort
+}
 
 // Función para obtener el nombre formateado del tipo
 const getTypeLabel = (kind: string | undefined): string => {
@@ -48,6 +54,18 @@ const getTypeSchedule = (kind: string | undefined): string => {
   return ''
 }
 
+// Función para obtener el subtítulo según el tipo
+const getTypeSubtitle = (kind: string | undefined): string => {
+  const kindLower = kind?.toLowerCase() || ''
+  if (kindLower.includes('diplomado')) {
+    return 'Para quienes quieren una formación más profunda, estructurada y con impacto profesional a mediano plazo.'
+  }
+  if (kindLower.includes('curso')) {
+    return 'Para aprender rápido, probar una tecnología o dar el primer paso en el mundo tech.'
+  }
+  return ''
+}
+
 export function ProgramsList({ 
   programs: programsProp,
   backgroundColor = 'bg-background',
@@ -56,108 +74,117 @@ export function ProgramsList({
   horizontalScroll = false // Si es true, muestra todos en una fila con scroll horizontal
 }: CourseListSupaProps) {
   const supabase = useSupabaseClient()
-  const [programs, setPrograms] = useState<Program[]>([])
+  const [programsWithCohorts, setProgramsWithCohorts] = useState<ProgramWithCohort[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const { user } = useUser()
   const isAdmin = user?.role === 'admin'
 
-  // Siempre hacer fetch desde Supabase
+  // Siempre hacer fetch desde Supabase con cohortes
   useEffect(() => {
-    const fetchProgramsData = async () => {
+    const fetchProgramsWithCohorts = async () => {
       try {
         setLoading(true)
         setError(null)
         
+        // Obtener cohortes activas con sus programas usando inner join
         let query = supabase
-          .from('programs')
-          .select('*')
+          .from('cohorts')
+          .select(`
+            *,
+            programs:program_id!inner (*)
+          `)
+          .eq('offering', true)
         
         // Si no es admin, solo mostrar programas activos
         if (!isAdmin) {
-          query = query.eq('is_active', true)
+          query = query.eq('programs.is_active', true)
         }
 
-        // Ordenar por fecha de creación (más recientes primero)
-        query = query.order('created_at', { ascending: false })
+        // Ordenar por fecha de inicio de la cohorte (más próximas primero)
+        query = query.order('start_date', { ascending: true })
 
         const { data, error: queryError } = await query
 
         if (queryError) throw queryError
         
-        // Siempre usar los datos de Supabase
-        setPrograms(data || [])
+        // Transformar los datos para tener programa y cohorte juntos
+        const transformedData: ProgramWithCohort[] = (data || [])
+          .map((item: any) => {
+            const cohort = item as Cohort
+            const program = Array.isArray(item.programs) 
+              ? item.programs[0] 
+              : item.programs
+            
+            if (!program) return null
+            
+            // Filtrar programas activos si no es admin (por si acaso)
+            if (!isAdmin && !(program as Program).is_active) {
+              return null
+            }
+            
+            return {
+              program: program as Program,
+              cohort
+            }
+          })
+          .filter((item): item is ProgramWithCohort => item !== null)
+        
+        // Eliminar duplicados de programas (si un programa tiene múltiples cohortes, tomar la primera)
+        const uniquePrograms = new Map<number, ProgramWithCohort>()
+        transformedData.forEach(item => {
+          if (!uniquePrograms.has(item.program.id)) {
+            uniquePrograms.set(item.program.id, item)
+          }
+        })
+        
+        setProgramsWithCohorts(Array.from(uniquePrograms.values()))
       } catch (err) {
         console.error('Error cargando programas desde Supabase:', err)
         setError('Error al cargar los programas')
-        // En caso de error, usar programas prop si están disponibles como fallback
-        if (programsProp && programsProp.length > 0) {
-          setPrograms(programsProp)
-        } else {
-          setPrograms([])
-        }
+        setProgramsWithCohorts([])
       } finally {
         setLoading(false)
       }
     }
 
-    fetchProgramsData()
-  }, [isAdmin, supabase]) // Solo depende de isAdmin para refrescar cuando cambia el rol
+    fetchProgramsWithCohorts()
+  }, [isAdmin, supabase])
 
   // Manejar la creación de nuevos programas - refrescar desde Supabase
   const handleProgramCreate = async (newProgram: Program) => {
     // Refrescar la lista desde Supabase para asegurar datos actualizados
-    try {
-      let query = supabase
-        .from('programs')
-        .select('*')
-        .order('created_at', { ascending: false })
-      
-      if (!isAdmin) {
-        query = query.eq('is_active', true)
-      }
-
-      const { data, error } = await query
-      
-      if (!error && data) {
-        setPrograms(data)
-      } else {
-        // Fallback: agregar el nuevo programa manualmente
-        setPrograms(prev => [newProgram, ...prev])
-      }
-    } catch (err) {
-      console.error('Error al refrescar programas:', err)
-      // Fallback: agregar el nuevo programa manualmente
-      setPrograms(prev => [newProgram, ...prev])
-    }
+    // Nota: El nuevo programa necesitará una cohorte para aparecer en la lista
+    // Por ahora solo recargamos todo
+    window.location.reload()
   }
 
   // Agrupar programas por tipo - DEBE estar antes de los early returns
   const groupedPrograms = useMemo(() => {
-    const groups: { [key: string]: Program[] } = {}
+    const groups: { [key: string]: ProgramWithCohort[] } = {}
     
-    programs.forEach((program) => {
-      const type = program.kind || 'otros'
+    programsWithCohorts.forEach((item) => {
+      const type = item.program.kind || 'otros'
       if (!groups[type]) {
         groups[type] = []
       }
-      groups[type].push(program)
+      groups[type].push(item)
     })
     
     return groups
-  }, [programs])
+  }, [programsWithCohorts])
 
-  // Ordenar los tipos (Diplomados primero, luego Cursos, luego otros) - DEBE estar antes de los early returns
+  // Ordenar los tipos (Cursos cortos primero, luego Diplomados, luego otros) - DEBE estar antes de los early returns
   const sortedTypes = useMemo(() => {
     return Object.keys(groupedPrograms).sort((a, b) => {
       const aLower = a.toLowerCase()
       const bLower = b.toLowerCase()
       
-      if (aLower.includes('diplomado')) return -1
-      if (bLower.includes('diplomado')) return 1
       if (aLower.includes('curso')) return -1
       if (bLower.includes('curso')) return 1
+      if (aLower.includes('diplomado')) return -1
+      if (bLower.includes('diplomado')) return 1
       
       return a.localeCompare(b)
     })
@@ -166,23 +193,23 @@ export function ProgramsList({
   // No hacer early return para mantener el header visible durante la carga
 
   return (
-    <section id="oferta-academica" className={`py-15 px-4 text-white ${backgroundColor}`}>
+    <section id="oferta-academica" className={`py-15 px-4 text-text-primary ${backgroundColor}`}>
       <div className="mx-auto">
         {/* Header opcional */}
         {showHeader && (
           <div className="text-center mb-10">
-            <h2 className="text-4xl md:text-5xl font-extrabold drop-shadow-lg">
+            <h2 className="text-4xl md:text-5xl font-extrabold drop-shadow-lg text-text-primary">
               Programas académicos
             </h2>
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-5 drop-shadow-lg">
-              para el mercado laboral actual
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-5 drop-shadow-lg text-text-primary">
+              para construir tu carrera en tecnología
             </h2>
-            <p className="mx-auto text-xl">
-              Enfoque práctico y orientados al aprendizaje experiencial, diseñados por profesionales de la industria.
+            <p className="mx-auto text-xl text-text-muted">
+              Elige el camino que mejor se adapta a tu nivel, tiempo y objetivos profesionales.
             </p>
 
             {isAdmin && (
-              <div className="mt-6 flex justify-center gap-4 text-white">
+              <div className="mt-6 flex justify-center gap-4">
                 <button
                   onClick={() => setIsOpen(true)}
                   className="px-6 py-3 bg-linear-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg 
@@ -201,8 +228,8 @@ export function ProgramsList({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Mostrar error si existe */}
             {error && fetchPrograms && (
-              <div className="text-center py-12 bg-red-100 rounded-lg mb-8">
-                <p className="text-red-600">{error}</p>
+              <div className="text-center py-12 bg-red-100 dark:bg-red-900/20 rounded-lg mb-8 border border-red-200 dark:border-red-800">
+                <p className="text-red-600 dark:text-red-300">{error}</p>
               </div>
             )}
             
@@ -227,38 +254,27 @@ export function ProgramsList({
                   <CardLoader />
                 </div>
               )
-            ) : programs.length > 0 ? (
+            ) : programsWithCohorts.length > 0 ? (
               horizontalScroll ? (
                 <>
                   {/* Modo scroll horizontal: todos los programas activos en una fila */}
                   <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
-                    {programs
-                      .filter(program => program.is_active) // Solo programas activos
-                      .map((program) => {
-                        const typeSchedule = getTypeSchedule(program.kind)
-                        return (
-                          <div key={program.id} className="shrink-0 w-[350px]">
-                            <ProgramCard
-                              title={program.name}
-                              subtitle={program.subtitle}
-                              image={program.image}
-                              kind={program.kind}
-                              description={program.description}
-                              level={program.difficulty}
-                              duration={program.total_hours ? `${program.total_hours} horas` : program.duration || ''}
-                              schedule={program.schedule || typeSchedule}
-                              slug={program.slug || program.code.toString()}
-                              isActive={!program.is_active}
-                            />
-                          </div>
-                        )
-                      })}
+                    {programsWithCohorts
+                      .filter(item => item.program.is_active) // Solo programas activos
+                      .map(({ program, cohort }) => (
+                        <div key={program.id} className="shrink-0 w-[350px]">
+                          <ProgramCardOptimized
+                            program={program}
+                            cohort={cohort}
+                          />
+                        </div>
+                      ))}
                   </div>
                   {/* Botón "Ver todos los programas" debajo del scroll */}
                   <div className="flex justify-center mt-6">
                     <Link
                       href="/programas-academicos"
-                      className="group inline-flex items-center gap-2 px-6 py-3 bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/50 hover:border-blueApp/50 rounded-lg text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-blueApp/20"
+                      className="group inline-flex items-center gap-2 px-6 py-3 bg-bg-card hover:bg-bg-secondary border border-border-color hover:border-secondary/50 rounded-lg text-text-primary font-medium transition-all duration-300 hover:shadow-lg hover:shadow-secondary/20"
                     >
                       <span>Ver todos los programas</span>
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -280,11 +296,11 @@ export function ProgramsList({
                         {typeIndex > 0 && (
                           <div className="relative my-12">
                             <div className="absolute inset-0 flex items-center">
-                              <div className="w-full border-t border-zinc-700/50"></div>
+                              <div className="w-full border-t border-border-color"></div>
                             </div>
                             <div className="relative flex justify-center">
                               <div className="bg-background px-4">
-                                <div className="h-1 w-24 bg-linear-to-r from-transparent via-blueApp to-transparent"></div>
+                                <div className="h-1 w-24 bg-linear-to-r from-transparent via-secondary to-transparent"></div>
                               </div>
                             </div>
                           </div>
@@ -292,16 +308,21 @@ export function ProgramsList({
                         
                         {/* Título de la sección */}
                         <div className="flex items-center gap-4 mb-6">
-                          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br from-blueApp/20 to-blueApp/10 border border-blueApp/30 text-blueApp">
+                          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br from-secondary/20 to-secondary/10 border border-secondary/30 text-secondary">
                             {typeIcon}
                           </div>
                           <div>
-                            <h3 className="text-2xl md:text-3xl font-bold text-white">
+                            <h3 className="text-2xl md:text-3xl font-bold text-text-primary">
                               {typeLabel}
                             </h3>
                             {typeSchedule && (
-                              <p className="text-sm text-gray-400 mt-1 font-medium">
+                              <p className="text-sm text-text-muted mt-1 font-medium">
                                 {typeSchedule}
+                              </p>
+                            )}
+                            {getTypeSubtitle(type) && (
+                              <p className="text-base text-text-muted mt-2 font-medium max-w-2xl">
+                                {getTypeSubtitle(type)}
                               </p>
                             )}
                           </div>
@@ -309,19 +330,11 @@ export function ProgramsList({
                         
                         {/* Grid de tarjetas */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                          {typePrograms.map((program) => (
-                            <ProgramCard
+                          {typePrograms.map(({ program, cohort }) => (
+                            <ProgramCardOptimized
                               key={program.id}
-                              title={program.name}
-                              subtitle={program.subtitle}
-                              image={program.image}
-                              kind={program.kind}
-                              description={program.description}
-                              level={program.difficulty}
-                              duration={`${program.duration}`}
-                              schedule={program.schedule || typeSchedule}
-                              slug={program.slug || program.code.toString()}
-                              isActive={!program.is_active}
+                              program={program}
+                              cohort={cohort}
                             />
                           ))}
                         </div>
@@ -333,8 +346,8 @@ export function ProgramsList({
             ) : (
               // Solo mostrar mensaje si NO está cargando
               !loading && (
-                <div className="text-center py-12 bg-slate-800/30 rounded-xl border border-slate-700">
-                  <p className="text-gray-300">No hay programas disponibles actualmente.</p>
+                <div className="text-center py-12 bg-slate-800/30 dark:bg-slate-800/30 rounded-xl border border-slate-700 dark:border-slate-700">
+                  <p className="text-gray-300 dark:text-gray-300">No hay programas disponibles actualmente.</p>
                 </div>
               )
             )}

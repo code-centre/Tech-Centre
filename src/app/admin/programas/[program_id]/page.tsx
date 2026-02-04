@@ -49,8 +49,8 @@ export default async function ProgramPage({ params }: Props) {
 
   return (
     <div className="space-y-8 mt-32"> 
-        <div className="bg-bgCard text-center p-6 rounded-lg shadow mt-10 border-2 border-blueApp">
-            <h1 className="text-2xl font-bold text-blueApp mb-2">Programa:  {typedProgram.name}</h1>
+        <div className="bg-bgCard text-center p-6 rounded-lg shadow mt-10 border-2 border-secondary">
+            <h1 className="text-2xl font-bold text-secondary mb-2">Programa:  {typedProgram.name}</h1>
         </div>
       <CohortList 
         cohorts={cohorts || []} 
