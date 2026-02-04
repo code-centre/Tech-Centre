@@ -21,9 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       .single()
 
     if (program && !error) {
+      const programData = program as { name: string; subtitle: string | null }
       return {
-        title: `Aparta tu cupo en ${program.name} | Tech Centre`,
-        description: program.subtitle || `Aparta tu cupo en ${program.name} sin pago inmediato. Te ayudamos a decidir con claridad.`,
+        title: `Aparta tu cupo en ${programData.name} | Tech Centre`,
+        description: programData.subtitle || `Aparta tu cupo en ${programData.name} sin pago inmediato. Te ayudamos a decidir con claridad.`,
       }
     }
   } catch (error) {
@@ -88,6 +89,7 @@ export default async function ApartarCupoPage({ params }: Props) {
 
     if (!cohortError && cohort) {
       cohortData = cohort
+      const cohortTyped = cohort as { id: number; start_date: string | null; modality: string | null; schedule: any }
 
       // Obtener el profesor de la cohorte si existe
       const { data: instructorRelation, error: instructorError } = await supabase
@@ -99,7 +101,7 @@ export default async function ApartarCupoPage({ params }: Props) {
             last_name
           )
         `)
-        .eq('cohort_id', cohort.id)
+        .eq('cohort_id', cohortTyped.id)
         .single()
 
       if (!instructorError && instructorRelation) {

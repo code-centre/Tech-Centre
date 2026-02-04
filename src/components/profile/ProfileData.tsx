@@ -1,144 +1,27 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { useUser } from '@/lib/supabase'
-import { createClient } from '@/lib/supabase/client'
-import { User, Mail, Phone, MapPin, Calendar, IdCard, Briefcase, FileText, Camera, Save, X, Linkedin, Twitter, Instagram, Github } from 'lucide-react'
+import { useUser, useSupabaseClient } from '@/lib/supabase'
+import { 
+  User, Mail, Phone, MapPin, Calendar, IdCard, Briefcase, FileText, 
+  Camera, Linkedin, Twitter, Instagram, Github 
+} from 'lucide-react'
 import Image from 'next/image'
-import ButtonToEdit from '../ButtonToEdit'
-import ContainerButtonsEdit from '../ContainerButtonsEdit'
+import { toast } from 'sonner'
+import ProfileHeader from './ProfileHeader'
+import EditableField from './EditableField'
+import ProfileAccordion from './ProfileAccordion'
 
-interface FormFieldProps {
-  label: string
-  value: string
-  name: string
-  isEditing: boolean
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void
-  type?: 'text' | 'email' | 'tel' | 'date' | 'textarea'
-  options?: { value: string; label: string }[]
-  icon?: React.ReactNode
-  placeholder?: string
-}
-
-function FormField({ label, value, name, isEditing, onChange, type = 'text', options, icon, placeholder }: FormFieldProps) {
-  return (
-    <div className="space-y-2">
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-        {icon}
-        {label}
-      </label>
-      {isEditing ? (
-        type === 'textarea' ? (
-          <textarea
-            name={name}
-            value={value}
-            onChange={onChange}
-            rows={3}
-            placeholder={placeholder}
-            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent resize-none"
-          />
-        ) : options ? (
-          <select
-            name={name}
-            value={value}
-            onChange={onChange}
-            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
-          >
-            {options.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <input
-            type={type}
-            name={name}
-            value={value}
-            onChange={onChange}
-            placeholder={placeholder}
-            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
-          />
-        )
-      ) : (
-        <p className="px-4 py-2 text-white bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px] flex items-center">
-          {value || <span className="text-gray-500 italic">No especificado</span>}
-        </p>
-      )}
-    </div>
-  )
-}
-
-interface SocialFieldProps {
-  label: string
-  value: string
-  name: string
-  isEditing: boolean
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  icon: React.ReactNode
-  placeholder?: string
-}
-
-function SocialField({ label, value, name, isEditing, onChange, icon, placeholder }: SocialFieldProps) {
-  const getDomain = (url: string) => {
-    if (!url || url.trim() === '') return ''
-    try {
-      const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`)
-      return urlObj.hostname.replace('www.', '')
-    } catch {
-      return url
-    }
-  }
-
-  // Normalizar el valor para verificar si tiene contenido
-  const hasValue = value && value.trim() !== ''
-
-  return (
-    <div className="space-y-2">
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-        {icon}
-        {label}
-      </label>
-      {isEditing ? (
-        <input
-          type="url"
-          name={name}
-          value={value || ''}
-          onChange={onChange}
-          placeholder={placeholder || 'https://...'}
-          className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
-        />
-      ) : (
-        hasValue ? (
-          <a
-            href={value.startsWith('http') ? value : `https://${value}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 text-secondary hover:text-blue-400 bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px] flex items-center gap-2 hover:border-secondary/50 transition-colors"
-          >
-            {icon}
-            <span className="truncate">{getDomain(value)}</span>
-            <svg className="w-4 h-4 ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-          </a>
-        ) : (
-          <p className="px-4 py-2 text-white bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px] flex items-center">
-            <span className="text-gray-500 italic">No especificado</span>
-          </p>
-        )
-      )}
-    </div>
-  )
+// Campos para cálculo de completitud
+const PROFILE_FIELDS = {
+  required: ['first_name', 'last_name', 'phone'], // 60% del peso
+  optional: ['id_type', 'id_number', 'address', 'birthdate', 'professional_title', 'bio', 'linkedin_url', 'github_url']
 }
 
 export default function ProfileData() {
   const { user, loading } = useUser()
   const router = useRouter()
-  const supabase = createClient()
-  const [isEditing, setIsEditing] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState('')
+  const supabase = useSupabaseClient()
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -177,39 +60,80 @@ export default function ProfileData() {
         github_url: user.github_url || ''
       })
     }
-  }, [user])  
+  }, [user])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
+  // Calcular completitud del perfil
+  const completionPercentage = useMemo(() => {
+    const requiredFilled = PROFILE_FIELDS.required.filter(f => formData[f as keyof typeof formData]?.trim()).length
+    const optionalFilled = PROFILE_FIELDS.optional.filter(f => formData[f as keyof typeof formData]?.trim()).length
+    return Math.round((requiredFilled / 3) * 60 + (optionalFilled / 8) * 40)
+  }, [formData])
+
+  // Extraer ciudad de la dirección (si existe)
+  const city = useMemo(() => {
+    if (!formData.address) return null
+    // Intentar extraer ciudad (última parte después de la última coma, o todo si no hay comas)
+    const parts = formData.address.split(',')
+    return parts.length > 1 ? parts[parts.length - 1].trim() : null
+  }, [formData.address])
 
   const uploadImage = async (file: File): Promise<string | null> => {
     if (!file) return null
 
     try {
+      const userId = user?.user_id || user?.id
+      if (!userId) {
+        throw new Error('Usuario no autenticado')
+      }
+
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
-      const filePath = `profiles/profile_image/${fileName}`
-
-      const { error: uploadError } = await supabase.storage
+      let filePath = `profiles/${userId}/profile_image/${fileName}`
+      
+      // Intentar primero con el bucket 'image', si falla probar con 'activities' como fallback
+      let uploadResult = await supabase.storage
         .from('image')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: true
         })
+      
+      let bucketUsed = 'image'
+      
+      // Si falla con RLS en 'image', intentar con 'activities' como fallback
+      if (uploadResult.error && (
+        uploadResult.error.message?.toLowerCase().includes('row-level security') ||
+        uploadResult.error.message?.toLowerCase().includes('security policy') ||
+        uploadResult.error.message?.toLowerCase().includes('403') ||
+        uploadResult.error.message?.toLowerCase().includes('forbidden')
+      )) {
+        // Usar bucket 'activities' con el formato que funciona (assessments/)
+        const altFilePath = `assessments/profile_${userId}_${fileName}`
+        uploadResult = await supabase.storage
+          .from('activities')
+          .upload(altFilePath, file, {
+            cacheControl: '3600',
+            upsert: true
+          })
+        
+        if (!uploadResult.error) {
+          bucketUsed = 'activities'
+          filePath = altFilePath
+        }
+      }
+      
+      if (uploadResult.error) {
+        throw uploadResult.error
+      }
 
-      if (uploadError) throw uploadError
-
+      // Obtener URL pública del bucket que funcionó
+      const finalPath = uploadResult.data?.path || filePath
       const { data: { publicUrl } } = supabase.storage
-        .from('image')
-        .getPublicUrl(filePath)
+        .from(bucketUsed)
+        .getPublicUrl(finalPath)
 
       return publicUrl
-    } catch (error) {
+    } catch (error: any) {
       throw error
     }
   }
@@ -221,52 +145,27 @@ export default function ProfileData() {
     try {
       const publicUrl = await uploadImage(file)
       if (publicUrl) {
-        setFormData(prev => ({ ...prev, profile_image: publicUrl }))
+        await handleFieldSave('profile_image', publicUrl)
       }
-    } catch (error) {
-      setError('Error al subir la imagen. Por favor, inténtalo de nuevo.')
+    } catch (error: any) {
+      toast.error('Error al subir la imagen. Por favor, inténtalo de nuevo.')
     }
   }
 
-  const handleSubmit = async () => {
-    // Obtener el ID del usuario (puede ser user.id o user.user_id)
+  // Guardar un campo individual
+  const handleFieldSave = async (name: string, value: string) => {
     const userId = user?.user_id || user?.id
     
     if (!userId) {
-      setError('No se pudo identificar tu usuario. Por favor, inicia sesión nuevamente.')
+      toast.error('No se pudo identificar tu usuario. Por favor, inicia sesión nuevamente.')
       return
     }
 
-    setIsSaving(true)
-    setError('')
-
     try {
-      console.log('Iniciando actualización del perfil para usuario:', userId)
-      console.log('Datos a guardar:', formData)
-
-      // Preparar datos básicos que siempre existen
       const updateData: any = {
-        first_name: formData.first_name?.trim() || null,
-        last_name: formData.last_name?.trim() || null,
-        email: formData.email?.trim() || null,
-        phone: formData.phone?.trim() || null,
-        id_type: formData.id_type || null,
-        id_number: formData.id_number?.trim() || null,
-        birthdate: formData.birthdate || null,
-        address: formData.address?.trim() || null,
-        profile_image: formData.profile_image || null,
-        professional_title: formData.professional_title?.trim() || null,
-        bio: formData.bio?.trim() || null,
+        [name]: value?.trim() || null,
         updated_at: new Date().toISOString()
       }
-
-      // Agregar campos de redes sociales (incluyendo valores vacíos para poder limpiarlos)
-      updateData.linkedin_url = formData.linkedin_url?.trim() || null
-      updateData.twitter_url = formData.twitter_url?.trim() || null
-      updateData.instagram_url = formData.instagram_url?.trim() || null
-      updateData.github_url = formData.github_url?.trim() || null
-
-      console.log('Datos preparados para actualizar:', updateData)
 
       const { error: updateError, data } = await (supabase as any)
         .from('profiles')
@@ -274,95 +173,47 @@ export default function ProfileData() {
         .eq('user_id', userId)
         .select()
 
-      console.log('Respuesta de Supabase:', { error: updateError, data })
-
       if (updateError) {
-        console.error('Error completo al actualizar perfil:', {
-          code: updateError.code,
-          message: updateError.message,
-          details: updateError.details,
-          hint: updateError.hint
-        })
+        console.error('Error updating profile:', updateError)
+        throw new Error(updateError.message || 'Error al guardar')
+      }
+
+      if (data && data[0]) {
+        // Actualizar formData local
+        setFormData(prev => ({
+          ...prev,
+          [name]: value
+        }))
         
-        // Si el error es porque falta una columna, mostrar mensaje más claro
-        if (updateError.code === 'PGRST204') {
-          setError('Algunas columnas no existen en la base de datos. Por favor, contacta al administrador.')
-        } else if (updateError.message) {
-          setError(`Error al guardar: ${updateError.message}`)
-        } else {
-          setError('Error al actualizar el perfil. Por favor, inténtalo de nuevo.')
-        }
-        setIsSaving(false)
-        return
-      }
-
-      if (!data || !data[0]) {
-        console.error('No se recibieron datos actualizados de Supabase')
-        setError('Los datos se guardaron pero no se pudieron recuperar. Por favor, recarga la página.')
-        setIsSaving(false)
-        setIsEditing(false)
+        // Refrescar datos del usuario
         router.refresh()
-        return
       }
-
-      console.log('Datos actualizados exitosamente:', data[0])
-
-      // Actualizar formData con los datos guardados
-      setFormData({
-        first_name: data[0].first_name || '',
-        last_name: data[0].last_name || '',
-        email: data[0].email || '',
-        phone: data[0].phone || '',
-        id_type: data[0].id_type || 'CC',
-        id_number: data[0].id_number || '',
-        birthdate: data[0].birthdate || '',
-        address: data[0].address || '',
-        profile_image: data[0].profile_image || '',
-        professional_title: data[0].professional_title || '',
-        bio: data[0].bio || '',
-        linkedin_url: data[0].linkedin_url || '',
-        twitter_url: data[0].twitter_url || '',
-        instagram_url: data[0].instagram_url || '',
-        github_url: data[0].github_url || ''
-      })
-
-      // Actualizar el estado ANTES de refrescar
-      setIsSaving(false)
-      setIsEditing(false)
-      setError('')
-      
-      // Refrescar los datos sin recargar la página completa
-      router.refresh()
-    } catch (err: any) {
-      console.error('Error en handleSubmit:', err)
-      const errorMessage = err.message || 'Error al actualizar el perfil. Por favor, inténtalo de nuevo.'
-      setError(errorMessage)
-      setIsSaving(false)
+    } catch (error: any) {
+      console.error('Error in handleFieldSave:', error)
+      throw error
     }
   }
 
-  const handleCancel = () => {
-    if (user) {
-      setFormData({
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        id_type: user.id_type || 'CC',
-        id_number: user.id_number || '',
-        birthdate: user.birthdate || '',
-        address: user.address || '',
-        profile_image: user.profile_image || '',
-        professional_title: user.professional_title || '',
-        bio: user.bio || '',
-        linkedin_url: user.linkedin_url || '',
-        twitter_url: user.twitter_url || '',
-        instagram_url: user.instagram_url || '',
-        github_url: user.github_url || ''
-      })
+  // Validaciones
+  const validateName = (value: string): string | null => {
+    if (!value.trim()) return 'El nombre es requerido'
+    if (value.trim().length < 2) return 'El nombre debe tener al menos 2 caracteres'
+    return null
+  }
+
+  const validatePhone = (value: string): string | null => {
+    if (!value.trim()) return 'El WhatsApp es requerido'
+    const cleaned = value.replace(/\D/g, '')
+    if (cleaned.length !== 10) {
+      return 'Ingresa un número de WhatsApp válido (10 dígitos)'
     }
-    setIsEditing(false)
-    setError('')
+    return null
+  }
+
+  // Guardar teléfono limpiado (solo números)
+  const handlePhoneSave = async (name: string, value: string) => {
+    const cleaned = value.replace(/\D/g, '')
+    await handleFieldSave(name, cleaned)
   }
 
   // Mostrar loader mientras carga
@@ -384,38 +235,8 @@ export default function ProfileData() {
 
   return (
     <section className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-          <div className="p-2 bg-secondary/10 rounded-lg">
-            <User className="text-secondary" size={24} />
-          </div>
-          Información Personal
-        </h2>
-        {!isEditing && (
-          <ButtonToEdit startEditing={() => setIsEditing(true)} />
-        )}
-      </div>
-
-      {/* Success Message */}
-      {!isEditing && !error && !isSaving && formData.first_name && (
-        <div className="p-4 bg-green-900/50 text-green-200 rounded-lg text-sm border border-green-800 flex items-center gap-2">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          Información guardada correctamente
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className="p-4 bg-red-900/50 text-red-200 rounded-lg text-sm border border-red-800 flex items-start gap-2">
-          <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>{error}</span>
-        </div>
-      )}
+      {/* Header con progreso */}
+      <ProfileHeader completionPercentage={completionPercentage} />
 
       {/* Profile Card */}
       <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 shadow-xl overflow-hidden">
@@ -432,95 +253,106 @@ export default function ProfileData() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              {isEditing && (
-                <label className="absolute -bottom-2 -right-2 p-2 bg-secondary hover:bg-blue-600 rounded-full shadow-lg transition-all duration-200 hover:scale-110 cursor-pointer">
-                  <Camera className="w-4 h-4 text-white" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                  </label>
-              )}
+              <label className="absolute -bottom-2 -right-2 p-2 bg-secondary hover:bg-blue-600 rounded-full shadow-lg transition-all duration-200 hover:scale-110 cursor-pointer">
+                <Camera className="w-4 h-4 text-white" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
             </div>
             <div className="flex-1 text-center md:text-left">
               <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                {formData.first_name} {formData.last_name}
+                {formData.first_name && formData.last_name 
+                  ? `${formData.first_name} ${formData.last_name}`
+                  : 'Tu nombre'
+                }
               </h3>
               {formData.professional_title && (
                 <div className="flex items-center justify-center md:justify-start gap-2 text-secondary">
                   <Briefcase className="w-5 h-5" />
                   <p className="text-lg font-medium">{formData.professional_title}</p>
-                    </div>
-                  )}
                 </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Form Fields */}
+        {/* Form Sections */}
         <div className="p-6 space-y-6">
-          {/* Personal Information */}
+          {/* Sección Contacto - Siempre visible */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <User className="w-5 h-5 text-secondary" />
-              Información Personal
+              <Phone className="w-5 h-5 text-secondary" />
+              Contacto
             </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <EditableField
                 label="Nombre"
                 name="first_name"
                 value={formData.first_name}
-                isEditing={isEditing}
-                onChange={handleInputChange}
+                onSave={handleFieldSave}
                 icon={<User className="w-4 h-4" />}
                 placeholder="Ingresa tu nombre"
+                validate={validateName}
               />
-              <FormField
+              <EditableField
                 label="Apellidos"
                 name="last_name"
                 value={formData.last_name}
-                isEditing={isEditing}
-                onChange={handleInputChange}
+                onSave={handleFieldSave}
                 icon={<User className="w-4 h-4" />}
                 placeholder="Ingresa tus apellidos"
+                validate={validateName}
               />
-              <FormField
-                label="Email"
-                name="email"
-                value={formData.email}
-                isEditing={isEditing}
-                onChange={handleInputChange}
-                type="email"
-                icon={<Mail className="w-4 h-4" />}
-                placeholder="ejemplo@correo.com"
-              />
-              <FormField
-                label="Teléfono"
+              <EditableField
+                label="WhatsApp"
                 name="phone"
                 value={formData.phone}
-                isEditing={isEditing}
-                onChange={handleInputChange}
+                onSave={handlePhoneSave}
                 type="tel"
                 icon={<Phone className="w-4 h-4" />}
                 placeholder="Ej: 3001234567"
+                validate={validatePhone}
               />
+              <EditableField
+                label="Email"
+                name="email"
+                value={formData.email}
+                onSave={handleFieldSave}
+                type="email"
+                readonly
+                icon={<Mail className="w-4 h-4" />}
+              />
+              {city && (
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                    <MapPin className="w-4 h-4" />
+                    Ciudad
+                  </label>
+                  <div className="px-4 py-2 text-white bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px] flex items-center">
+                    {city}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Identification */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <IdCard className="w-5 h-5 text-secondary" />
-              Identificación
-            </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
+          {/* Accordion: Facturación y certificado */}
+          <ProfileAccordion
+            title="Facturación y certificado (opcional)"
+            defaultOpen={false}
+            icon={<IdCard className="w-5 h-5" />}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <EditableField
                 label="Tipo de documento"
                 name="id_type"
                 value={formData.id_type}
-                isEditing={isEditing}
-                onChange={handleInputChange}
+                onSave={handleFieldSave}
+                type="select"
                 options={[
                   { value: 'CC', label: 'Cédula de Ciudadanía (CC)' },
                   { value: 'CE', label: 'Cédula de Extranjería (CE)' },
@@ -529,137 +361,93 @@ export default function ProfileData() {
                 ]}
                 icon={<IdCard className="w-4 h-4" />}
               />
-              <FormField
+              <EditableField
                 label="Número de documento"
                 name="id_number"
                 value={formData.id_number}
-                isEditing={isEditing}
-                onChange={handleInputChange}
+                onSave={handleFieldSave}
+                icon={<IdCard className="w-4 h-4" />}
                 placeholder="Ej: 1234567890"
               />
-            </div>
-          </div>
-
-          {/* Location & Date */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-secondary" />
-              Ubicación y Fecha
-            </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                label="Fecha de nacimiento"
-                name="birthdate"
-                value={formData.birthdate}
-                isEditing={isEditing}
-                onChange={handleInputChange}
-                type="date"
-                icon={<Calendar className="w-4 h-4" />}
-              />
-              <FormField
-                label="Dirección"
+              <EditableField
+                label="Dirección completa"
                 name="address"
                 value={formData.address}
-                isEditing={isEditing}
-                onChange={handleInputChange}
+                onSave={handleFieldSave}
                 icon={<MapPin className="w-4 h-4" />}
                 placeholder="Ej: Calle 123 #45-67, Barranquilla"
               />
+              <EditableField
+                label="Fecha de nacimiento"
+                name="birthdate"
+                value={formData.birthdate}
+                onSave={handleFieldSave}
+                type="date"
+                icon={<Calendar className="w-4 h-4" />}
+              />
             </div>
-          </div>
+          </ProfileAccordion>
 
-          {/* Professional Info */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-secondary" />
-              Información Profesional
-            </h3>
-            <div className="space-y-4">
-              <FormField
+          {/* Accordion: Perfil profesional */}
+          <ProfileAccordion
+            title="Perfil profesional (opcional)"
+            defaultOpen={false}
+            icon={<Briefcase className="w-5 h-5" />}
+          >
+            <div className="space-y-4 pt-2">
+              <EditableField
                 label="Título profesional"
                 name="professional_title"
                 value={formData.professional_title}
-                isEditing={isEditing}
-                onChange={handleInputChange}
+                onSave={handleFieldSave}
                 icon={<Briefcase className="w-4 h-4" />}
                 placeholder="Ej: Desarrollador Full Stack"
               />
-              <FormField
+              <EditableField
                 label="Biografía"
                 name="bio"
                 value={formData.bio}
-                isEditing={isEditing}
-                onChange={handleInputChange}
+                onSave={handleFieldSave}
                 type="textarea"
                 icon={<FileText className="w-4 h-4" />}
                 placeholder="Cuéntanos sobre ti, tu experiencia y tus intereses..."
               />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <EditableField
+                  label="LinkedIn"
+                  name="linkedin_url"
+                  value={formData.linkedin_url}
+                  onSave={handleFieldSave}
+                  icon={<Linkedin className="w-4 h-4 text-blue-500" />}
+                  placeholder="https://linkedin.com/in/tu-perfil"
+                />
+                <EditableField
+                  label="GitHub"
+                  name="github_url"
+                  value={formData.github_url}
+                  onSave={handleFieldSave}
+                  icon={<Github className="w-4 h-4 text-gray-300" />}
+                  placeholder="https://github.com/tu-usuario"
+                />
+                <EditableField
+                  label="Twitter / X"
+                  name="twitter_url"
+                  value={formData.twitter_url}
+                  onSave={handleFieldSave}
+                  icon={<Twitter className="w-4 h-4 text-blue-400" />}
+                  placeholder="https://twitter.com/tu-usuario"
+                />
+                <EditableField
+                  label="Instagram"
+                  name="instagram_url"
+                  value={formData.instagram_url}
+                  onSave={handleFieldSave}
+                  icon={<Instagram className="w-4 h-4 text-pink-500" />}
+                  placeholder="https://instagram.com/tu-usuario"
+                />
+              </div>
             </div>
-          </div>
-
-          {/* Social Media */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <svg className="w-5 h-5 text-secondary" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.896 3.305-2.185 4.344-.977.784-2.148 1.176-3.383 1.176-.896 0-1.747-.184-2.424-.52v-.136c0-1.011-.02-2.04-.06-3.08-.04-1.12-.08-2.24-.12-3.36-.04-1.04-.08-2.08-.12-3.12 0-.184.08-.36.24-.488.16-.12.36-.2.568-.2h2.488c.416 0 .736.32.736.736v.304c.896-.6 1.936-.904 3.12-.904 1.36 0 2.488.488 3.384 1.464.896.976 1.344 2.24 1.344 3.792v.304zm-5.568 7.68c1.36 0 2.488-.488 3.384-1.464.896-.976 1.344-2.24 1.344-3.792v-.304c-.896.6-1.936.904-3.12.904-1.36 0-2.488-.488-3.384-1.464-.896-.976-1.344-2.24-1.344-3.792v-.304c-.896-.6-1.936-.904-3.12-.904-1.36 0-2.488.488-3.384 1.464-.896.976-1.344 2.24-1.344 3.792 0 1.552.448 2.816 1.344 3.792.896.976 2.024 1.464 3.384 1.464z"/>
-              </svg>
-              Redes Sociales
-            </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <SocialField
-                label="LinkedIn"
-                name="linkedin_url"
-                value={formData.linkedin_url}
-                isEditing={isEditing}
-                onChange={handleInputChange}
-                icon={<Linkedin className="w-4 h-4 text-blue-500" />}
-                placeholder="https://linkedin.com/in/tu-perfil"
-              />
-              <SocialField
-                label="Twitter / X"
-                name="twitter_url"
-                value={formData.twitter_url}
-                isEditing={isEditing}
-                onChange={handleInputChange}
-                icon={<Twitter className="w-4 h-4 text-blue-400" />}
-                placeholder="https://twitter.com/tu-usuario"
-              />
-              <SocialField
-                label="Instagram"
-                name="instagram_url"
-                value={formData.instagram_url}
-                isEditing={isEditing}
-                onChange={handleInputChange}
-                icon={<Instagram className="w-4 h-4 text-pink-500" />}
-                placeholder="https://instagram.com/tu-usuario"
-              />
-              <SocialField
-                label="GitHub"
-                name="github_url"
-                value={formData.github_url}
-                isEditing={isEditing}
-                onChange={handleInputChange}
-                icon={<Github className="w-4 h-4 text-gray-300" />}
-                placeholder="https://github.com/tu-usuario"
-              />
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          {isEditing && (
-            <div className="pt-6 border-t border-zinc-700/50">
-              <ContainerButtonsEdit
-                setFinishEdit={handleCancel}
-                onSave={handleSubmit}
-              />
-              {isSaving && (
-                <div className="mt-4 flex items-center gap-2 text-blue-400 text-sm">
-                  <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  <span>Guardando cambios...</span>
-                </div>
-              )}
-            </div>
-          )}
+          </ProfileAccordion>
         </div>
       </div>
     </section>

@@ -130,7 +130,7 @@ export async function createLead(
         source: 'apartar_cupo_page',
         stage: stage,
         notes: JSON.stringify(notesData)
-      })
+      } as any)
       .select()
       .single()
 

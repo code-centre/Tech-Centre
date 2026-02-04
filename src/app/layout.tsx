@@ -7,12 +7,15 @@ import { Footer } from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { OrganizationSchema, EducationalOrganizationSchema } from "@/components/seo/StructuredData";
+import { Toaster } from "sonner";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
+  fallback: ["system-ui", "arial", "sans-serif"],
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -159,6 +162,7 @@ export default async function RootLayout({
             <Footer />
           </AuthProvider>
         </ThemeProvider>
+        <Toaster position="top-right" richColors />
         
         {/* Google Analytics */}
         <Script
