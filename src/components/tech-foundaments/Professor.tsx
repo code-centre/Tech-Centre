@@ -22,7 +22,7 @@ export function Professor({ speakers = [] }: { speakers?: Speaker[] }) {
   return (
     <div className="max-w-xl w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30">
       {/* Header with gradient */}
-      <div className="bg-gradient-to-br from-bgCard via-zinc-700 to-zinc-900 p-6 text-white">
+      <div className="bg-linear-to-br from-bgCard via-zinc-700 to-zinc-900 p-6 text-white">
         <h2 className="text-2xl font-bold mb-1 tracking-tight flex items-center gap-2">
           <GraduationCap className="text-secondary" size={24} />
           Profesor{speakers.length > 1 ? 'es' : ''}
@@ -38,10 +38,10 @@ export function Professor({ speakers = [] }: { speakers?: Speaker[] }) {
             {/* Header con imagen del profesor */}
             <div className="relative group">
               {/* Gradiente superior para mejorar legibilidad del nombre */}
-              <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent z-10"></div>
+              <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/60 to-transparent z-10"></div>
 
               {/* Fondo de cabecera */}
-              <div className="h-60 bg-gradient-to-r from-zinc-800 to-zinc-900"></div>
+              <div className="h-60 bg-linear-to-r from-zinc-800 to-zinc-900"></div>
 
               {/* Foto del profesor */}
               <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
@@ -64,7 +64,7 @@ export function Professor({ speakers = [] }: { speakers?: Speaker[] }) {
             </div>
 
             {/* Contenido - información del profesor */}
-            <div className="px-6 pt-16 pb-6 flex flex-col items-center">
+            <div className="px-6 pb-6 flex flex-col items-center">
               {/* Especialidad/Ocupación con ícono */}
               {speaker.occupation && (
                 <div className="flex mb-6">

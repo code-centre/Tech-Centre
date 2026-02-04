@@ -186,7 +186,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
   return (
     <section>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-white">Preguntas Frecuentes</h2>
+        <h2 className="text-3xl font-bold card-text-primary">Preguntas Frecuentes</h2>
         {isAdmin && editingFAQIndex === null && (
           <button
             onClick={handleAddFAQ}
@@ -205,7 +205,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
       )}
 
       {editedFAQs.length === 0 && !isAdmin ? (
-        <p className="text-gray-400 italic">No hay preguntas frecuentes disponibles.</p>
+        <p className="card-text-primary italic">No hay preguntas frecuentes disponibles.</p>
       ) : (
         <div className="space-y-5">
           {editedFAQs.map((item, i) => (
@@ -250,11 +250,11 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
               ) : (
                 <details className="group border-b border-gray-700 pb-4">
                   <summary className="flex justify-between items-center font-medium cursor-pointer list-none py-2">
-                    <h3 className="text-xl text-white font-semibold pr-8">
+                    <h3 className="text-xl card-text-primary font-semibold pr-8">
                       {i + 1}. {item.pregunta}
                     </h3>
                     <div className="flex gap-2 items-center">
-                      <span className="text-secondary transform group-open:rotate-180 transition-transform duration-300">
+                      <span className="card-text-primary transform group-open:rotate-180 transition-transform duration-300">
                         <ArrowDown />
                       </span>
                       {isAdmin && (
@@ -262,7 +262,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
                       )}
                     </div>
                   </summary>
-                  <div className="mt-4 text-gray-300 leading-relaxed pl-1">
+                  <div className="mt-4 card-text-primary leading-relaxed pl-1">
                     {item.respuesta}
                   </div>
                 </details>

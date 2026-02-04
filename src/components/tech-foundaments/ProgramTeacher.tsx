@@ -112,43 +112,53 @@ export function ProgramTeacher({ cohortId }: Props) {
 
   return (
     <>
-      <section className="w-full">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <div className="p-2 bg-secondary/10 rounded-lg">
-              <GraduationCap className="text-secondary" size={24} />
+      <section 
+        className="max-w-full bg-(--card-diplomado-bg) rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border [border-color:var(--card-diplomado-border)] dark:border-border-color"
+        aria-labelledby="program-teacher-heading"
+      >
+        <article className="p-6 md:p-8 flex flex-col gap-6">
+          {/* Header */}
+          <header className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <GraduationCap 
+                className="card-text-primary" 
+                size={32} 
+                aria-hidden="true"
+              />
+              <h2 
+                id="program-teacher-heading"
+                className="text-xl md:text-2xl font-bold card-text-primary text-balance"
+              >
+                Profesor del Programa
+              </h2>
             </div>
-            Profesor del Programa
-          </h2>
-          {isAdmin && instructor && (
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-800 hover:border-secondary/50 transition-all duration-200 flex items-center gap-2"
-              aria-label="Editar profesor"
-            >
-              <Pencil className="w-4 h-4" />
-              <span>Editar</span>
-            </button>
-          )}
-        </div>
+            {isAdmin && instructor && (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="px-4 py-2 text-sm font-medium card-text-primary bg-bg-card dark:bg-bg-primary border border-gray-300 dark:border-border-color rounded-md hover:border-secondary/50 transition-all duration-200 flex items-center gap-2"
+                aria-label="Editar profesor"
+              >
+                <Pencil className="w-4 h-4" />
+                <span>Editar</span>
+              </button>
+            )}
+          </header>
 
-        {/* Content */}
-        {loading ? (
-          <div className="flex justify-center items-center py-16 bg-zinc-900/50 rounded-xl border border-zinc-800/50">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 animate-spin text-secondary" />
-              <p className="text-gray-400 text-sm">Cargando información del profesor...</p>
+          {/* Content */}
+          {loading ? (
+            <div className="flex justify-center items-center py-16 rounded-xl border border-gray-200 dark:border-border-color">
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="w-8 h-8 animate-spin text-secondary" />
+                <p className="card-text-muted text-sm">Cargando información del profesor...</p>
+              </div>
             </div>
-          </div>
-        ) : instructor ? (
-          <div className="bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-xl">
-            {/* Profile Header */}
-            <div className="relative bg-linear-to-r from-secondary/20 via-zinc-800 to-zinc-800 px-6 pt-8 pb-20">
+          ) : instructor ? (
+            <div className="space-y-6">
+              {/* Profile Header */}
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 {/* Avatar */}
                 <div className="relative">
-                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white/10 shadow-xl ring-4 ring-secondary/20">
+                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-gray-200 dark:border-border-color shadow-xl ring-4 ring-secondary/20">
                     <Image
                       width={160}
                       height={160}
@@ -171,17 +181,17 @@ export function ProgramTeacher({ cohortId }: Props) {
 
                 {/* Name and Title */}
                 <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                  <h3 className="text-2xl md:text-3xl font-bold card-text-primary mb-2">
                     {instructor.first_name} {instructor.last_name}
                   </h3>
                   {instructor.professional_title && (
                     <div className="flex items-center justify-center md:justify-start gap-2 text-secondary">
-                      <GraduationCap className="w-5 h-5" />
-                      <p className="text-lg font-medium">{instructor.professional_title}</p>
+                      <GraduationCap className="w-5 h-5 card-text-primary" />
+                      <p className="text-lg font-medium card-text-primary">{instructor.professional_title}</p>
                     </div>
                   )}
                   {instructor.email && (
-                    <p className="text-gray-400 text-sm mt-2">{instructor.email}</p>
+                    <p className="card-text-muted text-sm mt-2">{instructor.email}</p>
                   )}
                   
                   {/* Social Media Links */}
@@ -192,7 +202,7 @@ export function ProgramTeacher({ cohortId }: Props) {
                           href={instructor.linkedin_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 p-2 text-blue-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all duration-200 border border-blue-500/30 hover:border-blue-500/50"
+                          className="inline-flex items-center justify-center gap-2 p-2 text-blue-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all duration-200 border border-blue-500/30 hover:border-blue-500/50 dark:text-blue-400 dark:hover:text-blue-300"
                           aria-label="LinkedIn"
                         >
                           <Linkedin className="w-5 h-5" />
@@ -225,7 +235,7 @@ export function ProgramTeacher({ cohortId }: Props) {
                           href={instructor.github_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 p-2 text-gray-300 hover:text-white hover:bg-gray-700/20 rounded-lg transition-all duration-200 border border-gray-600/30 hover:border-gray-500/50"
+                          className="inline-flex items-center justify-center gap-2 p-2 card-text-muted hover:card-text-primary hover:bg-gray-200 dark:hover:bg-gray-700/20 rounded-lg transition-all duration-200 border border-gray-300 dark:border-border-color hover:border-gray-400 dark:hover:border-gray-500"
                           aria-label="GitHub"
                         >
                           <Github className="w-5 h-5" />
@@ -235,48 +245,45 @@ export function ProgramTeacher({ cohortId }: Props) {
                   )}
                 </div>
               </div>
-            </div>
 
-            {/* Content Section */}
-            <div className="px-6 py-6 space-y-4">
-              {/* Bio */}
+              {/* Content Section */}
               {instructor.bio && (
-                <div className="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700/30">
+                <div className="bg-bg-card dark:bg-bg-primary rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <CodeIcon className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
+                    <CodeIcon className="w-5 h-5 text-secondary mt-0.5 shrink-0 card-text-primary" />
                     <div className="flex-1">
-                      <h4 className="text-sm font-semibold text-gray-400 mb-2">Sobre el profesor</h4>
-                      <p className="text-gray-300 leading-relaxed">{instructor.bio}</p>
+                      <h4 className="text-sm font-semibold card-text-muted mb-2">Sobre el profesor</h4>
+                      <p className="card-text-primary leading-relaxed">{instructor.bio}</p>
                     </div>
                   </div>
                 </div>
               )}
             </div>
-          </div>
-        ) : (
-          <div className="bg-zinc-900/50 rounded-xl border-2 border-dashed border-zinc-700/50 p-12">
-            <div className="flex flex-col items-center justify-center text-center">
-              <div className="p-4 bg-zinc-800/50 rounded-full mb-4">
-                <GraduationCap className="h-12 w-12 text-zinc-600" />
+          ) : (
+            <div className="rounded-xl border-2 border-dashed border-gray-300 dark:border-border-color p-12">
+              <div className="flex flex-col items-center justify-center text-center">
+                <div className="p-4 bg-bg-card dark:bg-bg-primary rounded-full mb-4">
+                  <GraduationCap className="h-12 w-12 card-text-muted" />
+                </div>
+                <h3 className="text-xl font-semibold card-text-primary mb-2">
+                  No hay profesor asignado
+                </h3>
+                <p className="card-text-muted mb-6 max-w-md">
+                  Este programa aún no tiene un profesor asignado. Los estudiantes podrán conocer a su instructor una vez que se asigne.
+                </p>
+                {isAdmin && (
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="px-6 py-3 bg-secondary hover:bg-blue-600 text-white font-medium rounded-lg transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-secondary/20"
+                  >
+                    <UserPlus className="w-5 h-5" />
+                    Asignar Profesor
+                  </button>
+                )}
               </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                No hay profesor asignado
-              </h3>
-              <p className="text-gray-400 mb-6 max-w-md">
-                Este programa aún no tiene un profesor asignado. Los estudiantes podrán conocer a su instructor una vez que se asigne.
-              </p>
-              {isAdmin && (
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="px-6 py-3 bg-secondary hover:bg-blue-600 text-white font-medium rounded-lg transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-secondary/20"
-                >
-                  <UserPlus className="w-5 h-5" />
-                  Asignar Profesor
-                </button>
-              )}
             </div>
-          </div>
-        )}
+          )}
+        </article>
       </section>
 
       {isModalOpen && (
