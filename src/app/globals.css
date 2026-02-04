@@ -12,8 +12,8 @@
 /* Light theme (default) */
 :root {
   /* Colors */
-  --primary: #0F3D4C;
-  --secondary: #2FB7C4;
+  --primary: #0F5C4C;
+  --secondary: #6ee7b7;
   --highlight: #1F6AE1;
   --background: #E6E8EB;
   --background-light: #E6E8EB;
@@ -55,8 +55,8 @@
 /* Dark theme */
 [data-theme="dark"] {
   /* Colors */
-  --primary: #0F3D4C;
-  --secondary: #2FB7C4;
+  --primary: #0F5C4C;
+  --secondary: #6ee7b7;
   --highlight: #1F6AE1;
   --background: #0E1116;
   --background-light: #E6E8EB;
@@ -66,7 +66,7 @@
   --bg-secondary: #1A1F2E;
   --bg-card: #1A1F2E;
   --text-primary: #FFFFFF;
-  --text-secondary: #2FB7C4;
+  --text-secondary: #6ee7b7;
   --text-muted: #9CA3AF;
   --border-color: #374151;
   --foreground: #FFFFFF;
@@ -387,7 +387,7 @@ section[id], div[id] {
 }
 
 [data-theme="dark"] .btn-primary {
-  background-color: #1E9FAE;
+  background-color: var(--highlight);
 }
 
 [data-theme="dark"] .btn-primary:hover {
