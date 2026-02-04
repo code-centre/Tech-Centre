@@ -126,10 +126,10 @@ export default function Testimonials({ backgroundColor }: Props) {
             
             <div className="flex flex-col gap-4">
               <Link
-                href="/#programs"
+                href="/programas-academicos"
                 className="btn-primary"
               >
-                Pre-inscribirme
+                Explorar programas
               </Link>
               
               {/* Microcopy anti-fricción */}

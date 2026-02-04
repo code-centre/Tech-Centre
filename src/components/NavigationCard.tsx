@@ -49,8 +49,7 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
   }
 
   const handlePreEnrollClick = () => {
-    // TODO: Implementar lógica de pre-inscripción
-    console.log('Pre-inscripción para cohort:', cohortId);
+    router.push(`/programas-academicos/${programData?.code || programData?.slug}/apartar-cupo`);
   }
 
   return (

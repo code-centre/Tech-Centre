@@ -72,13 +72,13 @@ export function HeroCarrusel({
               aria-label="Acciones principales"
               style={{ animationDelay: '0.4s' }}
             >
-              <Link
+              {/* <Link
                 href="/pre-inscripcion"
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-1 hover:scale-105"
               >
                 <span>Pre-inscribirme</span>
                 <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" aria-hidden="true" />
-              </Link>
+              </Link> */}
               <Link
                 href={link || '#'}
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white/30 hover:border-white/60 hover:bg-white/10 transition-all duration-300 backdrop-blur-sm transform hover:-translate-y-1 hover:scale-105"
