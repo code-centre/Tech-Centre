@@ -54,26 +54,26 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
   }
 
   return (
-    <section className="sticky top-4 lg:sticky lg:top-4 max-w-sm w-full h-fit bg-(--card-diplomado-bg) rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border [border-color:var(--card-diplomado-border)] dark:border-border-color">
-      <article className="p-6 md:p-8 flex flex-col gap-6">
+    <section className="sticky top-4 lg:sticky lg:top-4 w-full lg:max-w-sm h-fit bg-(--card-diplomado-bg) rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border [border-color:var(--card-diplomado-border)] dark:border-border-color">
+      <article className="p-4 sm:p-6 md:p-8 flex flex-col gap-4 sm:gap-6">
         <div className="text-center">
-          <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary/10 dark:bg-secondary/20 text-secondary border border-secondary/30 dark:border-secondary/40 text-xs font-medium mb-4">
+          <div className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-full bg-secondary/10 dark:bg-secondary/20 text-secondary border border-secondary/30 dark:border-secondary/40 text-xs font-medium mb-4">
             <div className="w-2 h-2 bg-secondary rounded-full mr-2 animate-pulse"></div>
             Inscripciones abiertas
           </div> 
           
-          <h3 className="text-xl md:text-2xl mb-2 font-bold card-text-primary">{programData?.name}</h3>
-          <h4 className="text-base font-semibold card-text-muted mb-4 line-clamp-2 leading-snug">
+          <h3 className="hidden sm:block text-xl md:text-2xl mb-2 font-bold card-text-primary">{programData?.name}</h3>
+          <h4 className="hidden sm:block text-base font-semibold card-text-muted mb-4 line-clamp-2 leading-snug">
             {programData?.subtitle}
           </h4>
          
           {programData?.discount ? (
-            <div className="text-xl font-bold card-text-primary flex flex-col items-center justify-center mb-1">
+            <div className="hidden sm:flex text-xl font-bold card-text-primary flex-col items-center justify-center mb-1">
               <span className="text-sm font-medium card-text-muted mb-1">¡Precio en oferta!</span>
               <span className="text-secondary text-2xl">{formatPrice(programData.discount)}</span>
             </div>
           ) : (
-            <div className="text-xl font-bold card-text-primary flex flex-col items-center justify-center mb-1">
+            <div className="hidden sm:flex text-xl font-bold card-text-primary flex-col items-center justify-center mb-1">
               <span className="text-sm font-medium card-text-muted mb-1">Precio</span>
               <span className="text-secondary text-2xl">{formatPrice(programData?.default_price || 0, programData?.currency || "COP")}</span>
             </div>
@@ -83,13 +83,13 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
             const basePrice = programData.discount || programData.default_price || 0;
             const installmentPrice = Math.round(basePrice / cohort.maximum_payments);
             return (
-              <div className="text-sm card-text-muted mt-2">
+              <div className="hidden sm:block text-sm card-text-muted mt-2">
                 Hasta {cohort.maximum_payments} cuotas de {formatPrice(installmentPrice, programData.currency || "COP")}
               </div>
             );
           })()}
 
-          <div className="flex flex-col gap-3 mt-6">
+          <div className="flex flex-col gap-3 sm:mt-6">
             <button
               onClick={handleBuyClick}
               className="btn-primary w-full group cursor-pointer"
@@ -108,7 +108,7 @@ export default function NavigationCard({ programData, cohortId }: NavigationCard
               </svg>
               <span>Apartar mi cupo</span>
             </button>
-            <p className="text-xs card-text-muted text-center mt-1">
+            <p className="hidden sm:block text-xs card-text-muted text-center mt-1">
               Sin compromiso · Cupos limitados
             </p>
           </div>
