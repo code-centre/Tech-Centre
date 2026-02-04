@@ -21,6 +21,8 @@ interface Props {
   setSelectedInstallments: (installments: number) => void
   onMatriculaAmountChange?: (amount: number) => void
   onMatriculaStatusChange?: (shouldShow: boolean) => void
+  matriculaAdded?: boolean
+  matriculaAmount?: number
   className?: string
 }
 
@@ -39,6 +41,8 @@ export default function ConfigurationSection({
   setSelectedInstallments,
   onMatriculaAmountChange,
   onMatriculaStatusChange,
+  matriculaAdded = false,
+  matriculaAmount = 0,
   className,
 }: Props) {
   const supabase = useSupabaseClient()
@@ -92,6 +96,8 @@ export default function ConfigurationSection({
         selectedCohortId={selectedCohortId}
         onMatriculaAmountChange={onMatriculaAmountChange}
         onMatriculaStatusChange={onMatriculaStatusChange}
+        matriculaAdded={matriculaAdded}
+        matriculaAmount={matriculaAmount}
       />
     </section>
   )

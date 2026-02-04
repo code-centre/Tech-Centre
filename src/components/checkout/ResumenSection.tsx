@@ -38,6 +38,8 @@ function PaymentTotal({
   priceCalculation,
   paymentMethod,
   selectedInstallments,
+  matriculaAdded,
+  matriculaAmount,
 }: {
   programName: string
   totalAmount: number
@@ -45,9 +47,19 @@ function PaymentTotal({
   priceCalculation: ReturnType<typeof calculatePrice> | null
   paymentMethod: 'full' | 'installments' | null
   selectedInstallments: number
+  matriculaAdded: boolean
+  matriculaAmount: number
 }) {
-  // Si no hay método de pago seleccionado, mostrar el precio del programa
-  const displayAmount = paymentMethod ? totalAmount : (subtotal || 0)
+  // IMPORTANTE: priceCalculation.total ya incluye descuentos del programa
+  // La matrícula NO tiene descuentos, se suma directamente
+  const programAmount = priceCalculation?.total || subtotal || 0
+  // Si hay matrícula pero no hay método de pago, incluirla en el total mostrado
+  const displayAmount = paymentMethod 
+    ? totalAmount 
+    : (subtotal || 0) + (matriculaAdded && matriculaAmount > 0 ? matriculaAmount : 0)
+  
+  // Mostrar desglose si hay método de pago O si hay matrícula que se debe cobrar
+  const shouldShowBreakdown = paymentMethod && priceCalculation || (matriculaAdded && matriculaAmount > 0)
   
   return (
     <div className="space-y-3">
@@ -55,12 +67,44 @@ function PaymentTotal({
       
       <div className="space-y-2">
         <p className="text-sm text-text-muted">{programName}</p>
-        <div>
+        
+        {/* Desglose cuando hay método de pago o cuando hay matrícula */}
+        {shouldShowBreakdown && (
+          <div className="space-y-2 pt-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-text-muted">
+                Programa{priceCalculation?.paymentMethodDiscount && priceCalculation.paymentMethodDiscount > 0 ? ' (con descuento)' : ''}
+              </span>
+              <span className="text-text-primary font-medium">
+                ${Math.round(programAmount).toLocaleString()} COP
+              </span>
+            </div>
+            {matriculaAdded && matriculaAmount > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-text-muted">Matrícula anual Tech Centre</span>
+                <span className="text-text-primary font-medium">
+                  ${Math.round(matriculaAmount).toLocaleString()} COP
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Total */}
+        <div className="pt-2">
           <p className="text-4xl font-bold text-text-primary">
             ${Math.round(displayAmount).toLocaleString()} COP
           </p>
           <p className="text-xs text-text-muted mt-1">
-            {paymentMethod ? 'Precio final · Sin costos ocultos' : 'Precio del programa'}
+            {paymentMethod 
+              ? (matriculaAdded && matriculaAmount > 0 
+                  ? (paymentMethod === 'installments' && selectedInstallments > 1
+                      ? 'Total a pagar hoy (primera cuota + matrícula)'
+                      : 'Total a pagar (programa + matrícula)')
+                  : 'Precio final · Sin costos ocultos')
+              : (matriculaAdded && matriculaAmount > 0
+                  ? 'Precio del programa + matrícula'
+                  : 'Precio del programa')}
           </p>
           {paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation?.installmentAmount && (
             <p className="text-xs text-emerald-400 mt-1">
@@ -112,12 +156,17 @@ function PaymentAction({
     let amountToShow = 0
     if (priceCalculation) {
       if (paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation.installmentAmount) {
-        const matriculaPerInstallment = matriculaAdded ? matriculaAmount / selectedInstallments : 0
-        amountToShow = priceCalculation.installmentAmount + matriculaPerInstallment
-        return `Pagar primera cuota $${Math.round(amountToShow).toLocaleString()}`
+        // IMPORTANTE: La matrícula NO se difiere, siempre se paga completa en el primer pago
+        const matriculaInFirstPayment = matriculaAdded ? matriculaAmount : 0
+        amountToShow = priceCalculation.installmentAmount + matriculaInFirstPayment
+        return matriculaAdded && matriculaAmount > 0
+          ? `Pagar primera cuota $${Math.round(amountToShow).toLocaleString()} y reservar mi cupo`
+          : `Pagar primera cuota $${Math.round(amountToShow).toLocaleString()}`
       } else {
         amountToShow = totalAmount
-        return `Pagar $${Math.round(amountToShow).toLocaleString()}`
+        return matriculaAdded && matriculaAmount > 0
+          ? `Pagar $${Math.round(amountToShow).toLocaleString()} y reservar mi cupo`
+          : `Pagar $${Math.round(amountToShow).toLocaleString()}`
       }
     }
     return 'Selecciona un método de pago'
@@ -351,9 +400,9 @@ export default function ResumenSection({
       // Calcular el monto del primer pago: si es a cuotas, solo el primer pago; si es de contado, el total
       let paymentAmount = totalAmount
       if (paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation?.installmentAmount) {
-        // Si hay matrícula agregada, dividirla también entre las cuotas
-        const matriculaPerInstallment = matriculaAdded ? matriculaAmount / selectedInstallments : 0
-        paymentAmount = priceCalculation.installmentAmount + matriculaPerInstallment
+        // IMPORTANTE: La matrícula NO se difiere, siempre se paga completa en el primer pago
+        const matriculaInFirstPayment = matriculaAdded ? matriculaAmount : 0
+        paymentAmount = priceCalculation.installmentAmount + matriculaInFirstPayment
       }
       
       let paymentLink
@@ -515,6 +564,8 @@ export default function ResumenSection({
         priceCalculation={priceCalculation}
         paymentMethod={paymentMethod}
         selectedInstallments={selectedInstallments}
+        matriculaAdded={matriculaAdded}
+        matriculaAmount={matriculaAmount}
       />
 
       {/* Cupón (opcional, colapsado por defecto) */}

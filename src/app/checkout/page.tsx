@@ -177,6 +177,8 @@ function ViewCheckoutContent() {
             onMatriculaStatusChange={(shouldShow) => {
               setMatriculaShouldShow(shouldShow)
             }}
+            matriculaAdded={matriculaShouldShow}
+            matriculaAmount={matriculaAmount}
           />
         </div>
         

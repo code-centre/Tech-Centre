@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Calendar, Clock, ArrowRight } from 'lucide-react'
+import { Calendar, Clock, ArrowRight, Check } from 'lucide-react'
 import HTMLReactParser from 'html-react-parser/lib/index'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
 import { formatDate } from '../../../utils/formatDate'
@@ -28,6 +28,8 @@ interface Props {
   selectedCohortId: number | null
   onMatriculaAmountChange?: (amount: number) => void
   onMatriculaStatusChange?: (shouldShow: boolean) => void
+  matriculaAdded?: boolean
+  matriculaAmount?: number
 }
 
 export default function ProductSummary({ 
@@ -35,12 +37,14 @@ export default function ProductSummary({
   selectedCohortId,
   onMatriculaAmountChange,
   onMatriculaStatusChange,
+  matriculaAdded = false,
+  matriculaAmount = 0,
 }: Props) {
   const supabase = useSupabaseClient()
   const { user } = useUser()
   const [cohortInfo, setCohortInfo] = useState<CohortInfo | null>(null)
   const [showMatricula, setShowMatricula] = useState<boolean>(false)
-  const [matriculaAmount, setMatriculaAmount] = useState<number>(0)
+  const [localMatriculaAmount, setLocalMatriculaAmount] = useState<number>(0)
   const [matriculaDescription, setMatriculaDescription] = useState<string>('')
   const [loadingMatricula, setLoadingMatricula] = useState<boolean>(true)
 
@@ -89,7 +93,7 @@ export default function ProductSummary({
         setLoadingMatricula(true)
         const matriculaStatus = await shouldShowMatricula(supabase, user.id)
         setShowMatricula(matriculaStatus.shouldShow)
-        setMatriculaAmount(matriculaStatus.amount)
+        setLocalMatriculaAmount(matriculaStatus.amount)
         setMatriculaDescription(matriculaStatus.description || `Matrícula requerida para el año ${new Date().getFullYear()}`)
         // Notificar al componente padre del monto de matrícula
         if (onMatriculaAmountChange) {
@@ -236,6 +240,25 @@ export default function ProductSummary({
               </div>
             )}
           </dl>
+        )}
+
+        {/* Información de beneficios de matrícula */}
+        {matriculaAdded && matriculaAmount > 0 && (
+          <div className="pt-4">
+            <h4 className="text-sm font-semibold text-text-primary mb-3">
+              Matrícula anual Tech Centre
+            </h4>
+            <ul className="space-y-2 text-sm text-text-muted">
+              <li className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-secondary mt-0.5 shrink-0" />
+                <span>Kit de estudiante incluido</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-secondary mt-0.5 shrink-0" />
+                <span>Acceso a la comunidad Tech Centre</span>
+              </li>
+            </ul>
+          </div>
         )}
       </article>
     </section>
