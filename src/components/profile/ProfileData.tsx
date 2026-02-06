@@ -174,7 +174,7 @@ export default function ProfileData() {
         uploadResult.error.message?.toLowerCase().includes('forbidden')
       )) {
         // Usar bucket 'activities' con el formato que funciona
-        const altFilePath = `assessments/id_card_${userId}_${side}_${fileName}`
+        const altFilePath = `cedula/id_card_${userId}_${side}_${fileName}`
         uploadResult = await supabase.storage
           .from('activities')
           .upload(altFilePath, file, {
