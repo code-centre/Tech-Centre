@@ -11,11 +11,12 @@ import { toast } from 'sonner'
 import ProfileHeader from './ProfileHeader'
 import EditableField from './EditableField'
 import ProfileAccordion from './ProfileAccordion'
+import IDCardUpload from './IDCardUpload'
 
 // Campos para cálculo de completitud
 const PROFILE_FIELDS = {
   required: ['first_name', 'last_name', 'phone'], // 60% del peso
-  optional: ['id_type', 'id_number', 'address', 'birthdate', 'professional_title', 'bio', 'linkedin_url', 'github_url']
+  optional: ['id_type', 'id_number', 'address', 'birthdate', 'professional_title', 'bio', 'linkedin_url', 'github_url', 'id_card_front_url', 'id_card_back_url']
 }
 
 export default function ProfileData() {
@@ -37,7 +38,9 @@ export default function ProfileData() {
     linkedin_url: '',
     twitter_url: '',
     instagram_url: '',
-    github_url: ''
+    github_url: '',
+    id_card_front_url: '',
+    id_card_back_url: ''
   })
 
   useEffect(() => {
@@ -57,7 +60,9 @@ export default function ProfileData() {
         linkedin_url: user.linkedin_url || '',
         twitter_url: user.twitter_url || '',
         instagram_url: user.instagram_url || '',
-        github_url: user.github_url || ''
+        github_url: user.github_url || '',
+        id_card_front_url: user.id_card_front_url || '',
+        id_card_back_url: user.id_card_back_url || ''
       })
     }
   }, [user])
@@ -66,7 +71,7 @@ export default function ProfileData() {
   const completionPercentage = useMemo(() => {
     const requiredFilled = PROFILE_FIELDS.required.filter(f => formData[f as keyof typeof formData]?.trim()).length
     const optionalFilled = PROFILE_FIELDS.optional.filter(f => formData[f as keyof typeof formData]?.trim()).length
-    return Math.round((requiredFilled / 3) * 60 + (optionalFilled / 8) * 40)
+    return Math.round((requiredFilled / 3) * 60 + (optionalFilled / 10) * 40)
   }, [formData])
 
   // Extraer ciudad de la dirección (si existe)
@@ -135,6 +140,92 @@ export default function ProfileData() {
       return publicUrl
     } catch (error: any) {
       throw error
+    }
+  }
+
+  const uploadIDCardImage = async (file: File, side: 'front' | 'back'): Promise<string | null> => {
+    if (!file) return null
+
+    try {
+      const userId = user?.user_id || user?.id
+      if (!userId) {
+        throw new Error('Usuario no autenticado')
+      }
+
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${side}_${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
+      let filePath = `profiles/${userId}/id_cards/${fileName}`
+      
+      // Intentar primero con el bucket 'image', si falla probar con 'activities' como fallback
+      let uploadResult = await supabase.storage
+        .from('image')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
+      
+      let bucketUsed = 'image'
+      
+      // Si falla con RLS en 'image', intentar con 'activities' como fallback
+      if (uploadResult.error && (
+        uploadResult.error.message?.toLowerCase().includes('row-level security') ||
+        uploadResult.error.message?.toLowerCase().includes('security policy') ||
+        uploadResult.error.message?.toLowerCase().includes('403') ||
+        uploadResult.error.message?.toLowerCase().includes('forbidden')
+      )) {
+        // Usar bucket 'activities' con el formato que funciona
+        const altFilePath = `assessments/id_card_${userId}_${side}_${fileName}`
+        uploadResult = await supabase.storage
+          .from('activities')
+          .upload(altFilePath, file, {
+            cacheControl: '3600',
+            upsert: true
+          })
+        
+        if (!uploadResult.error) {
+          bucketUsed = 'activities'
+          filePath = altFilePath
+        }
+      }
+      
+      if (uploadResult.error) {
+        throw uploadResult.error
+      }
+
+      // Obtener URL pública del bucket que funcionó
+      const finalPath = uploadResult.data?.path || filePath
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucketUsed)
+        .getPublicUrl(finalPath)
+
+      return publicUrl
+    } catch (error: any) {
+      throw error
+    }
+  }
+
+  const handleIDCardUpload = async (side: 'front' | 'back', tempUrl: string) => {
+    // Convert temp URL to File
+    const response = await fetch(tempUrl)
+    const blob = await response.blob()
+    const file = new File([blob], `id_card_${side}.jpg`, { type: 'image/jpeg' })
+    
+    try {
+      const publicUrl = await uploadIDCardImage(file, side)
+      if (publicUrl) {
+        await handleFieldSave(`id_card_${side}_url`, publicUrl)
+      }
+    } catch (error: any) {
+      toast.error('Error al subir la imagen. Por favor, inténtalo de nuevo.')
+    }
+  }
+
+  const handleIDCardDelete = async (side: 'front' | 'back') => {
+    try {
+      await handleFieldSave(`id_card_${side}_url`, '')
+      toast.success('Imagen eliminada correctamente')
+    } catch (error: any) {
+      toast.error('Error al eliminar la imagen. Por favor, inténtalo de nuevo.')
     }
   }
 
@@ -346,45 +437,65 @@ export default function ProfileData() {
             defaultOpen={false}
             icon={<IdCard className="w-5 h-5" />}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              <EditableField
-                label="Tipo de documento"
-                name="id_type"
-                value={formData.id_type}
-                onSave={handleFieldSave}
-                type="select"
-                options={[
-                  { value: 'CC', label: 'Cédula de Ciudadanía (CC)' },
-                  { value: 'CE', label: 'Cédula de Extranjería (CE)' },
-                  { value: 'TI', label: 'Tarjeta de Identidad (TI)' },
-                  { value: 'PASAPORTE', label: 'Pasaporte' }
-                ]}
-                icon={<IdCard className="w-4 h-4" />}
-              />
-              <EditableField
-                label="Número de documento"
-                name="id_number"
-                value={formData.id_number}
-                onSave={handleFieldSave}
-                icon={<IdCard className="w-4 h-4" />}
-                placeholder="Ej: 1234567890"
-              />
-              <EditableField
-                label="Dirección completa"
-                name="address"
-                value={formData.address}
-                onSave={handleFieldSave}
-                icon={<MapPin className="w-4 h-4" />}
-                placeholder="Ej: Calle 123 #45-67, Barranquilla"
-              />
-              <EditableField
-                label="Fecha de nacimiento"
-                name="birthdate"
-                value={formData.birthdate}
-                onSave={handleFieldSave}
-                type="date"
-                icon={<Calendar className="w-4 h-4" />}
-              />
+            <div className="space-y-6 pt-2">
+              {/* ID Card Upload */}
+              <div className="space-y-4">
+                <h4 className="text-white font-medium flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-secondary" />
+                  Fotos de identificación
+                </h4>
+                <p className="text-gray-400 text-sm">
+                  Sube las fotos del frente y reverso de tu documento de identificación para verificar tu cuenta.
+                </p>
+                <IDCardUpload
+                  frontUrl={formData.id_card_front_url}
+                  backUrl={formData.id_card_back_url}
+                  onUpload={handleIDCardUpload}
+                  onDelete={handleIDCardDelete}
+                />
+              </div>
+
+              {/* Traditional Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <EditableField
+                  label="Tipo de documento"
+                  name="id_type"
+                  value={formData.id_type}
+                  onSave={handleFieldSave}
+                  type="select"
+                  options={[
+                    { value: 'CC', label: 'Cédula de Ciudadanía (CC)' },
+                    { value: 'CE', label: 'Cédula de Extranjería (CE)' },
+                    { value: 'TI', label: 'Tarjeta de Identidad (TI)' },
+                    { value: 'PASAPORTE', label: 'Pasaporte' }
+                  ]}
+                  icon={<IdCard className="w-4 h-4" />}
+                />
+                <EditableField
+                  label="Número de documento"
+                  name="id_number"
+                  value={formData.id_number}
+                  onSave={handleFieldSave}
+                  icon={<IdCard className="w-4 h-4" />}
+                  placeholder="Ej: 1234567890"
+                />
+                <EditableField
+                  label="Dirección completa"
+                  name="address"
+                  value={formData.address}
+                  onSave={handleFieldSave}
+                  icon={<MapPin className="w-4 h-4" />}
+                  placeholder="Ej: Calle 123 #45-67, Barranquilla"
+                />
+                <EditableField
+                  label="Fecha de nacimiento"
+                  name="birthdate"
+                  value={formData.birthdate}
+                  onSave={handleFieldSave}
+                  type="date"
+                  icon={<Calendar className="w-4 h-4" />}
+                />
+              </div>
             </div>
           </ProfileAccordion>
 
