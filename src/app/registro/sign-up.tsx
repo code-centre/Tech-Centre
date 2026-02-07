@@ -278,7 +278,7 @@ const SignUp: React.FC = () => {
   };
 
   return (
-      <div className="max-w-3xl mx-auto w-full bg-gradient-to-b from-white to-blue-50 border-2 border-blue-600 p-6 md:p-10 rounded-xl shadow-lg space-y-6 mt-10">
+      <div className="max-w-3xl mx-auto w-full bg-gradient-to-b from-white to-green-200 border-2 border-blue-600 p-6 md:p-10 rounded-xl shadow-lg space-y-6 mt-10">
         <header className="flex flex-col gap-2 mb-8">
           <h2 className="text-3xl md:text-4xl font-bold text-blue-400">
             Crea tu cuenta
@@ -356,13 +356,13 @@ const SignUp: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
                   Tipo de Identificación <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.idType}
                   onChange={(e) => updateField('idType', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-black text-black"
                 >
                   <option value="CC">Cédula de Ciudadanía</option>
                   <option value="CE">Cédula de Extrangería</option>
@@ -380,7 +380,7 @@ const SignUp: React.FC = () => {
                   placeholder="Número de identificación"
                   value={formData.idNumber}
                   onChange={(e) => updateField('idNumber', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black bg-white dark:bg-gray-800 dark:text-gray-100 ${
                     errors.idNumber ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
@@ -400,7 +400,7 @@ const SignUp: React.FC = () => {
                   type="date"
                   value={formData.birthdate}
                   onChange={(e) => updateField('birthdate', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`w-full px-4 bg-white py-2 text-black border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     errors.birthdate ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
@@ -421,7 +421,7 @@ const SignUp: React.FC = () => {
                   placeholder="Ej: 3001234567"
                   value={formData.phone}
                   onChange={(e) => updateField('phone', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`w-full px-4 py-2 bg-white text-black border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     errors.phone ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
@@ -445,7 +445,7 @@ const SignUp: React.FC = () => {
               placeholder="ejemplo@correo.com"
               value={formData.email}
               onChange={(e) => updateField('email', e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+              className={`w-full text-black px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 placeholder-gray-500 ${
                 errors.email ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -467,7 +467,7 @@ const SignUp: React.FC = () => {
                 placeholder="Mínimo 6 caracteres"
                 value={formData.password}
                 onChange={(e) => updateField('password', e.target.value)}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                className={`w-full px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 text-gray-900 placeholder-gray-500 ${
                   errors.password ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
@@ -487,7 +487,7 @@ const SignUp: React.FC = () => {
                 placeholder="Repite tu contraseña"
                 value={formData.confirmPassword}
                 onChange={(e) => updateField('confirmPassword', e.target.value)}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                className={`w-full px-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 text-gray-900 placeholder-gray-500 ${
                   errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                 }`}
               />

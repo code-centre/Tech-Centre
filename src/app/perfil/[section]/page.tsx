@@ -1,12 +1,13 @@
 'use client'
 import ProfileData from '@/components/profile/ProfileData'
+import PaymentReceiptsManager from '@/components/profile/PaymentReceiptsManager'
 import { useRouter, useParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { useUser } from '@/lib/supabase';
 import InstructorPanel from '@/components/profile/InstructorPanel'
 import ProfileCursosMatriculados from '@/components/profile/ProfileCursosMatriculados'
 
-const validSections = ['datos-personales', 'cursos', 'instructor']
+const validSections = ['datos-personales', 'cursos', 'instructor', 'facturas']
 
 export default function ProfileSectionPage() {
   const { user, loading } = useUser();
@@ -54,6 +55,8 @@ export default function ProfileSectionPage() {
         <ProfileData />
       ) : activeSection === 'cursos' ? (
         <ProfileCursosMatriculados user={user} />
+      ) : activeSection === 'facturas' ? (
+        <PaymentReceiptsManager />
       ) : (
         <p className="text-secondary">No tienes acceso a esta sección</p>
       )}
