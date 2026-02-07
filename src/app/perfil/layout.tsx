@@ -1,12 +1,12 @@
 'use client'
 import { Sidebar } from '@/components/profile/Sidebar'
-import { CalendarIcon, UserIcon, GraduationCap } from 'lucide-react'
+import { CalendarIcon, UserIcon, GraduationCap, Receipt } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import React from 'react'
 import { useUser } from '@/lib/supabase'
 
-const validSections = ['datos-personales', 'cursos', 'instructor']
+const validSections = ['datos-personales', 'cursos', 'instructor', 'facturas']
 
 export default function ProfileLayout({
   children,
@@ -31,6 +31,11 @@ export default function ProfileLayout({
       id: 'cursos',
       label: 'Mis cursos',
       icon: CalendarIcon,
+    },
+    {
+      id: 'facturas',
+      label: 'Facturas',
+      icon: Receipt,
     }
   ]
 

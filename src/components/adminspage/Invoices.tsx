@@ -14,6 +14,8 @@ interface Invoice {
   status: string;
   meta: any;
   created_at: string;
+  paid_at: string | null;
+  url_recipe: string | null;
 }
 
 interface InvoicesProps {
@@ -84,6 +86,11 @@ export function Invoices({ enrollment }: InvoicesProps) {
                   <p className="text-sm text-gray-500">
                     Vence: {new Date(invoice.due_date).toLocaleDateString()}
                   </p>
+                  {invoice.paid_at && (
+                    <p className="text-sm text-green-600">
+                      Pagado: {new Date(invoice.paid_at).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className={`font-semibold ${
@@ -100,6 +107,18 @@ export function Invoices({ enrollment }: InvoicesProps) {
                   </span>
                 </div>
               </div>
+              {invoice.url_recipe && (
+                <div className="mt-2">
+                  <a 
+                    href={invoice.url_recipe} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:text-blue-800 underline"
+                  >
+                    Ver recibo de pago
+                  </a>
+                </div>
+              )}
               {invoice.meta?.notes && (
                 <p className="mt-2 text-sm text-gray-600">{invoice.meta.notes}</p>
               )}
