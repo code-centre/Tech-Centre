@@ -24,7 +24,7 @@ export default function ProfilePage() {
     <div className="flex items-center justify-center mt-20 h-screen">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-400 text-sm">Cargando...</p>
+        <p className="text-text-muted text-sm">Cargando...</p>
       </div>
     </div>
   )

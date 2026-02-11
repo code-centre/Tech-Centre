@@ -140,12 +140,12 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
           <div className="p-2 bg-secondary/10 rounded-lg">
             <GraduationCap className="text-secondary" size={24} />
           </div>
-          <h2 className="text-2xl font-bold text-white">Mis Cursos Matriculados</h2>
+          <h2 className="text-2xl font-bold text-text-primary dark:text-white">Mis Cursos Matriculados</h2>
         </div>
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-10 h-10 animate-spin text-secondary" />
-            <p className="text-gray-400 text-sm">Cargando tus cursos...</p>
+            <p className="text-text-muted dark:text-gray-400 text-sm">Cargando tus cursos...</p>
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
           <div className="p-2 bg-secondary/10 rounded-lg">
             <GraduationCap className="text-secondary" size={24} />
           </div>
-          <h2 className="text-2xl font-bold text-white">Mis Cursos Matriculados</h2>
+          <h2 className="text-2xl font-bold text-text-primary dark:text-white">Mis Cursos Matriculados</h2>
         </div>
         <div className="bg-red-900/20 border border-red-800/50 rounded-xl p-6 text-center">
           <p className="text-red-400">{error}</p>
@@ -177,8 +177,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
             <GraduationCap className="text-secondary" size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">Mis Cursos Matriculados</h2>
-            <p className="text-sm text-gray-400 mt-1">
+            <h2 className="text-2xl font-bold text-text-primary dark:text-white">Mis Cursos Matriculados</h2>
+            <p className="text-sm text-text-muted dark:text-gray-400 mt-1">
               {enrolledCourses.length > 0 
                 ? `${enrolledCourses.length} ${enrolledCourses.length === 1 ? 'curso matriculado' : 'cursos matriculados'}`
                 : 'Gestiona tus cursos y avanza en tu aprendizaje'
@@ -189,18 +189,18 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
       </div>
       
       {enrolledCourses.length === 0 ? (
-        <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-xl">
+        <div className="bg-bg-card dark:bg-gradient-to-br dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 rounded-xl border border-border-color dark:border-zinc-700/50 overflow-hidden shadow-xl">
           <div className="px-8 py-16 text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-secondary/20 to-blue-600/20 mb-6">
               <Sparkles className="w-10 h-10 text-secondary" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-3">
+            <h3 className="text-2xl font-bold text-text-primary dark:text-white mb-3">
               ¡Comienza tu viaje de aprendizaje!
             </h3>
-            <p className="text-lg text-gray-400 mb-2 max-w-md mx-auto">
+            <p className="text-lg text-text-muted dark:text-gray-400 mb-2 max-w-md mx-auto">
               Aún no te has matriculado en ningún curso, pero eso está a punto de cambiar.
             </p>
-            <p className="text-base text-gray-500 mb-8 max-w-md mx-auto">
+            <p className="text-base text-text-muted dark:text-gray-500 opacity-80 mb-8 max-w-md mx-auto">
               Explora nuestra oferta académica y encuentra el programa perfecto para impulsar tu carrera profesional.
           </p>
             <Link 
@@ -231,7 +231,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                     href={`/programas-academicos/${program?.slug || program?.code || program?.id || course.cohorts?.program_id}`}
                     className="group block h-full"
                   >
-                    <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 overflow-hidden shadow-lg hover:shadow-xl hover:shadow-secondary/20 transition-all duration-300 hover:-translate-y-2 hover:border-secondary/50 h-full flex flex-col">
+                    <div className="bg-bg-card dark:bg-gradient-to-br dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 rounded-xl border border-border-color dark:border-zinc-700/50 overflow-hidden shadow-lg hover:shadow-xl hover:shadow-secondary/20 transition-all duration-300 hover:-translate-y-2 hover:border-secondary/50 h-full flex flex-col">
                       {/* Image Section */}
                       <div className="relative h-48 overflow-hidden">
                         {program?.image ? (
@@ -284,29 +284,29 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                       {/* Content Section */}
                       <div className="p-6 flex-1 flex flex-col">
                         {/* Title */}
-                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-secondary transition-colors duration-200 line-clamp-2">
+                        <h3 className="text-xl font-bold text-text-primary dark:text-white mb-2 group-hover:text-secondary transition-colors duration-200 line-clamp-2">
                           {program?.name || 'Curso sin nombre'}
                         </h3>
                         
                         {course.cohorts?.name && (
-                          <p className="text-sm text-gray-400 mb-4">{course.cohorts.name}</p>
+                          <p className="text-sm text-text-muted dark:text-gray-400 mb-4">{course.cohorts.name}</p>
                         )}
 
                         {/* Dates */}
                         {(startDate || endDate) && (
-                          <div className="flex items-center gap-2 text-sm text-gray-400 mb-4 pb-4 border-b border-zinc-700/50">
+                          <div className="flex items-center gap-2 text-sm text-text-muted dark:text-gray-400 mb-4 pb-4 border-b border-border-color dark:border-zinc-700/50">
                             <Calendar className="w-4 h-4 text-secondary flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               {startDate && (
                                 <p className="truncate">
-                                  <span className="text-gray-500">Inicio: </span>
-                                  <span className="text-white">{startDate}</span>
+                                  <span className="text-text-muted dark:text-gray-500">Inicio: </span>
+                                  <span className="text-text-primary dark:text-white">{startDate}</span>
                                 </p>
                               )}
                               {endDate && (
                                 <p className="truncate">
-                                  <span className="text-gray-500">Fin: </span>
-                                  <span className="text-white">{endDate}</span>
+                                  <span className="text-text-muted dark:text-gray-500">Fin: </span>
+                                  <span className="text-text-primary dark:text-white">{endDate}</span>
                                 </p>
                               )}
                             </div>
@@ -316,8 +316,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                         {/* Metadata */}
                         <div className="space-y-3 mt-auto">
                           {course.cohorts?.modality && (
-                            <div className="flex items-center gap-3 text-sm text-gray-300">
-                              <div className="flex items-center justify-center w-8 h-8 bg-zinc-800/60 rounded-lg border border-zinc-700/50">
+                            <div className="flex items-center gap-3 text-sm text-text-primary dark:text-gray-300">
+                              <div className="flex items-center justify-center w-8 h-8 bg-bg-secondary dark:bg-zinc-800/60 rounded-lg border border-border-color dark:border-zinc-700/50">
                                 <BookOpen className="w-4 h-4 text-secondary" />
                               </div>
                               <span>{course.cohorts.modality}</span>
@@ -325,8 +325,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                           )}
                           
                           {program?.total_hours && (
-                            <div className="flex items-center gap-3 text-sm text-gray-300">
-                              <div className="flex items-center justify-center w-8 h-8 bg-zinc-800/60 rounded-lg border border-zinc-700/50">
+                            <div className="flex items-center gap-3 text-sm text-text-primary dark:text-gray-300">
+                              <div className="flex items-center justify-center w-8 h-8 bg-bg-secondary dark:bg-zinc-800/60 rounded-lg border border-border-color dark:border-zinc-700/50">
                                 <Clock className="w-4 h-4 text-secondary" />
                               </div>
                               <span>{program.total_hours} horas</span>
@@ -335,7 +335,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                         </div>
 
                         {/* CTA - Ir al curso */}
-                        <div className="mt-6 pt-4 border-t border-zinc-700/50">
+                        <div className="mt-6 pt-4 border-t border-border-color dark:border-zinc-700/50">
                           <div className="flex items-center gap-2 text-secondary text-sm font-medium group-hover:gap-3 transition-all duration-200">
                             <span>Ir al curso</span>
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
@@ -348,8 +348,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
 
                 {/* Panel Contextual "¿Qué sigue ahora?" - Derecha */}
                 <div className="w-full md:w-1/2">
-                  <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl border border-zinc-700/50 p-6 h-full flex flex-col">
-                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                  <div className="bg-bg-card dark:bg-gradient-to-br dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 rounded-xl border border-border-color dark:border-zinc-700/50 p-6 h-full flex flex-col">
+                    <h3 className="text-xl font-bold text-text-primary dark:text-white mb-6 flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-secondary" />
                       ¿Qué sigue ahora?
                     </h3>
@@ -360,8 +360,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                         <div className="flex items-start gap-3">
                           <Calendar className="w-5 h-5 text-secondary mt-0.5 flex-shrink-0" />
                           <div>
-                            <p className="text-sm text-gray-400">Fecha de inicio</p>
-                            <p className="text-white font-medium">{startDate}</p>
+                            <p className="text-sm text-text-muted dark:text-gray-400">Fecha de inicio</p>
+                            <p className="text-text-primary dark:text-white font-medium">{startDate}</p>
                           </div>
                         </div>
                       )}
@@ -370,8 +370,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                         <div className="flex items-start gap-3">
                           <Home className="w-5 h-5 text-secondary mt-0.5 flex-shrink-0" />
                           <div>
-                            <p className="text-sm text-gray-400">Modalidad</p>
-                            <p className="text-white font-medium">{course.cohorts.modality}</p>
+                            <p className="text-sm text-text-muted dark:text-gray-400">Modalidad</p>
+                            <p className="text-text-primary dark:text-white font-medium">{course.cohorts.modality}</p>
                           </div>
                         </div>
                       )}
@@ -380,8 +380,8 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                         <div className="flex items-start gap-3">
                           <Clock className="w-5 h-5 text-secondary mt-0.5 flex-shrink-0" />
                           <div>
-                            <p className="text-sm text-gray-400">Horario</p>
-                            <p className="text-white font-medium">{scheduleText}</p>
+                            <p className="text-sm text-text-muted dark:text-gray-400">Horario</p>
+                            <p className="text-text-primary dark:text-white font-medium">{scheduleText}</p>
                           </div>
                         </div>
                       )}
@@ -389,23 +389,23 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
 
                     {/* Checklist visual */}
                     <div className="mb-6">
-                      <p className="text-sm font-semibold text-gray-300 mb-4">Tu progreso de preparación:</p>
+                      <p className="text-sm font-semibold text-text-primary dark:text-gray-300 mb-4">Tu progreso de preparación:</p>
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
                           <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                          <span className="text-sm text-gray-300">Inscripción confirmada</span>
+                          <span className="text-sm text-text-primary dark:text-gray-300">Inscripción confirmada</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Circle className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                          <span className="text-sm text-gray-400">Acceso a la comunidad</span>
+                          <Circle className="w-5 h-5 text-text-muted dark:text-gray-500 flex-shrink-0" />
+                          <span className="text-sm text-text-muted dark:text-gray-400">Acceso a la comunidad</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Circle className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                          <span className="text-sm text-gray-400">Material de bienvenida</span>
+                          <Circle className="w-5 h-5 text-text-muted dark:text-gray-500 flex-shrink-0" />
+                          <span className="text-sm text-text-muted dark:text-gray-400">Material de bienvenida</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Circle className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                          <span className="text-sm text-gray-400">Calendario de clases</span>
+                          <Circle className="w-5 h-5 text-text-muted dark:text-gray-500 flex-shrink-0" />
+                          <span className="text-sm text-text-muted dark:text-gray-400">Calendario de clases</span>
                         </div>
                       </div>
                     </div>
@@ -414,24 +414,24 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                     <div className="mb-6 p-4 bg-blue-900/20 border border-blue-800/50 rounded-lg">
                       <div className="flex items-start gap-3">
                         <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm text-gray-300 leading-relaxed">
+                        <p className="text-sm text-text-primary dark:text-gray-300 leading-relaxed opacity-90">
                           El seguimiento de clases y materiales estará disponible cuando inicie el programa.
                         </p>
                       </div>
                     </div>
 
                     {/* CTAs Secundarios */}
-                    <div className="mt-auto pt-4 border-t border-zinc-700/50 flex flex-col gap-2">
+                    <div className="mt-auto pt-4 border-t border-border-color dark:border-zinc-700/50 flex flex-col gap-2">
                       <Link
                         href={`/programas-academicos/${program?.slug || program?.code || program?.id || course.cohorts?.program_id}`}
-                        className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-zinc-800/60 hover:bg-zinc-700/60 rounded-lg transition-colors border border-zinc-700/50"
+                        className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-text-primary dark:text-white bg-bg-secondary dark:bg-zinc-800/60 hover:bg-bg-primary dark:hover:bg-zinc-700/60 rounded-lg transition-colors border border-border-color dark:border-zinc-700/50"
                       >
                         <BookOpen className="w-4 h-4" />
                         Ver detalles del programa
                       </Link>
                       <Link
                         href="/perfil/datos-personales"
-                        className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-zinc-800/60 hover:bg-zinc-700/60 rounded-lg transition-colors border border-zinc-700/50"
+                        className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-text-primary dark:text-white bg-bg-secondary dark:bg-zinc-800/60 hover:bg-bg-primary dark:hover:bg-zinc-700/60 rounded-lg transition-colors border border-border-color dark:border-zinc-700/50"
                       >
                         <User className="w-4 h-4" />
                         Actualizar mis datos
@@ -440,7 +440,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                         href="https://wa.me/573005523872?text=Hola%2C%20necesito%20soporte%20con%20mi%20curso"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-zinc-800/60 hover:bg-zinc-700/60 rounded-lg transition-colors border border-zinc-700/50"
+                        className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-text-primary dark:text-white bg-bg-secondary dark:bg-zinc-800/60 hover:bg-bg-primary dark:hover:bg-zinc-700/60 rounded-lg transition-colors border border-border-color dark:border-zinc-700/50"
                       >
                         <MessageCircle className="w-4 h-4" />
                         Contactar soporte

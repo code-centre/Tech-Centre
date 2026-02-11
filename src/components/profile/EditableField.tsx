@@ -74,11 +74,11 @@ export default function EditableField({
   if (readonly) {
     return (
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+        <label className="flex items-center gap-2 text-sm font-medium text-text-muted dark:text-gray-300">
           {icon}
           {label}
         </label>
-        <div className="px-4 py-2 text-white bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px] flex items-center">
+        <div className="px-4 py-2 text-text-primary dark:text-white bg-bg-secondary dark:bg-gray-800/30 rounded-lg border border-border-color dark:border-gray-700/50 min-h-[42px] flex items-center">
           {hasValue ? (
             <span className="flex items-center gap-2">
               {value}
@@ -87,7 +87,7 @@ export default function EditableField({
               </span>
             </span>
           ) : (
-            <span className="text-gray-500 italic">No especificado</span>
+            <span className="text-text-muted dark:text-gray-500 italic">No especificado</span>
           )}
         </div>
       </div>
@@ -98,7 +98,7 @@ export default function EditableField({
   if (isEditing) {
     return (
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+        <label className="flex items-center gap-2 text-sm font-medium text-text-muted dark:text-gray-300">
           {icon}
           {label}
         </label>
@@ -109,13 +109,13 @@ export default function EditableField({
               onChange={(e) => setEditValue(e.target.value)}
               rows={3}
               placeholder={placeholder}
-              className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent resize-none"
+              className="w-full px-4 py-2 bg-bg-secondary dark:bg-gray-800/50 border border-border-color dark:border-gray-700 rounded-lg text-text-primary dark:text-white placeholder-text-muted dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent resize-none"
             />
           ) : type === 'select' && options ? (
             <select
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
+              className="w-full px-4 py-2 bg-bg-secondary dark:bg-gray-800/50 border border-border-color dark:border-gray-700 rounded-lg text-text-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
             >
               {options.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -129,7 +129,7 @@ export default function EditableField({
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
               placeholder={placeholder}
-              className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
+              className="w-full px-4 py-2 bg-bg-secondary dark:bg-gray-800/50 border border-border-color dark:border-gray-700 rounded-lg text-text-primary dark:text-white placeholder-text-muted dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
             />
           )}
           <div className="flex gap-2">
@@ -144,7 +144,7 @@ export default function EditableField({
             <button
               onClick={handleCancel}
               disabled={isSaving}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-400 bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-md transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-text-muted dark:text-gray-400 bg-bg-secondary dark:bg-gray-800/50 dark:hover:bg-gray-800 border border-border-color dark:border-gray-700 rounded-md transition-colors disabled:opacity-50"
             >
               <X className="w-4 h-4" />
               Cancelar
@@ -159,15 +159,15 @@ export default function EditableField({
   if (!hasValue) {
     return (
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+        <label className="flex items-center gap-2 text-sm font-medium text-text-muted dark:text-gray-300">
           {icon}
           {label}
         </label>
-        <div className="flex items-center justify-between px-4 py-2 bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px]">
-          <span className="text-gray-500 italic">Aún no agregado</span>
+        <div className="flex items-center justify-between px-4 py-2 bg-bg-secondary dark:bg-gray-800/30 rounded-lg border border-border-color dark:border-gray-700/50 min-h-[42px]">
+          <span className="text-text-muted dark:text-gray-500 italic">Aún no agregado</span>
           <button
             onClick={handleStartEdit}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-300 hover:text-white bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-secondary/50 rounded-md transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted dark:text-gray-300 hover:text-text-primary dark:hover:text-white bg-bg-primary dark:bg-gray-800/50 hover:bg-bg-secondary dark:hover:bg-gray-800 border border-border-color dark:border-gray-700 hover:border-secondary/50 rounded-md transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Agregar
@@ -198,11 +198,11 @@ export default function EditableField({
 
   return (
     <div className="space-y-2">
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+      <label className="flex items-center gap-2 text-sm font-medium text-text-muted dark:text-gray-300">
         {icon}
         {label}
       </label>
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-800/30 rounded-lg border border-gray-700/50 min-h-[42px]">
+      <div className="flex items-center justify-between px-4 py-2 bg-bg-secondary dark:bg-gray-800/30 rounded-lg border border-border-color dark:border-gray-700/50 min-h-[42px]">
         {isUrl ? (
           <a
             href={value?.startsWith('http') ? value : `https://${value}`}
@@ -216,11 +216,11 @@ export default function EditableField({
             </svg>
           </a>
         ) : (
-          <span className="text-white flex-1">{value}</span>
+          <span className="text-text-primary dark:text-white flex-1">{value}</span>
         )}
         <button
           onClick={handleStartEdit}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-secondary bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-secondary/50 rounded-md transition-colors ml-2"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted dark:text-gray-400 hover:text-secondary bg-bg-primary dark:bg-gray-800/50 hover:bg-bg-secondary dark:hover:bg-gray-800 border border-border-color dark:border-gray-700 hover:border-secondary/50 rounded-md transition-colors ml-2"
         >
           <Pencil className="w-3.5 h-3.5" />
           Editar

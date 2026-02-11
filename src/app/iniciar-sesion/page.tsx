@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import type React from "react"
 import Login from "./login"
 
 export const metadata: Metadata = {
@@ -12,11 +11,7 @@ export const metadata: Metadata = {
 };
 
 const LoginPage = () => {
-  return (
-    <div className="flex items-center justify-center min-h-screen px-5">
-      <Login />
-    </div>
-  )
+  return <Login />
 }
 
 export default LoginPage

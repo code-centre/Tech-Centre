@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import React from "react";
-import Login from "./sign-up";
+import SignUp from "./sign-up";
 
 export const metadata: Metadata = {
   title: "Registro",
@@ -11,12 +10,6 @@ export const metadata: Metadata = {
   },
 };
 
-const LoginPage: React.FC = () => {
-  return (
-    <div className="flex items-center justify-center min-h-screen px-5 py-20">
-      <Login />
-    </div>
-  );
-};
-
-export default LoginPage;
+export default function RegistroPage() {
+  return <SignUp />;
+}

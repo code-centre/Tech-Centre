@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Dark mode variant - activa con data-theme="dark" en ancestro */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) { @slot; }
+}
+
 /* Parabole font face */
 @font-face {
   font-family: 'Parabole';
@@ -358,6 +363,27 @@ section[id], div[id] {
 
 .card-background {
   background-color: var(--card-background);
+}
+
+/* Invoice status badges - adapt to theme */
+.badge-paid {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #15803d;
+}
+
+[data-theme="dark"] .badge-paid {
+  background-color: rgba(34, 197, 94, 0.3);
+  color: #86efac;
+}
+
+.badge-pending {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #b45309;
+}
+
+[data-theme="dark"] .badge-pending {
+  background-color: rgba(245, 158, 11, 0.3);
+  color: #fcd34d;
 }
 
 /* Primary Button - Estándar de la plataforma */

@@ -1,12 +1,12 @@
 'use client'
 import { Sidebar } from '@/components/profile/Sidebar'
-import { CalendarIcon, UserIcon, GraduationCap } from 'lucide-react'
+import { CalendarIcon, UserIcon, GraduationCap, Receipt } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import React from 'react'
 import { useUser } from '@/lib/supabase'
 
-const validSections = ['datos-personales', 'cursos', 'instructor']
+const validSections = ['datos-personales', 'cursos', 'instructor', 'facturas']
 
 export default function ProfileLayout({
   children,
@@ -31,6 +31,11 @@ export default function ProfileLayout({
       id: 'cursos',
       label: 'Mis cursos',
       icon: CalendarIcon,
+    },
+    {
+      id: 'facturas',
+      label: 'Facturas',
+      icon: Receipt,
     }
   ]
 
@@ -44,7 +49,7 @@ export default function ProfileLayout({
       <div className="flex items-center justify-center mt-20 h-screen">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-400 text-sm">Cargando...</p>
+          <p className="text-text-muted dark:text-gray-400 text-sm">Cargando...</p>
         </div>
       </div>
     )
@@ -64,7 +69,7 @@ export default function ProfileLayout({
       />
 
       <section>
-        <nav className="flex mt-5 md:mt-10 mx-5 border-b pb-4 border-dashed gap-3 border-gray-200 lg:hidden">
+        <nav className="flex mt-5 md:mt-10 mx-5 border-b pb-4 border-dashed gap-3 border-border-color dark:border-gray-700 lg:hidden">
           {sections.map((section) => {
             const Icon = section.icon
             const sectionPath = `/perfil/${section.id}`
@@ -74,7 +79,7 @@ export default function ProfileLayout({
                 href={sectionPath}
                 scroll={false}
                 prefetch={true}
-                className={`w-full flex items-center px-2 gap-3 py-2 rounded-md text-sm font-medium mb-2 ${activeSection === section.id ? 'bg-blue-50 text-secondary' : 'text-gray-600 hover:bg-gray-50'}`}
+                className={`w-full flex items-center px-2 gap-3 py-2 rounded-md text-sm font-medium mb-2 transition-colors ${activeSection === section.id ? 'bg-secondary/20 text-secondary border border-secondary/30' : 'text-text-muted hover:bg-bg-secondary hover:text-text-primary border border-transparent'}`}
               >
                 <Icon size={20} />
                 {section.label}
