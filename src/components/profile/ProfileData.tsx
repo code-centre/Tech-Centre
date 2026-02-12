@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useUser, useSupabaseClient } from '@/lib/supabase'
 import { 
   User, Mail, Phone, MapPin, Calendar, IdCard, Briefcase, FileText, 
-  Camera, Linkedin, Twitter, Instagram, Github 
+  Camera, Linkedin, Twitter, Instagram, Github, Droplets, AlertCircle 
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
@@ -16,7 +16,7 @@ import IDCardUpload from './IDCardUpload'
 // Campos para cálculo de completitud
 const PROFILE_FIELDS = {
   required: ['first_name', 'last_name', 'phone'], // 60% del peso
-  optional: ['id_type', 'id_number', 'address', 'birthdate', 'professional_title', 'bio', 'linkedin_url', 'github_url', 'id_card_front_url', 'id_card_back_url']
+  optional: ['id_type', 'id_number', 'address', 'birthdate', 'blood_type', 'emergency_contact_name', 'emergency_contact_phone', 'professional_title', 'bio', 'linkedin_url', 'github_url', 'id_card_front_url', 'id_card_back_url']
 }
 
 export default function ProfileData() {
@@ -40,7 +40,10 @@ export default function ProfileData() {
     instagram_url: '',
     github_url: '',
     id_card_front_url: '',
-    id_card_back_url: ''
+    id_card_back_url: '',
+    blood_type: '',
+    emergency_contact_name: '',
+    emergency_contact_phone: ''
   })
 
   useEffect(() => {
@@ -62,7 +65,10 @@ export default function ProfileData() {
         instagram_url: user.instagram_url || '',
         github_url: user.github_url || '',
         id_card_front_url: user.id_card_front_url || '',
-        id_card_back_url: user.id_card_back_url || ''
+        id_card_back_url: user.id_card_back_url || '',
+        blood_type: user.blood_type || '',
+        emergency_contact_name: user.emergency_contact_name || '',
+        emergency_contact_phone: user.emergency_contact_phone || ''
       })
     }
   }, [user])
@@ -71,7 +77,7 @@ export default function ProfileData() {
   const completionPercentage = useMemo(() => {
     const requiredFilled = PROFILE_FIELDS.required.filter(f => formData[f as keyof typeof formData]?.trim()).length
     const optionalFilled = PROFILE_FIELDS.optional.filter(f => formData[f as keyof typeof formData]?.trim()).length
-    return Math.round((requiredFilled / 3) * 60 + (optionalFilled / 10) * 40)
+    return Math.round((requiredFilled / 3) * 60 + (optionalFilled / 13) * 40)
   }, [formData])
 
   // Extraer ciudad de la dirección (si existe)
@@ -205,18 +211,18 @@ export default function ProfileData() {
   }
 
   const handleIDCardUpload = async (side: 'front' | 'back', tempUrl: string) => {
-    // Convert temp URL to File
     const response = await fetch(tempUrl)
     const blob = await response.blob()
-    const file = new File([blob], `id_card_${side}.jpg`, { type: 'image/jpeg' })
+    const ext = blob.type === 'application/pdf' ? 'pdf' : 'jpg'
+    const file = new File([blob], `id_card_${side}.${ext}`, { type: blob.type })
     
     try {
       const publicUrl = await uploadIDCardImage(file, side)
       if (publicUrl) {
         await handleFieldSave(`id_card_${side}_url`, publicUrl)
       }
-    } catch (error: any) {
-      toast.error('Error al subir la imagen. Por favor, inténtalo de nuevo.')
+    } catch (error: unknown) {
+      toast.error('Error al subir el archivo. Por favor, inténtalo de nuevo.')
     }
   }
 
@@ -416,6 +422,42 @@ export default function ProfileData() {
                 type="email"
                 readonly
                 icon={<Mail className="w-4 h-4" />}
+              />
+              <EditableField
+                label="Tipo de sangre"
+                name="blood_type"
+                value={formData.blood_type}
+                onSave={handleFieldSave}
+                type="select"
+                options={[
+                  { value: '', label: 'Seleccionar...' },
+                  { value: 'A+', label: 'A+' },
+                  { value: 'A-', label: 'A-' },
+                  { value: 'B+', label: 'B+' },
+                  { value: 'B-', label: 'B-' },
+                  { value: 'AB+', label: 'AB+' },
+                  { value: 'AB-', label: 'AB-' },
+                  { value: 'O+', label: 'O+' },
+                  { value: 'O-', label: 'O-' }
+                ]}
+                icon={<Droplets className="w-4 h-4" />}
+              />
+              <EditableField
+                label="Contacto de emergencia (nombre)"
+                name="emergency_contact_name"
+                value={formData.emergency_contact_name}
+                onSave={handleFieldSave}
+                icon={<AlertCircle className="w-4 h-4" />}
+                placeholder="Nombre del contacto de emergencia"
+              />
+              <EditableField
+                label="Contacto de emergencia (teléfono)"
+                name="emergency_contact_phone"
+                value={formData.emergency_contact_phone}
+                onSave={handlePhoneSave}
+                type="tel"
+                icon={<Phone className="w-4 h-4" />}
+                placeholder="Ej: 3001234567"
               />
               {city && (
                 <div className="space-y-2">

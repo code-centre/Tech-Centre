@@ -25,11 +25,11 @@ export default function IDCardUpload({
   const backInputRef = useRef<HTMLInputElement>(null)
 
   const validateFile = (file: File): boolean => {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png']
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf']
     const maxSize = 5 * 1024 * 1024 // 5MB
 
     if (!validTypes.includes(file.type)) {
-      toast.error('Formato no válido. Solo se aceptan JPG y PNG.')
+      toast.error('Formato no válido. Solo se aceptan JPG, PNG y PDF.')
       return false
     }
 
@@ -40,6 +40,9 @@ export default function IDCardUpload({
 
     return true
   }
+
+  const isPdfUrl = (url: string): boolean =>
+    url.toLowerCase().includes('.pdf')
 
   const compressImage = async (file: File): Promise<File> => {
     return new Promise((resolve) => {
@@ -94,16 +97,19 @@ export default function IDCardUpload({
 
     try {
       setUploadProgress(prev => ({ ...prev, [side]: 10 }))
-      
-      const compressedFile = await compressImage(file)
-      setUploadProgress(prev => ({ ...prev, [side]: 50 }))
 
-      // This will be handled by the parent component
-      // We'll use a temporary URL for preview
-      const tempUrl = URL.createObjectURL(compressedFile)
+      let fileToUpload: File
+      if (file.type === 'application/pdf') {
+        fileToUpload = file
+        setUploadProgress(prev => ({ ...prev, [side]: 50 }))
+      } else {
+        fileToUpload = await compressImage(file)
+        setUploadProgress(prev => ({ ...prev, [side]: 50 }))
+      }
+
+      const tempUrl = URL.createObjectURL(fileToUpload)
       setUploadProgress(prev => ({ ...prev, [side]: 90 }))
 
-      // Call parent upload function
       await onUpload(side, tempUrl)
       setUploadProgress(prev => ({ ...prev, [side]: 100 }))
 
@@ -114,7 +120,7 @@ export default function IDCardUpload({
 
     } catch (error) {
       console.error('Error uploading file:', error)
-      toast.error('Error al subir la imagen. Por favor inténtalo de nuevo.')
+      toast.error('Error al subir el archivo. Por favor inténtalo de nuevo.')
       setUploadProgress(prev => ({ ...prev, [side]: 0 }))
     }
   }
@@ -151,7 +157,8 @@ export default function IDCardUpload({
   const renderUploadArea = (side: 'front' | 'back', url?: string) => {
     const isActive = dragActive === side
     const progress = uploadProgress[side]
-    const hasImage = url && url.trim() !== ''
+    const hasFile = url && url.trim() !== ''
+    const isPdf = hasFile && isPdfUrl(url!)
 
     return (
       <div className="space-y-2">
@@ -171,14 +178,29 @@ export default function IDCardUpload({
           onDragLeave={(e) => handleDrag(e, side)}
           onDrop={(e) => handleDrop(e, side)}
         >
-          {hasImage && !progress ? (
+          {hasFile && !progress ? (
             // Preview mode
             <div className="relative group">
-              <img
-                src={url}
-                alt={`${side === 'front' ? 'Frente' : 'Reverso'} de cédula`}
-                className="w-full h-48 object-cover rounded-lg"
-              />
+              {isPdf ? (
+                <div className="w-full h-48 rounded-lg bg-bg-secondary dark:bg-gray-800/50 flex flex-col items-center justify-center gap-2">
+                  <FileText className="w-12 h-12 text-secondary" />
+                  <span className="text-sm text-text-primary dark:text-gray-300 font-medium">PDF</span>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-secondary hover:underline"
+                  >
+                    Ver documento
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={url}
+                  alt={`${side === 'front' ? 'Frente' : 'Reverso'} de cédula`}
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+              )}
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center gap-2">
                 <button
                   onClick={() => side === 'front' ? frontInputRef.current?.click() : backInputRef.current?.click()}
@@ -200,7 +222,7 @@ export default function IDCardUpload({
             // Upload progress
             <div className="flex flex-col items-center justify-center h-48">
               <div className="w-16 h-16 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-4"></div>
-              <p className="text-text-muted dark:text-gray-400 text-sm">Subiendo imagen... {progress}%</p>
+              <p className="text-text-muted dark:text-gray-400 text-sm">Subiendo archivo... {progress}%</p>
             </div>
           ) : (
             // Upload area
@@ -208,10 +230,10 @@ export default function IDCardUpload({
                  onClick={() => side === 'front' ? frontInputRef.current?.click() : backInputRef.current?.click()}>
               <Upload className="w-12 h-12 text-text-muted dark:text-gray-500 mb-3" />
               <p className="text-text-muted dark:text-gray-400 text-sm text-center">
-                Arrastra una imagen aquí o haz clic para seleccionar
+                Arrastra una imagen o PDF aquí o haz clic para seleccionar
               </p>
               <p className="text-text-muted dark:text-gray-500 text-xs mt-1 opacity-80">
-                JPG, PNG (Máx. 5MB)
+                JPG, PNG, PDF (Máx. 5MB)
               </p>
             </div>
           )}
@@ -219,17 +241,17 @@ export default function IDCardUpload({
           <input
             ref={side === 'front' ? frontInputRef : backInputRef}
             type="file"
-            accept="image/jpeg,image/jpg,image/png"
+            accept="image/jpeg,image/jpg,image/png,application/pdf"
             onChange={(e) => handleInputChange(e, side)}
             className="hidden"
             disabled={loading}
           />
         </div>
 
-        {hasImage && (
+        {hasFile && (
           <div className="flex items-center gap-2 text-xs text-green-400">
             <Check className="w-3 h-3" />
-            <span>Imagen cargada correctamente</span>
+            <span>Archivo cargado correctamente</span>
           </div>
         )}
       </div>
