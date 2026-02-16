@@ -162,6 +162,13 @@ function CheckoutContent() {
         throw new Error('Error al confirmar la inscripción')
       }
 
+      // Actualizar rol de lead a student al confirmar inscripción
+      await supabase
+        .from('profiles')
+        .update({ role: 'student', updated_at: new Date().toISOString() })
+        .eq('user_id', enrollment.student_id)
+        .eq('role', 'lead')
+
       // 2. Obtener información del pago desde invoices existentes
       const { data: existingInvoices } = await supabase
         .from('invoices')

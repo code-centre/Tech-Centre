@@ -69,17 +69,18 @@
   /* Semantic colors for dark theme */
   --bg-primary: #0E1116;
   --bg-secondary: #1A1F2E;
-  --bg-card: #1A1F2E;
+  /* Estándar de cards: gris azulado oscuro (#243545) - usado en cursos cortos */
+  --bg-card: #243545;
   --text-primary: #FFFFFF;
   --text-secondary: #6ee7b7;
   --text-muted: #9CA3AF;
   --border-color: #374151;
   --foreground: #FFFFFF;
   
-  /* Card colors for dark theme */
+  /* Card colors - estándar unificado para dark theme (#243545) */
   --card-background: #243545;
-  --card-diplomado-bg: #1a2a35;
-  --card-diplomado-border: #2a3a45;
+  --card-diplomado-bg: #243545;
+  --card-diplomado-border: #344555;
   --card-curso-bg: #243545;
   --card-curso-border: #344555;
   --card-text-primary: #FFFFFF;
@@ -91,10 +92,10 @@
   --button-bg: var(--secondary);
   --button-text: #FFFFFF;
   
-  /* Legacy colors (for backward compatibility during migration) */
-  --background-card: #1A1F2E;
+  /* Legacy - alineado al estándar de cards */
+  --background-card: #243545;
   --color-lightBlue: #2FB7C4;
-  --color-bgCard: #1A1F2E;
+  --color-bgCard: #243545;
   --color-blueApp: #0F3D4C;
   --color-grayApp: #4B5563;
   --color-darkBlue: #1F6AE1;

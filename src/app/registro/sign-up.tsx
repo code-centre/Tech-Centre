@@ -154,7 +154,7 @@ export default function SignUp() {
           id_number: "",
           birthdate: "1990-01-01",
           address: null,
-          role: "student" as const,
+          role: "lead" as const,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };

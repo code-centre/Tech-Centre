@@ -2,21 +2,21 @@ import type { Metadata } from 'next';
 import { StudentsList } from '@/components/adminspage/StudentsList';
 
 export const metadata: Metadata = {
-  title: 'Administración de Usuarios',
-  description: 'Panel de administración para gestionar estudiantes, leads y exalumnos.',
+  title: 'Administración de Admins',
+  description: 'Panel de administración para gestionar administradores.',
   robots: {
     index: false,
     follow: false,
   },
 };
 
-export default function EstudiantesPage() {
+export default function AdminsPage() {
   return (
     <div className="container mx-auto">
       <StudentsList
-        roleFilter={['student', 'lead']}
-        title="Estudiantes"
-        subtitle="Gestiona estudiantes y leads"
+        roleFilter={['admin']}
+        title="Admins"
+        subtitle="Gestiona administradores"
       />
     </div>
   );

@@ -59,7 +59,7 @@ export function Invoices({ enrollment }: InvoicesProps) {
   }, [enrollment, supabase]);
 
   if (!enrollment) {
-    return <div className="p-4 bg-gray-100 rounded-lg">Selecciona una matrícula para ver las facturas</div>;
+    return <div className="p-4 bg-bg-secondary rounded-lg text-text-muted">Selecciona una matrícula para ver las facturas</div>;
   }
 
   if (loading) {
@@ -71,37 +71,37 @@ export function Invoices({ enrollment }: InvoicesProps) {
   }
 
   return (
-    <div className="p-4 border rounded-lg">
-      <h2 className="text-xl font-semibold mb-4 text-white">Facturas para {enrollment.profile?.first_name}</h2>
+    <div className="p-4 border border-border-color rounded-lg">
+      <h2 className="text-xl font-semibold mb-4 text-text-primary">Facturas para {enrollment.profile?.first_name}</h2>
       
       {invoices.length === 0 ? (
-        <p>No hay facturas para esta matrícula.</p>
+        <p className="text-text-muted">No hay facturas para esta matrícula.</p>
       ) : (
         <div className="space-y-4">
           {invoices.map((invoice) => (
-            <div key={invoice.id} className="p-4 border rounded-lg bg-white shadow-sm">
+            <div key={invoice.id} className="p-4 border border-border-color rounded-lg bg-bg-card shadow-sm">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="font-medium">{invoice.label}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="font-medium text-text-primary">{invoice.label}</p>
+                  <p className="text-sm text-text-muted">
                     Vence: {new Date(invoice.due_date).toLocaleDateString()}
                   </p>
                   {invoice.paid_at && (
-                    <p className="text-sm text-green-600">
+                    <p className="text-sm text-green-600 dark:text-green-400">
                       Pagado: {new Date(invoice.paid_at).toLocaleDateString()}
                     </p>
                   )}
                 </div>
                 <div className="text-right">
                   <p className={`font-semibold ${
-                    invoice.status === 'paid' ? 'text-green-600' : 'text-amber-600'
+                    invoice.status === 'paid' ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'
                   }`}>
                     ${invoice.amount.toLocaleString()}
                   </p>
                   <span className={`inline-block px-2 py-1 text-xs rounded-full ${
                     invoice.status === 'paid' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-amber-100 text-amber-800'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
+                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
                   }`}>
                     {invoice.status === 'paid' ? 'Pagada' : 'Pendiente'}
                   </span>
@@ -113,14 +113,14 @@ export function Invoices({ enrollment }: InvoicesProps) {
                     href={invoice.url_recipe} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    className="text-sm text-secondary hover:text-secondary/80 underline"
                   >
                     Ver recibo de pago
                   </a>
                 </div>
               )}
               {invoice.meta?.notes && (
-                <p className="mt-2 text-sm text-gray-600">{invoice.meta.notes}</p>
+                <p className="mt-2 text-sm text-text-muted">{invoice.meta.notes}</p>
               )}
             </div>
           ))}
