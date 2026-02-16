@@ -102,7 +102,15 @@ export function StudentsList({
         if (enrollmentsRes.error) throw enrollmentsRes.error;
 
         setProfiles((profilesRes.data as Profile[]) || []);
-        setEnrollmentData((enrollmentsRes.data as EnrollmentWithCohort[]) || []);
+        const rawEnrollments = (enrollmentsRes.data || []) as Array<{
+          student_id: string;
+          cohort: { end_date: string } | { end_date: string }[] | null;
+        }>;
+        const normalized: EnrollmentWithCohort[] = rawEnrollments.map((e) => ({
+          student_id: e.student_id,
+          cohort: Array.isArray(e.cohort) ? e.cohort[0] ?? null : e.cohort,
+        }));
+        setEnrollmentData(normalized);
         setCohortInstructorData(
           (cohortInstructorsRes.data as CohortInstructorRow[]) || []
         );
