@@ -19,24 +19,24 @@ export default function ProfileAccordion({
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
   return (
-    <div className="border-b border-border-color dark:border-gray-700/50 last:border-b-0">
+    <div className="border-b border-border-color last:border-b-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full py-4 text-left flex justify-between items-center hover:text-secondary transition-colors group"
         aria-expanded={isOpen}
       >
-        <span className="font-medium text-text-primary dark:text-white flex items-center gap-2">
-          {icon && <span className="text-text-muted dark:text-gray-400 group-hover:text-secondary transition-colors">{icon}</span>}
+        <span className="font-medium text-text-primary flex items-center gap-2">
+          {icon && <span className="text-text-muted group-hover:text-secondary transition-colors">{icon}</span>}
           {title}
         </span>
         {isOpen ? (
           <ChevronUp className="w-5 h-5 text-secondary shrink-0" />
         ) : (
-          <ChevronDown className="w-5 h-5 text-text-muted dark:text-gray-500 shrink-0 group-hover:text-text-primary dark:group-hover:text-gray-400 transition-colors" />
+          <ChevronDown className="w-5 h-5 text-text-muted shrink-0 group-hover:text-text-primary transition-colors" />
         )}
       </button>
       {isOpen && (
-        <div className="pb-4 text-text-primary dark:text-white">
+        <div className="pb-4 text-text-primary">
           {children}
         </div>
       )}

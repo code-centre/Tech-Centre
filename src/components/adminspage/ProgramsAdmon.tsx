@@ -171,10 +171,10 @@ export default function ProgramsAdmon() {
       const baseData = {
         name: currentProgram.name.trim(),
         code: currentProgram.code.trim(),
-        kind: currentProgram.kind || null,
-        difficulty: currentProgram.difficulty || null,
-        total_hours: currentProgram.total_hours || null,
-        default_price: currentProgram.default_price || null,
+        kind: currentProgram.kind ?? null,
+        difficulty: currentProgram.difficulty ?? null,
+        total_hours: currentProgram.total_hours ?? null,
+        default_price: currentProgram.default_price ?? null,
         audience: currentProgram.audience?.trim() || null,
       };
       
@@ -273,25 +273,40 @@ export default function ProgramsAdmon() {
     setDeleting(true);
     setDeleteError(null);
     try {
-      const { data: cohortsData } = await supabase
+      const { data: cohortsData, error: cohortsSelectError } = await supabase
         .from('cohorts')
         .select('id')
         .eq('program_id', programToDelete.id);
 
+      if (cohortsSelectError) throw cohortsSelectError;
+
       const cohortIds = (cohortsData || []).map((c) => c.id);
 
       if (cohortIds.length > 0) {
-        const { data: enrollments } = await supabase
+        const { data: enrollments, error: enrollmentsSelectError } = await supabase
           .from('enrollments')
           .select('id')
           .in('cohort_id', cohortIds);
 
+        if (enrollmentsSelectError) throw enrollmentsSelectError;
+
         const enrollmentIds = (enrollments || []).map((e) => e.id);
 
         if (enrollmentIds.length > 0) {
-          await supabase.from('invoices').delete().in('enrollment_id', enrollmentIds);
+          const { error: invoicesError } = await supabase
+            .from('invoices')
+            .delete()
+            .in('enrollment_id', enrollmentIds);
+
+          if (invoicesError) throw invoicesError;
         }
-        await supabase.from('enrollments').delete().in('cohort_id', cohortIds);
+
+        const { error: enrollmentsError } = await supabase
+          .from('enrollments')
+          .delete()
+          .in('cohort_id', cohortIds);
+
+        if (enrollmentsError) throw enrollmentsError;
       }
 
       const { error: cohortsError } = await supabase

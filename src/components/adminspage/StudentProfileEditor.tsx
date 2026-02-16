@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Pencil, Save, X } from 'lucide-react';
+import { updateProfileAdmin } from '@/app/admin/actions';
 
 interface Profile {
   user_id: string;
@@ -18,9 +18,14 @@ interface Profile {
 
 interface StudentProfileEditorProps {
   profile: Profile;
+  /** When false, role field is hidden (instructors cannot change roles) */
+  canEditRole?: boolean;
 }
 
-export default function StudentProfileEditor({ profile: initialProfile }: StudentProfileEditorProps) {
+export default function StudentProfileEditor({
+  profile: initialProfile,
+  canEditRole = true,
+}: StudentProfileEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -34,7 +39,6 @@ export default function StudentProfileEditor({ profile: initialProfile }: Studen
     linkedin_url: initialProfile.linkedin_url || '',
   });
 
-  const supabase = createClient();
   const router = useRouter();
 
   const handleChange = (
@@ -48,26 +52,23 @@ export default function StudentProfileEditor({ profile: initialProfile }: Studen
     setIsSaving(true);
     setError('');
     try {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          email: formData.email,
-          phone: formData.phone || null,
-          role: formData.role,
-          professional_title: formData.professional_title || null,
-          linkedin_url: formData.linkedin_url || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', initialProfile.user_id);
+      const result = await updateProfileAdmin({
+        user_id: initialProfile.user_id,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        phone: formData.phone || null,
+        role: formData.role,
+        professional_title: formData.professional_title || null,
+        linkedin_url: formData.linkedin_url || null,
+      });
 
-      if (updateError) throw updateError;
+      if (!result.success) throw new Error(result.error);
       setIsEditing(false);
       router.refresh();
     } catch (err) {
       console.error('Error al guardar:', err);
-      setError('No se pudo guardar. Intenta de nuevo.');
+      setError(err instanceof Error ? err.message : 'No se pudo guardar. Intenta de nuevo.');
     } finally {
       setIsSaving(false);
     }
@@ -173,20 +174,22 @@ export default function StudentProfileEditor({ profile: initialProfile }: Studen
                   className="block w-full rounded-lg border border-border-color bg-bg-secondary px-4 py-2 text-text-primary"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1">Rol</label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="block w-full rounded-lg border border-border-color bg-bg-secondary px-4 py-2 text-text-primary"
-                >
-                  <option value="student">Estudiante</option>
-                  <option value="instructor">Instructor</option>
-                  <option value="admin">Admin</option>
-                  <option value="lead">Lead</option>
-                </select>
-              </div>
+              {canEditRole && (
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-1">Rol</label>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    className="block w-full rounded-lg border border-border-color bg-bg-secondary px-4 py-2 text-text-primary"
+                  >
+                    <option value="student">Estudiante</option>
+                    <option value="instructor">Instructor</option>
+                    <option value="admin">Admin</option>
+                    <option value="lead">Lead</option>
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-1">
                   Título profesional

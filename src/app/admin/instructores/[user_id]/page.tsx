@@ -55,6 +55,12 @@ export default async function InstructorDetailPage({ params }: Props) {
   const { user_id } = await params;
   const supabase = await createClient();
 
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  const callerProfile = authUser
+    ? (await supabase.from('profiles').select('role').eq('user_id', authUser.id).single()).data
+    : null;
+  const canEditRole = (callerProfile as { role?: string } | null)?.role === 'admin';
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
@@ -260,7 +266,7 @@ export default async function InstructorDetailPage({ params }: Props) {
       </section>
 
       {/* Profile editor */}
-      <StudentProfileEditor profile={typedProfile} />
+      <StudentProfileEditor profile={typedProfile} canEditRole={canEditRole} />
     </div>
   );
 }

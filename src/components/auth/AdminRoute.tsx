@@ -30,8 +30,8 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
     return null;
   }
 
-  // Verificar el rol de administrador
-  if (user.role !== 'admin') {
+  // Verificar el rol (admin o instructor pueden acceder al panel)
+  if (user.role !== 'admin' && user.role !== 'instructor') {
     router.push('/');
     return null;
   }

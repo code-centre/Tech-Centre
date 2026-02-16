@@ -389,13 +389,6 @@ export default function ResumenSection({
         enrollment = newEnrollment
       }
 
-      // Actualizar rol de lead a student al inscribirse en una cohorte
-      await supabase
-        .from('profiles')
-        .update({ role: 'student', updated_at: new Date().toISOString() })
-        .eq('user_id', user.id)
-        .eq('role', 'lead')
-
       // Si no hay enrollment al final, lanzar error
       if (!enrollment) {
         throw new Error('No se pudo crear o recuperar la inscripción. Por favor, intenta nuevamente.')
