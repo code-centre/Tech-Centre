@@ -86,7 +86,7 @@ export async function quickSignUp(
     const profileData = {
       user_id: authData.user.id,
       email: email.trim().toLowerCase(),
-      role: 'student' as const,
+      role: 'lead' as const,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       // Todos los demás campos son opcionales (NULL)

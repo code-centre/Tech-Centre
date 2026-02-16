@@ -153,7 +153,7 @@ export function EnrollmentList({ onEnrollmentSelect }: EnrollmentListProps) {
     }
   };
 
-  if (loading) return <div className='text-white'>Cargando inscripciones...</div>;
+  if (loading) return <div className="text-text-primary">Cargando inscripciones...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
@@ -162,46 +162,46 @@ export function EnrollmentList({ onEnrollmentSelect }: EnrollmentListProps) {
         <input
           type="text"
           placeholder="Buscar por nombre, email o programa..."
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border border-border-color rounded bg-bg-secondary text-text-primary placeholder-text-muted"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
+      <div className="overflow-x-auto rounded-lg border border-border-color">
+        <table className="min-w-full bg-bg-card">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2 px-4 border">Estudiante</th>
-              <th className="py-2 px-4 border">Email</th>
-              <th className="py-2 px-4 border">Programa</th>
-              <th className="py-2 px-4 border">Cohorte</th>
-              <th className="py-2 px-4 border">Estado</th>
-              <th className="py-2 px-4 border">Precio Acordado</th>
-              <th className="py-2 px-4 border">Fecha de Inscripción</th>
+            <tr className="bg-bg-secondary">
+              <th className="py-2 px-4 border border-border-color text-text-primary">Estudiante</th>
+              <th className="py-2 px-4 border border-border-color text-text-primary">Email</th>
+              <th className="py-2 px-4 border border-border-color text-text-primary">Programa</th>
+              <th className="py-2 px-4 border border-border-color text-text-primary">Cohorte</th>
+              <th className="py-2 px-4 border border-border-color text-text-primary">Estado</th>
+              <th className="py-2 px-4 border border-border-color text-text-primary">Precio Acordado</th>
+              <th className="py-2 px-4 border border-border-color text-text-primary">Fecha de Inscripción</th>
             </tr>
           </thead>
           <tbody>
             {filteredEnrollments.map((enrollment) => (
-              <tr key={enrollment.id} className="hover:bg-gray-50">
-                <td className="py-2 px-4 border">{enrollment.profile?.first_name || 'N/A'}</td>
-                <td className="py-2 px-4 border">{enrollment.profile?.email || 'N/A'}</td>
-                <td className="py-2 px-4 border">{enrollment.cohort?.program?.name || 'N/A'}</td>
-                <td className="py-2 px-4 border">{enrollment.cohort?.name || 'N/A'}</td>
-                <td className="py-2 px-4 border">
+              <tr key={enrollment.id} className="hover:bg-bg-secondary">
+                <td className="py-2 px-4 border border-border-color text-text-primary">{enrollment.profile?.first_name || 'N/A'}</td>
+                <td className="py-2 px-4 border border-border-color text-text-muted">{enrollment.profile?.email || 'N/A'}</td>
+                <td className="py-2 px-4 border border-border-color text-text-muted">{enrollment.cohort?.program?.name || 'N/A'}</td>
+                <td className="py-2 px-4 border border-border-color text-text-muted">{enrollment.cohort?.name || 'N/A'}</td>
+                <td className="py-2 px-4 border border-border-color">
                   <button
                     onClick={() => handlePaymentClick(enrollment)}
                     className={`px-2 py-1 rounded-full text-xs ${
                         enrollment.status === 'pagado' 
-                        ? 'bg-green-100 text-green-800 cursor-default' 
-                        : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 cursor-default' 
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-amber-900/30 dark:text-amber-300 hover:bg-yellow-200 dark:hover:bg-amber-900/50'
                     }`}
                     >
                     {enrollment.status}
                     </button>
                 </td>
-                <td className="py-2 px-4 border">${enrollment.agreed_price.toLocaleString()}</td>
-                <td className="py-2 px-4 border">
+                <td className="py-2 px-4 border border-border-color text-text-primary">${enrollment.agreed_price.toLocaleString()}</td>
+                <td className="py-2 px-4 border border-border-color text-text-muted">
                   {new Date(enrollment.created_at).toLocaleDateString()}
                 </td>
               </tr>

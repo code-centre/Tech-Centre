@@ -3,11 +3,10 @@ import ProfileData from '@/components/profile/ProfileData'
 import PaymentReceiptsManager from '@/components/profile/PaymentReceiptsManager'
 import { useRouter, useParams } from 'next/navigation'
 import React, { useEffect } from 'react'
-import { useUser } from '@/lib/supabase';
-import InstructorPanel from '@/components/profile/InstructorPanel'
+import { useUser } from '@/lib/supabase'
 import ProfileCursosMatriculados from '@/components/profile/ProfileCursosMatriculados'
 
-const validSections = ['datos-personales', 'cursos', 'instructor', 'facturas']
+const validSections = ['datos-personales', 'cursos', 'facturas']
 
 export default function ProfileSectionPage() {
   const { user, loading } = useUser();
@@ -37,7 +36,7 @@ export default function ProfileSectionPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-text-muted dark:text-gray-400 text-sm">Cargando...</p>
+          <p className="text-text-muted text-sm">Cargando...</p>
         </div>
       </div>
     )

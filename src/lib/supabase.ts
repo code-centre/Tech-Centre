@@ -35,8 +35,8 @@ export function useUser() {
         .then(({ data, error }) => {
           if (!error && data) {
             setProfile(data);
-            setLoadedUserId(authContext.user.id);
           }
+          setLoadedUserId(authContext.user.id); // Marcar como cargado (éxito o error)
           setLoadingProfile(false);
         });
     }
@@ -51,9 +51,11 @@ export function useUser() {
     };
   }, [authContext.user, profile]);
   
-  // Exponer loading real del contexto más loading del perfil
+  // Exponer loading: incluye cuando hay usuario pero el perfil aún no se ha cargado
+  // (evita que AdminRoute redirija a home por race condition en la primera carga)
+  const profilePending = authContext.user && profile == null && loadedUserId !== authContext.user?.id;
   return {
     user: userWithProfile,
-    loading: authContext.loading || loadingProfile,
+    loading: authContext.loading || loadingProfile || !!profilePending,
   };
 }

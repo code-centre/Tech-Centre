@@ -162,6 +162,21 @@ function CheckoutContent() {
         throw new Error('Error al confirmar la inscripción')
       }
 
+      // Actualizar rol de lead a student al confirmar pago (solo tras pago exitoso)
+      const { data: roleUpdateData, error: roleUpdateError } = await supabase
+        .from('profiles')
+        .update({ role: 'student', updated_at: new Date().toISOString() })
+        .eq('user_id', enrollment.student_id)
+        .eq('role', 'lead')
+        .select('user_id')
+
+      if (roleUpdateError) {
+        console.error('Error al promover lead a student:', roleUpdateError)
+      } else if (!roleUpdateData || roleUpdateData.length === 0) {
+        // No rows updated: usuario ya no es lead (p. ej. ya era student)
+        console.warn('Role update: no rows updated for user_id', enrollment.student_id, '(may already be student)')
+      }
+
       // 2. Obtener información del pago desde invoices existentes
       const { data: existingInvoices } = await supabase
         .from('invoices')

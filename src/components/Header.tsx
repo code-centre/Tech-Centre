@@ -391,58 +391,42 @@ export default function Header() {
                     <span>Cerrar Sesión</span>
                   </button>
 
-                  {/* Admin Dropdown - Only show if user is admin */}
+                  {/* Admin Section - Only show if user is admin */}
                   {user?.role === 'admin' && (
-                    <div className="py-2">
-                      <button
-                        onClick={() => toggleMobileDropdown("admin-mobile")}
+                    <div className="py-2 space-y-2">
+                      <Link
+                        href="/admin/programas"
                         className="flex items-center justify-between w-full py-3 px-4 text-white font-semibold bg-[#1A1F2E]/50 hover:bg-[#1A1F2E] rounded-lg transition-colors duration-200"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
                       >
-                        <span>Admin</span>
-                        <ChevronDown
-                          className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "admin-mobile" ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      <div
-                        className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                          mobileDropdown === "admin-mobile"
-                            ? "max-h-[500px] opacity-100"
-                            : "max-h-0 opacity-0"
-                        }`}
+                        <span>Admin - Programas</span>
+                        <GraduationCap className="w-5 h-5 text-[#2FB7C4]" />
+                      </Link>
+                      <Link
+                        href="/admin/estudiantes"
+                        className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
                       >
-                        <div className="mt-2 pl-4 space-y-2">
-                          <Link
-                            href="/admin/estudiantes"
-                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              setMobileDropdown(null)
-                            }}
-                          >
-                            Lista estudiantes
-                          </Link>
-                          <Link
-                            href="/admin/pagos"
-                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              setMobileDropdown(null)
-                            }}
-                          >
-                            Lista de pagos
-                          </Link>
-                          <Link
-                            href="/admin/programas"
-                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              setMobileDropdown(null)
-                            }}
-                          >
-                            Lista de programas
-                          </Link>
-                        </div>
-                      </div>
+                        <Users className="w-4 h-4 text-[#2FB7C4]" />
+                        <span>Lista estudiantes</span>
+                      </Link>
+                      <Link
+                        href="/admin/pagos"
+                        className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
+                      >
+                        <FileText className="w-4 h-4 text-[#2FB7C4]" />
+                        <span>Lista de pagos</span>
+                      </Link>
                     </div>
                   )}
                 </div>
