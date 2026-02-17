@@ -6,6 +6,7 @@ import parse from 'html-react-parser';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import CommentsSection from '@/components/blog/CommentsSection';
 import LikeButton from '@/components/blog/LikeButton';
+import { ArticleSchema, BreadcrumbListSchema } from '@/components/seo/StructuredData';
 
 interface CommentWithAuthor {
   id: string;
@@ -30,6 +31,9 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co';
+const DEFAULT_OG_IMAGE = `${BASE_URL}/tech-center-logos/TechCentreLogoColor.png`;
+
 export async function generateMetadata({
   params,
 }: {
@@ -40,17 +44,73 @@ export async function generateMetadata({
 
   const { data } = await supabase
     .from('blog_posts')
-    .select('title, excerpt')
+    .select('title, excerpt, cover_image, published_at, updated_at, author:profiles!author_id(first_name, last_name)')
     .eq('slug', slug)
     .eq('is_published', true)
     .single();
 
   if (!data) return { title: 'Artículo no encontrado' };
 
-  const meta = data as { title: string; excerpt: string | null };
+  const meta = data as {
+    title: string;
+    excerpt: string | null;
+    cover_image: string | null;
+    published_at: string | null;
+    updated_at: string | null;
+    author: unknown;
+  };
+  const author = Array.isArray(meta.author) ? meta.author[0] : meta.author;
+  const authorName = author
+    ? `${(author as { first_name?: string }).first_name || ''} ${(author as { last_name?: string }).last_name || ''}`.trim() || 'Tech Centre'
+    : 'Tech Centre';
+  const description = meta.excerpt || meta.title;
+  const ogImage = meta.cover_image?.startsWith('http')
+    ? meta.cover_image
+    : meta.cover_image
+      ? `${BASE_URL}${meta.cover_image.startsWith('/') ? '' : '/'}${meta.cover_image}`
+      : DEFAULT_OG_IMAGE;
+
+  const keywords = [
+    ...meta.title.split(/\s+/).filter((w) => w.length > 3),
+    ...(meta.excerpt ? meta.excerpt.slice(0, 200).split(/\s+/).filter((w) => w.length > 3).slice(0, 5) : []),
+    'Tech Centre',
+    'blog',
+    'tecnología',
+  ];
+
   return {
     title: `${meta.title} | Blog Tech-Centre`,
-    description: meta.excerpt || meta.title,
+    description,
+    keywords: [...new Set(keywords)].slice(0, 10),
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
+    openGraph: {
+      type: 'article',
+      locale: 'es_CO',
+      url: `${BASE_URL}/blog/${slug}`,
+      siteName: 'Tech Centre',
+      title: `${meta.title} | Blog Tech-Centre`,
+      description,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: meta.title,
+        },
+      ],
+      publishedTime: meta.published_at || meta.updated_at || undefined,
+      modifiedTime: meta.updated_at || undefined,
+      authors: [authorName],
+      section: 'Tecnología',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${meta.title} | Blog Tech-Centre`,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
@@ -74,6 +134,7 @@ export default async function BlogPostPage({
       content,
       cover_image,
       published_at,
+      updated_at,
       created_at,
       author:profiles!author_id(first_name, last_name, profile_image)
     `
@@ -95,6 +156,7 @@ export default async function BlogPostPage({
     content: string | null;
     cover_image: string | null;
     published_at: string | null;
+    updated_at: string | null;
     created_at: string;
     author: unknown;
   };
@@ -145,8 +207,32 @@ export default async function BlogPostPage({
     ? `${(author as { first_name?: string }).first_name || ''} ${(author as { last_name?: string }).last_name || ''}`.trim() || 'Anónimo'
     : 'Anónimo';
 
+  const articleImage = post.cover_image?.startsWith('http')
+    ? post.cover_image
+    : post.cover_image
+      ? `${BASE_URL}${post.cover_image.startsWith('/') ? '' : '/'}${post.cover_image}`
+      : undefined;
+
   return (
     <article className="max-w-3xl mx-auto">
+      <BreadcrumbListSchema
+        items={[
+          { name: 'Inicio', url: BASE_URL },
+          { name: 'Blog', url: `${BASE_URL}/blog` },
+          { name: post.title, url: `${BASE_URL}/blog/${slug}` },
+        ]}
+      />
+      <ArticleSchema
+        headline={post.title}
+        description={post.excerpt || post.title}
+        image={articleImage}
+        datePublished={post.published_at || post.created_at || undefined}
+        dateModified={post.updated_at || undefined}
+        author={{ name: authorName }}
+        mainEntityOfPage={`${BASE_URL}/blog/${slug}`}
+        interactionStatistic={{ userInteractionCount: likesCount ?? 0 }}
+        commentCount={comments.length}
+      />
       <nav className="mb-6">
         <Link
           href="/blog"
