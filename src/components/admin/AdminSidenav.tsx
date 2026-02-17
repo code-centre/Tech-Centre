@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { GraduationCap, Users, FileText, UserCog, Shield, Newspaper } from 'lucide-react';
+import { GraduationCap, Users, FileText, UserCog, Shield, Newspaper, CalendarDays } from 'lucide-react';
 import { useUser } from '@/lib/supabase';
 
 const allNavItems = [
   { href: '/admin/programas', label: 'Programas', icon: GraduationCap, adminOnly: true },
+  { href: '/admin/cohortes', label: 'Cohortes', icon: CalendarDays, adminOnly: true },
   { href: '/admin/blog', label: 'Blog', icon: Newspaper, adminOnly: false },
   { href: '/admin/estudiantes', label: 'Estudiantes', icon: Users, adminOnly: true },
   { href: '/admin/instructores', label: 'Instructores', icon: UserCog, adminOnly: true },
