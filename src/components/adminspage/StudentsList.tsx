@@ -47,6 +47,13 @@ type SortDir = 'asc' | 'desc';
 export type RoleFilter = ('student' | 'lead' | 'instructor' | 'admin')[];
 
 interface StudentsListProps {
+  filters?: {
+    searchTerm?: string;
+    startDate?: string;
+    endDate?: string;
+  };
+  enrollments?: any[];
+  showCohortInfo?: boolean;
   roleFilter?: RoleFilter;
   title?: string;
   subtitle?: string;
@@ -68,6 +75,9 @@ function getRoleBadgeClass(role: string): string {
 }
 
 export function StudentsList({
+  filters = {},
+  enrollments,
+  showCohortInfo = true,
   roleFilter,
   title = 'Usuarios',
   subtitle = 'Gestiona estudiantes, leads y exalumnos',
@@ -84,6 +94,22 @@ export function StudentsList({
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   useEffect(() => {
+    if (enrollments && enrollments.length > 0) {
+      const extractedProfiles = enrollments
+        .map((e: { profiles?: Profile; profile?: Profile }) => e.profiles ?? e.profile)
+        .filter(Boolean) as Profile[];
+      setProfiles(extractedProfiles);
+      const enrollmentItems: EnrollmentWithCohort[] = enrollments.map((e: { student_id: string; cohort?: { end_date: string } | null }) => ({
+        student_id: e.student_id,
+        cohort: e.cohort ?? null,
+      }));
+      setEnrollmentData(enrollmentItems);
+      setLoading(false);
+    }
+  }, [enrollments]);
+
+  useEffect(() => {
+    if (enrollments && enrollments.length > 0) return;
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -122,7 +148,7 @@ export function StudentsList({
     };
 
     fetchData();
-  }, [supabase, roleFilter]);
+  }, [supabase, roleFilter, enrollments]);
 
   const enrollmentStats = useMemo(() => {
     const today = new Date();

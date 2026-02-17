@@ -249,6 +249,13 @@ export default function Header() {
                         <Newspaper className="w-4 h-4 text-[#2FB7C4]" />
                         <span className="text-sm">Blog</span>
                       </Link>
+                      <Link
+                        href="/admin/cohortes"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                      >
+                        <Users className="w-4 h-4 text-[#2FB7C4]" />
+                        <span className="text-sm">Lista de cohortes</span>
+                      </Link>
                     </>
                   )}
 
@@ -481,6 +488,26 @@ export default function Header() {
                           >
                             <FileText className="w-4 h-4 text-[#2FB7C4]" />
                             <span>Lista de pagos</span>
+                          </Link>
+                          <Link
+                            href="/admin/programas"
+                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setMobileDropdown(null)
+                            }}
+                          >
+                            Lista de programas
+                          </Link>
+                          <Link
+                            href="/admin/cohortes"
+                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setMobileDropdown(null)
+                            }}
+                          >
+                            Lista de cohortes
                           </Link>
                         </>
                       )}

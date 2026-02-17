@@ -40,7 +40,7 @@ export function StudentsFilter({ onFilter }: StudentsFilterProps) {
   };
 
   return (
-    <div className="bg-bg-card border border-border-color p-4 rounded-lg shadow mb-6">
+    <div className="bg-[var(--card-background)] border border-border-color p-4 rounded-xl shadow-lg mb-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-1">
           <label htmlFor="search" className={labelClassName}>
@@ -84,8 +84,9 @@ export function StudentsFilter({ onFilter }: StudentsFilterProps) {
 
         <div className="flex items-end">
           <button
+            type="button"
             onClick={handleClearFilters}
-            className="w-full px-3 py-2 border border-border-color rounded-md text-sm font-medium text-text-primary bg-bg-secondary hover:bg-secondary/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary transition-colors"
+            className="btn-primary w-full text-sm py-2.5"
           >
             Limpiar Filtros
           </button>
