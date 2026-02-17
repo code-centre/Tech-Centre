@@ -272,7 +272,7 @@ export function StudentsList({
       ]
     : [{ id: 'all' as FilterType, label: 'Todos' }];
 
-  if (!user || (user?.role !== 'admin' && user?.role !== 'instructor')) {
+  if (!user || user?.role !== 'admin') {
     return (
       <div className="p-8 text-center text-text-primary">
         No tienes permisos para ver esta sección
