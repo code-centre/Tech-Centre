@@ -171,13 +171,15 @@ export default function InstructorPanel() {
           <GraduationCap className="w-4 h-4" />
           Ver panel de instructor
         </Link>
-        <Link
-          href="/admin/instructores"
-          className="inline-flex items-center gap-2 text-sm font-medium text-text-muted hover:text-text-primary transition-colors"
-        >
-          <BookOpen className="w-4 h-4" />
-          Administración de instructores
-        </Link>
+        {user?.role === 'admin' && (
+          <Link
+            href="/admin/instructores"
+            className="inline-flex items-center gap-2 text-sm font-medium text-text-muted hover:text-text-primary transition-colors"
+          >
+            <BookOpen className="w-4 h-4" />
+            Administración de instructores
+          </Link>
+        )}
       </div>
     </div>
   )

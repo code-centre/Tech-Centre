@@ -2,18 +2,25 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { GraduationCap, Users, FileText, UserCog, Shield } from 'lucide-react';
+import { GraduationCap, Users, FileText, UserCog, Shield, Newspaper } from 'lucide-react';
+import { useUser } from '@/lib/supabase';
 
-const navItems = [
-  { href: '/admin/programas', label: 'Programas', icon: GraduationCap },
-  { href: '/admin/estudiantes', label: 'Estudiantes', icon: Users },
-  { href: '/admin/instructores', label: 'Instructores', icon: UserCog },
-  { href: '/admin/admins', label: 'Admins', icon: Shield },
-  { href: '/admin/pagos', label: 'Pagos', icon: FileText },
+const allNavItems = [
+  { href: '/admin/programas', label: 'Programas', icon: GraduationCap, adminOnly: true },
+  { href: '/admin/blog', label: 'Blog', icon: Newspaper, adminOnly: false },
+  { href: '/admin/estudiantes', label: 'Estudiantes', icon: Users, adminOnly: true },
+  { href: '/admin/instructores', label: 'Instructores', icon: UserCog, adminOnly: true },
+  { href: '/admin/admins', label: 'Admins', icon: Shield, adminOnly: true },
+  { href: '/admin/pagos', label: 'Pagos', icon: FileText, adminOnly: true },
 ];
 
 export default function AdminSidenav() {
   const pathname = usePathname();
+  const { user } = useUser();
+  const isInstructor = user?.role === 'instructor';
+  const navItems = isInstructor
+    ? allNavItems.filter((item) => !item.adminOnly)
+    : allNavItems;
 
   return (
     <aside className="hidden lg:block fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] z-30 bg-[var(--card-background)] border-r border-border-color shadow-xl overflow-hidden overflow-y-auto">

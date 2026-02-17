@@ -2,7 +2,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect, useRef, useCallback } from "react"
-import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, GraduationCap } from "lucide-react"
+import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, GraduationCap, Newspaper } from "lucide-react"
 import { useRouter } from 'next/navigation'
 import { useUser, useSupabaseClient } from '@/lib/supabase'
 import ProgramQuery from "./ProgramQuery"
@@ -122,6 +122,19 @@ export default function Header() {
               </div>
             </div>
 
+            <Link
+              href="/blog"
+              className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
+              font-medium transition-all duration-200 group"
+            >
+              <span
+                className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                after:w-0 after:bg-[#2FB7C4] after:transition-all group-hover:after:w-full"
+              >
+                Blog
+              </span>
+            </Link>
+
             <div className="relative group">
               <a
                 href="https://www.codigoabierto.tech/eventos"
@@ -193,35 +206,48 @@ export default function Header() {
                     </div>
                   </Link>
 
-                  {/* Admin Section - Only show if user is admin */}
-                  {user?.role === 'admin' && (
+                  {/* Admin Section - admin ve todo; instructor solo Blog */}
+                  {(user?.role === 'admin' || user?.role === 'instructor') && (
                     <>
                       <div className="border-t border-[#374151] my-2"></div>
                       <div className="px-4 py-2">
                         <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
-                          Administración
+                          {user?.role === 'admin' ? 'Administración' : 'Blog'}
                         </p>
                       </div>
+                      {user?.role === 'admin' && (
+                        <Link
+                          href="/admin/estudiantes"
+                          className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                        >
+                          <Users className="w-4 h-4 text-[#2FB7C4]" />
+                          <span className="text-sm">Lista estudiantes</span>
+                        </Link>
+                      )}
+                      {user?.role === 'admin' && (
+                        <Link
+                          href="/admin/pagos"
+                          className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                        >
+                          <FileText className="w-4 h-4 text-[#2FB7C4]" />
+                          <span className="text-sm">Lista de pagos</span>
+                        </Link>
+                      )}
+                      {user?.role === 'admin' && (
+                        <Link
+                          href="/admin/programas"
+                          className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                        >
+                          <GraduationCap className="w-4 h-4 text-[#2FB7C4]" />
+                          <span className="text-sm">Lista de programas</span>
+                        </Link>
+                      )}
                       <Link
-                        href="/admin/estudiantes"
+                        href="/admin/blog"
                         className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
                       >
-                        <Users className="w-4 h-4 text-[#2FB7C4]" />
-                        <span className="text-sm">Lista estudiantes</span>
-                      </Link>
-                      <Link
-                        href="/admin/pagos"
-                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
-                      >
-                        <FileText className="w-4 h-4 text-[#2FB7C4]" />
-                        <span className="text-sm">Lista de pagos</span>
-                      </Link>
-                      <Link
-                        href="/admin/programas"
-                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
-                      >
-                        <GraduationCap className="w-4 h-4 text-[#2FB7C4]" />
-                        <span className="text-sm">Lista de programas</span>
+                        <Newspaper className="w-4 h-4 text-[#2FB7C4]" />
+                        <span className="text-sm">Blog</span>
                       </Link>
                     </>
                   )}
@@ -337,6 +363,20 @@ export default function Header() {
               </Link>
             </div>
 
+            {/* Blog Link */}
+            <div className="py-2">
+              <Link
+                href="/blog"
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#2FB7C4] transition-colors duration-200"
+                onClick={() => {
+                  setIsMenuOpen(false)
+                  setMobileDropdown(null)
+                }}
+              >
+                <span>Blog</span>
+              </Link>
+            </div>
+
             {/* Comunidad Link */}
             <div className="py-2">
               <a
@@ -391,42 +431,59 @@ export default function Header() {
                     <span>Cerrar Sesión</span>
                   </button>
 
-                  {/* Admin Section - Only show if user is admin */}
-                  {user?.role === 'admin' && (
+                  {/* Admin Section - admin ve todo; instructor solo Blog */}
+                  {(user?.role === 'admin' || user?.role === 'instructor') && (
                     <div className="py-2 space-y-2">
+                      {user?.role === 'admin' && (
+                        <Link
+                          href="/admin/programas"
+                          className="flex items-center justify-between w-full py-3 px-4 text-white font-semibold bg-[#1A1F2E]/50 hover:bg-[#1A1F2E] rounded-lg transition-colors duration-200"
+                          onClick={() => {
+                            setIsMenuOpen(false)
+                            setMobileDropdown(null)
+                          }}
+                        >
+                          <span>Admin - Programas</span>
+                          <GraduationCap className="w-5 h-5 text-[#2FB7C4]" />
+                        </Link>
+                      )}
                       <Link
-                        href="/admin/programas"
+                        href="/admin/blog"
                         className="flex items-center justify-between w-full py-3 px-4 text-white font-semibold bg-[#1A1F2E]/50 hover:bg-[#1A1F2E] rounded-lg transition-colors duration-200"
                         onClick={() => {
                           setIsMenuOpen(false)
                           setMobileDropdown(null)
                         }}
                       >
-                        <span>Admin - Programas</span>
-                        <GraduationCap className="w-5 h-5 text-[#2FB7C4]" />
+                        <span>{user?.role === 'admin' ? 'Admin - Blog' : 'Blog'}</span>
+                        <Newspaper className="w-5 h-5 text-[#2FB7C4]" />
                       </Link>
-                      <Link
-                        href="/admin/estudiantes"
-                        className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                        onClick={() => {
-                          setIsMenuOpen(false)
-                          setMobileDropdown(null)
-                        }}
-                      >
-                        <Users className="w-4 h-4 text-[#2FB7C4]" />
-                        <span>Lista estudiantes</span>
-                      </Link>
-                      <Link
-                        href="/admin/pagos"
-                        className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                        onClick={() => {
-                          setIsMenuOpen(false)
-                          setMobileDropdown(null)
-                        }}
-                      >
-                        <FileText className="w-4 h-4 text-[#2FB7C4]" />
-                        <span>Lista de pagos</span>
-                      </Link>
+                      {user?.role === 'admin' && (
+                        <>
+                          <Link
+                            href="/admin/estudiantes"
+                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setMobileDropdown(null)
+                            }}
+                          >
+                            <Users className="w-4 h-4 text-[#2FB7C4]" />
+                            <span>Lista estudiantes</span>
+                          </Link>
+                          <Link
+                            href="/admin/pagos"
+                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setMobileDropdown(null)
+                            }}
+                          >
+                            <FileText className="w-4 h-4 text-[#2FB7C4]" />
+                            <span>Lista de pagos</span>
+                          </Link>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
