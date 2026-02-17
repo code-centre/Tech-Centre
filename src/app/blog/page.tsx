@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import BlogPostCard from '@/components/blog/BlogPostCard';
+import { CollectionPageSchema } from '@/components/seo/StructuredData';
 import type { BlogPost } from '@/types/supabase';
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co';
 
 interface BlogPostWithMeta extends BlogPost {
   author: {
@@ -14,6 +17,31 @@ interface BlogPostWithMeta extends BlogPost {
 export const metadata = {
   title: 'Blog | Tech-Centre',
   description: 'Artículos y recursos sobre tecnología y formación profesional',
+  alternates: {
+    canonical: '/blog',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'es_CO',
+    url: `${BASE_URL}/blog`,
+    siteName: 'Tech Centre',
+    title: 'Blog | Tech-Centre',
+    description: 'Artículos y recursos sobre tecnología y formación profesional',
+    images: [
+      {
+        url: `${BASE_URL}/tech-center-logos/TechCentreLogoColor.png`,
+        width: 1200,
+        height: 630,
+        alt: 'Tech Centre - Blog',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog | Tech-Centre',
+    description: 'Artículos y recursos sobre tecnología y formación profesional',
+    images: [`${BASE_URL}/tech-center-logos/TechCentreLogoColor.png`],
+  },
 };
 
 export default async function BlogPage() {
@@ -67,6 +95,16 @@ export default async function BlogPage() {
 
   return (
     <article>
+      <CollectionPageSchema
+        name="Blog Tech-Centre"
+        description="Artículos y recursos sobre tecnología y formación profesional"
+        url={`${BASE_URL}/blog`}
+        items={postsWithLikes.map((p) => ({
+          name: p.title,
+          url: `${BASE_URL}/blog/${p.slug}`,
+          description: p.excerpt || undefined,
+        }))}
+      />
       <header className="mb-12">
         <h1 className="text-3xl font-bold text-text-primary mb-2">Blog</h1>
         <p className="text-text-muted">

@@ -219,3 +219,108 @@ export function BreadcrumbListSchema({ items }: BreadcrumbListSchemaProps) {
 
   return <StructuredData data={schema} />
 }
+
+interface CollectionPageSchemaProps {
+  name: string
+  description: string
+  url: string
+  items: Array<{
+    name: string
+    url: string
+    description?: string
+  }>
+}
+
+export function CollectionPageSchema({
+  name,
+  description,
+  url,
+  items,
+}: CollectionPageSchemaProps) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name,
+    description,
+    url,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Article",
+          name: item.name,
+          url: item.url,
+          ...(item.description && { description: item.description }),
+        },
+      })),
+    },
+  }
+
+  return <StructuredData data={schema} />
+}
+
+interface ArticleSchemaProps {
+  headline: string
+  description: string
+  image?: string
+  datePublished?: string
+  dateModified?: string
+  author?: { name: string }
+  publisher?: { name: string; logo?: string }
+  mainEntityOfPage?: string
+  interactionStatistic?: { userInteractionCount: number }
+  commentCount?: number
+}
+
+export function ArticleSchema({
+  headline,
+  description,
+  image,
+  datePublished,
+  dateModified,
+  author,
+  publisher = { name: "Tech Centre", logo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co"}/tech-center-logos/TechCentreLogoColor.png` },
+  mainEntityOfPage,
+  interactionStatistic,
+  commentCount,
+}: ArticleSchemaProps) {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co"
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline,
+    description,
+    ...(image && { image }),
+    ...(datePublished && { datePublished }),
+    ...(dateModified && { dateModified }),
+    ...(author && {
+      author: {
+        "@type": "Person",
+        name: author.name,
+      },
+    }),
+    publisher: {
+      "@type": "Organization",
+      name: publisher.name,
+      ...(publisher.logo && {
+        logo: {
+          "@type": "ImageObject",
+          url: publisher.logo,
+        },
+      }),
+    },
+    ...(mainEntityOfPage && { mainEntityOfPage }),
+    ...(interactionStatistic && {
+      interactionStatistic: {
+        "@type": "InteractionCounter",
+        interactionType: "https://schema.org/LikeAction",
+        userInteractionCount: interactionStatistic.userInteractionCount,
+      },
+    }),
+    ...(commentCount !== undefined && { commentCount }),
+  }
+
+  return <StructuredData data={schema} />
+}
