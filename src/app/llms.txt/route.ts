@@ -6,16 +6,17 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co';
 export async function GET() {
   const supabase = await createClient();
 
-  const { data: posts } = await supabase
+  const { data } = await supabase
     .from('blog_posts')
     .select('title, slug, excerpt')
     .eq('is_published', true)
     .order('published_at', { ascending: false });
 
+  const posts = (data ?? []) as Array<{ title: string; slug: string; excerpt: string | null }>;
   const lines: string[] = [];
 
   // File groups: Blog section with links
-  if (posts && posts.length > 0) {
+  if (posts.length > 0) {
     lines.push('## Blog');
     lines.push('');
     for (const post of posts) {
