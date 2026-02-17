@@ -26,9 +26,9 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
   }
 
   return (
-    <aside className="hidden lg:block w-80 bg-bg-card dark:bg-linear-to-br dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 border-r border-border-color dark:border-zinc-700/50 shadow-xl min-h-[calc(100vh-5rem)] sticky top-20 rounded-lg mr-6">
+    <aside className="w-64 bg-[var(--card-background)] border border-border-color rounded-xl shadow-lg min-h-[calc(100vh-8rem)] sticky top-24 overflow-hidden">
       {/* User Profile Header */}
-      <div className="p-6 border-b border-border-color dark:border-zinc-700/50">
+      <div className="p-6 border-b border-border-color">
         <div className="flex items-center gap-4 mb-4">
           <div className="relative">
             <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-secondary/50 shadow-lg ring-2 ring-secondary/20">
@@ -41,23 +41,23 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-linear-to-br from-secondary to-blue-600 flex items-center justify-center text-white font-bold text-xl">
+                <div className="w-full h-full bg-gradient-to-br from-secondary to-blue-600 flex items-center justify-center text-white font-bold text-xl">
                   {user?.first_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
                 </div>
               )}
             </div>
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-bg-card dark:border-zinc-900 rounded-full"></div>
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-[var(--card-background)] rounded-full"></div>
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-text-primary dark:text-white truncate">
+            <h2 className="text-lg font-bold text-text-primary truncate">
               {user?.first_name && user?.last_name 
                 ? `${user.first_name} ${user.last_name}`
                 : user?.first_name || user?.email || 'Usuario'}
             </h2>
             {user?.professional_title && (
-              <p className="text-sm text-text-muted dark:text-gray-400 truncate">{user.professional_title}</p>
+              <p className="text-sm text-text-muted truncate">{user.professional_title}</p>
             )}
-            <p className="text-xs text-text-muted dark:text-gray-500 truncate mt-1 opacity-80">{user?.email}</p>
+            <p className="text-xs text-text-muted truncate mt-1 opacity-80">{user?.email}</p>
           </div>
         </div>
       </div>
@@ -81,44 +81,28 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
                 relative overflow-hidden group
                 ${
                   isActive
-                    ? 'bg-secondary/20 text-secondary shadow-lg shadow-secondary/10 border border-secondary/30 dark:bg-linear-to-r dark:from-secondary/20 dark:to-secondary/10 dark:border-secondary/30'
-                    : 'text-text-muted hover:text-text-primary hover:bg-bg-secondary dark:text-gray-300 dark:hover:text-white dark:hover:bg-zinc-800/50 border border-transparent'
+                    ? 'bg-secondary/20 text-secondary border border-secondary/30'
+                    : 'text-text-muted hover:text-text-primary hover:bg-bg-secondary border border-transparent'
                 }
               `}
             >
-              {/* Active indicator */}
               {isActive && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-r-full"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-r-full" />
               )}
-              
-              {/* Icon */}
-              <div className={`
-                flex items-center justify-center transition-transform duration-200
-                ${isActive ? 'scale-110' : 'group-hover:scale-110'}
-              `}>
-                <Icon 
-                  size={20} 
-                  className={isActive ? 'text-secondary' : 'text-text-muted group-hover:text-secondary dark:text-gray-400 dark:group-hover:text-secondary'}
-                />
-              </div>
-              
-              {/* Label */}
+              <Icon
+                size={20}
+                className={isActive ? 'text-secondary' : 'text-text-muted group-hover:text-secondary'}
+              />
               <span className={`
                 flex-1 text-left transition-colors duration-200
                 ${isActive ? 'font-semibold' : 'font-medium'}
               `}>
               {section.label}
               </span>
-
-              {/* Hover effect */}
-              <div className="absolute inset-0 bg-linear-to-r from-secondary/0 to-secondary/0 group-hover:from-secondary/5 group-hover:to-transparent transition-all duration-200 rounded-lg"></div>
             </Link>
           )
         })}
       </nav>
-
-      {/* Footer decoration */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[var(--border-color)] dark:via-zinc-700 to-transparent"></div>
     </aside>
   )
 }

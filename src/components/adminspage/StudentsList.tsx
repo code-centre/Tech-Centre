@@ -1,23 +1,50 @@
 'use client';
-import { useSupabaseClient } from '@/lib/supabase';
-import { useState, useEffect } from 'react';
 
-// Tipos
+import { useSupabaseClient, useUser } from '@/lib/supabase';
+import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
+import {
+  Users,
+  UserPlus,
+  GraduationCap,
+  BookOpen,
+  Filter,
+  Loader2,
+  Search,
+  ChevronRight,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react';
+
 interface Profile {
   id: string;
   user_id: string;
   first_name: string;
   last_name: string;
   email: string;
-  role: 'student' | 'instructor' | 'admin' | 'lead'; // Tipado estricto para roles
+  role: 'student' | 'instructor' | 'admin' | 'lead';
   created_at: string;
   phone?: string;
-  address?: string;
   professional_title?: string;
-  id_number?: string;
-  id_type?: string;
   linkedin_url?: string;
 }
+
+interface EnrollmentWithCohort {
+  student_id: string;
+  cohort: { end_date: string } | null;
+}
+
+interface CohortInstructorRow {
+  instructor_id: string;
+}
+
+type FilterType = 'all' | 'leads' | 'active' | 'alumni' | 'admin';
+
+type SortKey = 'name' | 'email' | 'role' | 'courses' | 'created_at';
+type SortDir = 'asc' | 'desc';
+
+export type RoleFilter = ('student' | 'lead' | 'instructor' | 'admin')[];
 
 interface StudentsListProps {
   filters?: {
@@ -25,283 +52,552 @@ interface StudentsListProps {
     startDate?: string;
     endDate?: string;
   };
-  enrollments?: any[]; // Para aceptar enrollments directamente
-  showCohortInfo?: boolean; // Para mostrar u ocultar info de cohorte
+  enrollments?: any[];
+  showCohortInfo?: boolean;
+  roleFilter?: RoleFilter;
+  title?: string;
+  subtitle?: string;
 }
 
-export function StudentsList({ filters = {}, enrollments, showCohortInfo = true }: StudentsListProps) {
+function getRoleBadgeClass(role: string): string {
+  switch (role) {
+    case 'student':
+      return 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30';
+    case 'instructor':
+      return 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30';
+    case 'admin':
+      return 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30';
+    case 'lead':
+      return 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30';
+    default:
+      return 'bg-bg-secondary text-text-muted border border-border-color';
+  }
+}
+
+export function StudentsList({
+  filters = {},
+  enrollments,
+  showCohortInfo = true,
+  roleFilter,
+  title = 'Usuarios',
+  subtitle = 'Gestiona estudiantes, leads y exalumnos',
+}: StudentsListProps = {}) {
   const supabase = useSupabaseClient();
-
-  // Si se pasan enrollments, usarlos directamente, si no, buscar en profiles
+  const { user } = useUser();
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // NUEVO: Estado para la tab activa
-  const [activeTab, setActiveTab] = useState<string>('all');
-
-  // Definición de las tabs disponibles
-  const tabs = [
-    { id: 'all', label: 'Todos' },
-    { id: 'student', label: 'Estudiantes' },
-    { id: 'instructor', label: 'Instructores' },
-    { id: 'lead', label: 'Leads' },
-    { id: 'admin', label: 'Administradores' },
-  ];
+  const [enrollmentData, setEnrollmentData] = useState<EnrollmentWithCohort[]>([]);
+  const [cohortInstructorData, setCohortInstructorData] = useState<CohortInstructorRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterType>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('created_at');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   useEffect(() => {
-    if (enrollments) {
-      // Si se pasan enrollments, extraer los perfiles de ahí
-      console.log('Enrollments en StudentsList:', enrollments);
-      const extractedProfiles = enrollments.map(enrollment => enrollment.profiles).filter(Boolean);
-      console.log('Perfiles extraídos:', extractedProfiles);
+    if (enrollments && enrollments.length > 0) {
+      const extractedProfiles = enrollments
+        .map((e: { profiles?: Profile; profile?: Profile }) => e.profiles ?? e.profile)
+        .filter(Boolean) as Profile[];
       setProfiles(extractedProfiles);
-      setIsLoading(false);
-    } else {
-      // Comportamiento original: buscar en profiles
-      const fetchProfiles = async () => {
-        setIsLoading(true);
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('*');
-
-          if (error) throw error;
-          setProfiles((data as Profile[]) || []);
-        } catch (error) {
-          console.error('Error al obtener perfiles:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchProfiles();
+      const enrollmentItems: EnrollmentWithCohort[] = enrollments.map((e: { student_id: string; cohort?: { end_date: string } | null }) => ({
+        student_id: e.student_id,
+        cohort: e.cohort ?? null,
+      }));
+      setEnrollmentData(enrollmentItems);
+      setLoading(false);
     }
-  }, [enrollments, supabase]);
+  }, [enrollments]);
 
-  // Lógica de filtrado unificada (Filtros props + Tab activa)
-  const filteredProfiles = profiles.filter(profile => {
-    if (!profile) return false;
-    
-    // 1. Filtro por TABS (Rol)
-    if (activeTab !== 'all' && profile.role !== activeTab) {
-      return false;
-    }
+  useEffect(() => {
+    if (enrollments && enrollments.length > 0) return;
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [profilesRes, enrollmentsRes, cohortInstructorsRes] = await Promise.all([
+          supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+          supabase
+            .from('enrollments')
+            .select('student_id, cohort:cohorts(end_date)')
+            .order('created_at', { ascending: false }),
+          roleFilter?.includes('instructor')
+            ? supabase.from('cohort_instructors').select('instructor_id')
+            : Promise.resolve({ data: [], error: null }),
+        ]);
 
-    // 2. Filtro búsqueda (SearchTerm)
-    if (filters.searchTerm) {
-      const term = filters.searchTerm.toLowerCase();
-      const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.toLowerCase();
-      if (!fullName.includes(term) && !profile.email?.toLowerCase().includes(term)) {
-        return false;
+        if (profilesRes.error) throw profilesRes.error;
+        if (enrollmentsRes.error) throw enrollmentsRes.error;
+
+        setProfiles((profilesRes.data as Profile[]) || []);
+        const rawEnrollments = (enrollmentsRes.data || []) as Array<{
+          student_id: string;
+          cohort: { end_date: string } | { end_date: string }[] | null;
+        }>;
+        const normalized: EnrollmentWithCohort[] = rawEnrollments.map((e) => ({
+          student_id: e.student_id,
+          cohort: Array.isArray(e.cohort) ? e.cohort[0] ?? null : e.cohort,
+        }));
+        setEnrollmentData(normalized);
+        setCohortInstructorData(
+          (cohortInstructorsRes.data as CohortInstructorRow[]) || []
+        );
+      } catch (err) {
+        console.error('Error al cargar datos:', err);
+      } finally {
+        setLoading(false);
       }
+    };
+
+    fetchData();
+  }, [supabase, roleFilter, enrollments]);
+
+  const enrollmentStats = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const map = new Map<
+      string,
+      { count: number; hasActive: boolean; hasAlumni: boolean }
+    >();
+
+    enrollmentData.forEach((e) => {
+      const endDate = e.cohort?.end_date ? new Date(e.cohort.end_date) : null;
+      endDate?.setHours(0, 0, 0, 0);
+      const isActive = endDate ? endDate >= today : false;
+      const isAlumni = endDate ? endDate < today : false;
+
+      const current = map.get(e.student_id) || {
+        count: 0,
+        hasActive: false,
+        hasAlumni: false,
+      };
+      map.set(e.student_id, {
+        count: current.count + 1,
+        hasActive: current.hasActive || isActive,
+        hasAlumni: current.hasAlumni || isAlumni,
+      });
+    });
+
+    return map;
+  }, [enrollmentData]);
+
+  const instructorCohortCount = useMemo(() => {
+    const map = new Map<string, number>();
+    cohortInstructorData.forEach((row) => {
+      map.set(row.instructor_id, (map.get(row.instructor_id) ?? 0) + 1);
+    });
+    return map;
+  }, [cohortInstructorData]);
+
+  const isInstructorView =
+    roleFilter?.length === 1 && roleFilter[0] === 'instructor';
+
+  const roleFilteredProfiles = useMemo(() => {
+    if (!roleFilter || roleFilter.length === 0) return profiles;
+    if (isInstructorView) {
+      return profiles.filter(
+        (p) => (instructorCohortCount.get(p.user_id) ?? 0) > 0
+      );
     }
-    
-    // 3. Filtro fechas
-    if (filters.startDate && new Date(profile.created_at) < new Date(filters.startDate)) return false;
-    if (filters.endDate && new Date(profile.created_at) > new Date(filters.endDate)) return false;
-    
-    return true;
-  });
+    return profiles.filter((p) => roleFilter.includes(p.role));
+  }, [profiles, roleFilter, isInstructorView, instructorCohortCount]);
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingProfile) return;
+  const stats = useMemo(() => {
+    const leads = roleFilteredProfiles.filter((p) => p.role === 'lead').length;
+    let active = 0;
+    let alumni = 0;
+    roleFilteredProfiles.forEach((p) => {
+      const s = enrollmentStats.get(p.user_id);
+      if (s) {
+        if (s.hasActive) active++;
+        if (s.hasAlumni) alumni++;
+      }
+    });
+    const admins = roleFilteredProfiles.filter((p) => p.role === 'admin').length;
+    return {
+      total: roleFilteredProfiles.length,
+      leads,
+      active,
+      alumni,
+      admins,
+    };
+  }, [roleFilteredProfiles, enrollmentStats]);
 
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({
-          first_name: editingProfile.first_name,
-          last_name: editingProfile.last_name,
-          email: editingProfile.email,
-          phone: editingProfile.phone,
-          address: editingProfile.address,
-          role: editingProfile.role,
-          professional_title: editingProfile.professional_title,
-          id_number: editingProfile.id_number,
-          id_type: editingProfile.id_type,
-          linkedin_url: editingProfile.linkedin_url,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', editingProfile.user_id)
-        .select();
+  const filteredProfiles = useMemo(() => {
+    return roleFilteredProfiles.filter((p) => {
+      if (filter === 'leads' && p.role !== 'lead') return false;
+      if (filter === 'admin' && p.role !== 'admin') return false;
+      if (filter === 'active') {
+        const s = enrollmentStats.get(p.user_id);
+        if (!s?.hasActive) return false;
+      }
+      if (filter === 'alumni') {
+        const s = enrollmentStats.get(p.user_id);
+        if (!s?.hasAlumni) return false;
+      }
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        const fullName = `${p.first_name || ''} ${p.last_name || ''}`.toLowerCase();
+        if (
+          !fullName.includes(term) &&
+          !(p.email || '').toLowerCase().includes(term)
+        ) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [roleFilteredProfiles, filter, searchTerm, enrollmentStats]);
 
-      if (error) throw error;
+  const sortedProfiles = useMemo(() => {
+    const arr = [...filteredProfiles];
+    const mult = sortDir === 'asc' ? 1 : -1;
+    arr.sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === 'name') {
+        const na = `${a.first_name} ${a.last_name}`.toLowerCase();
+        const nb = `${b.first_name} ${b.last_name}`.toLowerCase();
+        cmp = na.localeCompare(nb);
+      } else if (sortKey === 'email') {
+        cmp = (a.email || '').localeCompare(b.email || '');
+      } else if (sortKey === 'role') {
+        cmp = (a.role || '').localeCompare(b.role || '');
+      } else if (sortKey === 'courses') {
+        const ca =
+          a.role === 'instructor'
+            ? instructorCohortCount.get(a.user_id) ?? 0
+            : enrollmentStats.get(a.user_id)?.count ?? 0;
+        const cb =
+          b.role === 'instructor'
+            ? instructorCohortCount.get(b.user_id) ?? 0
+            : enrollmentStats.get(b.user_id)?.count ?? 0;
+        cmp = ca - cb;
+      } else {
+        cmp =
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      }
+      return cmp * mult;
+    });
+    return arr;
+  }, [filteredProfiles, sortKey, sortDir, enrollmentStats, instructorCohortCount]);
 
-      setProfiles(profiles.map(p => p.user_id === editingProfile.user_id ? (data[0] as Profile) : p));
-      setIsEditing(false);
-      setEditingProfile(null);
-    } catch (error) {
-      console.error('Error update:', error);
-      alert('Error al actualizar');
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDir(key === 'created_at' ? 'desc' : 'asc');
     }
   };
 
-  const handleDeleteProfile = async (profileId: string) => {
-    if (!window.confirm('¿Eliminar perfil irreversiblemente?')) return;
-    try {
-      const { error } = await supabase.from('profiles').delete().eq('id', profileId);
-      if (error) throw error;
-      setProfiles(profiles.filter(p => p.id !== profileId));
-    } catch (error) {
-      console.error('Error delete:', error);
-    }
-  };
+  const showStudentFilters = roleFilter?.includes('student') || roleFilter?.includes('lead');
+  const filterTabs = showStudentFilters
+    ? [
+        { id: 'all' as FilterType, label: 'Todos' },
+        { id: 'leads' as FilterType, label: 'Leads' },
+        { id: 'active' as FilterType, label: 'En curso' },
+        { id: 'alumni' as FilterType, label: 'Exalumnos' },
+      ]
+    : [{ id: 'all' as FilterType, label: 'Todos' }];
 
-  // Estilos reutilizables dark mode
-  const inputClassName = "mt-1 block w-full border border-gray-600 rounded-md shadow-sm p-2 bg-gray-900 text-white focus:ring-blue-500 focus:border-blue-500";
-  const labelClassName = "block text-sm font-medium text-gray-300";
+  if (!user || user?.role !== 'admin') {
+    return (
+      <div className="p-8 text-center text-text-primary">
+        No tienes permisos para ver esta sección
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* --- ZONA DE TABS --- */}
-      <div className="border-b border-gray-800">
-        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-          {tabs.map((tab) => {
-            // Calculamos cuántos hay de cada rol para mostrar un contador (Opcional pero útil)
-            const count = profiles.filter(p => tab.id === 'all' ? true : p.role === tab.id).length;
-            const isActive = activeTab === tab.id;
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`
-                  whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors
-                  ${isActive 
-                    ? 'border-blue-500 text-blue-400' 
-                    : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-600'}
-                `}
-              >
-                {tab.label}
-                <span className={`
-                  hidden md:inline-flex items-center justify-center px-2 py-0.5 ml-2 text-xs font-bold rounded-full
-                  ${isActive ? 'bg-blue-900 text-blue-200' : 'bg-gray-800 text-gray-400'}
-                `}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* --- TABLA --- */}
-      <div className="overflow-x-auto bg-black rounded-lg shadow border border-gray-800 mt-2">
-        {isLoading ? (
-          <div className="text-center py-12 text-gray-400 animate-pulse">Cargando datos...</div>
-        ) : (
-          <table className="min-w-full divide-y divide-gray-800">
-            <thead className="bg-gray-900">
-              <tr>
-                {['ID', 'Nombre', 'Email', 'Rol', 'Fecha', 'Título', 'LinkedIn', 'Acciones'].map((header) => (
-                  <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-black divide-y divide-gray-800">
-              {filteredProfiles.map((profile) => (
-                <tr key={profile.id} className="hover:bg-gray-900 transition-colors group">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">
-                      {profile.user_id.slice(0, 8)}...
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                    {profile.first_name} {profile.last_name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                    {profile.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                     {/* Badge de Rol con colores dinámicos */}
-                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                       ${profile.role === 'student' ? 'bg-green-900 text-green-200 border border-green-800' : 
-                         profile.role === 'instructor' ? 'bg-yellow-900 text-yellow-200 border border-yellow-800' :
-                         profile.role === 'admin' ? 'bg-purple-900 text-purple-200 border border-purple-800' : 
-                         'bg-blue-900 text-blue-200 border border-blue-800'}`}>
-                        {profile.role?.toUpperCase()}
-                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                    {new Date(profile.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                    {profile.professional_title || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                    {profile.linkedin_url ? (
-                      <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
-                        Link
-                      </a>
-                    ) : '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={() => { setEditingProfile(profile); setIsEditing(true); }}
-                        className="text-blue-400 hover:text-blue-300"
-                      >
-                        Editar
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteProfile(profile.id)}
-                        className="text-red-400 hover:text-red-300"
-                      >
-                        Borrar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        
-        {!isLoading && filteredProfiles.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-gray-400 text-lg">No hay usuarios en esta categoría.</p>
-            {activeTab !== 'all' && (
-               <p className="text-gray-600 text-sm mt-2">Intenta cambiar a la pestaña "Todos"</p>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* --- MODAL EDITAR (Igual que antes pero mantenido por consistencia) --- */}
-      {isEditing && editingProfile && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-              <h2 className="text-xl font-bold text-white">Editar: {editingProfile.first_name}</h2>
-              <button onClick={() => setIsEditing(false)} className="text-gray-400 hover:text-white">✕</button>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
+            <div className="p-2 bg-secondary/10 rounded-lg">
+              <Users className="text-secondary" size={28} />
             </div>
-            <form onSubmit={handleUpdateProfile} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label className={labelClassName}>Nombre</label><input type="text" value={editingProfile.first_name} onChange={(e) => setEditingProfile({...editingProfile, first_name: e.target.value})} className={inputClassName} required /></div>
-                <div><label className={labelClassName}>Apellido</label><input type="text" value={editingProfile.last_name} onChange={(e) => setEditingProfile({...editingProfile, last_name: e.target.value})} className={inputClassName} required /></div>
-                <div className="md:col-span-2"><label className={labelClassName}>Email</label><input type="email" value={editingProfile.email} onChange={(e) => setEditingProfile({...editingProfile, email: e.target.value})} className={inputClassName} required /></div>
-                <div>
-                  <label className={labelClassName}>Rol</label>
-                  <select value={editingProfile.role} onChange={(e) => setEditingProfile({...editingProfile, role: e.target.value as any})} className={inputClassName}>
-                    <option value="student">Estudiante</option>
-                    <option value="instructor">Instructor</option>
-                    <option value="admin">Admin</option>
-                    <option value="lead">Lead</option>
-                  </select>
-                </div>
-                <div><label className={labelClassName}>LinkedIn</label><input type="text" value={editingProfile.linkedin_url || ''} onChange={(e) => setEditingProfile({...editingProfile, linkedin_url: e.target.value})} className={inputClassName} /></div>
-              </div>
-              <div className="flex justify-end space-x-3 mt-8 pt-4 border-t border-gray-700">
-                <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 border border-gray-600 rounded-md text-gray-300 hover:bg-gray-800">Cancelar</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Guardar</button>
-              </div>
-            </form>
+            {title}
+          </h1>
+          <p className="text-text-muted mt-2">{subtitle}</p>
+        </div>
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre o email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+          />
+        </div>
+      </div>
+
+      {/* Stats cards */}
+      <div
+        className={`grid gap-4 ${
+          showStudentFilters
+            ? 'grid-cols-1 md:grid-cols-4'
+            : 'grid-cols-1 md:grid-cols-1 max-w-xs'
+        }`}
+      >
+        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-text-muted text-sm mb-1">Total</p>
+              <p className="text-3xl font-bold text-text-primary">{stats.total}</p>
+            </div>
+            <div className="p-3 bg-secondary/10 rounded-lg">
+              <Users className="text-secondary" size={24} />
+            </div>
           </div>
         </div>
-      )}
+        {showStudentFilters && (
+          <>
+            <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-text-muted text-sm mb-1">Leads</p>
+                  <p className="text-3xl font-bold text-blue-400">{stats.leads}</p>
+                </div>
+                <div className="p-3 bg-blue-500/10 rounded-lg">
+                  <UserPlus className="text-blue-400" size={24} />
+                </div>
+              </div>
+            </div>
+            <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-text-muted text-sm mb-1">En curso activo</p>
+                  <p className="text-3xl font-bold text-green-400">{stats.active}</p>
+                </div>
+                <div className="p-3 bg-green-500/10 rounded-lg">
+                  <GraduationCap className="text-green-400" size={24} />
+                </div>
+              </div>
+            </div>
+            <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-text-muted text-sm mb-1">Exalumnos</p>
+                  <p className="text-3xl font-bold text-amber-400">{stats.alumni}</p>
+                </div>
+                <div className="p-3 bg-amber-500/10 rounded-lg">
+                  <BookOpen className="text-amber-400" size={24} />
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Filters */}
+      <div className="flex items-center gap-3">
+        <Filter className="text-text-muted" size={20} />
+        <div className="flex flex-wrap gap-2">
+          {filterTabs.map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => setFilter(id)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                filter === id
+                  ? 'btn-primary'
+                  : 'bg-bg-secondary text-text-primary border border-border-color hover:bg-bg-secondary/80 hover:border-secondary/50'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden">
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-12 h-12 animate-spin text-secondary" />
+          </div>
+        ) : filteredProfiles.length === 0 ? (
+          <div className="p-12 text-center">
+            <Users className="w-16 h-16 text-text-muted mx-auto mb-4" />
+            <p className="text-text-muted text-lg">
+              No hay usuarios {filter !== 'all' ? 'en esta categoría' : ''}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border-color">
+              <thead className="bg-bg-secondary/50 border-b border-border-color">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider w-12"
+                  >
+                    #
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleSort('name')}
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
+                    >
+                      Usuario
+                      {sortKey === 'name' ? (
+                        sortDir === 'asc' ? (
+                          <ArrowUp className="w-4 h-4" />
+                        ) : (
+                          <ArrowDown className="w-4 h-4" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="w-4 h-4 opacity-50" />
+                      )}
+                    </button>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleSort('role')}
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
+                    >
+                      Rol
+                      {sortKey === 'role' ? (
+                        sortDir === 'asc' ? (
+                          <ArrowUp className="w-4 h-4" />
+                        ) : (
+                          <ArrowDown className="w-4 h-4" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="w-4 h-4 opacity-50" />
+                      )}
+                    </button>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleSort('courses')}
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
+                    >
+                      {roleFilter?.includes('instructor') &&
+                      !roleFilter?.includes('student') &&
+                      !roleFilter?.includes('lead')
+                        ? 'Cohortes'
+                        : 'Cursos'}
+                      {sortKey === 'courses' ? (
+                        sortDir === 'asc' ? (
+                          <ArrowUp className="w-4 h-4" />
+                        ) : (
+                          <ArrowDown className="w-4 h-4" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="w-4 h-4 opacity-50" />
+                      )}
+                    </button>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleSort('created_at')}
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
+                    >
+                      Registro
+                      {sortKey === 'created_at' ? (
+                        sortDir === 'asc' ? (
+                          <ArrowUp className="w-4 h-4" />
+                        ) : (
+                          <ArrowDown className="w-4 h-4" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="w-4 h-4 opacity-50" />
+                      )}
+                    </button>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider"
+                  >
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-color bg-[var(--card-background)]">
+                {sortedProfiles.map((profile, index) => {
+                  const courseCount =
+                    profile.role === 'instructor'
+                      ? instructorCohortCount.get(profile.user_id) ?? 0
+                      : enrollmentStats.get(profile.user_id)?.count ?? 0;
+                  const detailHref =
+                    profile.role === 'instructor'
+                      ? `/admin/instructores/${profile.user_id}`
+                      : `/admin/estudiantes/${profile.user_id}`;
+                  return (
+                    <tr
+                      key={profile.user_id}
+                      className="hover:bg-bg-secondary/30 transition-colors"
+                    >
+                      <td className="px-4 py-3 text-text-muted font-medium">
+                        {index + 1}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div>
+                          <p className="font-medium text-text-primary">
+                            {profile.first_name} {profile.last_name}
+                          </p>
+                          <p className="text-sm text-text-muted">{profile.email}</p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex px-2.5 py-1 rounded-md text-xs font-semibold ${getRoleBadgeClass(
+                            profile.role
+                          )}`}
+                        >
+                          {profile.role === 'lead'
+                            ? 'Lead'
+                            : profile.role === 'student'
+                              ? 'Estudiante'
+                              : profile.role === 'instructor'
+                                ? 'Instructor'
+                                : profile.role === 'admin'
+                                  ? 'Admin'
+                                  : profile.role}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium bg-secondary/20 text-secondary border border-secondary/30">
+                          <BookOpen className="w-4 h-4" />
+                          {courseCount}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-text-muted">
+                        {new Date(profile.created_at).toLocaleDateString('es-CO')}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Link
+                          href={detailHref}
+                          className="btn-primary inline-flex items-center gap-2 text-sm px-4 py-2"
+                        >
+                          Ver detalles
+                          <ChevronRight className="w-4 h-4" />
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

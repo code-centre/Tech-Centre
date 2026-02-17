@@ -30,7 +30,6 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  // Solo verificar si hay usuario autenticado (NO consultar profiles)
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -38,6 +37,7 @@ export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isProtected = PROTECTED_PREFIXES.some((p) => path.startsWith(p));
   const isAdminRoute = path.startsWith("/admin");
+  const isInstructorRoute = path.startsWith("/instructor");
 
   if (isProtected && !user) {
     const url = req.nextUrl.clone();
@@ -46,15 +46,39 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Verificar rol de administrador para rutas de admin
+  // Rutas /admin: admin siempre; /admin/blog también permite instructores
   if (isAdminRoute && user) {
     const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('user_id', user.id)
+      .from("profiles")
+      .select("role")
+      .eq("user_id", user.id)
       .single();
 
-    if (!profile || profile.role !== 'admin') {
+    const role = (profile as { role?: string } | null)?.role;
+    const isAdminBlogRoute = path.startsWith("/admin/blog");
+
+    if (role === "admin") {
+      // Admin puede todo
+    } else if (isAdminBlogRoute && role === "instructor") {
+      // Instructor solo puede /admin/blog
+    } else {
+      const url = req.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Rutas /instructor: admin o instructor pueden acceder
+  if (isInstructorRoute && user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    const role = (profile as { role?: string } | null)?.role;
+    const canAccessInstructor = role === "admin" || role === "instructor";
+    if (!canAccessInstructor) {
       const url = req.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url);

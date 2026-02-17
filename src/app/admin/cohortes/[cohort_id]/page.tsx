@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useSupabaseClient } from '@/lib/supabase';
 import { StudentsList } from '@/components/adminspage/StudentsList';
-import { StudentsFilter } from '@/components/adminspage/StudentsFilter';
 import EnrollmentModal from '@/components/adminspage/EnrollmentModal';
-// import AdminRoute from '@/components/auth/AdminRoute';
 import Link from 'next/link';
+import { ArrowLeft, UserPlus, Calendar, BookOpen, Hash } from 'lucide-react';
 
 interface Profile {
   user_id: string;
@@ -38,12 +37,10 @@ interface Enrollment {
 
 export default function CohortStudentsPage() {
   const params = useParams();
-  const router = useRouter();
   const supabase = useSupabaseClient();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [cohort, setCohort] = useState<any>(null);
-  const [filters, setFilters] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [availableStudents, setAvailableStudents] = useState<any[]>([]);
 
@@ -108,93 +105,91 @@ export default function CohortStudentsPage() {
     }
   };
 
-  const handleFilter = (newFilters: any) => {
-    setFilters(newFilters);
-    console.log('Aplicando filtros:', newFilters);
-  };
-
   const handleEnrollmentCreated = () => {
     fetchCohortAndStudents();
   };
 
   if (loading) {
     return (
-    //   <AdminRoute>
-        <div className="flex justify-center items-center min-h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        </div>
-      // </AdminRoute>
+      <div className="flex justify-center items-center min-h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary"></div>
+      </div>
     );
   }
 
-  return (
-    // <AdminRoute>
-      <main className="container mx-auto px-4 py-8 mt-24">
-        {/* Breadcrumb Navigation */}
-        <nav className="flex mb-6 text-sm">
-          <Link 
-            href="/admin/cohortes" 
-            className="text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            ← Volver a Cohortes
-          </Link>
-          <span className="mx-2 text-gray-500">/</span>
-          <span className="text-gray-700 font-medium">
-            {cohort?.name || `Cohorte ${cohortId}`}
-          </span>
-        </nav>
+  const programName = Array.isArray(cohort?.programs)
+    ? cohort?.programs?.[0]?.name
+    : cohort?.programs?.name;
+  const cohortName = cohort?.name || `Cohorte ${cohortId}`;
 
-        {/* Cohort Header */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-          <div className="flex justify-between items-start mb-4">
+  return (
+    <main className="container mx-auto px-4 py-8 space-y-6">
+      <article
+        className="bg-[var(--card-background)] rounded-xl border border-border-color shadow-lg overflow-hidden"
+        aria-labelledby="cohort-header-title"
+      >
+        <div className="p-6">
+          <Link
+            href="/admin/cohortes"
+            className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-secondary transition-colors mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver a Cohortes
+          </Link>
+
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Estudiantes de la Cohorte: {cohort?.name || `Cohorte ${cohortId}`}
+              <h1
+                id="cohort-header-title"
+                className="text-2xl md:text-3xl font-bold text-text-primary mb-4 flex items-center gap-3"
+              >
+                <div className="p-2.5 bg-secondary/10 rounded-xl">
+                  <Calendar className="w-7 h-7 text-secondary" />
+                </div>
+                {cohortName}
               </h1>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                <div>
-                  <span className="font-medium">ID:</span> {cohort?.id}
-                </div>
-                <div>
-                  <span className="font-medium">Programa:</span> {cohort?.programs?.name}
-                </div>
-                <div>
-                  <span className="font-medium">Fechas:</span> {cohort?.start_date} - {cohort?.end_date}
-                </div>
+              <div className="flex flex-wrap gap-6 text-sm">
+                <span className="flex items-center gap-2 text-text-muted">
+                  <Hash className="w-4 h-4 text-secondary" />
+                  <span className="text-text-primary font-medium">ID:</span>
+                  {cohort?.id}
+                </span>
+                <span className="flex items-center gap-2 text-text-muted">
+                  <BookOpen className="w-4 h-4 text-secondary" />
+                  <span className="text-text-primary font-medium">Programa:</span>
+                  {programName || '—'}
+                </span>
+                <span className="flex items-center gap-2 text-text-muted">
+                  <Calendar className="w-4 h-4 text-secondary" />
+                  <span className="text-text-primary font-medium">Fechas:</span>
+                  {cohort?.start_date} — {cohort?.end_date}
+                </span>
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setIsModalOpen(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              className="btn-primary inline-flex items-center gap-2 shrink-0"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
+              <UserPlus className="w-5 h-5" />
               Añadir Estudiante
             </button>
           </div>
         </div>
+      </article>
 
-        {/* Filters */}
-        <StudentsFilter onFilter={handleFilter} />
+      <StudentsList
+        enrollments={enrollments}
+        showCohortInfo={false}
+      />
 
-        {/* Students List */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <StudentsList 
-            filters={filters} 
-            enrollments={enrollments}
-            showCohortInfo={false}
-          />
-        </div>
-
-        {/* Enrollment Modal */}
-        <EnrollmentModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          cohortId={cohortId}
-          onEnrollmentCreated={handleEnrollmentCreated}
-        />
-      </main>
-    // </AdminRoute>
+      <EnrollmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        cohortId={cohortId}
+        cohortName={cohort?.name}
+        onEnrollmentCreated={handleEnrollmentCreated}
+      />
+    </main>
   );
 }

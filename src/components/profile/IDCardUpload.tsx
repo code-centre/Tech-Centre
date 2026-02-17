@@ -162,7 +162,7 @@ export default function IDCardUpload({
 
     return (
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-text-muted dark:text-gray-300">
+        <label className="flex items-center gap-2 text-sm font-medium text-text-muted">
           <FileText className="w-4 h-4" />
           {side === 'front' ? 'Frente de cédula' : 'Reverso de cédula'}
         </label>
@@ -171,7 +171,7 @@ export default function IDCardUpload({
           className={`relative border-2 border-dashed rounded-lg p-4 transition-all duration-200 ${
             isActive
               ? 'border-secondary bg-secondary/5'
-              : 'border-border-color dark:border-gray-700/50 hover:border-secondary/50 bg-bg-secondary dark:bg-gray-800/30 dark:hover:border-gray-600/50'
+              : 'border-border-color hover:border-secondary/50 bg-bg-secondary'
           }`}
           onDragEnter={(e) => handleDrag(e, side)}
           onDragOver={(e) => handleDrag(e, side)}
@@ -182,9 +182,9 @@ export default function IDCardUpload({
             // Preview mode
             <div className="relative group">
               {isPdf ? (
-                <div className="w-full h-48 rounded-lg bg-bg-secondary dark:bg-gray-800/50 flex flex-col items-center justify-center gap-2">
+                <div className="w-full h-48 rounded-lg bg-bg-secondary flex flex-col items-center justify-center gap-2">
                   <FileText className="w-12 h-12 text-secondary" />
-                  <span className="text-sm text-text-primary dark:text-gray-300 font-medium">PDF</span>
+                  <span className="text-sm text-text-primary font-medium">PDF</span>
                   <a
                     href={url}
                     target="_blank"
@@ -222,17 +222,17 @@ export default function IDCardUpload({
             // Upload progress
             <div className="flex flex-col items-center justify-center h-48">
               <div className="w-16 h-16 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-4"></div>
-              <p className="text-text-muted dark:text-gray-400 text-sm">Subiendo archivo... {progress}%</p>
+              <p className="text-text-muted text-sm">Subiendo archivo... {progress}%</p>
             </div>
           ) : (
             // Upload area
             <div className="flex flex-col items-center justify-center h-48 cursor-pointer"
                  onClick={() => side === 'front' ? frontInputRef.current?.click() : backInputRef.current?.click()}>
-              <Upload className="w-12 h-12 text-text-muted dark:text-gray-500 mb-3" />
-              <p className="text-text-muted dark:text-gray-400 text-sm text-center">
+              <Upload className="w-12 h-12 text-text-muted mb-3" />
+              <p className="text-text-muted text-sm text-center">
                 Arrastra una imagen o PDF aquí o haz clic para seleccionar
               </p>
-              <p className="text-text-muted dark:text-gray-500 text-xs mt-1 opacity-80">
+              <p className="text-text-muted text-xs mt-1 opacity-80">
                 JPG, PNG, PDF (Máx. 5MB)
               </p>
             </div>

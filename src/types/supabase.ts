@@ -9,6 +9,38 @@ export type Json =
 export type UserRole = 'ADMIN' | 'USER' | 'STUDENT' | 'TEACHER' | 'admin' | 'instructor' | 'student';
 type IdType = 'CC' | 'TI' | 'CE' | 'PASAPORTE';
 
+/** Blog post - article written by admin or instructor */
+export interface BlogPost {
+  id: string;
+  author_id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  cover_image: string | null;
+  is_published: boolean;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Blog comment on a post */
+export interface BlogComment {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+}
+
+/** Blog like - one per user per post */
+export interface BlogLike {
+  id: string;
+  post_id: string;
+  user_id: string;
+  created_at: string;
+}
+
 /**
  * Interface para usuarios del sistema
  */
@@ -109,6 +141,39 @@ export interface Database {
           created_at?: string; // timestamptz
           updated_at?: string; // timestamptz
         };
+      };
+      blog_posts: {
+        Row: BlogPost;
+        Insert: {
+          id?: string;
+          author_id: string;
+          title: string;
+          slug: string;
+          excerpt?: string | null;
+          content?: string | null;
+          cover_image?: string | null;
+          is_published?: boolean;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<BlogPost, 'id'>>;
+      };
+      blog_comments: {
+        Row: BlogComment;
+        Insert: Omit<BlogComment, 'id' | 'created_at'> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<BlogComment, 'id'>>;
+      };
+      blog_likes: {
+        Row: BlogLike;
+        Insert: Omit<BlogLike, 'id' | 'created_at'> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<BlogLike, 'id'>>;
       };
     };
   };

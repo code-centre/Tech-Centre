@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function CohortesAdminPage() {
   return (
     // <AdminRoute>
-      <main className="container mx-auto p-6 mt-24">
+      <main className="container mx-auto p-6">
         <CohortesAdmon />
       </main>
     // </AdminRoute>

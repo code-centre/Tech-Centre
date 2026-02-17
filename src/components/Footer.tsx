@@ -40,7 +40,7 @@ export function Footer() {
   }, [supabase])
 
   return (
-    <footer className="card-background text-text-primary py-8 border-t border-border-color">
+    <footer className="relative z-40 card-background text-text-primary py-8 border-t border-border-color">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Tech Centre Column */}
