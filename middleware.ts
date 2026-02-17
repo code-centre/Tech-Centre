@@ -37,12 +37,28 @@ export async function middleware(req: NextRequest) {
 
   const path = req.nextUrl.pathname;
   const isProtected = PROTECTED_PREFIXES.some((p) => path.startsWith(p));
+  const isAdminRoute = path.startsWith("/admin");
 
   if (isProtected && !user) {
     const url = req.nextUrl.clone();
     url.pathname = "/iniciar-sesion";
     url.searchParams.set("next", path);
     return NextResponse.redirect(url);
+  }
+
+  // Verificar rol de administrador para rutas de admin
+  if (isAdminRoute && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!profile || profile.role !== 'admin') {
+      const url = req.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
   }
 
   // Si ya está logueado y entra a login/registro, redirigir a perfil

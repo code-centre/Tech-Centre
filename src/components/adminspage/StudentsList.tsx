@@ -25,11 +25,14 @@ interface StudentsListProps {
     startDate?: string;
     endDate?: string;
   };
+  enrollments?: any[]; // Para aceptar enrollments directamente
+  showCohortInfo?: boolean; // Para mostrar u ocultar info de cohorte
 }
 
-export function StudentsList({ filters = {} }: StudentsListProps) {
+export function StudentsList({ filters = {}, enrollments, showCohortInfo = true }: StudentsListProps) {
   const supabase = useSupabaseClient();
 
+  // Si se pasan enrollments, usarlos directamente, si no, buscar en profiles
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -48,24 +51,34 @@ export function StudentsList({ filters = {} }: StudentsListProps) {
   ];
 
   useEffect(() => {
-    const fetchProfiles = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*');
+    if (enrollments) {
+      // Si se pasan enrollments, extraer los perfiles de ahí
+      console.log('Enrollments en StudentsList:', enrollments);
+      const extractedProfiles = enrollments.map(enrollment => enrollment.profiles).filter(Boolean);
+      console.log('Perfiles extraídos:', extractedProfiles);
+      setProfiles(extractedProfiles);
+      setIsLoading(false);
+    } else {
+      // Comportamiento original: buscar en profiles
+      const fetchProfiles = async () => {
+        setIsLoading(true);
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*');
 
-        if (error) throw error;
-        setProfiles((data as Profile[]) || []);
-      } catch (error) {
-        console.error('Error al obtener perfiles:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+          if (error) throw error;
+          setProfiles((data as Profile[]) || []);
+        } catch (error) {
+          console.error('Error al obtener perfiles:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
-    fetchProfiles();
-  }, [supabase]);
+      fetchProfiles();
+    }
+  }, [enrollments, supabase]);
 
   // Lógica de filtrado unificada (Filtros props + Tab activa)
   const filteredProfiles = profiles.filter(profile => {

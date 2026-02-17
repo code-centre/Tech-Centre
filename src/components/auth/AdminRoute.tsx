@@ -11,7 +11,19 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (!loading && !user) {
+      console.log('Usuario no autenticado, redirigiendo a login');
       router.push('/iniciar-sesion');
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      console.log('Usuario autenticado:', user);
+      console.log('Rol del usuario:', user.role);
+      if (user.role !== 'admin') {
+        console.log('Usuario no es admin, redirigiendo a página principal');
+        router.push('/');
+      }
     }
   }, [user, loading, router]);
 
@@ -25,7 +37,6 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
 
   // Verificar el rol de administrador
   if (user.role !== 'admin') {
-    router.push('/');
     return null;
   }
 
