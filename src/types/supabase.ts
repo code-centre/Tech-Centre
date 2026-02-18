@@ -75,6 +75,9 @@ export interface Session {
   created_at: string;
 }
 
+/** Enrollment row from DB - base shape for enrollments table */
+export type EnrollmentRow = Database['public']['Tables']['enrollments']['Row'];
+
 /** Attendance record - links session to enrollment with status */
 export interface Attendance {
   id: number;
@@ -218,6 +221,66 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Omit<BlogLike, 'id'>>;
+      };
+      invoices: {
+        Row: {
+          id: number;
+          enrollment_id: number;
+          label: string;
+          amount: number;
+          status: string;
+          meta: Json | null;
+          due_date?: string;
+          paid_at?: string | null;
+          url_recipe?: string | null;
+        };
+        Insert: {
+          enrollment_id: number;
+          label: string;
+          amount: number;
+          status?: string;
+          meta?: Json | null;
+          due_date?: string;
+          paid_at?: string | null;
+          url_recipe?: string | null;
+        };
+        Update: {
+          enrollment_id?: number;
+          label?: string;
+          amount?: number;
+          status?: string;
+          meta?: Json | null;
+          due_date?: string;
+          paid_at?: string | null;
+          url_recipe?: string | null;
+        };
+      };
+      enrollments: {
+        Row: {
+          id: number;
+          cohort_id: number;
+          student_id: string;
+          status: string;
+          agreed_price: number | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          cohort_id: number;
+          student_id: string;
+          status?: string;
+          agreed_price?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          cohort_id?: number;
+          student_id?: string;
+          status?: string;
+          agreed_price?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
       };
     };
   };

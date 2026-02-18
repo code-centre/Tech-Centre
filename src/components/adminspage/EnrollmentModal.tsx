@@ -9,6 +9,7 @@ interface EnrollmentModalProps {
   onClose: () => void;
   cohortId: string;
   cohortName?: string;
+  programDefaultPrice?: number;
   onEnrollmentCreated: () => void;
 }
 
@@ -52,6 +53,7 @@ export default function EnrollmentModal({
   onClose,
   cohortId,
   cohortName = 'Cohorte',
+  programDefaultPrice,
   onEnrollmentCreated,
 }: EnrollmentModalProps) {
   const supabase = useSupabaseClient();
@@ -67,15 +69,20 @@ export default function EnrollmentModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const defaultPriceStr =
+    programDefaultPrice != null && programDefaultPrice > 0
+      ? programDefaultPrice.toLocaleString('es-CO')
+      : '';
+
   const resetForm = useCallback(() => {
     setSearchQuery('');
     setSearchResults([]);
     setSelectedStudent(null);
-    setAgreedPrice('');
+    setAgreedPrice(defaultPriceStr);
     setNumInstallments('1');
     setFirstDueDate(new Date().toISOString().split('T')[0]);
     setError(null);
-  }, []);
+  }, [defaultPriceStr]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -124,6 +131,9 @@ export default function EnrollmentModal({
     setSelectedStudent(profile);
     setSearchQuery('');
     setSearchResults([]);
+    if (defaultPriceStr && !agreedPrice) {
+      setAgreedPrice(defaultPriceStr);
+    }
   };
 
   const handleBack = () => {
@@ -134,7 +144,9 @@ export default function EnrollmentModal({
     e.preventDefault();
     if (!selectedStudent) return;
 
-    const amount = agreedPrice ? parseFloat(agreedPrice.replace(/,/g, '')) : 0;
+    const amount = agreedPrice
+      ? parseFloat(agreedPrice.replace(/[.,\s]/g, ''))
+      : 0;
     const num = Math.max(1, parseInt(numInstallments, 10) || 1);
 
     if (amount <= 0) {
@@ -363,7 +375,7 @@ export default function EnrollmentModal({
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 rounded-lg bg-secondary text-white hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>

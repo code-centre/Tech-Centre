@@ -12,6 +12,7 @@ let cachedProvider: PaymentProvider | null = null;
 /**
  * Obtiene el proveedor de pagos configurado
  * Por defecto usa Wompi si no se especifica otro
+ * En servidor usa WOMPI_SECRET_KEY si está disponible (más seguro)
  */
 export function getPaymentProvider(): PaymentProvider {
   if (cachedProvider) {
@@ -19,10 +20,13 @@ export function getPaymentProvider(): PaymentProvider {
   }
 
   const providerName = (process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || 'wompi') as PaymentProviderName;
+  const serverKey = process.env.WOMPI_SECRET_KEY;
 
   switch (providerName) {
     case 'wompi':
-      cachedProvider = new WompiProvider();
+      cachedProvider = new WompiProvider(
+        serverKey ? { secretKey: serverKey } : undefined
+      );
       break;
     
     // Aquí se pueden agregar otros proveedores en el futuro
