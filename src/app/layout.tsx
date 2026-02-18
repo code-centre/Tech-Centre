@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -8,15 +7,6 @@ import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { OrganizationSchema, EducationalOrganizationSchema } from "@/components/seo/StructuredData";
 import { Toaster } from "sonner";
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  fallback: ["system-ui", "arial", "sans-serif"],
-  preload: false,
-});
 
 export const metadata: Metadata = {
   title: {
@@ -115,6 +105,12 @@ export default async function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
         <Script
           id="theme-init"
           strategy="beforeInteractive"
@@ -136,7 +132,8 @@ export default async function RootLayout({
         />
       </head>
      <body
-        className={`${spaceGrotesk.variable} antialiased`}
+        className="antialiased"
+        style={{ fontFamily: "var(--font-space-grotesk)" }}
       >
         <ThemeProvider>
           <OrganizationSchema

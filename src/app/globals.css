@@ -16,6 +16,7 @@
 
 /* Light theme (default) */
 :root {
+  --font-space-grotesk: 'Space Grotesk', system-ui, arial, sans-serif;
   /* Colors */
   --primary: #0F5C4C;
   --secondary: #6ee7b7;
@@ -104,7 +105,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-space-grotesk: var(--font-space-grotesk);
+  --font-space-grotesk: 'Space Grotesk', system-ui, arial, sans-serif;
   --font-parabole: 'Parabole', sans-serif;
   --color-lightBlue: var(--color-lightBlue);
   --color-bgCard: var(--background-card);

@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
         .toBuffer();
     }
 
-    return new NextResponse(output, {
+    return new NextResponse(new Uint8Array(output), {
       headers: {
         'Content-Type': 'image/jpeg',
         'Cache-Control': 'public, max-age=86400, s-maxage=86400',
