@@ -33,6 +33,7 @@ export default function ButtonToEdit({
         onClick={startEditing}
         className={`${sizeClasses[size]} text-gray-400 hover:text-secondary bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-secondary/50 rounded-md transition-all duration-200 flex items-center justify-center`}
         type="button"
+        title="Editar"
         aria-label="Editar"
       >
         <Pencil className={iconSizes[size]} />
@@ -46,6 +47,8 @@ export default function ButtonToEdit({
         onClick={startEditing}
         className={`${sizeClasses[size]} text-gray-400 hover:text-secondary bg-transparent hover:bg-gray-800/30 border border-gray-700/50 hover:border-gray-600 rounded-md transition-all duration-200 flex items-center gap-2 text-sm font-medium`}
         type="button"
+        title={label || 'Editar'}
+        aria-label={label || 'Editar'}
       >
         <Pencil className={iconSizes[size]} />
         {label && <span>{label}</span>}
@@ -58,6 +61,8 @@ export default function ButtonToEdit({
       onClick={startEditing}
       className={`${sizeClasses[size]} text-gray-300 hover:text-white bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-secondary/50 rounded-md transition-all duration-200 flex items-center gap-2 text-sm font-medium shadow-sm hover:shadow-md`}
       type="button"
+      title={label || 'Editar'}
+      aria-label={label || 'Editar'}
     >
       <Pencil className={iconSizes[size]} />
     </button>

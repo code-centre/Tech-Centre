@@ -92,7 +92,12 @@ const LocationModalEditing = ({ eventData, onClose, onLocationCreate, onSaveLoca
             <MapPin className="text-secondary" />
             Editar Ubicación
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-full">
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-zinc-800 rounded-full"
+            title="Cerrar"
+            aria-label="Cerrar"
+          >
             <X className="h-5 w-5 text-gray-300" />
           </button>
         </div>

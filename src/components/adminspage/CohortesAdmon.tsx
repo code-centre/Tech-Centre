@@ -512,6 +512,8 @@ export default function CohortesAdmon() {
                 type="button"
                 onClick={closeModal}
                 className="text-text-muted hover:text-text-primary p-1"
+                title="Cerrar"
+                aria-label="Cerrar"
               >
                 <X className="w-6 h-6" />
               </button>

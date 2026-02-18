@@ -350,6 +350,7 @@ export default function CohortList({
               <button
                 onClick={closeModal}
                 className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-secondary transition-colors"
+                title="Cerrar"
                 aria-label="Cerrar"
               >
                 <X className="w-5 h-5" />
