@@ -6,6 +6,7 @@ import Link from 'next/link';
 import {
   Users,
   UserPlus,
+  UserMinus,
   GraduationCap,
   BookOpen,
   Filter,
@@ -57,6 +58,9 @@ interface StudentsListProps {
   roleFilter?: RoleFilter;
   title?: string;
   subtitle?: string;
+  cohortId?: string;
+  onUserExpelled?: () => void;
+  absencesByEnrollmentId?: Record<number, number>;
 }
 
 function getRoleBadgeClass(role: string): string {
@@ -81,6 +85,9 @@ export function StudentsList({
   roleFilter,
   title = 'Usuarios',
   subtitle = 'Gestiona estudiantes, leads y exalumnos',
+  cohortId,
+  onUserExpelled,
+  absencesByEnrollmentId = {},
 }: StudentsListProps = {}) {
   const supabase = useSupabaseClient();
   const { user } = useUser();
@@ -92,6 +99,16 @@ export function StudentsList({
   const [searchTerm, setSearchTerm] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('created_at');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [expellingId, setExpellingId] = useState<number | null>(null);
+
+  const enrollmentIdMap = useMemo(() => {
+    if (!enrollments?.length) return new Map<string, number>();
+    const map = new Map<string, number>();
+    enrollments.forEach((e: { student_id: string; id?: number }) => {
+      if (e.id != null && e.student_id) map.set(e.student_id, e.id);
+    });
+    return map;
+  }, [enrollments]);
 
   useEffect(() => {
     if (enrollments && enrollments.length > 0) {
@@ -301,6 +318,25 @@ export function StudentsList({
     } else {
       setSortKey(key);
       setSortDir(key === 'created_at' ? 'desc' : 'asc');
+    }
+  };
+
+  const handleExpelUser = async (enrollmentId: number, studentName: string) => {
+    if (!confirm(`¿Estás seguro de que deseas expulsar a ${studentName} de la cohorte?`)) return;
+    setExpellingId(enrollmentId);
+    try {
+      const { error } = await supabase
+        .from('enrollments')
+        .delete()
+        .eq('id', enrollmentId);
+
+      if (error) throw error;
+      onUserExpelled?.();
+    } catch (err) {
+      console.error('Error al expulsar usuario:', err);
+      alert('No se pudo expulsar al usuario. Por favor intenta de nuevo.');
+    } finally {
+      setExpellingId(null);
     }
   };
 
@@ -523,6 +559,14 @@ export function StudentsList({
                   </th>
                     </>
                   )}
+                  {isCohortContext && (
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
+                    >
+                      Faltas
+                    </th>
+                  )}
                   <th
                     scope="col"
                     className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
@@ -605,6 +649,13 @@ export function StudentsList({
                       </td>
                         </>
                       )}
+                      {isCohortContext && (
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center justify-center min-w-[2rem] px-2.5 py-1 rounded-full text-sm font-medium bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
+                            {absencesByEnrollmentId[enrollmentIdMap.get(profile.user_id) ?? -1] ?? 0}
+                          </span>
+                        </td>
+                      )}
                       <td className="px-4 py-3 text-sm text-text-muted">
                         {new Date(
                           isCohortContext
@@ -613,13 +664,41 @@ export function StudentsList({
                         ).toLocaleDateString('es-CO')}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <Link
-                          href={detailHref}
-                          className="btn-primary inline-flex items-center gap-2 text-sm px-4 py-2"
-                        >
-                          Ver detalles
-                          <ChevronRight className="w-4 h-4" />
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          {isCohortContext && cohortId && (() => {
+                            const enrollmentId = enrollmentIdMap.get(profile.user_id);
+                            if (enrollmentId == null) return null;
+                            const isExpelling = expellingId === enrollmentId;
+                            return (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleExpelUser(
+                                    enrollmentId,
+                                    `${profile.first_name} ${profile.last_name}`.trim() || profile.email
+                                  )
+                                }
+                                disabled={isExpelling}
+                                className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-red-500/50 text-red-600 hover:bg-red-500/10 hover:border-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                title="Expulsar de la cohorte"
+                                aria-label="Expulsar de la cohorte"
+                              >
+                                {isExpelling ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <UserMinus className="w-4 h-4" />
+                                )}
+                              </button>
+                            );
+                          })()}
+                          <Link
+                            href={detailHref}
+                            className="btn-primary inline-flex items-center gap-2 text-sm px-4 py-2"
+                          >
+                            Ver detalles
+                            <ChevronRight className="w-4 h-4" />
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   );

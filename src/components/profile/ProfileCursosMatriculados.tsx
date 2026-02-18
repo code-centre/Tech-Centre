@@ -76,7 +76,7 @@ function formatSchedule(schedule: { days: string[]; hours: string[] } | null): s
   return `${days}${hours ? `, ${hours}` : ''}`;
 }
 
-function CourseCard({ course }: { course: EnrolledCourse }) {
+function CourseCard({ course, isAdminView = false }: { course: EnrolledCourse; isAdminView?: boolean }) {
   const [showDetails, setShowDetails] = useState(false);
   const program = course.cohorts?.programs;
   const difficulty = program?.difficulty || 'BÁSICO';
@@ -85,7 +85,7 @@ function CourseCard({ course }: { course: EnrolledCourse }) {
   const courseStatus = getCourseStatus(course.cohorts?.start_date || null, course.cohorts?.end_date || null);
   const scheduleText = formatSchedule(course.cohorts?.schedule || null);
 
-  const linkHref = `/perfil/cursos/${course.cohort_id}`;
+  const linkHref = isAdminView ? `/admin/cohortes/${course.cohort_id}` : `/perfil/cursos/${course.cohort_id}`;
 
   return (
     <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden shadow-lg">
@@ -175,7 +175,7 @@ function CourseCard({ course }: { course: EnrolledCourse }) {
         </Link>
       </div>
 
-      {/* Collapsible "Que sigue ahora?" */}
+      {/* Collapsible section: admin gets "Gestionar cohorte", students get "¿Qué sigue ahora?" */}
       <div className="border-t border-border-color">
         <button
           onClick={() => setShowDetails(!showDetails)}
@@ -183,63 +183,77 @@ function CourseCard({ course }: { course: EnrolledCourse }) {
         >
           <span className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-secondary" />
-            ¿Qué sigue ahora?
+            {isAdminView ? 'Gestionar cohorte' : '¿Qué sigue ahora?'}
           </span>
           {showDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
         {showDetails && (
           <div className="px-6 pb-6 pt-2 space-y-4 bg-bg-secondary/30">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                <span className="text-sm text-text-primary">Inscripción confirmada</span>
+            {isAdminView ? (
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Link
+                  href={linkHref}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-colors"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Ir al panel de administración
+                </Link>
               </div>
-              <div className="flex items-center gap-3">
-                <Circle className="w-5 h-5 text-text-muted flex-shrink-0" />
-                <span className="text-sm text-text-muted">Acceso a la comunidad</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Circle className="w-5 h-5 text-text-muted flex-shrink-0" />
-                <span className="text-sm text-text-muted">Material de bienvenida</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Circle className="w-5 h-5 text-text-muted flex-shrink-0" />
-                <span className="text-sm text-text-muted">Calendario de clases</span>
-              </div>
-            </div>
-            <div className="p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-text-primary leading-relaxed">
-                  El seguimiento de clases y materiales estará disponible cuando inicie el programa.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2 pt-2">
-              <Link
-                href={linkHref}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-bg-secondary hover:bg-bg-primary rounded-lg transition-colors border border-border-color"
-              >
-                <BookOpen className="w-4 h-4" />
-                Ver detalles del programa
-              </Link>
-              <Link
-                href="/perfil/datos-personales"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-bg-secondary hover:bg-bg-primary rounded-lg transition-colors border border-border-color"
-              >
-                <User className="w-4 h-4" />
-                Actualizar mis datos
-              </Link>
-              <a
-                href="https://wa.me/573005523872?text=Hola%2C%20necesito%20soporte%20con%20mi%20curso"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-bg-secondary hover:bg-bg-primary rounded-lg transition-colors border border-border-color"
-              >
-                <MessageCircle className="w-4 h-4" />
-                Contactar soporte
-              </a>
-            </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-text-primary">Inscripción confirmada</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Circle className="w-5 h-5 text-text-muted flex-shrink-0" />
+                    <span className="text-sm text-text-muted">Acceso a la comunidad</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Circle className="w-5 h-5 text-text-muted flex-shrink-0" />
+                    <span className="text-sm text-text-muted">Material de bienvenida</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Circle className="w-5 h-5 text-text-muted flex-shrink-0" />
+                    <span className="text-sm text-text-muted">Calendario de clases</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-text-primary leading-relaxed">
+                      El seguimiento de clases y materiales estará disponible cuando inicie el programa.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <Link
+                    href={linkHref}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-bg-secondary hover:bg-bg-primary rounded-lg transition-colors border border-border-color"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    Ver detalles del programa
+                  </Link>
+                  <Link
+                    href="/perfil/datos-personales"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-bg-secondary hover:bg-bg-primary rounded-lg transition-colors border border-border-color"
+                  >
+                    <User className="w-4 h-4" />
+                    Actualizar mis datos
+                  </Link>
+                  <a
+                    href="https://wa.me/573005523872?text=Hola%2C%20necesito%20soporte%20con%20mi%20curso"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-bg-secondary hover:bg-bg-primary rounded-lg transition-colors border border-border-color"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Contactar soporte
+                  </a>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -254,46 +268,119 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const isAdmin = user?.role === 'admin';
+
   useEffect(() => {
     const fetchData = async () => {
       if (!user?.id) return;
       try {
         setLoading(true);
-        const [enrollmentsRes, cohortInstructorsRes] = await Promise.all([
-          supabase
-            .from('enrollments')
-            .select(
+        if (isAdmin) {
+          const today = new Date().toISOString().split('T')[0];
+          const [cohortsRes, instructorCohortsRes] = await Promise.all([
+            supabase
+              .from('cohorts')
+              .select(
+                `
+                *,
+                schedule,
+                programs:program_id (*)
               `
-            *,
-            cohorts (
-            *,
-            schedule,
-            programs (*)
+              )
+              .gte('end_date', today)
+              .order('start_date', { ascending: true }),
+            supabase
+              .from('cohort_instructors')
+              .select(
+                `
+                cohort:cohorts (
+                  *,
+                  schedule,
+                  programs:program_id (*)
+                )
+              `
+              )
+              .eq('instructor_id', user.id),
+          ]);
+
+          if (cohortsRes.error) throw cohortsRes.error;
+
+          const toCourse = (row: any, prefix: string): EnrolledCourse => {
+            const cohort = row;
+            const programs = cohort?.programs
+              ? Array.isArray(cohort.programs)
+                ? cohort.programs[0]
+                : cohort.programs
+              : null;
+            return {
+              id: `${prefix}-${cohort.id}`,
+              cohort_id: String(cohort.id),
+              student_id: '',
+              status: '',
+              agreed_price: 0,
+              cohorts: cohort
+                ? { ...cohort, programs, schedule: cohort.schedule || null }
+                : null,
+            };
+          };
+
+          const activeCourses = (cohortsRes.data || []).map((row: any) => toCourse(row, 'admin'));
+          const seenIds = new Set(activeCourses.map((c) => c.cohort_id));
+
+          const instructorRaw = (instructorCohortsRes.data || []) as Array<{ cohort: any }>;
+          const instructorCourses: EnrolledCourse[] = instructorRaw
+            .map((r) => {
+              const c = r.cohort;
+              const cohort = Array.isArray(c) ? c[0] : c;
+              return cohort ? toCourse(cohort, 'instructor') : null;
+            })
+            .filter((c): c is EnrolledCourse => !!c && !seenIds.has(c.cohort_id));
+
+          const merged = [...activeCourses, ...instructorCourses].sort(
+            (a, b) =>
+              new Date(a.cohorts?.start_date || 0).getTime() -
+              new Date(b.cohorts?.start_date || 0).getTime()
+          );
+
+          setEnrolledCourses(merged);
+          setIsInstructorInCohort(instructorRaw.length > 0);
+        } else {
+          const [enrollmentsRes, cohortInstructorsRes] = await Promise.all([
+            supabase
+              .from('enrollments')
+              .select(
+                `
+              *,
+              cohorts (
+              *,
+              schedule,
+              programs (*)
             )
           `
-            )
-            .eq('student_id', user.id),
-          supabase
-            .from('cohort_instructors')
-            .select('instructor_id')
-            .eq('instructor_id', user.id)
-            .limit(1),
-        ]);
+              )
+              .eq('student_id', user.id),
+            supabase
+              .from('cohort_instructors')
+              .select('instructor_id')
+              .eq('instructor_id', user.id)
+              .limit(1),
+          ]);
 
-        if (enrollmentsRes.error) throw enrollmentsRes.error;
+          if (enrollmentsRes.error) throw enrollmentsRes.error;
 
-        const transformedEnrollments = (enrollmentsRes.data || []).map((enrollment: any) => {
-          const cohort = Array.isArray(enrollment.cohorts) ? enrollment.cohorts[0] : enrollment.cohorts;
-          const programs = cohort?.programs ? (Array.isArray(cohort.programs) ? cohort.programs[0] : cohort.programs) : null;
+          const transformedEnrollments = (enrollmentsRes.data || []).map((enrollment: any) => {
+            const cohort = Array.isArray(enrollment.cohorts) ? enrollment.cohorts[0] : enrollment.cohorts;
+            const programs = cohort?.programs ? (Array.isArray(cohort.programs) ? cohort.programs[0] : cohort.programs) : null;
 
-          return {
-            ...enrollment,
-            cohorts: cohort ? { ...cohort, programs, schedule: cohort.schedule || null } : null,
-          };
-        });
+            return {
+              ...enrollment,
+              cohorts: cohort ? { ...cohort, programs, schedule: cohort.schedule || null } : null,
+            };
+          });
 
-        setEnrolledCourses(transformedEnrollments);
-        setIsInstructorInCohort((cohortInstructorsRes.data?.length ?? 0) > 0);
+          setEnrolledCourses(transformedEnrollments);
+          setIsInstructorInCohort((cohortInstructorsRes.data?.length ?? 0) > 0);
+        }
       } catch (err) {
         console.error('Error fetching enrollments:', err);
         setError('Error al cargar los cursos. Por favor, inténtalo de nuevo.');
@@ -303,7 +390,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
     };
 
     fetchData();
-  }, [user?.id, supabase]);
+  }, [user?.id, isAdmin, supabase]);
 
   if (loading) {
     return (
@@ -351,11 +438,17 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
             <GraduationCap className="text-secondary" size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-text-primary">Mis Cursos Matriculados</h2>
+            <h2 className="text-2xl font-bold text-text-primary">
+              {isAdmin ? 'Cursos activos' : 'Mis Cursos Matriculados'}
+            </h2>
             <p className="text-sm text-text-muted mt-1">
               {enrolledCourses.length > 0
-                ? `${enrolledCourses.length} ${enrolledCourses.length === 1 ? 'curso matriculado' : 'cursos matriculados'}`
-                : 'Gestiona tus cursos y avanza en tu aprendizaje'}
+                ? isAdmin
+                  ? `${enrolledCourses.length} ${enrolledCourses.length === 1 ? 'curso activo' : 'cursos activos'}`
+                  : `${enrolledCourses.length} ${enrolledCourses.length === 1 ? 'curso matriculado' : 'cursos matriculados'}`
+                : isAdmin
+                  ? 'No hay cursos activos en este momento'
+                  : 'Gestiona tus cursos y avanza en tu aprendizaje'}
             </p>
           </div>
         </div>
@@ -367,27 +460,35 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary/10 mb-6">
               <Sparkles className="w-10 h-10 text-secondary" />
             </div>
-            <h3 className="text-2xl font-bold text-text-primary mb-3">¡Comienza tu viaje de aprendizaje!</h3>
+            <h3 className="text-2xl font-bold text-text-primary mb-3">
+              {isAdmin ? 'No hay cursos activos' : '¡Comienza tu viaje de aprendizaje!'}
+            </h3>
             <p className="text-lg text-text-muted mb-2 max-w-md mx-auto">
-              Aún no te has matriculado en ningún curso, pero eso está a punto de cambiar.
+              {isAdmin
+                ? 'No hay cohortes con fechas vigentes en este momento.'
+                : 'Aún no te has matriculado en ningún curso, pero eso está a punto de cambiar.'}
             </p>
-            <p className="text-base text-text-muted opacity-80 mb-8 max-w-md mx-auto">
-              Explora nuestra oferta académica y encuentra el programa perfecto para impulsar tu carrera profesional.
-            </p>
-            <Link
-              href="/programas-academicos"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-secondary hover:bg-secondary/90 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <BookOpen className="w-5 h-5" />
-              <span>Explorar Cursos Disponibles</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+            {!isAdmin && (
+              <>
+                <p className="text-base text-text-muted opacity-80 mb-8 max-w-md mx-auto">
+                  Explora nuestra oferta académica y encuentra el programa perfecto para impulsar tu carrera profesional.
+                </p>
+                <Link
+                  href="/programas-academicos"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-secondary hover:bg-secondary/90 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span>Explorar Cursos Disponibles</span>
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       ) : (
         <div className="space-y-6">
           {enrolledCourses.map((course) => (
-            <CourseCard key={course.id} course={course} />
+            <CourseCard key={course.id} course={course} isAdminView={isAdmin} />
           ))}
         </div>
       )}
