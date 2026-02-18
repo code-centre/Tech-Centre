@@ -8,7 +8,6 @@ import {
   Filter,
   Loader2,
   Search,
-  ChevronRight,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
@@ -17,7 +16,13 @@ import {
   Percent,
   Clock,
   Trash2,
+  CheckCircle,
+  Landmark,
+  CreditCard,
+  Banknote,
+  MessageSquare,
 } from 'lucide-react';
+import { MarkAsPaidModal } from './MarkAsPaidModal';
 import {
   BarChart,
   Bar,
@@ -63,6 +68,7 @@ interface InvoiceRow {
   paid_at: string | null;
   url_recipe: string | null;
   created_at: string;
+  meta?: Record<string, unknown> | null;
   enrollment: Enrollment | null;
 }
 
@@ -95,6 +101,24 @@ function getPeriodLabel(key: string, period: PeriodType): string {
   return key;
 }
 
+type PaymentType = 'transfer' | 'cash' | 'card' | null;
+
+function getPaymentType(inv: {
+  meta?: Record<string, unknown> | null;
+  url_recipe?: string | null;
+  status?: string;
+}): PaymentType {
+  if (inv.status !== 'paid') return null;
+  const meta = inv.meta;
+  const adminMethod = meta?.admin_payment_method as string | undefined;
+  const paymentId = meta?.payment_id;
+  if (adminMethod === 'transfer') return 'transfer';
+  if (adminMethod === 'cash') return 'cash';
+  if (paymentId) return 'card';
+  if (inv.url_recipe) return 'transfer';
+  return null;
+}
+
 export function PagosAdmin() {
   const supabase = useSupabaseClient();
   const { user } = useUser();
@@ -106,7 +130,10 @@ export function PagosAdmin() {
   const [sortKey, setSortKey] = useState<SortKey>('due_date');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [markingInvoice, setMarkingInvoice] = useState<InvoiceRow | null>(null);
+  const [observationsInvoice, setObservationsInvoice] = useState<InvoiceRow | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const selectAllRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -125,6 +152,7 @@ export function PagosAdmin() {
             paid_at,
             url_recipe,
             created_at,
+            meta,
             enrollment:enrollments(
               id,
               student_id,
@@ -147,6 +175,7 @@ export function PagosAdmin() {
           paid_at: item.paid_at as string | null,
           url_recipe: item.url_recipe as string | null,
           created_at: item.created_at as string,
+          meta: item.meta as Record<string, unknown> | null | undefined,
           enrollment: item.enrollment as Enrollment | null,
         }));
 
@@ -159,7 +188,7 @@ export function PagosAdmin() {
     };
 
     fetchInvoices();
-  }, [supabase]);
+  }, [supabase, refreshTrigger]);
 
   const stats = useMemo(() => {
     const paid = invoices.filter((i) => i.status === 'paid');
@@ -485,7 +514,7 @@ export function PagosAdmin() {
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
                   period === p
                     ? 'btn-primary'
                     : 'bg-bg-secondary text-text-primary border border-border-color hover:bg-bg-secondary/80 hover:border-secondary/50'
@@ -545,7 +574,7 @@ export function PagosAdmin() {
             <button
               type="button"
               onClick={() => setSelectedIds(new Set())}
-              className="px-4 py-2 rounded-lg border border-border-color text-text-primary hover:bg-bg-secondary"
+              className="px-4 py-2 rounded-lg border border-border-color text-text-primary hover:bg-bg-secondary cursor-pointer"
             >
               Deseleccionar
             </button>
@@ -553,7 +582,7 @@ export function PagosAdmin() {
               type="button"
               onClick={handleDeleteSelected}
               disabled={isBulkDeleting}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-red-500/50 text-red-500 hover:bg-red-500/10 font-medium disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-red-500/50 text-red-500 hover:bg-red-500/10 font-medium disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               {isBulkDeleting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -578,7 +607,7 @@ export function PagosAdmin() {
             <button
               key={id}
               onClick={() => setFilter(id)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
                 filter === id
                   ? 'btn-primary'
                   : 'bg-bg-secondary text-text-primary border border-border-color hover:bg-bg-secondary/80 hover:border-secondary/50'
@@ -628,7 +657,7 @@ export function PagosAdmin() {
                     <button
                       type="button"
                       onClick={() => handleSort('student')}
-                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors cursor-pointer"
                     >
                       Estudiante
                       <SortIcon k="student" />
@@ -637,38 +666,8 @@ export function PagosAdmin() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                     <button
                       type="button"
-                      onClick={() => handleSort('program')}
-                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
-                    >
-                      Programa
-                      <SortIcon k="program" />
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                    <button
-                      type="button"
-                      onClick={() => handleSort('label')}
-                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
-                    >
-                      Concepto
-                      <SortIcon k="label" />
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                    <button
-                      type="button"
-                      onClick={() => handleSort('amount')}
-                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
-                    >
-                      Monto
-                      <SortIcon k="amount" />
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                    <button
-                      type="button"
                       onClick={() => handleSort('due_date')}
-                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors cursor-pointer"
                     >
                       Vencimiento
                       <SortIcon k="due_date" />
@@ -677,10 +676,20 @@ export function PagosAdmin() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                     <button
                       type="button"
-                      onClick={() => handleSort('status')}
-                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
+                      onClick={() => handleSort('amount')}
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors cursor-pointer"
                     >
-                      Estado
+                      Monto
+                      <SortIcon k="amount" />
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('status')}
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors cursor-pointer"
+                    >
+                      Estatus
                       <SortIcon k="status" />
                     </button>
                   </th>
@@ -688,10 +697,33 @@ export function PagosAdmin() {
                     <button
                       type="button"
                       onClick={() => handleSort('paid_at')}
-                      className="flex items-center gap-1 hover:text-text-primary transition-colors"
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors cursor-pointer"
                     >
-                      Fecha pago
+                      Fecha de pago
                       <SortIcon k="paid_at" />
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                    Tipo de pago
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('label')}
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors cursor-pointer"
+                    >
+                      Concepto
+                      <SortIcon k="label" />
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('program')}
+                      className="flex items-center gap-1 hover:text-text-primary transition-colors cursor-pointer"
+                    >
+                      Programa
+                      <SortIcon k="program" />
                     </button>
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
@@ -737,7 +769,8 @@ export function PagosAdmin() {
                         {studentHref ? (
                           <Link
                             href={studentHref}
-                            className="font-medium text-text-primary hover:text-secondary"
+                            title="Ver detalles del estudiante"
+                            className="font-medium text-text-primary hover:text-secondary hover:underline"
                           >
                             {studentName || '—'}
                           </Link>
@@ -746,16 +779,10 @@ export function PagosAdmin() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-sm text-text-muted">
-                        {program?.name || '—'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-text-primary max-w-[200px] truncate">
-                        {inv.label || '—'}
+                        {new Date(inv.due_date).toLocaleDateString('es-CO')}
                       </td>
                       <td className="px-4 py-3 font-medium text-text-primary">
                         ${inv.amount.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-text-muted">
-                        {new Date(inv.due_date).toLocaleDateString('es-CO')}
                       </td>
                       <td className="px-4 py-3">
                         <span
@@ -773,33 +800,100 @@ export function PagosAdmin() {
                           ? new Date(inv.paid_at).toLocaleDateString('es-CO')
                           : '—'}
                       </td>
+                      <td className="px-4 py-3">
+                        {(() => {
+                          const paymentType = getPaymentType(inv);
+                          if (!paymentType) return <span className="text-text-muted">—</span>;
+                          const isTransferWithRecipe = paymentType === 'transfer' && inv.url_recipe;
+                          const iconClass = 'inline-flex items-center justify-center w-8 h-8 rounded-lg';
+                          if (paymentType === 'transfer') {
+                            const content = (
+                              <Landmark
+                                className={`w-4 h-4 text-amber-600 dark:text-amber-400 ${isTransferWithRecipe ? 'cursor-pointer' : ''}`}
+                                aria-hidden
+                              />
+                            );
+                            return isTransferWithRecipe ? (
+                              <a
+                                href={inv.url_recipe!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Ver comprobante de transferencia"
+                                aria-label="Ver comprobante de transferencia"
+                                className={`${iconClass} border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 transition-colors cursor-pointer`}
+                              >
+                                {content}
+                              </a>
+                            ) : (
+                              <span
+                                title="Transferencia"
+                                className={`${iconClass} border border-amber-500/30 bg-amber-500/10`}
+                              >
+                                {content}
+                              </span>
+                            );
+                          }
+                          if (paymentType === 'card') {
+                            return (
+                              <span
+                                title="Tarjeta"
+                                className={`${iconClass} border border-blue-500/30 bg-blue-500/10`}
+                              >
+                                <CreditCard className="w-4 h-4 text-blue-600 dark:text-blue-400" aria-hidden />
+                              </span>
+                            );
+                          }
+                          return (
+                            <span
+                              title="Efectivo"
+                              className={`${iconClass} border border-green-500/30 bg-green-500/10`}
+                            >
+                              <Banknote className="w-4 h-4 text-green-600 dark:text-green-400" aria-hidden />
+                            </span>
+                          );
+                        })()}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-text-primary max-w-[200px] truncate">
+                        {inv.label || '—'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-text-muted">
+                        {program?.name || '—'}
+                      </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-2 flex-wrap">
-                          {inv.url_recipe && (
-                            <a
-                              href={inv.url_recipe}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-secondary hover:underline"
+                          {inv.status === 'pending' && (
+                            <button
+                              type="button"
+                              onClick={() => setMarkingInvoice(inv)}
+                              title="Marcar como pagada"
+                              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border-2 border-green-500/50 text-green-600 dark:text-green-400 hover:bg-green-500/10 transition-colors cursor-pointer"
+                              aria-label="Marcar como pagada"
                             >
-                              Recibo
-                            </a>
+                              <CheckCircle className="w-4 h-4" />
+                            </button>
                           )}
-                          {studentHref && (
-                            <Link
-                              href={studentHref}
-                              title="Ver detalles"
-                              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border-2 border-secondary text-secondary hover:bg-secondary/10 transition-colors"
-                            >
-                              <ChevronRight className="w-4 h-4" />
-                            </Link>
-                          )}
+                          <button
+                            type="button"
+                            onClick={() => setObservationsInvoice(inv)}
+                            title="Ver observaciones"
+                            aria-label="Ver observaciones"
+                            className="relative inline-flex items-center justify-center w-9 h-9 rounded-lg border-2 border-secondary/50 text-secondary hover:bg-secondary/10 transition-colors cursor-pointer"
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                            {(inv.meta?.admin_notes as string | undefined)?.trim() && (
+                              <span
+                                className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-500"
+                                aria-hidden
+                              />
+                            )}
+                          </button>
                           <button
                             type="button"
                             onClick={() => handleDeleteInvoice(inv)}
                             disabled={deletingId === inv.id}
                             title="Eliminar factura"
-                            className="inline-flex items-center justify-center w-9 h-9 rounded-lg border-2 border-red-500/50 text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                            aria-label="Eliminar factura"
+                            className="inline-flex items-center justify-center w-9 h-9 rounded-lg border-2 border-red-500/50 text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                           >
                             {deletingId === inv.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -817,6 +911,55 @@ export function PagosAdmin() {
           </div>
         )}
       </div>
+
+      <MarkAsPaidModal
+        invoice={markingInvoice}
+        isOpen={!!markingInvoice}
+        onClose={() => setMarkingInvoice(null)}
+        onSuccess={() => setRefreshTrigger((t) => t + 1)}
+      />
+
+      {observationsInvoice && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="observaciones-title"
+          onClick={() => setObservationsInvoice(null)}
+        >
+          <div
+            className="bg-[var(--card-background)] rounded-xl border border-border-color shadow-xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 id="observaciones-title" className="text-lg font-semibold text-text-primary flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-secondary" />
+                Observaciones
+              </h2>
+              <button
+                type="button"
+                onClick={() => setObservationsInvoice(null)}
+                className="p-2 rounded-lg hover:bg-bg-secondary text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+                aria-label="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+            <p className="text-sm text-text-muted mb-2">
+              {observationsInvoice.label} — ${observationsInvoice.amount.toLocaleString()}
+            </p>
+            <div className="rounded-lg border border-border-color bg-bg-secondary/50 p-4 min-h-[100px]">
+              {(observationsInvoice.meta?.admin_notes as string | undefined)?.trim() ? (
+                <p className="text-text-primary whitespace-pre-wrap">
+                  {String(observationsInvoice.meta.admin_notes)}
+                </p>
+              ) : (
+                <p className="text-text-muted italic">Sin observaciones</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

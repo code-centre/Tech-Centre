@@ -271,6 +271,8 @@ export default function BlogEditor({
               type="button"
               onClick={removeCoverImage}
               className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500/90 text-white hover:bg-red-500 transition-colors"
+              title="Quitar imagen"
+              aria-label="Quitar imagen de portada"
             >
               <X className="w-4 h-4" />
             </button>

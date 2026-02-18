@@ -578,7 +578,8 @@ function SessionRow({
                     type="button"
                     onClick={() => removeMaterial(session.id, i)}
                     className="p-1.5 text-text-muted hover:text-red-500 transition-colors shrink-0"
-                    title="Quitar"
+                    title="Quitar material"
+                    aria-label="Quitar material"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

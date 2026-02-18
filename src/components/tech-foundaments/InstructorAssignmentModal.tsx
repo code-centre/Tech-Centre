@@ -204,6 +204,7 @@ export default function InstructorAssignmentModal({ cohortId, currentInstructor,
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
+            title="Cerrar"
             aria-label="Cerrar"
           >
             <X className="w-6 h-6" />

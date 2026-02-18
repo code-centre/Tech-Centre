@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { ArrowLeft, Mail, Phone, Calendar } from 'lucide-react';
 import StudentProfileEditor from '@/components/adminspage/StudentProfileEditor';
+import { StudentInvoicesTable } from '@/components/adminspage/StudentInvoicesTable';
+import { LeadStudentToggle } from '@/components/adminspage/LeadStudentToggle';
 
 export const metadata: Metadata = {
   title: 'Detalles del Estudiante',
@@ -103,12 +105,13 @@ export default async function StudentDetailPage({ params }: Props) {
     status: string;
     paid_at: string | null;
     url_recipe: string | null;
+    meta?: Record<string, unknown> | null;
   }> = [];
 
   if (enrollmentIds.length > 0) {
     const { data: invoicesData } = await supabase
       .from('invoices')
-      .select('id, enrollment_id, label, amount, due_date, status, paid_at, url_recipe')
+      .select('id, enrollment_id, label, amount, due_date, status, paid_at, url_recipe, meta')
       .in('enrollment_id', enrollmentIds)
       .order('due_date', { ascending: true });
     invoices = invoicesData || [];
@@ -268,6 +271,21 @@ export default async function StudentDetailPage({ params }: Props) {
         </div>
       </section>
 
+      {/* Lead / Student toggle - solo para leads y estudiantes */}
+      <LeadStudentToggle
+        user_id={typedProfile.user_id}
+        currentRole={typedProfile.role}
+        profile={{
+          first_name: typedProfile.first_name,
+          last_name: typedProfile.last_name,
+          email: typedProfile.email,
+          phone: typedProfile.phone,
+          professional_title: typedProfile.professional_title,
+          linkedin_url: typedProfile.linkedin_url,
+        }}
+        canEdit={canEditRole}
+      />
+
       {/* Invoices section */}
       <section
         className="bg-[var(--card-background)] rounded-lg shadow border border-border-color overflow-hidden"
@@ -279,60 +297,7 @@ export default async function StudentDetailPage({ params }: Props) {
           </h2>
         </div>
         <div className="p-4 overflow-x-auto">
-          {invoices.length === 0 ? (
-            <p className="text-text-muted py-8 text-center">No hay facturas registradas.</p>
-          ) : (
-            <table className="min-w-full divide-y divide-border-color">
-              <thead className="bg-bg-secondary/50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase">
-                    Concepto
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase">
-                    Vence
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase">
-                    Monto
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase">
-                    Estado
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase">
-                    Pagado
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-color">
-                {invoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-bg-secondary/30">
-                    <td className="px-4 py-3 text-sm text-text-primary">{inv.label}</td>
-                    <td className="px-4 py-3 text-sm text-text-muted">
-                      {new Date(inv.due_date).toLocaleDateString('es-CO')}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-text-primary font-medium">
-                      ${inv.amount.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex px-2 py-1 rounded text-xs font-medium ${
-                          inv.status === 'paid'
-                            ? 'bg-green-500/20 text-green-600 dark:text-green-400'
-                            : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
-                        }`}
-                      >
-                        {inv.status === 'paid' ? 'Pagada' : 'Pendiente'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-text-muted">
-                      {inv.paid_at
-                        ? new Date(inv.paid_at).toLocaleDateString('es-CO')
-                        : '—'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          <StudentInvoicesTable invoices={invoices} />
         </div>
       </section>
 

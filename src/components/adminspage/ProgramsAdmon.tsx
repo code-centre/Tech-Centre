@@ -477,6 +477,8 @@ export default function ProgramsAdmon() {
               onClick={handleCancel}
               disabled={saving}
               className="text-text-muted hover:text-text-primary transition-colors disabled:opacity-50"
+              title="Cancelar"
+              aria-label="Cancelar"
             >
               <X size={24} />
             </button>
@@ -802,6 +804,8 @@ export default function ProgramsAdmon() {
               <button
                 onClick={closeSyllabusModal}
                 className="text-text-muted hover:text-text-primary transition-colors"
+                title="Cerrar"
+                aria-label="Cerrar"
               >
                 <XCircle className="h-6 w-6" />
               </button>

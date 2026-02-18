@@ -131,6 +131,8 @@ export default function SessionFormModal({
             onClick={onClose}
             className="text-text-muted hover:text-text-primary transition-colors p-1"
             type="button"
+            title="Cerrar"
+            aria-label="Cerrar"
           >
             <XIcon className="w-6 h-6" />
           </button>

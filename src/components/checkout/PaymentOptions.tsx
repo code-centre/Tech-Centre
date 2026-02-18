@@ -148,6 +148,7 @@ export default function PaymentOptions({
           <button
             onClick={handleClearSelection}
             className="flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/50 rounded-lg transition-colors"
+            title="Limpiar selección"
             aria-label="Limpiar selección"
           >
             <X className="w-4 h-4" />
