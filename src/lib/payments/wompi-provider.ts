@@ -76,6 +76,36 @@ export class WompiProvider implements PaymentProvider {
     }
   }
 
+  async getPaymentLink(paymentLinkId: string): Promise<PaymentLink | null> {
+    try {
+      const response = await fetch(`${this.baseUrl}/payment_links/${paymentLinkId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.secretKey}`,
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) return null;
+        return null;
+      }
+
+      const data = await response.json();
+      if (!data.data || !data.data.id) return null;
+
+      const link = data.data;
+      if (link.active === false) return null;
+
+      return {
+        id: link.id,
+        url: `https://checkout.wompi.co/l/${link.id}`,
+        expiresAt: link.expires_at,
+      };
+    } catch {
+      return null;
+    }
+  }
+
   async getTransactionStatus(transactionId: string): Promise<TransactionStatus> {
     try {
       const response = await fetch(`${this.baseUrl}/transactions/${transactionId}`, {

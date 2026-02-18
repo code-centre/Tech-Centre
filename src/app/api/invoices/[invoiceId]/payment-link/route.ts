@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/route-handler';
 import { getPaymentProvider } from '@/lib/payments/payment-factory';
 
-export async function GET(
+export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ invoiceId: string }> }
 ) {
@@ -98,15 +98,26 @@ export async function GET(
     const redirectUrl = `${baseUrl}/checkout/confirmacion?invoiceId=${invoice.id}`;
 
     const paymentProvider = getPaymentProvider();
+
+    // Reuse existing payment link if valid (avoids duplicate links on double-click)
+    const existingPaymentId = typeof invoice.meta === 'object' && invoice.meta !== null
+      ? (invoice.meta as Record<string, unknown>).payment_id as string | undefined
+      : undefined;
+
+    if (existingPaymentId && typeof existingPaymentId === 'string' && paymentProvider.getPaymentLink) {
+      const existingLink = await paymentProvider.getPaymentLink(existingPaymentId);
+      if (existingLink) {
+        return NextResponse.json({ url: existingLink.url });
+      }
+    }
+
+    // Create new payment link (Wompi does not expose a deactivate/cancel API for links).
+    // Note: concurrent requests may create duplicate links; reuse above minimizes this.
     const paymentLink = await paymentProvider.createPaymentLink({
       amount: Math.round(invoice.amount),
       name: invoice.label,
       description: 'Pago de factura',
       redirectUrl,
-      metadata: {
-        invoice_id: invoice.id,
-        enrollment_id: invoice.enrollment_id,
-      },
     });
 
     const updatedMeta: Record<string, unknown> = {

@@ -75,6 +75,9 @@ export interface Session {
   created_at: string;
 }
 
+/** Enrollment row from DB - base shape for enrollments table */
+export type EnrollmentRow = Database['public']['Tables']['enrollments']['Row'];
+
 /** Attendance record - links session to enrollment with status */
 export interface Attendance {
   id: number;
@@ -255,13 +258,28 @@ export interface Database {
       enrollments: {
         Row: {
           id: number;
+          cohort_id: number;
           student_id: string;
+          status: string;
+          agreed_price: number | null;
+          created_at: string;
+          updated_at: string;
         };
         Insert: {
+          cohort_id: number;
           student_id: string;
+          status?: string;
+          agreed_price?: number | null;
+          created_at?: string;
+          updated_at?: string;
         };
         Update: {
+          cohort_id?: number;
           student_id?: string;
+          status?: string;
+          agreed_price?: number | null;
+          created_at?: string;
+          updated_at?: string;
         };
       };
     };

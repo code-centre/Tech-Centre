@@ -12,6 +12,11 @@ export interface PaymentProvider {
   createPaymentLink(params: CreatePaymentLinkParams): Promise<PaymentLink>;
 
   /**
+   * Obtiene un link de pago existente por ID (si el proveedor lo soporta)
+   */
+  getPaymentLink?(paymentLinkId: string): Promise<PaymentLink | null>;
+
+  /**
    * Obtiene el estado de una transacción
    */
   getTransactionStatus(transactionId: string): Promise<TransactionStatus>;

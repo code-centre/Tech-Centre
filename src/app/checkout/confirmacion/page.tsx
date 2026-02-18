@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react'
-import { getPaymentProvider } from '@/lib/payments/payment-factory'
 import { useSupabaseClient } from '@/lib/supabase'
 import { calculateInstallments } from '@/lib/pricing/price-calculator'
 import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service'
@@ -103,14 +102,19 @@ function CheckoutContent() {
       let transactionStatus: { status: string }
       if (paymentId) {
         try {
-          const provider = getPaymentProvider()
-          transactionStatus = await provider.getTransactionStatus(paymentId)
+          const res = await fetch(`/api/payments/transaction-status?paymentId=${encodeURIComponent(paymentId)}`)
+          const data = await res.json()
+          if (res.ok && data.status) {
+            transactionStatus = { status: data.status }
+          } else {
+            transactionStatus = { status: 'PENDING' }
+          }
         } catch (paymentErr) {
-          console.warn('No se pudo verificar estado del pago, asumiendo éxito:', paymentErr)
-          transactionStatus = { status: 'APPROVED' }
+          console.warn('No se pudo verificar estado del pago:', paymentErr)
+          transactionStatus = { status: 'PENDING' }
         }
       } else {
-        transactionStatus = { status: 'APPROVED' }
+        transactionStatus = { status: 'PENDING' }
       }
 
       setStatusTransaction(transactionStatus.status)
@@ -197,22 +201,21 @@ function CheckoutContent() {
         // Si no hay payment_id en invoices, intentar obtenerlo del enrollment metadata
         // o usar el enrollment_id como referencia
         if (!paymentId) {
-          // Intentar obtener el payment_id desde alguna otra fuente
-          // Por ahora, usaremos el enrollment_id como referencia
           paymentId = enrollmentId
         }
 
-        const paymentProvider = getPaymentProvider()
-        let transactionStatus
-        
+        let transactionStatus: { status: string }
         try {
-          // Intentar obtener el estado de la transacción
-          transactionStatus = await paymentProvider.getTransactionStatus(paymentId)
+          const res = await fetch(`/api/payments/transaction-status?paymentId=${encodeURIComponent(paymentId)}`)
+          const data = await res.json()
+          if (res.ok && data.status) {
+            transactionStatus = { status: data.status }
+          } else {
+            transactionStatus = { status: 'PENDING' }
+          }
         } catch (paymentError) {
-          // Si no se puede obtener el estado, asumir que el pago fue exitoso
-          // ya que el usuario llegó a esta página
-          console.warn('No se pudo verificar el estado del pago, asumiendo éxito:', paymentError)
-          transactionStatus = { status: 'APPROVED' }
+          console.warn('No se pudo verificar el estado del pago:', paymentError)
+          transactionStatus = { status: 'PENDING' }
         }
 
         setStatusTransaction(transactionStatus.status)

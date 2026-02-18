@@ -167,7 +167,7 @@ export default function PaymentReceiptsManager() {
   const handlePayOnPlatform = async (invoiceId: number) => {
     try {
       setCreatingPaymentLinkId(invoiceId)
-      const res = await fetch(`/api/invoices/${invoiceId}/payment-link`)
+      const res = await fetch(`/api/invoices/${invoiceId}/payment-link`, { method: 'POST' })
       const data = await res.json()
 
       if (!res.ok) {
