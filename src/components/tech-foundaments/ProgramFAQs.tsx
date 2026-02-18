@@ -1,8 +1,10 @@
 'use client'
 import React, { useState, useEffect } from 'react'
+import HTMLReactParser from 'html-react-parser/lib/index'
 import ContainerButtonsEdit from '../ContainerButtonsEdit'
 import { ArrowDown, Trash2, Plus } from 'lucide-react'
 import ButtonToEdit from '../ButtonToEdit'
+import TiptapEditor from '../TiptapEditor'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
 
 interface FaqItem {
@@ -28,8 +30,9 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
 
-  // Normalizar los datos de entrada
+  // Normalizar los datos de entrada (no sobrescribir si estamos editando para evitar pérdida de contenido)
   useEffect(() => {
+    if (editingFAQIndex !== null) return
     if (Array.isArray(shortCourse)) {
       setFaqs(shortCourse)
       setEditedFAQs(shortCourse)
@@ -41,7 +44,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
       setFaqs([])
       setEditedFAQs([])
     }
-  }, [shortCourse])
+  }, [shortCourse, editingFAQIndex])
 
   const handleQuestionChange = (index: number, newQuestion: string) => {
     const updated = [...editedFAQs]
@@ -93,7 +96,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
       try {
         // Filtrar FAQs vacías
         const cleanedFAQs = updated.filter(
-          faq => faq.pregunta.trim() !== '' && faq.respuesta.trim() !== ''
+          faq => faq.pregunta.trim() !== '' && (faq.respuesta?.trim() ?? '').replace(/<[^>]*>/g, '').trim() !== ''
         )
 
         const { error: updateError } = await supabase
@@ -138,7 +141,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
     try {
       // Filtrar FAQs vacías
       const cleanedFAQs = editedFAQs.filter(
-        faq => faq.pregunta.trim() !== '' && faq.respuesta.trim() !== ''
+        faq => faq.pregunta.trim() !== '' && (faq.respuesta?.trim() ?? '').replace(/<[^>]*>/g, '').trim() !== ''
       )
 
       // Actualizar en Supabase
@@ -183,14 +186,28 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
     setError('')
   }
 
+  const hasUnsavedChanges = editingFAQIndex !== null && (
+    JSON.stringify(editedFAQs) !== JSON.stringify(faqs)
+  )
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasUnsavedChanges])
+
   return (
-    <section>
+    <section className="faq-section">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold card-text-primary">Preguntas Frecuentes</h2>
         {isAdmin && editingFAQIndex === null && (
           <button
             onClick={handleAddFAQ}
-            className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800/50 border border-gray-700 rounded-md hover:bg-gray-800 hover:border-gray-600 transition-colors duration-200 flex items-center gap-2"
+            type="button"
+            className="btn-faq-add px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 flex items-center gap-2"
           >
             <Plus className="w-4 h-4 cursor-pointer" />
             Agregar pregunta
@@ -199,7 +216,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-900/50 text-red-200 rounded-lg text-sm border border-red-800">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/50 text-red-700 dark:text-red-200 rounded-lg text-sm border border-red-200 dark:border-red-800">
           {error}
         </div>
       )}
@@ -211,28 +228,30 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
           {editedFAQs.map((item, i) => (
             <div key={`faq-${i}-${item.pregunta?.substring(0, 10) || i}`} className="animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
               {editingFAQIndex === i ? (
-                <div className="flex flex-col gap-4 bg-gray-800/30 p-4 rounded-lg border border-gray-700">
+                <div className="flex flex-col gap-4 bg-bg-secondary dark:bg-gray-800/30 p-4 rounded-lg border border-border-color dark:border-gray-700">
                   <input
                     value={item.pregunta}
                     onChange={(e) => handleQuestionChange(i, e.target.value)}
-                    className="w-full px-4 py-3 font-medium text-white bg-gray-800 border border-gray-600 rounded-lg
+                    className="w-full px-4 py-3 font-medium text-text-primary dark:text-white bg-bg-secondary dark:bg-gray-800 border border-border-color dark:border-gray-600 rounded-lg
                     focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary
+                    placeholder:text-text-muted
                     transition-all duration-200"
                     type="text"
                     placeholder="Escribe la pregunta..."
                   />
-                  <textarea
+                  <TiptapEditor
                     value={item.respuesta}
-                    onChange={(e) => handleAnswerChange(i, e.target.value)}
-                    className="w-full px-4 py-3 text-gray-200 bg-gray-800 border border-gray-600 rounded-lg min-h-[100px]
-                    focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary
-                    transition-all duration-200 resize-y"
+                    onChange={(content) => handleAnswerChange(i, content)}
+                    onSave={handleSave}
+                    onCancel={handleCancel}
                     placeholder="Escribe la respuesta..."
+                    variant="simple"
+                    showActions={false}
                   />
                   <div className="flex justify-between items-center">
                     <button
                       onClick={() => handleRemoveFAQ(i)}
-                      className="text-red-400 hover:text-red-300 text-sm flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-red-500/10 transition-colors"
+                      className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-red-100 dark:hover:bg-red-500/10 transition-colors"
                       type="button"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -244,11 +263,11 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
                     />
                   </div>
                   {isSaving && (
-                    <p className="text-gray-400 text-sm">Guardando...</p>
+                    <p className="text-text-muted dark:text-gray-400 text-sm">Guardando...</p>
                   )}
                 </div>
               ) : (
-                <details className="group border-b border-gray-700 pb-4">
+                <details className="group border-b border-border-color dark:border-gray-700 pb-4">
                   <summary className="flex justify-between items-center font-medium cursor-pointer list-none py-2">
                     <h3 className="text-xl card-text-primary font-semibold pr-8">
                       {i + 1}. {item.pregunta}
@@ -262,8 +281,12 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
                       )}
                     </div>
                   </summary>
-                  <div className="mt-4 card-text-primary leading-relaxed pl-1">
-                    {item.respuesta}
+                  <div className="mt-4 prose-content card-text-primary leading-relaxed pl-1">
+                    {item.respuesta ? (
+                      item.respuesta.trim().startsWith('<')
+                        ? HTMLReactParser(item.respuesta)
+                        : <p>{item.respuesta}</p>
+                    ) : null}
                   </div>
                 </details>
               )}
