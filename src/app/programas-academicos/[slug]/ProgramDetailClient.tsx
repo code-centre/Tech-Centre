@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { useSupabaseClient } from "@/lib/supabase"
 import { Program } from "@/types/programs"
 import { ProgramsList } from "@/components/ProgramsList"
@@ -27,6 +28,8 @@ export default function ProgramDetailClient({
   const [allPrograms, setAllPrograms] = useState<Program[]>([])
   const [firstCohortId, setFirstCohortId] = useState<number | null>(initialCohortId)
   const supabase = useSupabaseClient()
+  const searchParams = useSearchParams()
+  const cohortIdParam = searchParams.get('cohortId')
 
   useEffect(() => {
     if (initialProgramData) {
@@ -47,12 +50,31 @@ export default function ProgramDetailClient({
         if (supabaseProgram && !error) {
           setProgramData(supabaseProgram)
           setContentType("programa")
-          
-          // Obtener la primera cohorte disponible para el checkout
+          const programId = (supabaseProgram as any).id
+
+          // Si viene cohortId en la URL, verificar que pertenezca al programa
+          if (cohortIdParam) {
+            const cohortIdNum = parseInt(cohortIdParam, 10)
+            if (!isNaN(cohortIdNum)) {
+              const { data: cohortData } = await supabase
+                .from('cohorts')
+                .select('id')
+                .eq('id', cohortIdNum)
+                .eq('program_id', programId)
+                .single()
+              if (cohortData?.id) {
+                setFirstCohortId(cohortData.id)
+                setIsLoading(false)
+                return
+              }
+            }
+          }
+
+          // Fallback: primera cohorte con offering=true
           const { data: cohortData } = await supabase
             .from('cohorts')
             .select('id')
-            .eq('program_id', (supabaseProgram as any).id)
+            .eq('program_id', programId)
             .eq('offering', true)
             .order('start_date', { ascending: true })
             .limit(1)
@@ -103,7 +125,7 @@ export default function ProgramDetailClient({
     }
 
     checkContentType()
-  }, [slug, initialProgramData, supabase])
+  }, [slug, initialProgramData, cohortIdParam, supabase])
 
   if (isLoading) {
     return (

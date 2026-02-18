@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, X, XCircle, GraduationCap, Users, Eye, EyeOff, Filter, Loader2, Calendar, Save } from 'lucide-react';
+import { Plus, Trash2, X, XCircle, GraduationCap, Users, Loader2, Calendar, Save } from 'lucide-react';
 import { useSupabaseClient, useUser } from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -32,8 +32,6 @@ type Program = {
   }>;
 };
 
-type FilterType = 'all' | 'active' | 'inactive';
-
 export default function ProgramsAdmon() {
   const supabase = useSupabaseClient()
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -41,7 +39,6 @@ export default function ProgramsAdmon() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [filter, setFilter] = useState<FilterType>('all');
   const [currentProgram, setCurrentProgram] = useState({
     name: '',
     code: '',
@@ -53,7 +50,6 @@ export default function ProgramsAdmon() {
   });
   const [isAdding, setIsAdding] = useState(false);
   const [viewingSyllabus, setViewingSyllabus] = useState<{isOpen: boolean, content: any}>({isOpen: false, content: null});
-  const [togglingActive, setTogglingActive] = useState<number | null>(null);
   const [programToDelete, setProgramToDelete] = useState<Program | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -111,17 +107,10 @@ export default function ProgramsAdmon() {
   // Estadísticas
   const stats = {
     total: programs.length,
-    active: programs.filter(p => p.is_active).length,
-    inactive: programs.filter(p => !p.is_active).length,
     withCohorts: programs.filter(p => p.cohorts && p.cohorts.length > 0).length,
   };
 
-  // Filtrar programas
-  const filteredPrograms = programs.filter(program => {
-    if (filter === 'active') return program.is_active;
-    if (filter === 'inactive') return !program.is_active;
-    return true;
-  });
+  const filteredPrograms = programs;
 
   const handleEdit = (program: Program) => {
     setEditingId(program.id);
@@ -135,27 +124,6 @@ export default function ProgramsAdmon() {
       audience: program.audience || '',
     });
     setIsAdding(false);
-  };
-
-  const handleToggleActive = async (programId: number, currentStatus: boolean) => {
-    try {
-      setTogglingActive(programId);
-      const { error } = await supabase
-        .from('programs')
-        .update({ is_active: !currentStatus, updated_at: new Date().toISOString() })
-        .eq('id', programId);
-
-      if (error) throw error;
-
-      setPrograms(programs.map(p => 
-        p.id === programId ? { ...p, is_active: !currentStatus } : p
-      ));
-    } catch (err) {
-      console.error('Error al cambiar el estado:', err);
-      alert('Error al cambiar el estado del programa');
-    } finally {
-      setTogglingActive(null);
-    }
   };
 
   const handleSave = async () => {
@@ -396,7 +364,7 @@ export default function ProgramsAdmon() {
       </div>
 
       {/* Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
@@ -412,30 +380,6 @@ export default function ProgramsAdmon() {
         <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-text-muted text-sm mb-1">Activos</p>
-              <p className="text-3xl font-bold text-green-400">{stats.active}</p>
-            </div>
-            <div className="p-3 bg-green-500/10 rounded-lg">
-              <Eye className="text-green-400" size={24} />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Inactivos</p>
-              <p className="text-3xl font-bold text-red-400">{stats.inactive}</p>
-            </div>
-            <div className="p-3 bg-red-500/10 rounded-lg">
-              <EyeOff className="text-red-400" size={24} />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
               <p className="text-text-muted text-sm mb-1">Con Cohortes</p>
               <p className="text-3xl font-bold text-secondary">{stats.withCohorts}</p>
             </div>
@@ -443,26 +387,6 @@ export default function ProgramsAdmon() {
               <Users className="text-secondary" size={24} />
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Filtros */}
-      <div className="flex items-center gap-3">
-        <Filter className="text-text-muted" size={20} />
-        <div className="flex gap-2">
-          {(['all', 'active', 'inactive'] as FilterType[]).map((filterType) => (
-            <button
-              key={filterType}
-              onClick={() => setFilter(filterType)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                filter === filterType
-                  ? 'btn-primary'
-                  : 'bg-bg-secondary text-text-primary border border-border-color hover:bg-bg-secondary/80 hover:border-secondary/50'
-              }`}
-            >
-              {filterType === 'all' ? 'Todos' : filterType === 'active' ? 'Activos' : 'Inactivos'}
-            </button>
-          ))}
         </div>
       </div>
 
@@ -691,24 +615,6 @@ export default function ProgramsAdmon() {
                         </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => handleToggleActive(program.id, program.is_active)}
-                              disabled={togglingActive === program.id}
-                              className={`p-2 rounded-lg transition-all border ${
-                                program.is_active
-                                  ? 'bg-green-500/30 text-green-400 border-green-500/50 hover:bg-green-500/40'
-                                  : 'bg-red-500/30 text-red-400 border-red-500/50 hover:bg-red-500/40'
-                              } disabled:opacity-50`}
-                              title={program.is_active ? 'Desactivar' : 'Activar'}
-                            >
-                              {togglingActive === program.id ? (
-                                <Loader2 className="animate-spin w-4 h-4" />
-                              ) : program.is_active ? (
-                                <Eye className="w-4 h-4" />
-                              ) : (
-                                <EyeOff className="w-4 h-4" />
-                              )}
-                            </button>
                             <Link
                               href={`/admin/programas/${program.id}`}
                               className="btn-primary inline-flex items-center gap-2 text-sm px-4 py-2"

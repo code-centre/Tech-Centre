@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, X, Users, Save, Loader2, Search, Calendar, CalendarCheck } from 'lucide-react';
+import { Plus, X, Users, Save, Loader2, Search, Calendar, CalendarCheck, Eye, EyeOff, Clock, PlusCircle, Trash2 } from 'lucide-react';
 import { useSupabaseClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { formatDate as formatDateBogota, parseDateBogota } from '@/utils/formatDate';
@@ -26,7 +26,11 @@ type Cohort = {
   created_at: string;
   updated_at: string;
   enrollments_count?: number;
+  offering?: boolean;
+  schedule?: { days?: string[]; hours?: string[] };
 };
+
+const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
 type StatusFilterType = 'all' | 'por_iniciar' | 'en_curso' | 'terminada';
 
@@ -36,6 +40,7 @@ export default function CohortesAdmon() {
   
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
+  const [instructors, setInstructors] = useState<Array<{ user_id: string; first_name: string; last_name: string; email: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,9 +56,38 @@ export default function CohortesAdmon() {
     start_date: '',
     end_date: '',
     capacity: 0,
-    program_id: ''
+    program_id: '',
+    instructor_id: '',
+    schedule_days: [] as string[],
+    schedule_hours: [''] as string[]
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [togglingOffering, setTogglingOffering] = useState<string | null>(null);
+
+  const handleToggleOffering = async (cohortId: string, currentStatus: boolean) => {
+    try {
+      setTogglingOffering(cohortId);
+      setError(null);
+      const { error } = await supabase
+        .from('cohorts')
+        .update({ offering: !currentStatus })
+        .eq('id', cohortId);
+
+      if (error) throw error;
+      setCohorts(cohorts.map(c =>
+        c.id === cohortId ? { ...c, offering: !currentStatus } : c
+      ));
+      router.refresh();
+    } catch (err: unknown) {
+      const message = err && typeof err === 'object' && 'message' in err
+        ? String((err as { message: string }).message)
+        : 'Error desconocido';
+      console.error('Error al cambiar visibilidad:', err);
+      setError(`Error al cambiar la visibilidad: ${message}`);
+    } finally {
+      setTogglingOffering(null);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -114,9 +148,28 @@ export default function CohortesAdmon() {
     }
   };
 
-  const openModal = (cohort: Cohort | null = null) => {
+  const openModal = async (cohort: Cohort | null = null) => {
+    // Cargar instructores
+    const { data: instructorsData } = await supabase
+      .from('profiles')
+      .select('user_id, first_name, last_name, email')
+      .in('role', ['instructor', 'admin'])
+      .order('first_name', { ascending: true });
+    setInstructors(instructorsData || []);
+
     if (cohort) {
       setEditingCohort(cohort);
+      // Obtener instructor actual de la cohorte
+      let instructorId = '';
+      const { data: instructorData } = await supabase
+        .from('cohort_instructors')
+        .select('instructor_id')
+        .eq('cohort_id', cohort.id)
+        .single();
+      if (instructorData?.instructor_id) {
+        instructorId = instructorData.instructor_id;
+      }
+      const schedule = (cohort as Cohort).schedule;
       setFormData({
         name: cohort.name,
         campus: cohort.campus,
@@ -124,7 +177,10 @@ export default function CohortesAdmon() {
         start_date: cohort.start_date?.split('T')[0] || '',
         end_date: cohort.end_date?.split('T')[0] || '',
         capacity: cohort.capacity || 0,
-        program_id: cohort.program_id
+        program_id: cohort.program_id,
+        instructor_id: instructorId,
+        schedule_days: Array.isArray(schedule?.days) ? schedule.days : [],
+        schedule_hours: Array.isArray(schedule?.hours) && schedule.hours.length > 0 ? schedule.hours : ['']
       });
     } else {
       setEditingCohort(null);
@@ -135,7 +191,10 @@ export default function CohortesAdmon() {
         start_date: '',
         end_date: '',
         capacity: 0,
-        program_id: ''
+        program_id: '',
+        instructor_id: '',
+        schedule_days: [],
+        schedule_hours: ['']
       });
     }
     setErrors({});
@@ -153,6 +212,34 @@ export default function CohortesAdmon() {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleScheduleDayToggle = (day: string) => {
+    setFormData(prev => ({
+      ...prev,
+      schedule_days: prev.schedule_days.includes(day)
+        ? prev.schedule_days.filter(d => d !== day)
+        : [...prev.schedule_days, day]
+    }));
+  };
+
+  const handleScheduleHourChange = (index: number, value: string) => {
+    setFormData(prev => {
+      const next = [...prev.schedule_hours];
+      next[index] = value;
+      return { ...prev, schedule_hours: next };
+    });
+  };
+
+  const addScheduleHour = () => {
+    setFormData(prev => ({ ...prev, schedule_hours: [...prev.schedule_hours, ''] }));
+  };
+
+  const removeScheduleHour = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      schedule_hours: prev.schedule_hours.filter((_, i) => i !== index)
     }));
   };
 
@@ -194,6 +281,10 @@ export default function CohortesAdmon() {
     setError(null);
 
     try {
+      const schedule = {
+        days: formData.schedule_days,
+        hours: formData.schedule_hours.filter(h => h.trim() !== '')
+      };
       const cohortData = {
         name: formData.name.trim(),
         campus: formData.campus.trim(),
@@ -201,7 +292,8 @@ export default function CohortesAdmon() {
         start_date: formData.start_date,
         end_date: formData.end_date,
         capacity: Number(formData.capacity) || 0,
-        program_id: formData.program_id
+        program_id: formData.program_id,
+        schedule
       };
 
       if (editingCohort) {
@@ -239,6 +331,20 @@ export default function CohortesAdmon() {
 
         if (error) throw error;
         setCohorts([data, ...cohorts]);
+      }
+
+      const cohortIdToUse = editingCohort ? editingCohort.id : data?.id;
+      if (cohortIdToUse && formData.instructor_id) {
+        // Eliminar instructor previo y asignar el nuevo
+        await supabase.from('cohort_instructors').delete().eq('cohort_id', cohortIdToUse);
+        await supabase.from('cohort_instructors').insert({
+          cohort_id: Number(cohortIdToUse),
+          instructor_id: formData.instructor_id,
+          role: 'instructor'
+        });
+      } else if (cohortIdToUse && !formData.instructor_id) {
+        // Quitar instructor si se deseleccionó
+        await supabase.from('cohort_instructors').delete().eq('cohort_id', cohortIdToUse);
       }
 
       closeModal();
@@ -414,6 +520,9 @@ export default function CohortesAdmon() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                     Alumnos
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                    Visible
+                  </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
                     Acciones
                   </th>
@@ -473,6 +582,31 @@ export default function CohortesAdmon() {
                           {cohort.enrollments_count ?? 0}
                         </span>
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleOffering(cohort.id, cohort.offering ?? false);
+                        }}
+                        disabled={togglingOffering === cohort.id}
+                        className={`p-2 rounded-lg transition-all border ${
+                          cohort.offering
+                            ? 'bg-green-500/30 text-green-400 border-green-500/50 hover:bg-green-500/40'
+                            : 'bg-red-500/30 text-red-400 border-red-500/50 hover:bg-red-500/40'
+                        } disabled:opacity-50`}
+                        title={cohort.offering ? 'Ocultar en tarjetas' : 'Mostrar en tarjetas'}
+                        aria-label={cohort.offering ? 'Ocultar en tarjetas' : 'Mostrar en tarjetas'}
+                      >
+                        {togglingOffering === cohort.id ? (
+                          <Loader2 className="animate-spin w-4 h-4" />
+                        ) : cohort.offering ? (
+                          <Eye className="w-4 h-4" />
+                        ) : (
+                          <EyeOff className="w-4 h-4" />
+                        )}
+                      </button>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
@@ -626,20 +760,104 @@ export default function CohortesAdmon() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1">
-                  Capacidad (opcional)
-                </label>
-                <input
-                  type="number"
-                  name="capacity"
-                  min="1"
-                  value={formData.capacity}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary"
-                  placeholder="Dejar en blanco para sin límite"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-1">
+                    Capacidad (opcional)
+                  </label>
+                  <input
+                    type="number"
+                    name="capacity"
+                    min="1"
+                    value={formData.capacity}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary"
+                    placeholder="Dejar en blanco para sin límite"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-1">
+                    Instructor
+                  </label>
+                  <select
+                    name="instructor_id"
+                    value={formData.instructor_id}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary"
+                  >
+                    <option value="">Sin asignar</option>
+                    {instructors.map((inst) => (
+                      <option key={inst.user_id} value={inst.user_id}>
+                        {inst.first_name} {inst.last_name} ({inst.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
+              <fieldset className="space-y-3 p-4 rounded-lg border border-border-color bg-bg-secondary/30">
+                <legend className="flex items-center gap-2 text-sm font-medium text-text-primary px-2">
+                  <Clock className="w-4 h-4 text-secondary" />
+                  Horario
+                </legend>
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Días
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    {DIAS_SEMANA.map((dia) => (
+                      <label
+                        key={dia}
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.schedule_days.includes(dia)}
+                          onChange={() => handleScheduleDayToggle(dia)}
+                          className="rounded border-border-color text-secondary focus:ring-secondary"
+                        />
+                        <span className="text-sm text-text-primary">{dia}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Horas
+                  </label>
+                  <div className="space-y-2">
+                    {formData.schedule_hours.map((hora, idx) => (
+                      <div key={idx} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={hora}
+                          onChange={(e) => handleScheduleHourChange(idx, e.target.value)}
+                          placeholder="Ej: 7pm - 9pm"
+                          className="flex-1 px-3 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeScheduleHour(idx)}
+                          disabled={formData.schedule_hours.length <= 1}
+                          className="p-2 text-text-muted hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed"
+                          title="Quitar horario"
+                          aria-label="Quitar horario"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addScheduleHour}
+                      className="inline-flex items-center gap-2 text-sm text-secondary hover:text-secondary/80"
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      Agregar otro horario
+                    </button>
+                  </div>
+                </div>
+              </fieldset>
 
               <div className="flex justify-end gap-3 pt-4">
                 <button
