@@ -31,7 +31,10 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co';
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  'https://techcentre.co';
 const DEFAULT_OG_IMAGE = `${BASE_URL}/tech-center-logos/TechCentreLogoColor.png`;
 
 export async function generateMetadata({
@@ -64,11 +67,16 @@ export async function generateMetadata({
     ? `${(author as { first_name?: string }).first_name || ''} ${(author as { last_name?: string }).last_name || ''}`.trim() || 'Tech Centre'
     : 'Tech Centre';
   const description = meta.excerpt || meta.title;
-  const ogImage = meta.cover_image?.startsWith('http')
-    ? meta.cover_image
-    : meta.cover_image
-      ? `${BASE_URL}${meta.cover_image.startsWith('/') ? '' : '/'}${meta.cover_image}`
-      : DEFAULT_OG_IMAGE;
+  const rawCoverUrl =
+    meta.cover_image?.startsWith('http')
+      ? meta.cover_image
+      : meta.cover_image
+        ? `${BASE_URL}${meta.cover_image.startsWith('/') ? '' : '/'}${meta.cover_image}`
+        : null;
+  // WhatsApp requires og:image under ~600KB. Use our resize API for cover images.
+  const ogImage = rawCoverUrl
+    ? `${BASE_URL}/api/og-image?url=${encodeURIComponent(rawCoverUrl)}`
+    : DEFAULT_OG_IMAGE;
 
   const keywords = [
     ...meta.title.split(/\s+/).filter((w) => w.length > 3),
