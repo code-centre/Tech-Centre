@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import CohortList from '@/components/adminspage/CohortList';
+import ProgramCoverEditor from '@/components/adminspage/ProgramCoverEditor';
 import ProgramDetails from '@/components/adminspage/ProgramDetails';
 import ProgramHeader from '@/components/adminspage/ProgramHeader';
 import ProgramModulesList from '@/components/adminspage/ProgramModulesList';
@@ -58,6 +59,7 @@ export default async function ProgramPage({ params }: Props) {
   return (
     <div className="space-y-8">
       <ProgramHeader program={typedProgram} />
+      <ProgramCoverEditor program={typedProgram} />
       <CohortList cohorts={cohorts || []} programId={program_id} />
       <ProgramModulesList
         programId={program_id}
