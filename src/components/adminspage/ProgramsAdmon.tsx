@@ -543,7 +543,7 @@ export default function ProgramsAdmon() {
           {filteredPrograms.length === 0 ? (
             <div className="p-12 text-center">
               <GraduationCap className="w-16 h-16 text-text-muted mx-auto mb-4" />
-              <p className="text-text-muted text-lg">No hay programas {filter !== 'all' ? (filter === 'active' ? 'activos' : 'inactivos') : ''}</p>
+              <p className="text-text-muted text-lg">No hay programas registrados</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

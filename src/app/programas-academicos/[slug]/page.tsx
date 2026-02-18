@@ -64,21 +64,22 @@ export default async function DetailCourse({ params, searchParams }: Props) {
       if (cohortIdParam) {
         const cohortIdNum = parseInt(cohortIdParam, 10)
         if (!isNaN(cohortIdNum)) {
-          const { data: cohortData } = await supabase
+          const { data: cohortById } = await supabase
             .from('cohorts')
             .select('id')
             .eq('id', cohortIdNum)
             .eq('program_id', programId)
             .single()
-          if (cohortData?.id) {
-            firstCohortId = cohortData.id
+          const cohortId = (cohortById as { id?: number } | null)?.id
+          if (cohortId != null) {
+            firstCohortId = cohortId
           }
         }
       }
 
       // Fallback: primera cohorte con offering=true
       if (firstCohortId === null) {
-        const { data: cohortData }: { data: Cohort | null } = await supabase
+        const { data: fallbackCohort } = await supabase
           .from('cohorts')
           .select('id')
           .eq('program_id', programId)
@@ -86,8 +87,9 @@ export default async function DetailCourse({ params, searchParams }: Props) {
           .order('start_date', { ascending: true })
           .limit(1)
           .single()
-        if (cohortData?.id) {
-          firstCohortId = cohortData.id
+        const fallbackId = (fallbackCohort as { id?: number } | null)?.id
+        if (fallbackId != null) {
+          firstCohortId = fallbackId
         }
       }
     }

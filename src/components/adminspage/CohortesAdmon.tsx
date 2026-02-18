@@ -296,6 +296,7 @@ export default function CohortesAdmon() {
         schedule
       };
 
+      let savedCohort: { id: string | number } | null = null;
       if (editingCohort) {
         // Update existing cohort
         const { data, error } = await supabase
@@ -313,6 +314,7 @@ export default function CohortesAdmon() {
           .single();
 
         if (error) throw error;
+        savedCohort = data;
         setCohorts(cohorts.map(c => c.id === editingCohort.id ? data : c));
       } else {
         // Create new cohort
@@ -330,10 +332,11 @@ export default function CohortesAdmon() {
           .single();
 
         if (error) throw error;
+        savedCohort = data;
         setCohorts([data, ...cohorts]);
       }
 
-      const cohortIdToUse = editingCohort ? editingCohort.id : data?.id;
+      const cohortIdToUse = editingCohort ? editingCohort.id : savedCohort?.id;
       if (cohortIdToUse && formData.instructor_id) {
         // Eliminar instructor previo y asignar el nuevo
         await supabase.from('cohort_instructors').delete().eq('cohort_id', cohortIdToUse);
