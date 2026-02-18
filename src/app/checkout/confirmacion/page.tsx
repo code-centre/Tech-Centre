@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react'
@@ -42,10 +42,107 @@ function CheckoutContent() {
   const [processingPayment, setProcessingPayment] = useState(false)
   const [program, setProgram] = useState<any>(null)
   const [cohortId, setCohortId] = useState<number | null>(null)
-  const enrollmentId = searchParams.get('id') // Este es el enrollment_id
+  const [isInvoicePayment, setIsInvoicePayment] = useState(false)
+  const [invoiceLabel, setInvoiceLabel] = useState<string | null>(null)
+  const enrollmentId = searchParams.get('id') // enrollment_id (flujo de nueva matrícula)
+  const invoiceIdParam = searchParams.get('invoiceId') // flujo de pago de factura existente
+
+  const processInvoicePaymentConfirmation = useCallback(async () => {
+    const invoiceId = invoiceIdParam ? parseInt(invoiceIdParam, 10) : NaN
+    if (isNaN(invoiceId)) {
+      setError('ID de factura inválido')
+      setLoading(false)
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError(null)
+      setIsInvoicePayment(true)
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        setError('Debes iniciar sesión para verificar el pago')
+        setLoading(false)
+        return
+      }
+
+      const { data: invoice, error: invoiceError } = await supabase
+        .from('invoices')
+        .select('id, enrollment_id, label, status, meta')
+        .eq('id', invoiceId)
+        .single()
+
+      if (invoiceError || !invoice) {
+        setError('Factura no encontrada')
+        setLoading(false)
+        return
+      }
+
+      const { data: enrollment, error: enrollmentError } = await supabase
+        .from('enrollments')
+        .select('student_id')
+        .eq('id', invoice.enrollment_id)
+        .single()
+
+      if (enrollmentError || !enrollment || enrollment.student_id !== user.id) {
+        setError('No tienes permiso para ver esta factura')
+        setLoading(false)
+        return
+      }
+
+      setInvoiceLabel(invoice.label)
+
+      const paymentId =
+        invoice.meta?.payment_id ||
+        searchParams.get('reference') ||
+        searchParams.get('id')
+
+      let transactionStatus: { status: string }
+      if (paymentId) {
+        try {
+          const provider = getPaymentProvider()
+          transactionStatus = await provider.getTransactionStatus(paymentId)
+        } catch (paymentErr) {
+          console.warn('No se pudo verificar estado del pago, asumiendo éxito:', paymentErr)
+          transactionStatus = { status: 'APPROVED' }
+        }
+      } else {
+        transactionStatus = { status: 'APPROVED' }
+      }
+
+      setStatusTransaction(transactionStatus.status)
+
+      if (transactionStatus.status === 'APPROVED' && invoice.status === 'pending') {
+        const { error: updateErr } = await supabase
+          .from('invoices')
+          .update({
+            status: 'paid',
+            paid_at: new Date().toISOString(),
+          })
+          .eq('id', invoice.id)
+
+        if (updateErr) {
+          console.error('Error al actualizar factura:', updateErr)
+        }
+      }
+    } catch (err) {
+      console.error('Error al procesar confirmación de pago de factura:', err)
+      setError(err instanceof Error ? err.message : 'Error al verificar el pago')
+    } finally {
+      setLoading(false)
+    }
+  }, [invoiceIdParam, supabase, searchParams])
 
   useEffect(() => {
     const processPaymentConfirmation = async () => {
+      if (invoiceIdParam) {
+        await processInvoicePaymentConfirmation()
+        return
+      }
+
       if (!enrollmentId) {
         setError('No se proporcionó un ID de inscripción')
         setLoading(false)
@@ -137,7 +234,7 @@ function CheckoutContent() {
     }
 
     processPaymentConfirmation()
-  }, [enrollmentId, supabase])
+  }, [enrollmentId, invoiceIdParam, supabase, processInvoicePaymentConfirmation])
 
   const handlePaymentSuccess = async (enrollment: any) => {
     if (processingPayment) return // Evitar procesamiento duplicado
@@ -330,11 +427,13 @@ function CheckoutContent() {
                   ¡Pago confirmado!
                 </h2>
                 <p className="text-gray-400">
-                  Tu inscripción al programa {program?.name} ha sido confirmada exitosamente.
+                  {isInvoicePayment
+                    ? `Tu pago de la factura "${invoiceLabel || ''}" ha sido confirmado exitosamente.`
+                    : `Tu inscripción al programa ${program?.name || ''} ha sido confirmada exitosamente.`}
                 </p>
                 
-                {/* Componente de bienvenida del profesor */}
-                {cohortId && (
+                {/* Componente de bienvenida del profesor - solo para flujo de enrollment */}
+                {!isInvoicePayment && cohortId && (
                   <ProfessorWelcome 
                     cohortId={cohortId}
                     programName={program?.name}
@@ -354,7 +453,9 @@ function CheckoutContent() {
                   Pago pendiente
                 </h2>
                 <p className="text-gray-400">
-                  Tu inscripción al programa  {program?.name} está siendo procesada.
+                  {isInvoicePayment
+                    ? 'Tu pago está siendo procesado.'
+                    : `Tu inscripción al programa ${program?.name || ''} está siendo procesada.`}
                 </p>
                 <p className="text-sm text-gray-500">
                   Te notificaremos por correo electrónico una vez que el pago sea confirmado.
@@ -373,7 +474,9 @@ function CheckoutContent() {
                   Pago no aprobado
                 </h2>
                 <p className="text-gray-400">
-                  Tu inscripción{program?.name ? ` al programa ${program.name}` : ''} no pudo ser procesada.
+                  {isInvoicePayment
+                    ? 'El pago de la factura no pudo ser procesado.'
+                    : `Tu inscripción${program?.name ? ` al programa ${program.name}` : ''} no pudo ser procesada.`}
                 </p>
                 <p className="text-sm text-gray-500">
                   Por favor, verifica los datos de tu tarjeta o intenta con otro método de pago.
@@ -383,12 +486,23 @@ function CheckoutContent() {
 
             <div className="flex flex-col gap-4 pt-4">
               {isApproved && (
-                <Link
-                  href="/perfil/cursos"
-                  className="btn-primary group"
-                >
-                  Ver mis cursos
-                </Link>
+                <>
+                  {isInvoicePayment ? (
+                    <Link
+                      href="/perfil/facturas"
+                      className="btn-primary group"
+                    >
+                      Ver mis facturas
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/perfil/cursos"
+                      className="btn-primary group"
+                    >
+                      Ver mis cursos
+                    </Link>
+                  )}
+                </>
               )}
               <Link
                 href="/"

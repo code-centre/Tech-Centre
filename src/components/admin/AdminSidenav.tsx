@@ -6,13 +6,13 @@ import { GraduationCap, Users, FileText, UserCog, Shield, Newspaper, CalendarDay
 import { useUser } from '@/lib/supabase';
 
 const allNavItems = [
-  { href: '/admin/programas', label: 'Programas', icon: GraduationCap, adminOnly: true },
   { href: '/admin/cohortes', label: 'Cohortes', icon: CalendarDays, adminOnly: true },
-  { href: '/admin/blog', label: 'Blog', icon: Newspaper, adminOnly: false },
+  { href: '/admin/pagos', label: 'Pagos', icon: FileText, adminOnly: true },
   { href: '/admin/estudiantes', label: 'Estudiantes', icon: Users, adminOnly: true },
+  { href: '/admin/programas', label: 'Programas', icon: GraduationCap, adminOnly: true },
   { href: '/admin/instructores', label: 'Instructores', icon: UserCog, adminOnly: true },
   { href: '/admin/admins', label: 'Admins', icon: Shield, adminOnly: true },
-  { href: '/admin/pagos', label: 'Pagos', icon: FileText, adminOnly: true },
+  { href: '/admin/blog', label: 'Blog', icon: Newspaper, adminOnly: false },
 ];
 
 export default function AdminSidenav() {

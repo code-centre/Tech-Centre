@@ -85,7 +85,7 @@ function CourseCard({ course }: { course: EnrolledCourse }) {
   const courseStatus = getCourseStatus(course.cohorts?.start_date || null, course.cohorts?.end_date || null);
   const scheduleText = formatSchedule(course.cohorts?.schedule || null);
 
-  const linkHref = `/programas-academicos/${program?.slug || program?.code || program?.id || course.cohorts?.program_id}`;
+  const linkHref = `/perfil/cursos/${course.cohort_id}`;
 
   return (
     <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden shadow-lg">

@@ -5,7 +5,7 @@ import { useUser, useSupabaseClient } from '@/lib/supabase'
 import { 
   FileText, Upload, Calendar, DollarSign, CheckCircle, 
   Clock, AlertCircle, Loader2, Download, X,
-  Receipt
+  Receipt, CreditCard
 } from 'lucide-react'
 import { toast } from 'sonner'
 import NextImage from 'next/image'
@@ -37,6 +37,7 @@ export default function PaymentReceiptsManager() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [loading, setLoading] = useState(true)
   const [uploadingInvoiceId, setUploadingInvoiceId] = useState<number | null>(null)
+  const [creatingPaymentLinkId, setCreatingPaymentLinkId] = useState<number | null>(null)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -161,6 +162,29 @@ export default function PaymentReceiptsManager() {
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault()
+  }
+
+  const handlePayOnPlatform = async (invoiceId: number) => {
+    try {
+      setCreatingPaymentLinkId(invoiceId)
+      const res = await fetch(`/api/invoices/${invoiceId}/payment-link`)
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al generar el link de pago')
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error('No se recibió la URL de pago')
+      }
+    } catch (err: unknown) {
+      console.error('Error al pagar en plataforma:', err)
+      toast.error(err instanceof Error ? err.message : 'Error al generar el link de pago')
+    } finally {
+      setCreatingPaymentLinkId(null)
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -310,40 +334,62 @@ export default function PaymentReceiptsManager() {
                     </div>
                   </div>
                 ) : invoice.status !== 'paid' ? (
-                  <div className="mt-4">
-                    <div
-                      className="border-2 border-dashed border-border-color rounded-lg p-6 text-center hover:border-secondary/50 transition-colors cursor-pointer"
-                      onDrop={(e) => handleDrop(e, invoice.id)}
-                      onDragOver={handleDragOver}
-                      onClick={() => document.getElementById(`file-input-${invoice.id}`)?.click()}
-                    >
-                      <input
-                        id={`file-input-${invoice.id}`}
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileSelect(e, invoice.id)}
-                        className="hidden"
-                      />
-                      
-                      {uploadingInvoiceId === invoice.id ? (
-                        <div className="flex flex-col items-center gap-3">
-                          <Loader2 className="w-8 h-8 animate-spin text-secondary" />
-                          <p className="text-secondary">Subiendo recibo...</p>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-3">
-                          <Upload className="w-8 h-8 text-text-muted" />
-                          <div>
-                            <p className="text-text-primary font-medium">Subir recibo de pago</p>
-                            <p className="text-text-muted text-sm mt-1">
-                              Arrastra una imagen aquí o haz clic para seleccionar
-                            </p>
-                            <p className="text-text-muted text-xs mt-2 opacity-70">
-                              Formatos: JPG, PNG, JPEG (Máx. 5MB)
-                            </p>
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-text-primary mb-2">Pagar en plataforma</p>
+                      <button
+                        type="button"
+                        onClick={() => handlePayOnPlatform(invoice.id)}
+                        disabled={creatingPaymentLinkId === invoice.id}
+                        className="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {creatingPaymentLinkId === invoice.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Generando link...
+                          </>
+                        ) : (
+                          <>
+                            <CreditCard className="w-4 h-4" />
+                            Pagar con tarjeta
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="border-t border-border-color pt-4">
+                      <p className="text-sm font-medium text-text-primary mb-2">Subir comprobante de pago</p>
+                      <div
+                        className="border-2 border-dashed border-border-color rounded-lg p-6 text-center hover:border-secondary/50 transition-colors cursor-pointer"
+                        onDrop={(e) => handleDrop(e, invoice.id)}
+                        onDragOver={handleDragOver}
+                        onClick={() => document.getElementById(`file-input-${invoice.id}`)?.click()}
+                      >
+                        <input
+                          id={`file-input-${invoice.id}`}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileSelect(e, invoice.id)}
+                          className="hidden"
+                        />
+                        
+                        {uploadingInvoiceId === invoice.id ? (
+                          <div className="flex flex-col items-center gap-3">
+                            <Loader2 className="w-8 h-8 animate-spin text-secondary" />
+                            <p className="text-secondary">Subiendo recibo...</p>
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="flex flex-col items-center gap-3">
+                            <Upload className="w-8 h-8 text-text-muted" />
+                            <div>
+                              <p className="text-text-primary font-medium">Arrastra una imagen aquí o haz clic para seleccionar</p>
+                              <p className="text-text-muted text-xs mt-2 opacity-70">
+                                Formatos: JPG, PNG, JPEG (Máx. 5MB)
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ) : null}
