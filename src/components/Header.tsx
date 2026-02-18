@@ -58,6 +58,7 @@ export default function Header() {
   }
 
   return (
+    <>
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0E1116]/80 backdrop-blur-sm shadow-lg border-b border-[#374151]">
       <ProgramQuery onProgramsLoaded={handleProgramsLoaded} />
 
@@ -347,17 +348,21 @@ export default function Header() {
             </button>
           </div>
         </div>
-        {/* Mobile Sidebar - Slides in from right */}
-        <div
-          ref={mobileMenuRef}
-          onClick={(e) => e.stopPropagation()} // Prevent clicks within the menu from closing it
-          className={`lg:hidden fixed top-0 right-0 h-auto w-80 max-w-[85vw] bg-[#0E1116]/95 backdrop-blur-md border-l border-[#374151] z-50 shadow-2xl transition-transform duration-300 ease-out ${
-            isMenuOpen
-              ? "translate-x-0"
-              : "translate-x-full"
-          }`}
-        >
-          <div className="px-4 py-4 divide-y divide-[#374151] h-auto overflow-y-auto">
+      </div>
+    </header>
+
+    {/* Mobile Sidebar */}
+    <nav
+      ref={mobileMenuRef}
+      aria-label="Menú móvil"
+      onClick={(e) => e.stopPropagation()}
+      className={`lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-[#0E1116]/95 backdrop-blur-md border-l border-[#374151] z-60 shadow-2xl transition-transform duration-300 ease-out ${
+        isMenuOpen
+          ? "translate-x-0"
+          : "translate-x-full"
+      }`}
+    >
+      <div className="px-4 py-4 divide-y divide-[#374151] h-full overflow-y-auto flex flex-col">
             {/* Close button */}
             <div className="flex justify-end mb-4">
               <button
@@ -569,21 +574,21 @@ export default function Header() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
       </div>
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ease-in-out ${
-          isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          setIsMenuOpen(false);
-          setMobileDropdown(null);
-        }}
-      />
-    </header>
+    </nav>
+
+    {/* Backdrop */}
+    <div
+      className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-55 lg:hidden transition-opacity duration-300 ease-in-out ${
+        isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+      }`}
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setIsMenuOpen(false);
+        setMobileDropdown(null);
+      }}
+    />
+    </>
   )
 }

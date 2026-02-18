@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import parse from 'html-react-parser';
+import parse, { Element } from 'html-react-parser';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import CommentsSection from '@/components/blog/CommentsSection';
 import LikeButton from '@/components/blog/LikeButton';
@@ -214,7 +214,7 @@ export default async function BlogPostPage({
       : undefined;
 
   return (
-    <article className="max-w-3xl mx-auto">
+    <article className="w-full max-w-3xl mx-auto min-w-0 overflow-x-hidden">
       <BreadcrumbListSchema
         items={[
           { name: 'Inicio', url: BASE_URL },
@@ -272,21 +272,38 @@ export default async function BlogPostPage({
       </header>
 
       {post.cover_image && (
-        <div className="relative aspect-video rounded-xl overflow-hidden mb-8">
+        <figure className="relative aspect-video rounded-xl overflow-hidden mb-8 w-full">
           <Image
             src={post.cover_image}
             alt={post.title}
             fill
             className="object-cover"
+            sizes="(max-width: 768px) 100vw, 672px"
             priority
           />
-        </div>
+        </figure>
       )}
 
-      <div className="mb-8 text-text-primary [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-4 [&_img]:rounded-lg [&_img]:my-4 [&_a]:text-secondary [&_a]:hover:underline">
+      <div className="mb-8 text-text-primary [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-4 [&_img]:rounded-lg [&_img]:my-4 [&_img]:max-w-full [&_img]:h-auto [&_a]:text-secondary [&_a]:hover:underline">
         {post.content ? (
-          <div className="blog-content">
-            {parse(post.content)}
+          <div className="blog-content overflow-x-hidden">
+            {parse(post.content, {
+              replace: (domNode) => {
+                if (domNode instanceof Element && domNode.name === 'img' && domNode.attribs) {
+                  const { width: _w, height: _h, style: _s, ...rest } = domNode.attribs;
+                  return (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      {...rest}
+                      className="max-w-full h-auto rounded-lg my-4 block"
+                      style={{ maxWidth: '100%', height: 'auto' }}
+                      loading="lazy"
+                    />
+                  );
+                }
+                return undefined;
+              },
+            })}
           </div>
         ) : (
           <p className="text-text-muted">Este artículo no tiene contenido.</p>
