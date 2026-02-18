@@ -26,13 +26,13 @@ export default function ProfileHeader({ completionPercentage }: ProfileHeaderPro
     <div className="space-y-6 mb-8">
       {/* Title and Subcopy */}
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-text-primary dark:text-white flex items-center gap-3">
+        <h2 className="text-2xl font-bold text-text-primary flex items-center gap-3">
           <div className="p-2 bg-secondary/10 rounded-lg">
             <User className="text-secondary" size={24} />
           </div>
           Información personal
         </h2>
-        <p className="text-text-muted dark:text-gray-400 text-sm">
+        <p className="text-text-muted text-sm">
           Completa tu perfil para obtener el máximo provecho de la plataforma
         </p>
       </div>
@@ -40,10 +40,10 @@ export default function ProfileHeader({ completionPercentage }: ProfileHeaderPro
       {/* Progress Bar */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-text-primary dark:text-gray-300 font-medium">Perfil: {completionPercentage}% completo</span>
-          <span className="text-text-muted dark:text-gray-500">{completionPercentage}/100</span>
+          <span className="text-text-primary font-medium">Perfil: {completionPercentage}% completo</span>
+          <span className="text-text-muted">{completionPercentage}/100</span>
         </div>
-        <div className="w-full h-2.5 bg-bg-secondary dark:bg-gray-800/50 rounded-full overflow-hidden border border-border-color dark:border-transparent">
+        <div className="w-full h-2.5 bg-bg-secondary rounded-full overflow-hidden border border-border-color">
           <div
             className="h-full bg-gradient-to-r from-secondary to-blue-500 transition-all duration-500 ease-out rounded-full"
             style={{ width: `${completionPercentage}%` }}
@@ -58,7 +58,7 @@ export default function ProfileHeader({ completionPercentage }: ProfileHeaderPro
           return (
             <div
               key={index}
-              className="flex items-center gap-2 px-3 py-1.5 bg-bg-secondary dark:bg-gray-800/30 border border-border-color dark:border-gray-700/50 rounded-md text-xs text-text-primary dark:text-gray-300"
+              className="flex items-center gap-2 px-3 py-1.5 bg-bg-secondary border border-border-color rounded-md text-xs text-text-primary"
             >
               <Icon className="w-3.5 h-3.5 text-secondary" />
               <span>{benefit.text}</span>

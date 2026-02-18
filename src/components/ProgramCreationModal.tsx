@@ -144,10 +144,12 @@ export default function ProgramCreationModal({ isOpen, onClose, onProgramCreate 
           )}
           <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-700">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent">Crear nuevo programa</h2>
-            <button 
-              onClick={onClose} 
-              className="text-gray-400 hover:text-red-400 transition-all duration-300 p-2 rounded-full hover:bg-red-500/10" 
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-red-400 transition-all duration-300 p-2 rounded-full hover:bg-red-500/10"
               disabled={isLoading}
+              title="Cerrar"
+              aria-label="Cerrar"
             >
               <XIcon className="w-5 h-5" />
             </button>

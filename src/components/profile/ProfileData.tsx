@@ -319,7 +319,7 @@ export default function ProfileData() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-text-muted dark:text-gray-400 text-sm">Cargando información del perfil...</p>
+          <p className="text-text-muted text-sm">Cargando información del perfil...</p>
         </div>
       </div>
     )
@@ -336,12 +336,12 @@ export default function ProfileData() {
       <ProfileHeader completionPercentage={completionPercentage} />
 
       {/* Profile Card */}
-      <div className="bg-bg-card dark:bg-gradient-to-br dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 rounded-xl border border-border-color dark:border-zinc-700/50 shadow-xl overflow-hidden">
+      <div className="bg-[var(--card-background)] rounded-xl border border-border-color shadow-xl overflow-hidden">
         {/* Profile Image Section */}
-        <div className="bg-gradient-to-r from-secondary/20 via-bg-secondary to-bg-secondary dark:via-zinc-800 dark:to-zinc-800 px-6 pt-8 pb-6 border-b border-border-color dark:border-transparent">
+        <div className="bg-gradient-to-r from-secondary/20 via-bg-secondary to-bg-secondary px-6 pt-8 pb-6 border-b border-border-color">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <div className="relative">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-border-color dark:border-white/10 shadow-xl ring-4 ring-secondary/20">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border border-border-color shadow-xl">
                 <Image
                   width={160}
                   height={160}
@@ -350,7 +350,7 @@ export default function ProfileData() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <label className="absolute -bottom-2 -right-2 p-2 bg-secondary hover:bg-blue-600 rounded-full shadow-lg transition-all duration-200 hover:scale-110 cursor-pointer">
+              <label className="absolute -bottom-2 -right-2 p-2.5 bg-[var(--secondary)] hover:opacity-90 rounded-full shadow-md border-2 border-[var(--card-background)] transition-all duration-200 hover:scale-110 cursor-pointer">
                 <Camera className="w-4 h-4 text-white" />
                 <input
                   type="file"
@@ -361,7 +361,7 @@ export default function ProfileData() {
               </label>
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h3 className="text-2xl md:text-3xl font-bold text-text-primary dark:text-white mb-2">
+              <h3 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">
                 {formData.first_name && formData.last_name 
                   ? `${formData.first_name} ${formData.last_name}`
                   : 'Tu nombre'
@@ -381,7 +381,7 @@ export default function ProfileData() {
         <div className="p-6 space-y-6">
           {/* Sección Contacto - Siempre visible */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-text-primary dark:text-white flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2">
               <Phone className="w-5 h-5 text-secondary" />
               Contacto
             </h3>
@@ -461,11 +461,11 @@ export default function ProfileData() {
               />
               {city && (
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-text-muted dark:text-gray-300">
+                  <label className="flex items-center gap-2 text-sm font-medium text-text-muted">
                     <MapPin className="w-4 h-4" />
                     Ciudad
                   </label>
-                  <div className="px-4 py-2 text-text-primary dark:text-white bg-bg-secondary dark:bg-gray-800/30 rounded-lg border border-border-color dark:border-gray-700/50 min-h-[42px] flex items-center">
+                  <div className="px-4 py-2 text-text-primary bg-bg-secondary rounded-lg border border-border-color min-h-[42px] flex items-center">
                     {city}
                   </div>
                 </div>
@@ -482,11 +482,11 @@ export default function ProfileData() {
             <div className="space-y-6 pt-2">
               {/* ID Card Upload */}
               <div className="space-y-4">
-                <h4 className="text-text-primary dark:text-white font-medium flex items-center gap-2">
+                <h4 className="text-text-primary font-medium flex items-center gap-2">
                   <FileText className="w-4 h-4 text-secondary" />
                   Fotos de identificación
                 </h4>
-                <p className="text-text-muted dark:text-gray-400 text-sm">
+                <p className="text-text-muted text-sm">
                   Sube las fotos del frente y reverso de tu documento de identificación para verificar tu cuenta.
                 </p>
                 <IDCardUpload

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import ProgramsAdmon from '@/components/adminspage/ProgramsAdmon';
-import AdminRoute from '@/components/auth/AdminRoute';
 
 export const metadata: Metadata = {
   title: "Administración de Programas",
@@ -12,13 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default function ProgramsAdminPage() {
-
   return (
-    <AdminRoute>
-    <main className="container mx-auto p-6 mt-24">
-      <h1 className="text-3xl text-secondary text-center font-bold mb-8">Administración de Programas</h1>
-       <ProgramsAdmon /> 
-    </main>
-    </AdminRoute>
+    <div className="container mx-auto">
+      <ProgramsAdmon />
+    </div>
   );
 }

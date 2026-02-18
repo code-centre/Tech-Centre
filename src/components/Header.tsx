@@ -2,7 +2,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect, useRef, useCallback } from "react"
-import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, GraduationCap } from "lucide-react"
+import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, GraduationCap, Newspaper, CalendarDays, UserCog, Shield } from "lucide-react"
 import { useRouter } from 'next/navigation'
 import { useUser, useSupabaseClient } from '@/lib/supabase'
 import ProgramQuery from "./ProgramQuery"
@@ -58,6 +58,7 @@ export default function Header() {
   }
 
   return (
+    <>
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0E1116]/80 backdrop-blur-sm shadow-lg border-b border-[#374151]">
       <ProgramQuery onProgramsLoaded={handleProgramsLoaded} />
 
@@ -121,6 +122,19 @@ export default function Header() {
                 </div>
               </div>
             </div>
+
+            <Link
+              href="/blog"
+              className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
+              font-medium transition-all duration-200 group"
+            >
+              <span
+                className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                after:w-0 after:bg-[#2FB7C4] after:transition-all group-hover:after:w-full"
+              >
+                Blog
+              </span>
+            </Link>
 
             <div className="relative group">
               <a
@@ -193,35 +207,67 @@ export default function Header() {
                     </div>
                   </Link>
 
-                  {/* Admin Section - Only show if user is admin */}
-                  {user?.role === 'admin' && (
+                  {/* Admin Section - admin ve todo; instructor solo Blog */}
+                  {(user?.role === 'admin' || user?.role === 'instructor') && (
                     <>
                       <div className="border-t border-[#374151] my-2"></div>
                       <div className="px-4 py-2">
                         <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
-                          Administración
+                          {user?.role === 'admin' ? 'Administración' : 'Blog'}
                         </p>
                       </div>
+                      {user?.role === 'admin' && (
+                        <>
+                          <Link
+                            href="/admin/cohortes"
+                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                          >
+                            <CalendarDays className="w-4 h-4 text-[#2FB7C4]" />
+                            <span className="text-sm">Cohortes</span>
+                          </Link>
+                          <Link
+                            href="/admin/pagos"
+                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                          >
+                            <FileText className="w-4 h-4 text-[#2FB7C4]" />
+                            <span className="text-sm">Pagos</span>
+                          </Link>
+                          <Link
+                            href="/admin/estudiantes"
+                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                          >
+                            <Users className="w-4 h-4 text-[#2FB7C4]" />
+                            <span className="text-sm">Estudiantes</span>
+                          </Link>
+                          <Link
+                            href="/admin/programas"
+                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                          >
+                            <GraduationCap className="w-4 h-4 text-[#2FB7C4]" />
+                            <span className="text-sm">Programas</span>
+                          </Link>
+                          <Link
+                            href="/admin/instructores"
+                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                          >
+                            <UserCog className="w-4 h-4 text-[#2FB7C4]" />
+                            <span className="text-sm">Instructores</span>
+                          </Link>
+                          <Link
+                            href="/admin/admins"
+                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                          >
+                            <Shield className="w-4 h-4 text-[#2FB7C4]" />
+                            <span className="text-sm">Admins</span>
+                          </Link>
+                        </>
+                      )}
                       <Link
-                        href="/admin/estudiantes"
+                        href="/admin/blog"
                         className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
                       >
-                        <Users className="w-4 h-4 text-[#2FB7C4]" />
-                        <span className="text-sm">Lista estudiantes</span>
-                      </Link>
-                      <Link
-                        href="/admin/pagos"
-                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
-                      >
-                        <FileText className="w-4 h-4 text-[#2FB7C4]" />
-                        <span className="text-sm">Lista de pagos</span>
-                      </Link>
-                      <Link
-                        href="/admin/programas"
-                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
-                      >
-                        <GraduationCap className="w-4 h-4 text-[#2FB7C4]" />
-                        <span className="text-sm">Lista de programas</span>
+                        <Newspaper className="w-4 h-4 text-[#2FB7C4]" />
+                        <span className="text-sm">Blog</span>
                       </Link>
                     </>
                   )}
@@ -302,17 +348,21 @@ export default function Header() {
             </button>
           </div>
         </div>
-        {/* Mobile Sidebar - Slides in from right */}
-        <div
-          ref={mobileMenuRef}
-          onClick={(e) => e.stopPropagation()} // Prevent clicks within the menu from closing it
-          className={`lg:hidden fixed top-0 right-0 h-auto w-80 max-w-[85vw] bg-[#0E1116]/95 backdrop-blur-md border-l border-[#374151] z-50 shadow-2xl transition-transform duration-300 ease-out ${
-            isMenuOpen
-              ? "translate-x-0"
-              : "translate-x-full"
-          }`}
-        >
-          <div className="px-4 py-4 divide-y divide-[#374151] h-auto overflow-y-auto">
+      </div>
+    </header>
+
+    {/* Mobile Sidebar */}
+    <nav
+      ref={mobileMenuRef}
+      aria-label="Menú móvil"
+      onClick={(e) => e.stopPropagation()}
+      className={`lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-[#0E1116]/95 backdrop-blur-md border-l border-[#374151] z-60 shadow-2xl transition-transform duration-300 ease-out ${
+        isMenuOpen
+          ? "translate-x-0"
+          : "translate-x-full"
+      }`}
+    >
+      <div className="px-4 py-4 divide-y divide-[#374151] h-full overflow-y-auto flex flex-col">
             {/* Close button */}
             <div className="flex justify-end mb-4">
               <button
@@ -334,6 +384,20 @@ export default function Header() {
                 }}
               >
                 <span>Programas</span>
+              </Link>
+            </div>
+
+            {/* Blog Link */}
+            <div className="py-2">
+              <Link
+                href="/blog"
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#2FB7C4] transition-colors duration-200"
+                onClick={() => {
+                  setIsMenuOpen(false)
+                  setMobileDropdown(null)
+                }}
+              >
+                <span>Blog</span>
               </Link>
             </div>
 
@@ -391,58 +455,90 @@ export default function Header() {
                     <span>Cerrar Sesión</span>
                   </button>
 
-                  {/* Admin Dropdown - Only show if user is admin */}
-                  {user?.role === 'admin' && (
-                    <div className="py-2">
-                      <button
-                        onClick={() => toggleMobileDropdown("admin-mobile")}
-                        className="flex items-center justify-between w-full py-3 px-4 text-white font-semibold bg-[#1A1F2E]/50 hover:bg-[#1A1F2E] rounded-lg transition-colors duration-200"
-                      >
-                        <span>Admin</span>
-                        <ChevronDown
-                          className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === "admin-mobile" ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      <div
-                        className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                          mobileDropdown === "admin-mobile"
-                            ? "max-h-[500px] opacity-100"
-                            : "max-h-0 opacity-0"
-                        }`}
-                      >
-                        <div className="mt-2 pl-4 space-y-2">
+                  {/* Admin Section - admin ve todo; instructor solo Blog */}
+                  {(user?.role === 'admin' || user?.role === 'instructor') && (
+                    <div className="py-2 space-y-2">
+                      {user?.role === 'admin' && (
+                        <>
                           <Link
-                            href="/admin/estudiantes"
-                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                            href="/admin/cohortes"
+                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
                             }}
                           >
-                            Lista estudiantes
+                            <CalendarDays className="w-4 h-4 text-[#2FB7C4]" />
+                            <span>Cohortes</span>
                           </Link>
                           <Link
                             href="/admin/pagos"
-                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
                             }}
                           >
-                            Lista de pagos
+                            <FileText className="w-4 h-4 text-[#2FB7C4]" />
+                            <span>Pagos</span>
+                          </Link>
+                          <Link
+                            href="/admin/estudiantes"
+                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setMobileDropdown(null)
+                            }}
+                          >
+                            <Users className="w-4 h-4 text-[#2FB7C4]" />
+                            <span>Estudiantes</span>
                           </Link>
                           <Link
                             href="/admin/programas"
-                            className="block py-2 px-3 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
                             onClick={() => {
                               setIsMenuOpen(false)
                               setMobileDropdown(null)
                             }}
                           >
-                            Lista de programas
+                            <GraduationCap className="w-4 h-4 text-[#2FB7C4]" />
+                            <span>Programas</span>
                           </Link>
-                        </div>
-                      </div>
+                          <Link
+                            href="/admin/instructores"
+                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setMobileDropdown(null)
+                            }}
+                          >
+                            <UserCog className="w-4 h-4 text-[#2FB7C4]" />
+                            <span>Instructores</span>
+                          </Link>
+                          <Link
+                            href="/admin/admins"
+                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                            onClick={() => {
+                              setIsMenuOpen(false)
+                              setMobileDropdown(null)
+                            }}
+                          >
+                            <Shield className="w-4 h-4 text-[#2FB7C4]" />
+                            <span>Admins</span>
+                          </Link>
+                        </>
+                      )}
+                      <Link
+                        href="/admin/blog"
+                        className="flex items-center justify-between w-full py-3 px-4 text-white font-semibold bg-[#1A1F2E]/50 hover:bg-[#1A1F2E] rounded-lg transition-colors duration-200"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
+                      >
+                        <span>{user?.role === 'admin' ? 'Admin - Blog' : 'Blog'}</span>
+                        <Newspaper className="w-5 h-5 text-[#2FB7C4]" />
+                      </Link>
                     </div>
                   )}
                 </div>
@@ -478,21 +574,21 @@ export default function Header() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
       </div>
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ease-in-out ${
-          isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          setIsMenuOpen(false);
-          setMobileDropdown(null);
-        }}
-      />
-    </header>
+    </nav>
+
+    {/* Backdrop */}
+    <div
+      className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-55 lg:hidden transition-opacity duration-300 ease-in-out ${
+        isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+      }`}
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setIsMenuOpen(false);
+        setMobileDropdown(null);
+      }}
+    />
+    </>
   )
 }

@@ -5,7 +5,7 @@ import { useUser, useSupabaseClient } from '@/lib/supabase'
 import { 
   FileText, Upload, Calendar, DollarSign, CheckCircle, 
   Clock, AlertCircle, Loader2, Download, X,
-  Receipt
+  Receipt, CreditCard
 } from 'lucide-react'
 import { toast } from 'sonner'
 import NextImage from 'next/image'
@@ -37,6 +37,7 @@ export default function PaymentReceiptsManager() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [loading, setLoading] = useState(true)
   const [uploadingInvoiceId, setUploadingInvoiceId] = useState<number | null>(null)
+  const [creatingPaymentLinkId, setCreatingPaymentLinkId] = useState<number | null>(null)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -163,6 +164,29 @@ export default function PaymentReceiptsManager() {
     event.preventDefault()
   }
 
+  const handlePayOnPlatform = async (invoiceId: number) => {
+    try {
+      setCreatingPaymentLinkId(invoiceId)
+      const res = await fetch(`/api/invoices/${invoiceId}/payment-link`, { method: 'POST' })
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al generar el link de pago')
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error('No se recibió la URL de pago')
+      }
+    } catch (err: unknown) {
+      console.error('Error al pagar en plataforma:', err)
+      toast.error(err instanceof Error ? err.message : 'Error al generar el link de pago')
+    } finally {
+      setCreatingPaymentLinkId(null)
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-CO', {
       year: 'numeric',
@@ -183,7 +207,7 @@ export default function PaymentReceiptsManager() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-12 h-12 animate-spin text-secondary" />
-          <p className="text-text-muted dark:text-gray-400 text-sm">Cargando facturas...</p>
+          <p className="text-text-muted text-sm">Cargando facturas...</p>
         </div>
       </div>
     )
@@ -191,9 +215,9 @@ export default function PaymentReceiptsManager() {
 
   if (error) {
     return (
-      <div className="bg-red-900/20 border border-red-800/50 rounded-xl p-6 text-center">
-        <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-        <p className="text-red-400">{error}</p>
+      <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-center">
+        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+        <p className="text-red-500">{error}</p>
       </div>
     )
   }
@@ -206,8 +230,8 @@ export default function PaymentReceiptsManager() {
           <Receipt className="text-secondary" size={24} />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-text-primary dark:text-white">Mis Facturas y Recibos</h2>
-          <p className="text-sm text-text-muted dark:text-gray-400 mt-1">
+          <h2 className="text-2xl font-bold text-text-primary">Mis Facturas y Recibos</h2>
+          <p className="text-sm text-text-muted mt-1">
             {invoices.length > 0 
               ? `${invoices.length} ${invoices.length === 1 ? 'factura encontrada' : 'facturas encontradas'}`
               : 'Gestiona tus facturas y sube recibos de pago'
@@ -217,15 +241,15 @@ export default function PaymentReceiptsManager() {
       </div>
 
       {invoices.length === 0 ? (
-        <div className="bg-bg-card dark:bg-gradient-to-br dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 rounded-xl border border-border-color dark:border-zinc-700/50 overflow-hidden shadow-xl">
+        <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden shadow-lg">
           <div className="px-8 py-16 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-secondary/20 to-blue-600/20 mb-6">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary/10 mb-6">
               <FileText className="w-10 h-10 text-secondary" />
             </div>
-            <h3 className="text-2xl font-bold text-text-primary dark:text-white mb-3">
+            <h3 className="text-2xl font-bold text-text-primary mb-3">
               No tienes facturas pendientes
             </h3>
-            <p className="text-lg text-text-muted dark:text-gray-400 mb-2 max-w-md mx-auto">
+            <p className="text-lg text-text-muted mb-2 max-w-md mx-auto">
               Aún no tienes facturas asociadas a tus matrículas.
             </p>
           </div>
@@ -233,13 +257,13 @@ export default function PaymentReceiptsManager() {
       ) : (
         <div className="space-y-4">
           {invoices.map((invoice) => (
-            <div key={invoice.id} className="bg-bg-card dark:bg-gradient-to-br dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 rounded-xl border border-border-color dark:border-zinc-700/50 overflow-hidden shadow-lg">
+            <div key={invoice.id} className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden shadow-lg">
               <div className="p-6">
                 {/* Invoice Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-text-primary dark:text-white mb-2">{invoice.label}</h3>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted dark:text-gray-400">
+                    <h3 className="text-xl font-semibold text-text-primary mb-2">{invoice.label}</h3>
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted">
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-4 h-4" />
                         <span>{formatCurrency(invoice.amount)}</span>
@@ -251,7 +275,7 @@ export default function PaymentReceiptsManager() {
                       {invoice.paid_at && (
                         <div className="flex items-center gap-1">
                           <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-green-400">Pagado: {formatDate(invoice.paid_at)}</span>
+                          <span className="text-green-600">Pagado: {formatDate(invoice.paid_at)}</span>
                         </div>
                       )}
                     </div>
@@ -279,13 +303,13 @@ export default function PaymentReceiptsManager() {
 
                 {/* Receipt Section */}
                 {invoice.status === 'paid' && invoice.url_recipe ? (
-                  <div className="mt-4 p-4 bg-green-900/20 border border-green-800/50 rounded-lg">
+                  <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-400" />
+                        <CheckCircle className="w-5 h-5 text-green-600" />
                         <div>
-                          <p className="text-green-400 font-medium">Recibo de pago adjunto</p>
-                          <p className="text-green-300 text-sm">
+                          <p className="text-green-600 font-medium">Recibo de pago adjunto</p>
+                          <p className="text-green-600/80 text-sm">
                             Subido el {invoice.paid_at ? formatDate(invoice.paid_at) : 'N/A'}
                           </p>
                         </div>
@@ -293,7 +317,7 @@ export default function PaymentReceiptsManager() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setPreviewImage(invoice.url_recipe)}
-                          className="p-2 text-green-400 hover:text-green-300 hover:bg-green-800/50 rounded-lg transition-colors"
+                          className="p-2 text-green-600 hover:text-green-700 hover:bg-green-500/20 rounded-lg transition-colors"
                           title="Ver recibo"
                         >
                           <FileText className="w-5 h-5" />
@@ -301,7 +325,7 @@ export default function PaymentReceiptsManager() {
                         <a
                           href={invoice.url_recipe}
                           download={`recibo_${invoice.label.replace(/\s+/g, '_')}.jpg`}
-                          className="p-2 text-green-400 hover:text-green-300 hover:bg-green-800/50 rounded-lg transition-colors"
+                          className="p-2 text-green-600 hover:text-green-700 hover:bg-green-500/20 rounded-lg transition-colors"
                           title="Descargar recibo"
                         >
                           <Download className="w-5 h-5" />
@@ -310,40 +334,62 @@ export default function PaymentReceiptsManager() {
                     </div>
                   </div>
                 ) : invoice.status !== 'paid' ? (
-                  <div className="mt-4">
-                    <div
-                      className="border-2 border-dashed border-border-color dark:border-zinc-700/50 rounded-lg p-6 text-center hover:border-secondary/50 transition-colors cursor-pointer"
-                      onDrop={(e) => handleDrop(e, invoice.id)}
-                      onDragOver={handleDragOver}
-                      onClick={() => document.getElementById(`file-input-${invoice.id}`)?.click()}
-                    >
-                      <input
-                        id={`file-input-${invoice.id}`}
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileSelect(e, invoice.id)}
-                        className="hidden"
-                      />
-                      
-                      {uploadingInvoiceId === invoice.id ? (
-                        <div className="flex flex-col items-center gap-3">
-                          <Loader2 className="w-8 h-8 animate-spin text-secondary" />
-                          <p className="text-secondary">Subiendo recibo...</p>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-3">
-                          <Upload className="w-8 h-8 text-text-muted dark:text-zinc-500" />
-                          <div>
-                            <p className="text-text-primary dark:text-white font-medium">Subir recibo de pago</p>
-                            <p className="text-text-muted dark:text-zinc-400 text-sm mt-1">
-                              Arrastra una imagen aquí o haz clic para seleccionar
-                            </p>
-                            <p className="text-text-muted text-xs mt-2 opacity-70">
-                              Formatos: JPG, PNG, JPEG (Máx. 5MB)
-                            </p>
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-text-primary mb-2">Pagar en plataforma</p>
+                      <button
+                        type="button"
+                        onClick={() => handlePayOnPlatform(invoice.id)}
+                        disabled={creatingPaymentLinkId === invoice.id}
+                        className="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {creatingPaymentLinkId === invoice.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Generando link...
+                          </>
+                        ) : (
+                          <>
+                            <CreditCard className="w-4 h-4" />
+                            Pagar con tarjeta
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="border-t border-border-color pt-4">
+                      <p className="text-sm font-medium text-text-primary mb-2">Subir comprobante de pago</p>
+                      <div
+                        className="border-2 border-dashed border-border-color rounded-lg p-6 text-center hover:border-secondary/50 transition-colors cursor-pointer"
+                        onDrop={(e) => handleDrop(e, invoice.id)}
+                        onDragOver={handleDragOver}
+                        onClick={() => document.getElementById(`file-input-${invoice.id}`)?.click()}
+                      >
+                        <input
+                          id={`file-input-${invoice.id}`}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileSelect(e, invoice.id)}
+                          className="hidden"
+                        />
+                        
+                        {uploadingInvoiceId === invoice.id ? (
+                          <div className="flex flex-col items-center gap-3">
+                            <Loader2 className="w-8 h-8 animate-spin text-secondary" />
+                            <p className="text-secondary">Subiendo recibo...</p>
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="flex flex-col items-center gap-3">
+                            <Upload className="w-8 h-8 text-text-muted" />
+                            <div>
+                              <p className="text-text-primary font-medium">Arrastra una imagen aquí o haz clic para seleccionar</p>
+                              <p className="text-text-muted text-xs mt-2 opacity-70">
+                                Formatos: JPG, PNG, JPEG (Máx. 5MB)
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ) : null}
