@@ -66,7 +66,8 @@ export default function CohortStudentsPage() {
           *,
           programs:program_id (
             id,
-            name
+            name,
+            default_price
           )
         `)
         .eq('id', cohortId)
@@ -264,6 +265,13 @@ export default function CohortStudentsPage() {
         onClose={() => setIsModalOpen(false)}
         cohortId={cohortId}
         cohortName={cohort?.name}
+        programDefaultPrice={
+          cohort?.programs
+            ? (Array.isArray(cohort.programs)
+                ? cohort.programs[0]?.default_price
+                : cohort.programs?.default_price) ?? undefined
+            : undefined
+        }
         onEnrollmentCreated={handleEnrollmentCreated}
       />
     </main>
