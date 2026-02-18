@@ -187,6 +187,17 @@ export function StudentsList({
     return map;
   }, [cohortInstructorData]);
 
+  const isCohortContext = !!enrollments && enrollments.length > 0;
+
+  const enrollmentDateMap = useMemo(() => {
+    if (!enrollments?.length) return new Map<string, string>();
+    const map = new Map<string, string>();
+    enrollments.forEach((e: { student_id: string; created_at?: string }) => {
+      if (e.created_at) map.set(e.student_id, e.created_at);
+    });
+    return map;
+  }, [enrollments]);
+
   const isInstructorView =
     roleFilter?.length === 1 && roleFilter[0] === 'instructor';
 
@@ -271,13 +282,18 @@ export function StudentsList({
             : enrollmentStats.get(b.user_id)?.count ?? 0;
         cmp = ca - cb;
       } else {
-        cmp =
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        const dateA = isCohortContext
+          ? enrollmentDateMap.get(a.user_id) ?? a.created_at
+          : a.created_at;
+        const dateB = isCohortContext
+          ? enrollmentDateMap.get(b.user_id) ?? b.created_at
+          : b.created_at;
+        cmp = new Date(dateA).getTime() - new Date(dateB).getTime();
       }
       return cmp * mult;
     });
     return arr;
-  }, [filteredProfiles, sortKey, sortDir, enrollmentStats, instructorCohortCount]);
+  }, [filteredProfiles, sortKey, sortDir, enrollmentStats, instructorCohortCount, isCohortContext, enrollmentDateMap]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -288,7 +304,8 @@ export function StudentsList({
     }
   };
 
-  const showStudentFilters = roleFilter?.includes('student') || roleFilter?.includes('lead');
+  const showStudentFilters =
+    !isCohortContext && (roleFilter?.includes('student') || roleFilter?.includes('lead'));
   const filterTabs = showStudentFilters
     ? [
         { id: 'all' as FilterType, label: 'Todos' },
@@ -390,6 +407,7 @@ export function StudentsList({
       </div>
 
       {/* Filters */}
+      {!isCohortContext && (
       <div className="flex items-center gap-3">
         <Filter className="text-text-muted" size={20} />
         <div className="flex flex-wrap gap-2">
@@ -408,6 +426,7 @@ export function StudentsList({
           ))}
         </div>
       </div>
+      )}
 
       {/* Table */}
       <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden">
@@ -454,6 +473,8 @@ export function StudentsList({
                       )}
                     </button>
                   </th>
+                  {!isCohortContext && (
+                    <>
                   <th
                     scope="col"
                     className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
@@ -500,6 +521,8 @@ export function StudentsList({
                       )}
                     </button>
                   </th>
+                    </>
+                  )}
                   <th
                     scope="col"
                     className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
@@ -509,7 +532,7 @@ export function StudentsList({
                       onClick={() => handleSort('created_at')}
                       className="flex items-center gap-1 hover:text-text-primary transition-colors"
                     >
-                      Registro
+                      {isCohortContext ? 'Inscripción' : 'Registro'}
                       {sortKey === 'created_at' ? (
                         sortDir === 'asc' ? (
                           <ArrowUp className="w-4 h-4" />
@@ -555,6 +578,8 @@ export function StudentsList({
                           <p className="text-sm text-text-muted">{profile.email}</p>
                         </div>
                       </td>
+                      {!isCohortContext && (
+                        <>
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex px-2.5 py-1 rounded-md text-xs font-semibold ${getRoleBadgeClass(
@@ -578,8 +603,14 @@ export function StudentsList({
                           {courseCount}
                         </span>
                       </td>
+                        </>
+                      )}
                       <td className="px-4 py-3 text-sm text-text-muted">
-                        {new Date(profile.created_at).toLocaleDateString('es-CO')}
+                        {new Date(
+                          isCohortContext
+                            ? (enrollmentDateMap.get(profile.user_id) ?? profile.created_at)
+                            : profile.created_at
+                        ).toLocaleDateString('es-CO')}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <Link
