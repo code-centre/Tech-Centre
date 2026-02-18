@@ -214,7 +214,8 @@ export default function CohortCourseDetail({ cohortId }: CohortCourseDetailProps
       const sessionsData = (sessionsRes.data ?? []) as Session[];
       setSessions(sessionsData);
 
-      const isInstr = !!instructorRes.data;
+      const isAdmin = user?.role === 'admin';
+      const isInstr = !!instructorRes.data || isAdmin;
       setIsInstructor(isInstr);
 
       const enrollmentsData = (enrollmentRes.data ?? []) as EnrollmentWithProfile[];

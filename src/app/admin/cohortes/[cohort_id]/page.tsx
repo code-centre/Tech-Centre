@@ -45,6 +45,7 @@ export default function CohortStudentsPage() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [modules, setModules] = useState<ProgramModule[]>([]);
+  const [absencesByEnrollmentId, setAbsencesByEnrollmentId] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const [cohort, setCohort] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -131,6 +132,22 @@ export default function CohortStudentsPage() {
         console.error('Error fetching modules:', modulesRes.error);
       } else {
         setModules((modulesRes.data as ProgramModule[]) || []);
+      }
+
+      const sessionIds = ((sessionsRes.data as Session[]) || []).map((s) => s.id);
+      if (sessionIds.length > 0) {
+        const { data: attData } = await supabase
+          .from('attendance')
+          .select('enrollment_id')
+          .in('session_id', sessionIds)
+          .eq('status', 'absent');
+        const counts: Record<number, number> = {};
+        (attData || []).forEach((r: { enrollment_id: number }) => {
+          counts[r.enrollment_id] = (counts[r.enrollment_id] ?? 0) + 1;
+        });
+        setAbsencesByEnrollmentId(counts);
+      } else {
+        setAbsencesByEnrollmentId({});
       }
 
       setLoading(false);
@@ -247,6 +264,9 @@ export default function CohortStudentsPage() {
         <StudentsList
           enrollments={enrollments}
           showCohortInfo={false}
+          cohortId={cohortId}
+          onUserExpelled={fetchCohortAndStudents}
+          absencesByEnrollmentId={absencesByEnrollmentId}
         />
       )}
 
