@@ -5,7 +5,9 @@ import { createClient } from '@/lib/supabase/server';
 import CohortList from '@/components/adminspage/CohortList';
 import ProgramDetails from '@/components/adminspage/ProgramDetails';
 import ProgramHeader from '@/components/adminspage/ProgramHeader';
+import ProgramModulesList from '@/components/adminspage/ProgramModulesList';
 import type { Program } from '@/types/programs';
+import type { ProgramModule } from '@/types/supabase';
 
 export const metadata: Metadata = {
   title: 'Detalles del Programa',
@@ -44,15 +46,24 @@ export default async function ProgramPage({ params }: Props) {
 
   const typedProgram = program as unknown as Program;
 
-  const { data: cohorts } = await supabase
-    .from('cohorts')
-    .select('*')
-    .eq('program_id', program_id);
+  const [{ data: cohorts }, { data: modules }] = await Promise.all([
+    supabase.from('cohorts').select('*').eq('program_id', program_id),
+    supabase
+      .from('program_modules')
+      .select('*')
+      .eq('program_id', program_id)
+      .order('order_index', { ascending: true }),
+  ]);
 
   return (
     <div className="space-y-8">
       <ProgramHeader program={typedProgram} />
       <CohortList cohorts={cohorts || []} programId={program_id} />
+      <ProgramModulesList
+        programId={program_id}
+        modules={(modules as ProgramModule[]) || []}
+        syllabus={typedProgram.syllabus}
+      />
       <ProgramDetails program={typedProgram} />
     </div>
   );

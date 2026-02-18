@@ -7,45 +7,53 @@ import type { CreatePaymentLinkParams, PaymentLink, TransactionStatus } from './
 
 export class WompiProvider implements PaymentProvider {
   readonly name = 'wompi';
-  
+
   private readonly baseUrl: string;
   private readonly secretKey: string;
 
-  constructor() {
+  constructor(options?: { secretKey?: string }) {
     const mode = process.env.NEXT_PUBLIC_MODE_WOMPI || 'production';
     this.baseUrl = `https://${mode}.wompi.co/v1`;
-    this.secretKey = process.env.NEXT_PUBLIC_WOMPI_SECRET_KEY || '';
+    this.secretKey =
+      options?.secretKey ||
+      process.env.WOMPI_SECRET_KEY ||
+      process.env.NEXT_PUBLIC_WOMPI_SECRET_KEY ||
+      '';
 
     if (!this.secretKey) {
-      console.warn('⚠️ NEXT_PUBLIC_WOMPI_SECRET_KEY no está configurada');
+      console.warn('⚠️ Clave de Wompi no configurada (WOMPI_SECRET_KEY o NEXT_PUBLIC_WOMPI_SECRET_KEY)');
     }
   }
 
   async createPaymentLink(params: CreatePaymentLinkParams): Promise<PaymentLink> {
     try {
+      // Wompi payment_links no documenta 'metadata' - enviarlo puede causar 422
+      const body = {
+        name: params.name,
+        description: params.description,
+        single_use: true,
+        collect_shipping: false,
+        amount_in_cents: Math.round(params.amount * 100), // Convertir a centavos
+        currency: 'COP',
+        redirect_url: params.redirectUrl,
+      };
       const response = await fetch(`${this.baseUrl}/payment_links`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.secretKey}`,
         },
-        body: JSON.stringify({
-          name: params.name,
-          description: params.description,
-          single_use: true,
-          collect_shipping: false,
-          amount_in_cents: Math.round(params.amount * 100), // Convertir a centavos
-          currency: 'COP',
-          redirect_url: params.redirectUrl,
-          ...(params.metadata && { metadata: params.metadata }),
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('Error al crear link de pago en Wompi:', errorData);
+        const errMsg = (errorData as { error?: { messages?: Record<string, string[]> } }).error?.messages
+          ? JSON.stringify((errorData as { error: { messages: Record<string, string[]> } }).error.messages)
+          : (errorData as { message?: string }).message || response.statusText;
         throw new Error(
-          `Error al crear link de pago en Wompi: ${errorData.message || response.statusText}`
+          `Error al crear link de pago en Wompi: ${errMsg}`
         );
       }
 

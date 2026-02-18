@@ -41,6 +41,50 @@ export interface BlogLike {
   created_at: string;
 }
 
+/** Attendance status enum values */
+export type AttendanceStatus = 'present' | 'late' | 'absent' | 'excused';
+
+/** Session material item (stored in sessions.materials jsonb) */
+export interface SessionMaterial {
+  title: string;
+  url: string;
+  type: 'github' | 'youtube' | 'file' | 'link';
+}
+
+/** Program module - groups sessions within a program */
+export interface ProgramModule {
+  id: number;
+  program_id: number;
+  name: string;
+  order_index: number;
+  hours: number | null;
+  content: Json | null;
+  created_at: string;
+}
+
+/** Class session - belongs to a cohort, optionally to a module */
+export interface Session {
+  id: number;
+  cohort_id: number;
+  module_id: number | null;
+  title: string | null;
+  starts_at: string;
+  ends_at: string;
+  room: string | null;
+  materials: SessionMaterial[] | null;
+  created_at: string;
+}
+
+/** Attendance record - links session to enrollment with status */
+export interface Attendance {
+  id: number;
+  session_id: number;
+  enrollment_id: number;
+  status: AttendanceStatus;
+  notes: string | null;
+  marked_at: string;
+}
+
 /**
  * Interface para usuarios del sistema
  */
@@ -174,6 +218,51 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Omit<BlogLike, 'id'>>;
+      };
+      invoices: {
+        Row: {
+          id: number;
+          enrollment_id: number;
+          label: string;
+          amount: number;
+          status: string;
+          meta: Json | null;
+          due_date?: string;
+          paid_at?: string | null;
+          url_recipe?: string | null;
+        };
+        Insert: {
+          enrollment_id: number;
+          label: string;
+          amount: number;
+          status?: string;
+          meta?: Json | null;
+          due_date?: string;
+          paid_at?: string | null;
+          url_recipe?: string | null;
+        };
+        Update: {
+          enrollment_id?: number;
+          label?: string;
+          amount?: number;
+          status?: string;
+          meta?: Json | null;
+          due_date?: string;
+          paid_at?: string | null;
+          url_recipe?: string | null;
+        };
+      };
+      enrollments: {
+        Row: {
+          id: number;
+          student_id: string;
+        };
+        Insert: {
+          student_id: string;
+        };
+        Update: {
+          student_id?: string;
+        };
       };
     };
   };

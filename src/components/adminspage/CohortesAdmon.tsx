@@ -327,7 +327,7 @@ export default function CohortesAdmon() {
         </h1>
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors"
+          className="btn-primary inline-flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Nueva Cohorte

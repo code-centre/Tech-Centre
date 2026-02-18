@@ -5,12 +5,15 @@ import { useParams } from 'next/navigation';
 import { useSupabaseClient } from '@/lib/supabase';
 import { StudentsList } from '@/components/adminspage/StudentsList';
 import EnrollmentModal from '@/components/adminspage/EnrollmentModal';
+import SessionsList from '@/components/adminspage/SessionsList';
 import Link from 'next/link';
-import { ArrowLeft, UserPlus, Calendar, BookOpen, Hash } from 'lucide-react';
+import { ArrowLeft, UserPlus, Calendar, BookOpen, Hash, Users, BookMarked } from 'lucide-react';
+import type { Session, ProgramModule } from '@/types/supabase';
 
 interface Profile {
   user_id: string;
   first_name: string;
+  last_name?: string;
   email: string;
   phone?: string;
 }
@@ -22,7 +25,8 @@ interface Enrollment {
   status: string;
   agreed_price: number;
   created_at: string;
-  profile: Profile | null;
+  profiles?: Profile | null;
+  profile?: Profile | null;
   cohort: {
     id: string;
     name: string;
@@ -39,10 +43,12 @@ export default function CohortStudentsPage() {
   const params = useParams();
   const supabase = useSupabaseClient();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [modules, setModules] = useState<ProgramModule[]>([]);
   const [loading, setLoading] = useState(true);
   const [cohort, setCohort] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [availableStudents, setAvailableStudents] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'students' | 'classes'>('students');
 
   const cohortId = params.cohort_id as string;
 
@@ -53,15 +59,15 @@ export default function CohortStudentsPage() {
   const fetchCohortAndStudents = async () => {
     try {
       setLoading(true);
-      
-      // Fetch cohort information
+
       const { data: cohortData, error: cohortError } = await supabase
         .from('cohorts')
         .select(`
           *,
           programs:program_id (
             id,
-            name
+            name,
+            default_price
           )
         `)
         .eq('id', cohortId)
@@ -75,27 +81,56 @@ export default function CohortStudentsPage() {
 
       setCohort(cohortData);
 
-      // Fetch enrollments for this cohort
-      const { data: enrollmentsData, error: enrollmentsError } = await supabase
-        .from('enrollments')
-        .select(`
-          *,
-          profiles:student_id (
-            user_id,
-            first_name,
-            last_name,
-            email,
-            phone,
-            role
-          )
-        `)
-        .eq('cohort_id', cohortId)
-        .order('created_at', { ascending: false });
+      const programId = cohortData?.program_id ?? (Array.isArray(cohortData?.programs)
+        ? cohortData?.programs?.[0]?.id
+        : cohortData?.programs?.id);
 
-      if (enrollmentsError) {
-        console.error('Error fetching enrollments:', enrollmentsError);
+      const [enrollmentsRes, sessionsRes, modulesRes] = await Promise.all([
+        supabase
+          .from('enrollments')
+          .select(`
+            *,
+            profiles:student_id (
+              user_id,
+              first_name,
+              last_name,
+              email,
+              phone,
+              role
+            )
+          `)
+          .eq('cohort_id', cohortId)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('sessions')
+          .select('*')
+          .eq('cohort_id', cohortId)
+          .order('starts_at', { ascending: true }),
+        programId
+          ? supabase
+              .from('program_modules')
+              .select('*')
+              .eq('program_id', programId)
+              .order('order_index', { ascending: true })
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+
+      if (enrollmentsRes.error) {
+        console.error('Error fetching enrollments:', enrollmentsRes.error);
       } else {
-        setEnrollments(enrollmentsData || []);
+        setEnrollments((enrollmentsRes.data as Enrollment[]) || []);
+      }
+
+      if (sessionsRes.error) {
+        console.error('Error fetching sessions:', sessionsRes.error);
+      } else {
+        setSessions((sessionsRes.data as Session[]) || []);
+      }
+
+      if (modulesRes.error) {
+        console.error('Error fetching modules:', modulesRes.error);
+      } else {
+        setModules((modulesRes.data as ProgramModule[]) || []);
       }
 
       setLoading(false);
@@ -176,18 +211,67 @@ export default function CohortStudentsPage() {
             </button>
           </div>
         </div>
+
+        <nav
+          className="flex border-t border-border-color"
+          aria-label="Tabs de cohorte"
+        >
+          <button
+            type="button"
+            onClick={() => setActiveTab('students')}
+            className={`flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-medium transition-colors ${
+              activeTab === 'students'
+                ? 'text-secondary border-b-2 border-secondary bg-bg-secondary/30'
+                : 'text-text-muted hover:text-text-primary hover:bg-bg-secondary/20'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            Estudiantes
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('classes')}
+            className={`flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-medium transition-colors ${
+              activeTab === 'classes'
+                ? 'text-secondary border-b-2 border-secondary bg-bg-secondary/30'
+                : 'text-text-muted hover:text-text-primary hover:bg-bg-secondary/20'
+            }`}
+          >
+            <BookMarked className="w-4 h-4" />
+            Clases y Material
+          </button>
+        </nav>
       </article>
 
-      <StudentsList
-        enrollments={enrollments}
-        showCohortInfo={false}
-      />
+      {activeTab === 'students' && (
+        <StudentsList
+          enrollments={enrollments}
+          showCohortInfo={false}
+        />
+      )}
+
+      {activeTab === 'classes' && (
+        <SessionsList
+          sessions={sessions}
+          modules={modules}
+          enrollments={enrollments}
+          cohortId={cohortId}
+          onDataChange={fetchCohortAndStudents}
+        />
+      )}
 
       <EnrollmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         cohortId={cohortId}
         cohortName={cohort?.name}
+        programDefaultPrice={
+          cohort?.programs
+            ? (Array.isArray(cohort.programs)
+                ? cohort.programs[0]?.default_price
+                : cohort.programs?.default_price) ?? undefined
+            : undefined
+        }
         onEnrollmentCreated={handleEnrollmentCreated}
       />
     </main>
