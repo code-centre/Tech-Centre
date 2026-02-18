@@ -219,6 +219,51 @@ export interface Database {
         };
         Update: Partial<Omit<BlogLike, 'id'>>;
       };
+      invoices: {
+        Row: {
+          id: number;
+          enrollment_id: number;
+          label: string;
+          amount: number;
+          status: string;
+          meta: Json | null;
+          due_date?: string;
+          paid_at?: string | null;
+          url_recipe?: string | null;
+        };
+        Insert: {
+          enrollment_id: number;
+          label: string;
+          amount: number;
+          status?: string;
+          meta?: Json | null;
+          due_date?: string;
+          paid_at?: string | null;
+          url_recipe?: string | null;
+        };
+        Update: {
+          enrollment_id?: number;
+          label?: string;
+          amount?: number;
+          status?: string;
+          meta?: Json | null;
+          due_date?: string;
+          paid_at?: string | null;
+          url_recipe?: string | null;
+        };
+      };
+      enrollments: {
+        Row: {
+          id: number;
+          student_id: string;
+        };
+        Insert: {
+          student_id: string;
+        };
+        Update: {
+          student_id?: string;
+        };
+      };
     };
   };
 }
