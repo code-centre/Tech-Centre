@@ -475,7 +475,7 @@ export default function ProfileCursosMatriculados({ user }: ProfileCursosMatricu
                 </p>
                 <Link
                   href="/programas-academicos"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-secondary hover:bg-secondary/90 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                  className="btn-primary inline-flex items-center gap-2 px-8 py-4"
                 >
                   <BookOpen className="w-5 h-5" />
                   <span>Explorar Cursos Disponibles</span>
