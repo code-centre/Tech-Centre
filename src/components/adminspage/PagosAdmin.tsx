@@ -951,7 +951,7 @@ export function PagosAdmin() {
             <div className="rounded-lg border border-border-color bg-bg-secondary/50 p-4 min-h-[100px]">
               {(observationsInvoice.meta?.admin_notes as string | undefined)?.trim() ? (
                 <p className="text-text-primary whitespace-pre-wrap">
-                  {String(observationsInvoice.meta.admin_notes)}
+                  {String(observationsInvoice.meta?.admin_notes ?? '')}
                 </p>
               ) : (
                 <p className="text-text-muted italic">Sin observaciones</p>

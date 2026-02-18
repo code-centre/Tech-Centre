@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Plus, X, Users, Save, Loader2, Search, Calendar, CalendarCheck } from 'lucide-react';
 import { useSupabaseClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { formatDate as formatDateBogota, parseDateBogota } from '@/utils/formatDate';
 
 type Program = {
   id: string;
@@ -270,16 +271,16 @@ export default function CohortesAdmon() {
 
   const formatDateWithMonth = (dateStr: string) => {
     if (!dateStr) return '—';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+    const formatted = formatDateBogota(dateStr);
+    return formatted || '—';
   };
 
   const getCohortStatus = (startDate: string, endDate: string): 'por_iniciar' | 'en_curso' | 'terminada' => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const start = new Date(startDate);
+    const start = parseDateBogota(startDate);
     start.setHours(0, 0, 0, 0);
-    const end = new Date(endDate);
+    const end = parseDateBogota(endDate);
     end.setHours(0, 0, 0, 0);
     if (today < start) return 'por_iniciar';
     if (today > end) return 'terminada';
@@ -651,7 +652,7 @@ export default function CohortesAdmon() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 rounded-lg bg-secondary text-white hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {saving ? (
                     <>

@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Plus, Pencil, Users, X } from 'lucide-react';
+import { formatDateShort, parseDateBogota } from '@/utils/formatDate';
 
 interface Cohort {
   id?: string | number;
@@ -18,18 +19,9 @@ interface Cohort {
 
 type CohortTab = 'active' | 'past';
 
-function formatDate(dateStr: string): string {
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
-  } catch {
-    return dateStr;
-  }
-}
-
 function isActiveCohort(cohort: Cohort): boolean {
   try {
-    const endDate = new Date(cohort.end_date);
+    const endDate = parseDateBogota(cohort.end_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     endDate.setHours(0, 0, 0, 0);
@@ -292,7 +284,7 @@ export default function CohortList({
                       )}
                     </div>
                     <p className="text-sm text-text-muted">
-                      {formatDate(cohort.start_date)} – {formatDate(cohort.end_date)}
+                      {formatDateShort(cohort.start_date)} – {formatDateShort(cohort.end_date)}
                       {cohort.modality && ` • ${cohort.modality}`}
                       {cohort.campus && ` • ${cohort.campus}`}
                       {cohort.capacity != null && cohort.capacity > 0 && (
