@@ -41,6 +41,50 @@ export interface BlogLike {
   created_at: string;
 }
 
+/** Attendance status enum values */
+export type AttendanceStatus = 'present' | 'late' | 'absent' | 'excused';
+
+/** Session material item (stored in sessions.materials jsonb) */
+export interface SessionMaterial {
+  title: string;
+  url: string;
+  type: 'github' | 'youtube' | 'file' | 'link';
+}
+
+/** Program module - groups sessions within a program */
+export interface ProgramModule {
+  id: number;
+  program_id: number;
+  name: string;
+  order_index: number;
+  hours: number | null;
+  content: Json | null;
+  created_at: string;
+}
+
+/** Class session - belongs to a cohort, optionally to a module */
+export interface Session {
+  id: number;
+  cohort_id: number;
+  module_id: number | null;
+  title: string | null;
+  starts_at: string;
+  ends_at: string;
+  room: string | null;
+  materials: SessionMaterial[] | null;
+  created_at: string;
+}
+
+/** Attendance record - links session to enrollment with status */
+export interface Attendance {
+  id: number;
+  session_id: number;
+  enrollment_id: number;
+  status: AttendanceStatus;
+  notes: string | null;
+  marked_at: string;
+}
+
 /**
  * Interface para usuarios del sistema
  */
