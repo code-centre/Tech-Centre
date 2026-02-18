@@ -70,15 +70,8 @@ export default function AcademicOffer() {
           })
           .filter((item): item is ProgramWithCohort => item !== null)
         
-        // Eliminar duplicados de programas (si un programa tiene múltiples cohortes, tomar la primera)
-        const uniquePrograms = new Map<number, ProgramWithCohort>()
-        transformedData.forEach(item => {
-          if (!uniquePrograms.has(item.program.id)) {
-            uniquePrograms.set(item.program.id, item)
-          }
-        })
-        
-        setProgramsWithCohorts(Array.from(uniquePrograms.values()))
+        // Mostrar una tarjeta por cada cohorte visible (múltiples cohortes del mismo programa = múltiples tarjetas)
+        setProgramsWithCohorts(transformedData)
       } catch (err) {
         console.error('Error cargando programas:', err)
         setError('Error al cargar los programas')
@@ -119,7 +112,7 @@ export default function AcademicOffer() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {programsWithCohorts.map(({ program, cohort }) => (
               <ProgramCardOptimized 
-                key={program.id} 
+                key={cohort.id} 
                 program={program} 
                 cohort={cohort}
               />

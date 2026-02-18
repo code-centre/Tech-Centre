@@ -626,3 +626,201 @@ section[id], div[id] {
 [data-theme="dark"] .program-description-content th {
   background-color: rgba(255, 255, 255, 0.05);
 }
+
+/* Prose content - typography for rendered HTML (description, FAQs, Tiptap editor) */
+.prose-content {
+  color: var(--card-text-primary);
+}
+
+.prose-content h1,
+.prose-content h2,
+.prose-content h3,
+.prose-content h4,
+.prose-content h5,
+.prose-content h6 {
+  color: var(--card-text-primary);
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+  line-height: 1.3;
+}
+
+.prose-content h1 { font-size: 2em; }
+.prose-content h2 { font-size: 1.75em; }
+.prose-content h3 { font-size: 1.5em; }
+.prose-content h4 { font-size: 1.25em; }
+.prose-content h5 { font-size: 1.1em; }
+.prose-content h6 { font-size: 1em; }
+
+.prose-content p {
+  color: var(--card-text-primary);
+  margin-bottom: 1em;
+  line-height: 1.7;
+}
+
+.prose-content p:last-child {
+  margin-bottom: 0;
+}
+
+.prose-content a {
+  color: var(--secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.prose-content a:hover {
+  opacity: 0.85;
+}
+
+.prose-content strong,
+.prose-content b {
+  font-weight: 600;
+}
+
+.prose-content em,
+.prose-content i {
+  font-style: italic;
+}
+
+.prose-content ul,
+.prose-content ol {
+  color: var(--card-text-primary);
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+
+.prose-content li {
+  margin-bottom: 0.5em;
+  line-height: 1.6;
+}
+
+.prose-content ul {
+  list-style-type: disc;
+}
+
+.prose-content ol {
+  list-style-type: decimal;
+}
+
+.prose-content blockquote {
+  border-left: 4px solid var(--secondary);
+  padding-left: 1em;
+  margin: 1.5em 0;
+  color: var(--card-text-muted);
+  font-style: italic;
+}
+
+/* Tiptap editor - contraste en modo light */
+html:not([data-theme="dark"]) .tiptap-editor-wrapper .ProseMirror,
+html:not([data-theme="dark"]) .tiptap-editor-wrapper .prose-content {
+  color: #0F172A !important;
+}
+
+html:not([data-theme="dark"]) .tiptap-editor-wrapper .ProseMirror p.is-editor-empty:first-child::before,
+html:not([data-theme="dark"]) .tiptap-editor-wrapper [data-placeholder]::before {
+  color: #64748B !important;
+}
+
+/* Bordes oscuros en modo light */
+html:not([data-theme="dark"]) .tiptap-editor-wrapper [class*="border-border-color"],
+html:not([data-theme="dark"]) .tiptap-editor-wrapper .border-border-color {
+  border-color: #374151 !important;
+}
+
+html:not([data-theme="dark"]) .tiptap-editor-wrapper .bg-border-color {
+  background-color: #374151 !important;
+}
+
+/* Texto e iconos - colores de marca en controles */
+html:not([data-theme="dark"]) .tiptap-editor-wrapper button {
+  color: var(--card-text-primary) !important;
+}
+
+html:not([data-theme="dark"]) .tiptap-editor-wrapper button:hover,
+html:not([data-theme="dark"]) .tiptap-editor-wrapper button[aria-pressed="true"] {
+  color: var(--primary) !important;
+}
+
+/* FAQ section - modo light: bordes oscuros */
+html:not([data-theme="dark"]) .faq-section [class*="border-border-color"],
+html:not([data-theme="dark"]) .faq-section .border-border-color {
+  border-color: #374151 !important;
+}
+
+html:not([data-theme="dark"]) .faq-section input,
+html:not([data-theme="dark"]) .faq-section .card-text-primary,
+html:not([data-theme="dark"]) .faq-section h2,
+html:not([data-theme="dark"]) .faq-section h3 {
+  color: #0F172A !important;
+}
+
+/* Botones Guardar/Cancelar - colores de marca */
+.btn-edit-save {
+  background-color: var(--primary) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--primary);
+}
+
+.btn-edit-save:hover {
+  background-color: var(--primary) !important;
+  border-color: var(--primary);
+  opacity: 0.9;
+}
+
+.btn-edit-cancel {
+  background-color: transparent !important;
+  border: 2px solid var(--primary);
+  color: var(--primary) !important;
+}
+
+.btn-edit-cancel:hover {
+  background-color: rgba(15, 92, 76, 0.1) !important;
+}
+
+/* Dark: outline con secondary para mejor contraste */
+[data-theme="dark"] .btn-edit-cancel {
+  border-color: var(--secondary) !important;
+  color: var(--secondary) !important;
+}
+
+[data-theme="dark"] .btn-edit-cancel:hover {
+  background-color: rgba(110, 231, 183, 0.1) !important;
+  border-color: var(--secondary) !important;
+  color: var(--secondary) !important;
+}
+
+/* Botón Agregar pregunta - colores de marca */
+.btn-faq-add {
+  background-color: var(--primary) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--primary) !important;
+}
+
+.btn-faq-add:hover {
+  opacity: 0.9;
+}
+
+[data-theme="dark"] .btn-faq-add {
+  background-color: var(--secondary) !important;
+  color: #0F172A !important;
+  border-color: var(--secondary) !important;
+}
+
+/* Botón Editar en FAQ - colores de marca */
+html:not([data-theme="dark"]) .faq-section [aria-label="Editar"] {
+  color: var(--card-text-primary) !important;
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html:not([data-theme="dark"]) .faq-section [aria-label="Editar"]:hover {
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  background-color: rgba(15, 92, 76, 0.08) !important;
+}
+
+[data-theme="dark"] .faq-section [aria-label="Editar"]:hover {
+  color: var(--secondary) !important;
+  border-color: var(--secondary) !important;
+}

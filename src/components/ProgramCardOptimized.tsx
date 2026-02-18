@@ -238,7 +238,7 @@ export default function ProgramCardOptimized({ program, cohort }: ProgramCardPro
             Sin compromiso. Te contactamos para orientarte.
           </p> */}
           <Link
-            href={`/programas-academicos/${slug}`}
+            href={`/programas-academicos/${slug}?cohortId=${cohort.id}`}
             className="flex items-center justify-center gap-2 px-4 py-2.5 card-text-primary font-medium rounded-lg border card-border-subtle hover:border-secondary/50 hover:bg-white/5 dark:hover:bg-white/5 transition-all duration-300"
           >
             <span>Ver detalles</span>

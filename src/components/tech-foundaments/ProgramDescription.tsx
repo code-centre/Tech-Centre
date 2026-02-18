@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import HTMLReactParser from 'html-react-parser/lib/index'
-import Editor from '../Editor'
+import TiptapEditor from '../TiptapEditor'
 import ButtonToEdit from '../ButtonToEdit'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
 
@@ -86,11 +86,13 @@ export function ProgramDescription({ programData, programId, onDescriptionUpdate
       
       {isEditing ? (
         <div className="space-y-4">
-          <Editor
+          <TiptapEditor
             value={descriptionContent}
             onChange={(content) => setDescriptionContent(content)}
             onSave={handleSave}
             onCancel={handleCancel}
+            placeholder="Escribe la descripción del programa..."
+            variant="full"
           />
           {isSaving && (
             <p className="text-text-muted text-sm">Guardando...</p>
@@ -102,7 +104,7 @@ export function ProgramDescription({ programData, programId, onDescriptionUpdate
           )}
         </div>
       ) : (
-        <div className="program-description-content text-base md:text-lg leading-relaxed card-text-primary">
+        <div className="prose-content program-description-content text-base md:text-lg leading-relaxed card-text-primary">
           {descriptionContent ? (
             HTMLReactParser(descriptionContent)
           ) : (

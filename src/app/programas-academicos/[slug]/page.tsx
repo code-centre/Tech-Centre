@@ -7,6 +7,7 @@ import ProgramDetailClient from './ProgramDetailClient'
 
 interface Props {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ cohortId?: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -38,8 +39,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function DetailCourse({ params }: Props) {
+export default async function DetailCourse({ params, searchParams }: Props) {
   const { slug } = await params
+  const { cohortId: cohortIdParam } = await searchParams
   const supabase = await createClient()
   
   let programData: Program | null = null
@@ -56,19 +58,39 @@ export default async function DetailCourse({ params }: Props) {
 
     if (supabaseProgram && !error) {
       programData = supabaseProgram as unknown as Program
-      
-      // Obtener la primera cohorte disponible para el checkout
-      const { data: cohortData }: { data: Cohort | null } = await supabase
-        .from('cohorts')
-        .select('id')
-        .eq('program_id', (supabaseProgram as any).id)
-        .eq('offering', true)
-        .order('start_date', { ascending: true })
-        .limit(1)
-        .single()
-      
-      if (cohortData?.id) {
-        firstCohortId = cohortData.id
+      const programId = (supabaseProgram as any).id
+
+      // Si viene cohortId en la URL, verificar que pertenezca al programa
+      if (cohortIdParam) {
+        const cohortIdNum = parseInt(cohortIdParam, 10)
+        if (!isNaN(cohortIdNum)) {
+          const { data: cohortById } = await supabase
+            .from('cohorts')
+            .select('id')
+            .eq('id', cohortIdNum)
+            .eq('program_id', programId)
+            .single()
+          const cohortId = (cohortById as { id?: number } | null)?.id
+          if (cohortId != null) {
+            firstCohortId = cohortId
+          }
+        }
+      }
+
+      // Fallback: primera cohorte con offering=true
+      if (firstCohortId === null) {
+        const { data: fallbackCohort } = await supabase
+          .from('cohorts')
+          .select('id')
+          .eq('program_id', programId)
+          .eq('offering', true)
+          .order('start_date', { ascending: true })
+          .limit(1)
+          .single()
+        const fallbackId = (fallbackCohort as { id?: number } | null)?.id
+        if (fallbackId != null) {
+          firstCohortId = fallbackId
+        }
       }
     }
   } catch (error) {
