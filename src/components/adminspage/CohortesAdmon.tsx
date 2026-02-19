@@ -52,7 +52,7 @@ export default function CohortesAdmon() {
   const [formData, setFormData] = useState({
     name: '',
     campus: '',
-    modality: 'presencial' as 'presencial' | 'virtual' | 'híbrido',
+    maximum_payments: 1,
     start_date: '',
     end_date: '',
     capacity: 0,
@@ -173,7 +173,7 @@ export default function CohortesAdmon() {
       setFormData({
         name: cohort.name,
         campus: cohort.campus,
-        modality: cohort.modality,
+        maximum_payments: (cohort as { maximum_payments?: number }).maximum_payments ?? 1,
         start_date: cohort.start_date?.split('T')[0] || '',
         end_date: cohort.end_date?.split('T')[0] || '',
         capacity: cohort.capacity || 0,
@@ -187,7 +187,7 @@ export default function CohortesAdmon() {
       setFormData({
         name: '',
         campus: '',
-        modality: 'presencial',
+        maximum_payments: 1,
         start_date: '',
         end_date: '',
         capacity: 0,
@@ -285,10 +285,11 @@ export default function CohortesAdmon() {
         days: formData.schedule_days,
         hours: formData.schedule_hours.filter(h => h.trim() !== '')
       };
-      const cohortData = {
+      const cohortData: Record<string, unknown> = {
         name: formData.name.trim(),
         campus: formData.campus.trim(),
-        modality: formData.modality,
+        modality: editingCohort?.modality || 'presencial',
+        maximum_payments: Number(formData.maximum_payments) || 1,
         start_date: formData.start_date,
         end_date: formData.end_date,
         capacity: Number(formData.capacity) || 0,
@@ -715,18 +716,17 @@ export default function CohortesAdmon() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-1">
-                    Modalidad
+                    Máximo de cuotas
                   </label>
-                  <select
-                    name="modality"
-                    value={formData.modality}
+                  <input
+                    type="number"
+                    name="maximum_payments"
+                    min="1"
+                    value={formData.maximum_payments}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary"
-                  >
-                    <option value="presencial">Presencial</option>
-                    <option value="virtual">Virtual</option>
-                    <option value="híbrido">Híbrido</option>
-                  </select>
+                    placeholder="Ej: 1, 2, 3..."
+                  />
                 </div>
               </div>
 
