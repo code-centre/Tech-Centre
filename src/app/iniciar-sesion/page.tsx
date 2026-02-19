@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import Login from "./login"
+import LoginWrapper from "./LoginWrapper"
 
 export const metadata: Metadata = {
   title: "Iniciar Sesión",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 const LoginPage = () => {
-  return <Login />
+  return <LoginWrapper />
 }
 
 export default LoginPage
