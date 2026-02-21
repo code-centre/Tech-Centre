@@ -155,6 +155,25 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Cursor pointer en elementos interactivos */
+button,
+a,
+select,
+summary,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+label[for] {
+  cursor: pointer;
+}
+
+button:disabled,
+select:disabled,
+input:disabled {
+  cursor: not-allowed;
+}
+
 .font-space-grotesk {
   font-family: var(--font-space-grotesk, Arial, Helvetica, sans-serif);
 }

@@ -62,10 +62,11 @@ export default function PaymentMethodDropdown({
     fetchCohort()
   }, [selectedCohortId, supabase])
 
-  // Calcular precio de contado con descuento
+  // Calcular precio de contado (sin 10% descuento cuando es 1 cuota)
   const fullPaymentCalculation = calculatePrice({
     basePrice,
     paymentMethod: 'full',
+    skipPaymentMethodDiscount: true, // No aplicar 10% cuando solo hay 1 cuota
   })
 
   // Calcular precio por cuota
@@ -148,7 +149,7 @@ export default function PaymentMethodDropdown({
       >
         <option value="">Selecciona un método de pago</option>
         <option value="full">
-          Pago de contado (10% descuento) - ${fullPaymentCalculation.total.toLocaleString()} COP
+          Pago de contado - ${fullPaymentCalculation.total.toLocaleString()} COP
         </option>
         {maxInstallments >= 2 &&
           Array.from({ length: maxInstallments - 1 }, (_, i) => {
@@ -162,9 +163,9 @@ export default function PaymentMethodDropdown({
             )
           })}
       </select>
-      {paymentMethod === 'full' && (
+      {paymentMethod === 'full' && fullPaymentCalculation.savings && fullPaymentCalculation.savings > 0 && (
         <p className="text-emerald-400 text-sm mt-1">
-          Ahorras ${fullPaymentCalculation.savings?.toLocaleString()} COP
+          Ahorras ${fullPaymentCalculation.savings.toLocaleString()} COP
         </p>
       )}
     </div>
