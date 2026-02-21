@@ -53,7 +53,7 @@ function ConfirmarResetContent() {
     process.env.NEXT_PUBLIC_BASE_URL ||
     (typeof window !== "undefined" ? window.location.origin : "");
   const redirectTo = `${baseUrl}/auth/callback?next=/restablecer-contrasena`;
-  const verifyUrl = `${supabaseUrl}/auth/v1/verify?token_hash=${encodeURIComponent(tokenHash)}&type=recovery&redirect_to=${encodeURIComponent(redirectTo)}`;
+  const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(tokenHash)}&type=recovery&redirect_to=${encodeURIComponent(redirectTo)}`;
 
   return (
     <div className="flex min-h-screen w-full">
