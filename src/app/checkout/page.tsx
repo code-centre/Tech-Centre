@@ -47,6 +47,7 @@ function ViewCheckoutContent() {
   const [selectedInstallments, setSelectedInstallments] = useState<number>(1)
   const [matriculaAmount, setMatriculaAmount] = useState<number>(0)
   const [matriculaShouldShow, setMatriculaShouldShow] = useState<boolean>(false)
+  const [hasMultipleCohorts, setHasMultipleCohorts] = useState<boolean>(false)
 
   const cohortIdParam = searchParams.get('cohortId')
   const slugProgram = searchParams.get('slug') // Mantener compatibilidad con el método anterior
@@ -177,6 +178,7 @@ function ViewCheckoutContent() {
             onMatriculaStatusChange={(shouldShow) => {
               setMatriculaShouldShow(shouldShow)
             }}
+            onHasMultipleCohortsChange={setHasMultipleCohorts}
             matriculaAdded={matriculaShouldShow}
             matriculaAmount={matriculaAmount}
           />
@@ -195,6 +197,7 @@ function ViewCheckoutContent() {
             selectedInstallments={selectedInstallments}
             setSelectedInstallments={setSelectedInstallments}
             setSubtotal={setSubtotal}
+            hasMultipleCohorts={hasMultipleCohorts}
             matriculaAdded={matriculaShouldShow}
             matriculaAmount={matriculaAmount}
           />

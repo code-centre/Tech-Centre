@@ -5,15 +5,29 @@ import { useState } from 'react'
 import ButtonToEdit from '../ButtonToEdit'
 import ContainerButtonsEdit from '../ContainerButtonsEdit'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
+import type { Cohort } from '@/types/cohorts'
+import { formatDate, formatDateShort } from '@/utils/formatDate'
 
 interface Props {
   programData: Program
-  cohorts: any
+  cohorts: Cohort[]
   user: any
+  selectedCohortId?: number | null
+  onCohortSelect?: (cohortId: number) => void
   onDetailsUpdate?: (updatedData: Partial<Program>) => void
 }
 
-export default function ProgramDetails({ programData, cohorts, user, onDetailsUpdate }: Props) {
+// Helper para obtener días/horas del horario (soporta schedule.days y schedule.clases.dias)
+const getScheduleDisplay = (cohort: Cohort | undefined) => {
+  if (!cohort) return { days: [], hours: [] }
+  const s = (cohort as any).schedule
+  if (!s) return { days: [], hours: [] }
+  const days = s.days ?? s.clases?.dias ?? []
+  const hours = s.hours ?? s.clases?.horas ?? []
+  return { days: Array.isArray(days) ? days : [], hours: Array.isArray(hours) ? hours : [] }
+}
+
+export default function ProgramDetails({ programData, cohorts, user, selectedCohortId, onCohortSelect, onDetailsUpdate }: Props) {
   const supabase = useSupabaseClient()
   const { user: currentUser } = useUser()
   const isAdmin = currentUser?.role === 'admin' || user?.role === 'admin'
@@ -88,6 +102,10 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
     setError('')
   }
 
+  // Cohorte seleccionada: por ID o primera disponible
+  const selectedCohort = cohorts.find((c) => c.id === selectedCohortId) ?? cohorts[0]
+  const hasMultipleCohorts = cohorts.length > 1
+
   return (
     <section className="bg-(--card-diplomado-bg) backdrop-blur-sm p-6 md:p-8 rounded-2xl border [border-color:var(--card-diplomado-border)] dark:border-border-color shadow-lg">
       <div className="flex justify-between items-center">
@@ -102,26 +120,16 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {/* Inicio de clases - Solo lectura (viene de cohorte) */}
-        <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-xl border border-gray-300 dark:border-border-color hover:border-gray-500 dark:hover:border-secondary/50 hover:shadow-md transition-all duration-300">
+      <div className={hasMultipleCohorts ? 'flex flex-col gap-4 md:gap-6' : ''}>
+        <div className={hasMultipleCohorts ? 'grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6'}>
+          {/* Inicio de clases - Solo lectura (viene de cohorte) */}
+          <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-xl border border-gray-300 dark:border-border-color hover:border-gray-500 dark:hover:border-secondary/50 hover:shadow-md transition-all duration-300">
           <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-gradient-to-br dark:from-secondary/20 dark:to-secondary/10 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
             <GraduationCap className="w-7 h-7 md:w-8 md:h-8 text-gray-700 dark:text-secondary" />
           </div>
           <span className="text-xs md:text-sm font-semibold card-text-muted mb-2 uppercase tracking-wide">Inicio de clases</span>
           <span className='text-sm md:text-base font-bold card-text-primary leading-tight'> 
-            {cohorts[0]?.start_date ? (() => {
-              const dateParts = cohorts[0]?.start_date?.split('-') || []
-              const year = parseInt(dateParts[0], 10)
-              const month = parseInt(dateParts[1], 10) - 1
-              const day = parseInt(dateParts[2], 10)
-              const fixedDate = new Date(Date.UTC(year, month, day))
-              return fixedDate.toLocaleDateString('es-CO', {
-                month: 'long',
-                day: 'numeric',
-                timeZone: 'UTC'
-              })
-            })() : 'Fecha no establecida'}
+            {selectedCohort?.start_date ? formatDate(selectedCohort.start_date) : 'Fecha no establecida'}
           </span>
         </div>
 
@@ -167,19 +175,64 @@ export default function ProgramDetails({ programData, cohorts, user, onDetailsUp
           )}
         </div>
 
-        {/* Horario - Solo lectura (viene de cohorte) */}
-        <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-xl border border-gray-300 dark:border-border-color hover:border-gray-500 dark:hover:border-secondary/50 hover:shadow-md transition-all duration-300">
-          <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-gradient-to-br dark:from-secondary/20 dark:to-secondary/10 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
-            <MapPin className="w-7 h-7 md:w-8 md:h-8 text-gray-700 dark:text-secondary" />
+        {/* Horario - Solo en grid cuando hay 1 cohorte (4 columnas) */}
+        {!hasMultipleCohorts && (
+          <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-xl border border-gray-300 dark:border-border-color hover:border-gray-500 dark:hover:border-secondary/50 hover:shadow-md transition-all duration-300">
+            <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-gradient-to-br dark:from-secondary/20 dark:to-secondary/10 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
+              <MapPin className="w-7 h-7 md:w-8 md:h-8 text-gray-700 dark:text-secondary" />
+            </div>
+            <span className="text-xs md:text-sm font-semibold card-text-muted mb-2 uppercase tracking-wide">Horario</span>
+            <div className="flex flex-col gap-1">
+              {selectedCohort ? (() => {
+                const { days, hours } = getScheduleDisplay(selectedCohort)
+                return (
+                  <>
+                    <span className="text-sm md:text-base font-bold card-text-primary">{days.join(', ') || 'Por definir'}</span>
+                    {hours.length > 0 && (
+                      <span className="text-xs md:text-sm card-text-muted">{hours.join(' - ')}</span>
+                    )}
+                  </>
+                )
+              })() : (
+                <span className="text-sm md:text-base font-bold card-text-primary">Por definir</span>
+              )}
+            </div>
           </div>
-          <span className="text-xs md:text-sm font-semibold card-text-muted mb-2 uppercase tracking-wide">Horario</span>
-          <div className="flex flex-col gap-1">
-            <span className="text-sm md:text-base font-bold card-text-primary">{cohorts[0]?.schedule?.days?.join(', ') || 'Por definir'}</span>
-            {cohorts[0]?.schedule?.hours && (
-              <span className="text-xs md:text-sm card-text-muted">{cohorts[0]?.schedule?.hours?.join(' - ') || ''}</span>
-            )}
-          </div>
+        )}
         </div>
+
+        {/* Segunda fila: Horario completo - solo cuando hay múltiples cohortes */}
+        {hasMultipleCohorts && (
+          <div className="group flex flex-col p-5 md:p-6 rounded-xl border border-gray-300 dark:border-border-color hover:border-gray-500 dark:hover:border-secondary/50 hover:shadow-md transition-all duration-300 w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-gradient-to-br dark:from-secondary/20 dark:to-secondary/10 rounded-xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
+                <MapPin className="w-7 h-7 md:w-8 md:h-8 text-gray-700 dark:text-secondary" />
+              </div>
+              <span className="text-xs md:text-sm font-semibold card-text-muted uppercase tracking-wide">Horario</span>
+            </div>
+            <div className="w-full space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {cohorts.map((c) => {
+                  const { days, hours } = getScheduleDisplay(c)
+                  const daysStr = days.join(', ') || 'Por definir'
+                  const hoursStr = hours.join(' - ') || ''
+                  return (
+                    <div
+                      key={c.id}
+                      className="flex flex-col items-start p-3 rounded-lg border-2 border-gray-300 dark:border-border-color text-left bg-gray-50/50 dark:bg-bg-card/50"
+                    >
+                      <span className="text-sm font-bold card-text-primary">{daysStr}</span>
+                      {hoursStr && <span className="text-xs card-text-muted">{hoursStr}</span>}
+                      <span className="text-xs text-secondary mt-1">
+                        Inicio: {c.start_date ? formatDateShort(c.start_date) : ''}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {isEditing && (

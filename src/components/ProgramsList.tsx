@@ -17,6 +17,12 @@ interface ProgramWithCohort {
   cohort: Cohort
 }
 
+/** Programa con todas sus cohortes activas agrupadas (1 tarjeta por programa) */
+interface ProgramWithCohorts {
+  program: Program
+  cohorts: Cohort[]
+}
+
 // Función para obtener el nombre formateado del tipo
 const getTypeLabel = (kind: string | undefined): string => {
   if (!kind) return 'Otros Programas'
@@ -74,7 +80,7 @@ export function ProgramsList({
   horizontalScroll = false // Si es true, muestra todos en una fila con scroll horizontal
 }: CourseListSupaProps) {
   const supabase = useSupabaseClient()
-  const [programsWithCohorts, setProgramsWithCohorts] = useState<ProgramWithCohort[]>([])
+  const [programsWithCohorts, setProgramsWithCohorts] = useState<ProgramWithCohorts[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -109,7 +115,7 @@ export function ProgramsList({
 
         if (queryError) throw queryError
         
-        // Transformar los datos para tener programa y cohorte juntos
+        // Transformar y agrupar: una tarjeta por programa con todas sus cohortes
         const transformedData: ProgramWithCohort[] = (data || [])
           .map((item: any) => {
             const cohort = item as Cohort
@@ -131,8 +137,25 @@ export function ProgramsList({
           })
           .filter((item): item is ProgramWithCohort => item !== null)
         
-        // Mostrar una tarjeta por cada cohorte visible (múltiples cohortes del mismo programa = múltiples tarjetas)
-        setProgramsWithCohorts(transformedData)
+        // Agrupar por program_id: una tarjeta por programa
+        const groupedByProgram = new Map<number, ProgramWithCohorts>()
+        transformedData.forEach(({ program, cohort }) => {
+          const existing = groupedByProgram.get(program.id)
+          if (existing) {
+            existing.cohorts.push(cohort)
+          } else {
+            groupedByProgram.set(program.id, { program, cohorts: [cohort] })
+          }
+        })
+        // Ordenar cohortes por start_date dentro de cada programa
+        const result: ProgramWithCohorts[] = Array.from(groupedByProgram.values()).map(({ program, cohorts }) => ({
+          program,
+          cohorts: [...cohorts].sort((a, b) => 
+            new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+          )
+        }))
+        
+        setProgramsWithCohorts(result)
       } catch (err) {
         console.error('Error cargando programas desde Supabase:', err)
         setError('Error al cargar los programas')
@@ -155,7 +178,7 @@ export function ProgramsList({
 
   // Agrupar programas por tipo - DEBE estar antes de los early returns
   const groupedPrograms = useMemo(() => {
-    const groups: { [key: string]: ProgramWithCohort[] } = {}
+    const groups: { [key: string]: ProgramWithCohorts[] } = {}
     
     programsWithCohorts.forEach((item) => {
       const type = item.program.kind || 'otros'
@@ -254,11 +277,11 @@ export function ProgramsList({
                   <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
                     {programsWithCohorts
                       .filter(item => item.program.is_active) // Solo programas activos
-                      .map(({ program, cohort }) => (
-                        <div key={cohort.id} className="shrink-0 w-[350px]">
+                      .map(({ program, cohorts }) => (
+                        <div key={program.id} className="shrink-0 w-[350px]">
                           <ProgramCardOptimized
                             program={program}
-                            cohort={cohort}
+                            cohorts={cohorts}
                           />
                         </div>
                       ))}
@@ -323,11 +346,11 @@ export function ProgramsList({
                         
                         {/* Grid de tarjetas */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                          {typePrograms.map(({ program, cohort }) => (
+                          {typePrograms.map(({ program, cohorts }) => (
                             <ProgramCardOptimized
-                              key={cohort.id}
+                              key={program.id}
                               program={program}
-                              cohort={cohort}
+                              cohorts={cohorts}
                             />
                           ))}
                         </div>

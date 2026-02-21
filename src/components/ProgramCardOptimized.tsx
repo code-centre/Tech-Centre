@@ -6,10 +6,11 @@ import Image from 'next/image'
 import { MapPin, Users, ArrowRight, CheckCircle2, GraduationCap, Zap } from 'lucide-react'
 import type { Program } from '@/types/programs'
 import type { Cohort } from '@/types/cohorts'
+import { formatDate } from '@/utils/formatDate'
 
 interface ProgramCardProps {
   program: Program
-  cohort: Cohort
+  cohorts: Cohort[]
 }
 
 // Tipos de programa para diferenciación visual
@@ -139,8 +140,20 @@ const getTargetAudience = (program: Program): string => {
   return 'Para quienes buscan formación práctica y actualizada'
 }
 
+// Helper para obtener días del horario (soporta schedule.days y schedule.clases.dias)
+const getScheduleDays = (cohort: Cohort): string[] => {
+  const s = (cohort as any).schedule
+  if (!s) return []
+  if (s.days?.length) return s.days
+  if (s.clases?.dias?.length) return s.clases.dias
+  return []
+}
+
 // Componente de Card individual optimizado para conversión
-export default function ProgramCardOptimized({ program, cohort }: ProgramCardProps) {
+export default function ProgramCardOptimized({ program, cohorts }: ProgramCardProps) {
+  const cohort = cohorts[0] // Cohorte principal (más próxima por start_date)
+  const hasMultipleSchedules = cohorts.length > 1
+  
   const learningPoints = extractLearningPoints(program.description || '', program.name || '')
   // Usar audience del programa si existe, sino generar dinámicamente
   const targetAudience = program.audience || getTargetAudience(program)
@@ -154,6 +167,8 @@ export default function ProgramCardOptimized({ program, cohort }: ProgramCardPro
   const slug = program.slug || program.code?.toString() || ''
   
   if (!slug) return null
+  
+  const scheduleDays = getScheduleDays(cohort)
   
   return (
     <div className={styles.card}>
@@ -205,11 +220,16 @@ export default function ProgramCardOptimized({ program, cohort }: ProgramCardPro
             <Users className="h-3.5 w-3.5 text-secondary" />
             <span className="font-medium">{cohort.modality || 'Presencial'}</span>
           </div>
-          {cohort.schedule?.days && cohort.schedule.days.length > 0 && (
+          {scheduleDays.length > 0 && !hasMultipleSchedules && (
             <div className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5 text-secondary" />
-              <span className="font-medium">{cohort.schedule.days.join(', ')}</span>
+              <span className="font-medium">{scheduleDays.join(', ')}</span>
             </div>
+          )}
+          {hasMultipleSchedules && (
+            <span className="text-secondary font-medium">
+              {cohorts.length} horarios disponibles
+            </span>
           )}
         </div>
 
@@ -218,7 +238,7 @@ export default function ProgramCardOptimized({ program, cohort }: ProgramCardPro
           <div className="flex items-center gap-2 justify-between">
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Inicio: {cohort.start_date && new Date(cohort.start_date).toLocaleDateString('es-CO', { month: 'long', year: 'numeric' })}</span>
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Inicio: {cohort.start_date && formatDate(cohort.start_date)}</span>
             </div>
             <p className="text-xs card-text-muted">Cupos limitados</p>
           </div>
@@ -227,18 +247,16 @@ export default function ProgramCardOptimized({ program, cohort }: ProgramCardPro
         {/* CTAs */}
         <div className="flex flex-col gap-2 mt-auto">
           <Link
-            href={`/checkout?slug=${slug}&cohortId=${cohort.id}`}
+            href={hasMultipleSchedules
+              ? `/programas-academicos/${slug}`
+              : `/checkout?slug=${slug}&cohortId=${cohort.id}`}
             className="group flex items-center justify-center gap-2 px-4 py-3 bg-secondary text-white font-semibold rounded-lg hover:bg-secondary/90 dark:bg-(--secondary) dark:hover:bg-[#1A8F9D] transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-secondary/30 dark:shadow-secondary/40 dark:hover:shadow-secondary/50 transform hover:-translate-y-0.5 active:scale-[0.98] btn-primary"
           >
             <span>Quiero inscribirme</span>
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-          {/* Micro-copy de reducción de fricción */}
-          {/* <p className="text-[11px] card-text-muted opacity-70 text-center">
-            Sin compromiso. Te contactamos para orientarte.
-          </p> */}
           <Link
-            href={`/programas-academicos/${slug}?cohortId=${cohort.id}`}
+            href={`/programas-academicos/${slug}`}
             className="flex items-center justify-center gap-2 px-4 py-2.5 card-text-primary font-medium rounded-lg border card-border-subtle hover:border-secondary/50 hover:bg-white/5 dark:hover:bg-white/5 transition-all duration-300"
           >
             <span>Ver detalles</span>

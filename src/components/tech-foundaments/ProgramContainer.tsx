@@ -12,12 +12,15 @@ import { useSupabaseClient, useUser } from '@/lib/supabase'
 import type { Program } from '@/types/programs'
 
 export interface ProgramProps {
-  programData: Program;
+  programData: Program
+  initialCohortId?: number | null
+  onCohortSelect?: (cohortId: number) => void
 }
 
-export default function ProgramContainer({ programData }: ProgramProps) {
+export default function ProgramContainer({ programData, initialCohortId, onCohortSelect }: ProgramProps) {
   const supabase = useSupabaseClient()
   const [cohorts, setCohorts] = useState<any[]>([]);
+  const [selectedCohortId, setSelectedCohortId] = useState<number | null>(initialCohortId ?? null);
   const [currentProgramData, setCurrentProgramData] = useState<Program>(programData);
   const { user } = useUser()
 
@@ -60,6 +63,21 @@ export default function ProgramContainer({ programData }: ProgramProps) {
       setCohorts([]);
     }
   }, [programData?.id, supabase]);
+
+  // Sincronizar selectedCohortId con initialCohortId o primera cohorte disponible
+  useEffect(() => {
+    if (cohorts.length === 0) return;
+    if (initialCohortId != null && cohorts.some((c) => c.id === initialCohortId)) {
+      setSelectedCohortId(initialCohortId);
+    } else if (!cohorts.some((c) => c.id === selectedCohortId)) {
+      setSelectedCohortId(cohorts[0].id);
+    }
+  }, [initialCohortId, cohorts, selectedCohortId]);
+
+  const handleCohortSelect = (cohortId: number) => {
+    setSelectedCohortId(cohortId);
+    onCohortSelect?.(cohortId);
+  };
 
   // Actualizar programData cuando cambie desde el componente hijo
   useEffect(() => {
@@ -104,6 +122,8 @@ export default function ProgramContainer({ programData }: ProgramProps) {
         programData={currentProgramData} 
         cohorts={cohorts} 
         user={user}
+        selectedCohortId={selectedCohortId}
+        onCohortSelect={handleCohortSelect}
         onDetailsUpdate={handleDetailsUpdate}
       />
       <ProgramDescription 
@@ -117,8 +137,8 @@ export default function ProgramContainer({ programData }: ProgramProps) {
         programId={currentProgramData.id}
         onSyllabusUpdate={handleSyllabusUpdate}
       />
-      {cohorts[0]?.id && (
-        <ProgramTeacher cohortId={cohorts[0].id} />
+      {(selectedCohortId ?? cohorts[0]?.id) && (
+        <ProgramTeacher cohortId={selectedCohortId ?? cohorts[0].id} />
       )}
       <ProgramFAQs 
         shortCourse={currentProgramData?.faqs || []}

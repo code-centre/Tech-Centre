@@ -170,7 +170,11 @@ export default function ProgramDetailClient({
           />
           <main className="flex flex-col lg:flex-row gap-6 lg:gap-8 pb-32 lg:pb-0 px-4 sm:px-6 lg:px-8">
             <div className="flex-1 min-w-0">
-              <ProgramContainer programData={programData} />
+              <ProgramContainer 
+                programData={programData} 
+                initialCohortId={firstCohortId}
+                onCohortSelect={(id) => setFirstCohortId(id)}
+              />
             </div>
               
             {/* Desktop: Sidebar sticky */}

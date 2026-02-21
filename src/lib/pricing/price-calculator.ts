@@ -1,6 +1,6 @@
 /**
  * Calculadora centralizada de precios para checkout
- * Maneja lógica de contado (10% descuento) vs cuotas
+ * El 10% de descuento no aplica cuando solo hay pago en una cuota (pago de contado)
  */
 
 export interface PriceCalculationParams {
@@ -9,6 +9,8 @@ export interface PriceCalculationParams {
   installments?: number; // Número de cuotas (solo si paymentMethod === 'installments')
   couponDiscount?: number; // Descuento del cupón (monto fijo)
   quantity?: number; // Cantidad (por defecto 1)
+  /** Si true, no se aplica el 10% de descuento (ej. cuando solo hay pago en una cuota) */
+  skipPaymentMethodDiscount?: boolean;
 }
 
 export interface PriceCalculationResult {
@@ -30,6 +32,7 @@ export function calculatePrice(params: PriceCalculationParams): PriceCalculation
     installments = 1,
     couponDiscount = 0,
     quantity = 1,
+    skipPaymentMethodDiscount = false,
   } = params;
 
   // Calcular subtotal base
@@ -39,8 +42,8 @@ export function calculatePrice(params: PriceCalculationParams): PriceCalculation
   let paymentMethodDiscount = 0;
   let finalPrice = subtotal;
 
-  if (paymentMethod === 'full') {
-    // Pago de contado: 10% de descuento
+  if (paymentMethod === 'full' && !skipPaymentMethodDiscount) {
+    // Pago de contado: 10% de descuento (no aplica si ya hay otro pago como matrícula)
     paymentMethodDiscount = Math.round(subtotal * 0.1);
     finalPrice = subtotal - paymentMethodDiscount;
   } else if (paymentMethod === 'installments' && installments > 1) {
