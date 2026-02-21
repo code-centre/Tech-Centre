@@ -23,6 +23,20 @@ export function formatDate(dateToFormat: string) {
 }
 
 /**
+ * Formatea fecha mostrando solo mes y año (ej: "marzo de 2020") para zona Bogotá.
+ */
+export function formatDateMonth(dateToFormat: string) {
+  const datePart = extractDatePart(dateToFormat);
+  if (!datePart) return '';
+  const dateCourse = new Date(`${datePart}T12:00:00-05:00`);
+  return dateCourse.toLocaleDateString('es-CO', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'America/Bogota',
+  });
+}
+
+/**
  * Formatea fecha en estilo corto (ej: "18 feb 2025") para zona Bogotá.
  */
 export function formatDateShort(dateToFormat: string) {

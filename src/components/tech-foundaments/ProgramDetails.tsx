@@ -6,7 +6,7 @@ import ButtonToEdit from '../ButtonToEdit'
 import ContainerButtonsEdit from '../ContainerButtonsEdit'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
 import type { Cohort } from '@/types/cohorts'
-import { formatDate, formatDateShort } from '@/utils/formatDate'
+import { formatDate, formatDateShort, formatDateMonth } from '@/utils/formatDate'
 
 interface Props {
   programData: Program
@@ -129,7 +129,11 @@ export default function ProgramDetails({ programData, cohorts, user, selectedCoh
           </div>
           <span className="text-xs md:text-sm font-semibold card-text-muted mb-2 uppercase tracking-wide">Inicio de clases</span>
           <span className='text-sm md:text-base font-bold card-text-primary leading-tight'> 
-            {selectedCohort?.start_date ? formatDate(selectedCohort.start_date) : 'Fecha no establecida'}
+            {selectedCohort?.start_date
+              ? hasMultipleCohorts
+                ? formatDateMonth(selectedCohort.start_date)
+                : formatDate(selectedCohort.start_date)
+              : 'Fecha no establecida'}
           </span>
         </div>
 
@@ -223,9 +227,11 @@ export default function ProgramDetails({ programData, cohorts, user, selectedCoh
                     >
                       <span className="text-sm font-bold card-text-primary">{daysStr}</span>
                       {hoursStr && <span className="text-xs card-text-muted">{hoursStr}</span>}
-                      <span className="text-xs text-secondary mt-1">
-                        Inicio: {c.start_date ? formatDateShort(c.start_date) : ''}
-                      </span>
+                      {c.start_date && (
+                        <span className="text-xs font-medium card-text-primary mt-1">
+                          Inicio: {formatDateShort(c.start_date)}
+                        </span>
+                      )}
                     </div>
                   )
                 })}
