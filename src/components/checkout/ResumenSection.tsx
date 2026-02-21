@@ -24,6 +24,7 @@ interface Props {
   selectedInstallments: number
   setSelectedInstallments: (installments: number) => void
   setSubtotal: (value: number | null) => void
+  hasMultipleCohorts?: boolean
   matriculaAdded: boolean
   matriculaAmount?: number
   couponCode?: string | null
@@ -128,6 +129,7 @@ function PaymentAction({
   onPriceChange,
   isFormValid,
   disableButton,
+  hasMultipleCohorts,
   totalAmount,
   priceCalculation,
   matriculaAdded,
@@ -143,6 +145,7 @@ function PaymentAction({
   onPriceChange: (price: number) => void
   isFormValid: boolean
   disableButton: boolean
+  hasMultipleCohorts: boolean
   totalAmount: number
   priceCalculation: ReturnType<typeof calculatePrice> | null
   matriculaAdded: boolean
@@ -151,6 +154,7 @@ function PaymentAction({
 }) {
   const getButtonText = () => {
     if (disableButton) return 'Procesando...'
+    if (hasMultipleCohorts && !selectedCohortId) return 'Selecciona un horario para continuar'
     if (!paymentMethod) return 'Selecciona un método de pago'
     
     let amountToShow = 0
@@ -254,6 +258,7 @@ export default function ResumenSection({
   selectedInstallments,
   setSelectedInstallments,
   setSubtotal,
+  hasMultipleCohorts = false,
   matriculaAdded,
   matriculaAmount = 0,
   className,
@@ -280,6 +285,7 @@ export default function ResumenSection({
         installments: paymentMethod === 'installments' ? selectedInstallments : undefined,
         couponDiscount: discount,
         quantity,
+        skipPaymentMethodDiscount: paymentMethod === 'full', // No aplicar 10% cuando solo hay 1 cuota (pago de contado)
       })
     : null
 
@@ -601,6 +607,7 @@ export default function ResumenSection({
           onPriceChange={handlePriceChange}
           isFormValid={!!isFormValid}
           disableButton={disableButton}
+          hasMultipleCohorts={hasMultipleCohorts}
           totalAmount={totalAmount}
           priceCalculation={priceCalculation}
           matriculaAdded={matriculaAdded}

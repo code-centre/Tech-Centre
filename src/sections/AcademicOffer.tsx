@@ -12,12 +12,17 @@ interface ProgramWithCohort {
   cohort: Cohort
 }
 
+interface ProgramWithCohorts {
+  program: Program
+  cohorts: Cohort[]
+}
+
 export default function AcademicOffer() {
   const supabase = useSupabaseClient()
   const { user } = useUser()
   const isAdmin = user?.role === 'admin'
   
-  const [programsWithCohorts, setProgramsWithCohorts] = useState<ProgramWithCohort[]>([])
+  const [programsWithCohorts, setProgramsWithCohorts] = useState<ProgramWithCohorts[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -48,7 +53,7 @@ export default function AcademicOffer() {
 
         if (queryError) throw queryError
         
-        // Transformar los datos para tener programa y cohorte juntos
+        // Transformar y agrupar: una tarjeta por programa con todas sus cohortes
         const transformedData: ProgramWithCohort[] = (data || [])
           .map((item: any) => {
             const cohort = item as Cohort
@@ -70,8 +75,24 @@ export default function AcademicOffer() {
           })
           .filter((item): item is ProgramWithCohort => item !== null)
         
-        // Mostrar una tarjeta por cada cohorte visible (múltiples cohortes del mismo programa = múltiples tarjetas)
-        setProgramsWithCohorts(transformedData)
+        // Agrupar por program_id: una tarjeta por programa
+        const groupedByProgram = new Map<number, ProgramWithCohorts>()
+        transformedData.forEach(({ program, cohort }) => {
+          const existing = groupedByProgram.get(program.id)
+          if (existing) {
+            existing.cohorts.push(cohort)
+          } else {
+            groupedByProgram.set(program.id, { program, cohorts: [cohort] })
+          }
+        })
+        const result: ProgramWithCohorts[] = Array.from(groupedByProgram.values()).map(({ program, cohorts }) => ({
+          program,
+          cohorts: [...cohorts].sort((a, b) => 
+            new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+          )
+        }))
+        
+        setProgramsWithCohorts(result)
       } catch (err) {
         console.error('Error cargando programas:', err)
         setError('Error al cargar los programas')
@@ -110,11 +131,11 @@ export default function AcademicOffer() {
           </div>
         ) : programsWithCohorts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {programsWithCohorts.map(({ program, cohort }) => (
+            {programsWithCohorts.map(({ program, cohorts }) => (
               <ProgramCardOptimized 
-                key={cohort.id} 
+                key={program.id} 
                 program={program} 
-                cohort={cohort}
+                cohorts={cohorts}
               />
             ))}
           </div>
