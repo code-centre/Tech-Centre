@@ -1,17 +1,18 @@
 <!--
-  TEMPLATE DE RECUPERAR CONTRASEÑA - SUPABASE
-  ===========================================
+  TEMPLATE INVITE USER - SUPABASE
+  ===============================
   Copia el contenido de este archivo en:
-  Supabase Dashboard → Authentication → Email Templates → Reset Password
+  Supabase Dashboard → Authentication → Email Templates → Invite user
 
-  IMPORTANTE: Usamos /confirmar-reset para evitar que escáneres de correo
-  consuman el token antes del usuario.
-
-  Variables: {{ .TokenHash }}, {{ .Email }}, {{ .SiteURL }}
+  Variables disponibles (Go template):
+  - {{ .ConfirmationURL }} → Enlace para aceptar la invitación y crear cuenta
+  - {{ .Email }} → Correo del usuario invitado
+  - {{ .SiteURL }} → URL de tu sitio
+  - {{ .RedirectTo }} → URL de redirección después de aceptar
 -->
 
 <!-- ASUNTO (Subject) - Copia en "Subject" -->
-Restablece tu contraseña - Tech Centre
+Te han invitado a Tech Centre
 
 <!-- CONTENIDO HTML (Body) - Copia en "Body" -->
 <!DOCTYPE html>
@@ -19,7 +20,7 @@ Restablece tu contraseña - Tech Centre
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Restablecer contraseña</title>
+  <title>Invitación a Tech Centre</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5; color: #18181b;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f5; padding: 40px 20px;">
@@ -28,33 +29,36 @@ Restablece tu contraseña - Tech Centre
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 480px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding: 40px 32px;">
+              <div style="text-align: center; margin-bottom: 24px;">
+                <img src="{{ .SiteURL }}/tech-center-logos/TechCentreLogoColor.png" alt="Tech Centre" width="180" height="48" style="display: inline-block; max-width: 180px; height: auto;" />
+              </div>
               <h1 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 700; color: #18181b;">
-                Restablecer contraseña
+                ¡Has sido invitado!
               </h1>
               <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.5; color: #71717a;">
                 Hola,
               </p>
               <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.5; color: #71717a;">
-                Recibimos una solicitud para restablecer la contraseña de tu cuenta en Tech Centre asociada a <strong>{{ .Email }}</strong>.
+                Te han invitado a unirte a <strong>Tech Centre</strong>. Haz clic en el botón de abajo para crear tu cuenta y activar tu acceso.
               </p>
               <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.5; color: #71717a;">
-                Haz clic en el botón de abajo para elegir una nueva contraseña. El enlace expira en 1 hora.
+                Esta invitación se envió a <strong>{{ .Email }}</strong>. Si no esperabas esta invitación, puedes ignorar este correo.
               </p>
               <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 0 0 24px 0;">
                 <tr>
                   <td style="border-radius: 8px; background-color: #0F5C4C;">
-                    <a href="{{ .SiteURL }}/confirmar-reset?token_hash={{ .TokenHash }}&type=recovery" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none;">
-                      Restablecer contraseña
+                    <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none;">
+                      Aceptar invitación
                     </a>
                   </td>
                 </tr>
               </table>
               <p style="margin: 0 0 8px 0; font-size: 13px; line-height: 1.5; color: #a1a1aa;">
-                Si no solicitaste este cambio, puedes ignorar este correo. Tu contraseña no se modificará.
+                El enlace expirará en 24 horas. Si no creas tu cuenta antes, tendrás que solicitar una nueva invitación.
               </p>
               <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #a1a1aa;">
                 Si el botón no funciona, copia y pega este enlace en tu navegador:<br>
-                <a href="{{ .SiteURL }}/confirmar-reset?token_hash={{ .TokenHash }}&type=recovery" style="color: #0F5C4C; word-break: break-all;">{{ .SiteURL }}/confirmar-reset?token_hash={{ .TokenHash }}&amp;type=recovery</a>
+                <a href="{{ .ConfirmationURL }}" style="color: #0F5C4C; word-break: break-all;">{{ .ConfirmationURL }}</a>
               </p>
               <p style="margin: 32px 0 0 0; padding-top: 24px; border-top: 1px solid #e4e4e7; font-size: 12px; color: #a1a1aa;">
                 Tech Centre — Impulsa tu carrera en tecnología
