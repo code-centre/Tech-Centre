@@ -113,7 +113,7 @@ export default function CohortListInstructor({
             return (
               <li
                 key={enrollment.id}
-                className="flex items-start gap-4 p-4 rounded-lg border border-border-color bg-(--card-background) hover:bg-bg-secondary/50 transition-colors"
+                className="flex items-start gap-4 p-4 rounded-lg border border-border-color bg-[var(--card-background)] hover:bg-bg-secondary/50 transition-colors"
               >
                 <div className="relative w-12 h-12 rounded-full overflow-hidden bg-secondary/20 shrink-0 flex items-center justify-center">
                   {profileImage ? (

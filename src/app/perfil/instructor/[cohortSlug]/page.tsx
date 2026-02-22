@@ -235,7 +235,7 @@ export default function InstructorCohortPage() {
   return (
     <div className="space-y-6">
       <article
-        className="bg-(--card-background) rounded-xl border border-border-color shadow-lg overflow-hidden"
+        className="bg-[var(--card-background)] rounded-xl border border-border-color shadow-lg overflow-hidden"
         aria-labelledby="cohort-header-title"
       >
         <header className="p-6">

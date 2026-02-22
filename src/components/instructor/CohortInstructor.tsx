@@ -74,9 +74,11 @@ export default function CohortInstructor() {
   };
 
   if (loading || loadingCohorts) {
-    return <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-secondary"></div>
+      </div>
+    );
   }
 
   if (!user || !['admin', 'instructor'].includes(user.role)) {
@@ -85,31 +87,31 @@ export default function CohortInstructor() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Panel del Instructor</h1>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Bienvenido, {user.first_name }</h2>
-        <p className="text-gray-600 mb-6">Rol: {user.role}</p>
-        
+      <h1 className="text-2xl font-bold mb-6 text-text-primary">Panel del Instructor</h1>
+      <div className="bg-[var(--card-background)] border border-border-color p-6 rounded-xl shadow-md">
+        <h2 className="text-xl font-semibold mb-4 text-text-primary">Bienvenido, {user.first_name}</h2>
+        <p className="text-text-muted mb-6">Rol: {user.role}</p>
+
         <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-4">Tus Cohorts</h3>
+          <h3 className="text-lg font-semibold mb-4 text-text-primary">Tus Cohorts</h3>
           {cohorts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {cohorts.map((cohort) => (
-                <div 
-                  key={cohort.id} 
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                <div
+                  key={cohort.id}
+                  className="border border-border-color rounded-lg p-4 hover:shadow-md hover:bg-bg-secondary/50 transition-all cursor-pointer bg-[var(--card-background)]"
                   onClick={() => router.push(`/perfil/instructor/${cohort.slug}`)}
                 >
-                  <h4 className="font-medium text-lg">{cohort.name}</h4>
+                  <h4 className="font-medium text-lg text-text-primary">{cohort.name}</h4>
                   {cohort.program && (
                     <p className="text-sm text-secondary font-medium mt-0.5">{cohort.program.name}</p>
                   )}
-                  <p className="text-sm text-gray-500 mt-1">Rol: {cohort.role}</p>
+                  <p className="text-sm text-text-muted mt-1">Rol: {cohort.role}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-500">No estás asignado a ningún cohorte actualmente.</p>
+            <p className="text-text-muted">No estás asignado a ningún cohorte actualmente.</p>
           )}
         </div>
       </div>

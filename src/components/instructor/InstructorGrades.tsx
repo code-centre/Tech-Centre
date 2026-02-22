@@ -150,7 +150,7 @@ export default function InstructorGrades({
 
   return (
     <section
-      className="bg-(--card-background) rounded-xl border border-border-color overflow-hidden"
+      className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden"
       aria-labelledby="grades-heading"
     >
       <h2 id="grades-heading" className="sr-only">
@@ -179,7 +179,7 @@ export default function InstructorGrades({
           <tbody>
             {enrollments.map((e) => (
               <tr key={e.id} className="border-b border-border-color/50 hover:bg-bg-secondary/30">
-                <td className="py-3 px-4 text-text-primary font-medium sticky left-0 bg-(--card-background) z-10">
+                <td className="py-3 px-4 text-text-primary font-medium sticky left-0 bg-[var(--card-background)] z-10">
                   {getEnrollmentName(e)}
                 </td>
                 {sortedModules.map((mod) => {
