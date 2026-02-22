@@ -1,6 +1,7 @@
 export interface Cohort {
   id: number;
   name: string;
+  slug: string;
   start_date: string;
   end_date: string;
   program_id: number;

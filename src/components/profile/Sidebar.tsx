@@ -67,7 +67,7 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
         {sections.map((section) => {
           const Icon = section.icon
           const sectionPath = `/perfil/${section.id}`
-          const isActive = pathname === sectionPath || activeSection === section.id
+          const isActive = pathname === sectionPath || pathname?.startsWith(sectionPath + '/') || activeSection === section.id
           
           return (
             <Link

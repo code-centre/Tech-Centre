@@ -9,6 +9,7 @@ import { formatDate } from '../../../utils/formatDate'
 interface CohortWithProgram {
   id: number
   name: string
+  slug: string
   start_date: string | null
   end_date: string | null
   modality?: string
@@ -35,6 +36,7 @@ export default function InstructorPanel() {
             cohort:cohorts(
               id,
               name,
+              slug,
               start_date,
               end_date,
               modality,
@@ -123,7 +125,7 @@ export default function InstructorPanel() {
                 return (
                   <li key={cohort.id}>
                     <Link
-                      href={`/instructor/${encodeURIComponent(cohort.name)}`}
+                      href={`/perfil/instructor/${cohort.slug || `${cohort.name.toLowerCase().replace(/\s+/g, '-')}-${cohort.id}`}`}
                       className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border-2 transition-colors hover:opacity-90 ${
                         isActive
                           ? 'bg-green-500/10 border-green-500/30'
@@ -165,7 +167,7 @@ export default function InstructorPanel() {
 
       <div className="flex flex-wrap gap-4">
         <Link
-          href="/instructor"
+          href="/perfil/instructor"
           className="inline-flex items-center gap-2 text-sm font-medium text-secondary hover:text-secondary/80 transition-colors"
         >
           <GraduationCap className="w-4 h-4" />

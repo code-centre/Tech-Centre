@@ -3,11 +3,12 @@ import { useSupabaseClient, useUser } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// Definimos los tipos para los datos
 interface Cohort {
   id: number;
   name: string;
+  slug: string;
   role: string;
+  program?: { id: number; name: string } | null | undefined;
 }
 
 export default function CohortInstructor() {
@@ -38,19 +39,31 @@ export default function CohortInstructor() {
           role,
           cohorts:cohort_id (
             id,
-            name
+            name,
+            slug,
+            programs:program_id (id, name)
           )
         `)
         .eq('instructor_id', user.id);
 
       if (error) throw error;
 
-      // Mapeamos los resultados al formato que necesitamos
-      const formattedCohorts = instructorCohorts.map((item: any) => ({
-        id: item.cohorts.id,
-        name: item.cohorts.name,
-        role: item.role
-      }));
+      const formattedCohorts = (instructorCohorts || []).map((item: {
+        cohorts: { id: number; name: string; slug?: string; programs?: { id: number; name: string } | { id: number; name: string }[] | null } | { id: number; name: string; slug?: string; programs?: { id: number; name: string } | { id: number; name: string }[] | null }[];
+        role: string;
+      }) => {
+        const cohort = Array.isArray(item.cohorts) ? item.cohorts[0] : item.cohorts;
+        if (!cohort) return null;
+        const programRaw = cohort.programs;
+        const program = Array.isArray(programRaw) ? programRaw[0] ?? null : programRaw;
+        return {
+          id: cohort.id,
+          name: cohort.name,
+          slug: cohort.slug || `${String(cohort.name).toLowerCase().replace(/\s+/g, '-')}-${cohort.id}`,
+          role: item.role,
+          program: program ?? null,
+        };
+      }).filter(Boolean) as Cohort[];
 
       setCohorts(formattedCohorts);
     } catch (error) {
@@ -85,10 +98,13 @@ export default function CohortInstructor() {
                 <div 
                   key={cohort.id} 
                   className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => router.push(`/instructor/${encodeURIComponent(cohort.name)}`)}
+                  onClick={() => router.push(`/perfil/instructor/${cohort.slug}`)}
                 >
                   <h4 className="font-medium text-lg">{cohort.name}</h4>
-                  <p className="text-sm text-gray-500">Rol: {cohort.role}</p>
+                  {cohort.program && (
+                    <p className="text-sm text-secondary font-medium mt-0.5">{cohort.program.name}</p>
+                  )}
+                  <p className="text-sm text-gray-500 mt-1">Rol: {cohort.role}</p>
                 </div>
               ))}
             </div>

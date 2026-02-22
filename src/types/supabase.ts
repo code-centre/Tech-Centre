@@ -88,6 +88,18 @@ export interface Attendance {
   marked_at: string;
 }
 
+/** Grade - one per enrollment per module (scale 0-5) */
+export interface Grade {
+  id: number;
+  enrollment_id: number;
+  module_id: number;
+  value: number;
+  notes: string | null;
+  graded_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 /**
  * Interface para usuarios del sistema
  */
@@ -278,6 +290,27 @@ export interface Database {
           student_id?: string;
           status?: string;
           agreed_price?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      grades: {
+        Row: Grade;
+        Insert: {
+          enrollment_id: number;
+          module_id: number;
+          value: number;
+          notes?: string | null;
+          graded_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          enrollment_id?: number;
+          module_id?: number;
+          value?: number;
+          notes?: string | null;
+          graded_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };

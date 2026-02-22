@@ -1,12 +1,12 @@
 'use client'
 import { Sidebar } from '@/components/profile/Sidebar'
-import { CalendarIcon, UserIcon, Receipt } from 'lucide-react'
+import { CalendarIcon, UserIcon, Receipt, GraduationCap } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import React from 'react'
 import { useUser } from '@/lib/supabase'
 
-const validSections = ['datos-personales', 'cursos', 'facturas']
+const validSections = ['datos-personales', 'cursos', 'facturas', 'instructor']
 
 export default function ProfileLayout({
   children,
@@ -21,11 +21,15 @@ export default function ProfileLayout({
   const sectionParam = sectionMatch ? sectionMatch[1] : 'cursos'
   const activeSection = validSections.includes(sectionParam) ? sectionParam : 'cursos'
 
-  const sections = [
+  const baseSections = [
     { id: 'datos-personales', label: 'Mis datos', icon: UserIcon },
     { id: 'cursos', label: 'Mis cursos', icon: CalendarIcon },
     { id: 'facturas', label: 'Facturas', icon: Receipt },
   ]
+  const instructorSection = { id: 'instructor', label: 'Panel instructor', icon: GraduationCap }
+  const sections = user && ['admin', 'instructor'].includes(user.role)
+    ? [...baseSections, instructorSection]
+    : baseSections
 
   const handleSectionChange = (sectionId: string) => {
     // Esta función se pasa al Sidebar pero no se usa porque los Links manejan la navegación
