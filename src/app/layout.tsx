@@ -174,6 +174,26 @@ export default async function RootLayout({
             gtag('config', 'G-YCK2DMSV9J');
           `}
         </Script>
+
+        {/* Chatwoot - Widget de chat */}
+        <Script id="chatwoot" strategy="afterInteractive">
+          {`
+            window.chatwootSettings = {"position":"right","type":"expanded_bubble","launcherTitle":"Habla con un asesor"};
+            (function(d,t) {
+              var BASE_URL="https://app.edtools.co";
+              var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+              g.src=BASE_URL+"/packs/js/sdk.js";
+              g.async = true;
+              s.parentNode.insertBefore(g,s);
+              g.onload=function(){
+                window.chatwootSDK.run({
+                  websiteToken: '7nHb1ftHXWTdXcZ65BxYXD1J',
+                  baseUrl: BASE_URL
+                })
+              }
+            })(document,"script");
+          `}
+        </Script>
       </body>
     </html>
   );
