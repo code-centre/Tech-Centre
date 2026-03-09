@@ -14,7 +14,10 @@ interface CareerCardProps {
     modality: string
     description: string
     image?: string
-    learningPoints: string[]
+    learningPoints: Array<{
+      title: string
+      url?: string
+    }>
     targetAudience: string
     nextStartDate?: string
   }
@@ -73,7 +76,7 @@ export default function CareerCard({ career }: CareerCardProps) {
           {career.learningPoints.map((point, index) => (
             <li key={index} className="flex items-start gap-2">
               <CheckCircle2 className="h-4 w-4 text-secondary mt-0.5 shrink-0" />
-              <span className="text-sm card-text-muted leading-relaxed">{point}</span>
+              <span className="text-sm card-text-muted leading-relaxed">{point.title}</span>
             </li>
           ))}
         </ul>
@@ -95,7 +98,7 @@ export default function CareerCard({ career }: CareerCardProps) {
         </div>
 
         {/* Micro-copy de urgencia */}
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <div className="flex items-center gap-2 justify-between">
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 bg-purple-500 dark:bg-purple-400 rounded-full animate-pulse" />
@@ -105,7 +108,7 @@ export default function CareerCard({ career }: CareerCardProps) {
             </div>
             <p className="text-xs card-text-muted">Cupos limitados</p>
           </div>
-        </div>
+        </div> */}
 
         {/* CTAs */}
         <div className="flex flex-col gap-2 mt-auto">

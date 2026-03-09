@@ -3,30 +3,10 @@
 import React from 'react'
 import CareerCard from './CareerCard'
 import { BrainCircuit } from 'lucide-react'
+import { careersData } from '@/data/careers'
+import type { CareersSectionProps } from '@/types/careers'
 
-// Datos de las carreras disponibles
-const careersData = [
-  {
-    name: 'IA Engineer',
-    slug: 'ia-engineer',
-    duration: '6 meses',
-    level: '',
-    modality: 'Presencial',
-    description: 'Construye la infraestructura del futuro.Aprende a desarrollar aplicaciones potenciadas con inteligencia artificial, crear agentes autónomos y desplegar sistemas reales en producción. Desde Python hasta cloud, esta ruta te forma como el arquitecto técnico detrás de los productos inteligentes que están transformando el mundo.Si quieres programar, automatizar y crear tecnología que piense contigo — este es tu camino.',
-    image: '/images/careers/ia-engineer.jpg',
-    targetAudience: 'Para profesionales que quieren especializarse en Inteligencia Artificial',
-    nextStartDate: '',
-    learningPoints: [
-      'Fundamentos Tech',
-      'Desarrollo con Python e Inteligencia Artificial',
-      'Desarrollo web integrado con IA',
-      'Agentes y sistemas inteligentes',
-      'Cloud Engineering'
-    ]
-  }
-]
-
-export function CareersSection() {
+export function CareersSection({ careers = careersData }: CareersSectionProps) {
   return (
     <section className="py-16 px-4 bg-background">
       <div className="max-w-7xl mx-auto">
