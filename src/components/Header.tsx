@@ -105,7 +105,7 @@ export default function Header() {
                     Oferta académica
                   </Link>
                   <div
-                    className="space-y-1 max-h-[280px] overflow-y-auto scrollbar-thin 
+                    className="space-y-1 max-h-[180px] overflow-y-auto scrollbar-thin 
                     scrollbar-thumb-secondary/20 hover:scrollbar-thumb-secondary/40"
                   >
                     {supabasePrograms.map((program) => (
@@ -119,9 +119,34 @@ export default function Header() {
                       </Link>
                     ))}
                   </div>
+                  <div className="border-t border-[#374151] mt-2 pt-2">
+                    <p className="px-3 py-1 text-xs font-semibold text-white/50 uppercase tracking-wider">
+                      Carreras
+                    </p>
+                    <Link
+                      href="/carreras/ai-engineer"
+                      className="block px-3 py-2 text-sm text-white hover:bg-[#1A1F2E] 
+                        hover:text-[#2FB7C4] rounded-md transition-all duration-200"
+                    >
+                      AI Engineer
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
+
+            <Link
+              href="/carreras/ai-engineer"
+              className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
+              font-medium transition-all duration-200 group"
+            >
+              <span
+                className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                after:w-0 after:bg-[#2FB7C4] after:transition-all group-hover:after:w-full"
+              >
+                AI Engineer
+              </span>
+            </Link>
 
             <Link
               href="/blog"
@@ -384,6 +409,20 @@ export default function Header() {
                 }}
               >
                 <span>Programas</span>
+              </Link>
+            </div>
+
+            {/* AI Engineer Link */}
+            <div className="py-2">
+              <Link
+                href="/carreras/ai-engineer"
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#2FB7C4] transition-colors duration-200"
+                onClick={() => {
+                  setIsMenuOpen(false)
+                  setMobileDropdown(null)
+                }}
+              >
+                <span>AI Engineer</span>
               </Link>
             </div>
 
