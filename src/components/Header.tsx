@@ -124,6 +124,19 @@ export default function Header() {
             </div>
 
             <Link
+              href="/carreras/ai-engineer"
+              className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
+              font-medium transition-all duration-200 group"
+            >
+              <span
+                className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
+                after:w-0 after:bg-[#2FB7C4] after:transition-all group-hover:after:w-full"
+              >
+                AI Engineer
+              </span>
+            </Link>
+
+            <Link
               href="/blog"
               className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
               font-medium transition-all duration-200 group"
@@ -384,6 +397,20 @@ export default function Header() {
                 }}
               >
                 <span>Programas</span>
+              </Link>
+            </div>
+
+            {/* AI Engineer Link */}
+            <div className="py-2">
+              <Link
+                href="/carreras/ai-engineer"
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#2FB7C4] transition-colors duration-200"
+                onClick={() => {
+                  setIsMenuOpen(false)
+                  setMobileDropdown(null)
+                }}
+              >
+                <span>AI Engineer</span>
               </Link>
             </div>
 

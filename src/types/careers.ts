@@ -1,13 +1,3 @@
-/**
- * Tipos centralizados para Carreras Tecnológicas
- * Este archivo contiene todas las interfaces relacionadas con carreras
- * para mantener consistencia y validación de datos.
- */
-
-// ============================================================================
-// Interfaces de Datos de Carreras
-// ============================================================================
-
 export interface CareerModule {
   title: string
   duration: string
@@ -32,74 +22,48 @@ export interface CareerMetadata {
   keywords: string[]
 }
 
-// ============================================================================
-// Interface Principal de Career
-// ============================================================================
-
-/**
- * Interface principal para carreras tecnológicas
- * Contiene toda la información necesaria para generar páginas dinámicas
- */
 export interface Career {
-  // Información básica
+  id: string
   name: string
   slug: string
   duration: string
   level: string
   modality: string
   description: string
-  longDescription: string
-  
-  // Imágenes
-  image: string
-  heroImage: string
-  
-  // Audiencia y fechas
-  targetAudience: string
-  nextStartDate: string
-  
-  // Contenido educativo
-  learningPoints: Array<{
+  long_description: string
+
+  image: string | null
+  hero_image: string | null
+
+  target_audience: string
+  next_start_date: string
+
+  learning_points: Array<{
     title: string
     url?: string
   }>
   modules: CareerModule[]
-  
-  // Perfil y oportunidades
-  graduateProfile: string[]
+
+  graduate_profile: string[]
   opportunities: CareerOpportunity[]
-  
-  // Proceso de admisión
-  admissionProcess: AdmissionStep[]
-  
-  // SEO y metadata
+
+  admission_process: AdmissionStep[]
+
   metadata: CareerMetadata
-  
-  // Propiedades adicionales
-  [key: string]: any
+
+  is_visible: boolean
+  created_at: string
+  updated_at: string
 }
 
-// ============================================================================
-// Interfaces para Componentes
-// ============================================================================
-
-/**
- * Props para CareerCard
- */
 export interface CareerCardProps {
   career: Career
 }
 
-/**
- * Props para CareersSection
- */
 export interface CareersSectionProps {
   careers?: Career[]
 }
 
-/**
- * Props para página dinámica de carrera
- */
 export interface CareerPageProps {
   career: Career
 }
