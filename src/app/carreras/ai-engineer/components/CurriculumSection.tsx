@@ -125,12 +125,12 @@ function ModuleCard({
   learningUrl?: string;
 }) {
   return (
-    <article className="flex flex-col p-6 rounded-xl bg-background border border-border-color hover:border-[var(--secondary)]/40 transition-colors">
+    <article className="flex flex-col p-6 rounded-xl bg-[var(--card-background)] border border-border-color hover:border-[var(--primary)]/50 dark:hover:border-[var(--secondary)]/50 transition-colors shadow-sm">
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--secondary)]/10">
-          <mod.icon className="w-5 h-5 text-[var(--secondary)]" />
+        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--primary)]/10 dark:bg-[var(--secondary)]/12">
+          <mod.icon className="w-5 h-5 text-[var(--primary)] dark:text-[var(--secondary)]" />
         </div>
-        <span className="text-xs font-bold tracking-widest uppercase text-[var(--secondary)] font-mono">
+        <span className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
           {mod.badge}
         </span>
       </div>
@@ -138,8 +138,8 @@ function ModuleCard({
       <h4 className="text-lg font-bold text-text-primary mb-1">{mod.title}</h4>
       <div className="flex items-center gap-3 text-sm text-text-muted mb-4">
         <span>{mod.duration}</span>
-        <span className="text-text-muted/40">&middot;</span>
-        <span className="font-semibold text-[var(--secondary)]">
+        <span className="text-border-color">&middot;</span>
+        <span className="font-semibold text-[var(--primary)] dark:text-[var(--secondary)]">
           {mod.price}
         </span>
       </div>
@@ -150,7 +150,7 @@ function ModuleCard({
             key={i}
             className="flex items-start gap-2 text-sm text-text-muted"
           >
-            <span className="text-[var(--secondary)] mt-0.5">•</span>
+            <span className="text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5">•</span>
             {topic}
           </li>
         ))}
@@ -167,7 +167,7 @@ function ModuleCard({
         {learningUrl && (
           <Link
             href={`/programas-academicos/${learningUrl}`}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium border border-border-color rounded-lg hover:border-[var(--secondary)]/50 hover:bg-[var(--secondary)]/10 text-text-primary transition-all"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium border-2 border-border-color rounded-lg hover:border-[var(--primary)] dark:hover:border-[var(--secondary)] hover:bg-[var(--primary)]/8 dark:hover:bg-[var(--secondary)]/10 text-text-primary transition-all"
           >
             Ver curso
           </Link>
@@ -209,12 +209,12 @@ export default function CurriculumSection({
 
         {/* Route toggle */}
         <div className="flex justify-center mb-10">
-          <div className="inline-flex p-1 rounded-xl bg-[var(--card-background)] border border-border-color">
+          <div className="inline-flex p-1.5 rounded-xl bg-[var(--card-background)] border border-border-color shadow-sm">
             <button
               onClick={() => setActiveRoute("python")}
               className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                 activeRoute === "python"
-                  ? "bg-[var(--secondary)]/15 text-[var(--secondary)]"
+                  ? "bg-[var(--primary)]/12 dark:bg-[var(--secondary)]/15 text-[var(--primary)] dark:text-[var(--secondary)] shadow-sm"
                   : "text-text-muted hover:text-text-primary"
               }`}
             >
@@ -224,7 +224,7 @@ export default function CurriculumSection({
               onClick={() => setActiveRoute("javascript")}
               className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                 activeRoute === "javascript"
-                  ? "bg-[var(--secondary)]/15 text-[var(--secondary)]"
+                  ? "bg-[var(--primary)]/12 dark:bg-[var(--secondary)]/15 text-[var(--primary)] dark:text-[var(--secondary)] shadow-sm"
                   : "text-text-muted hover:text-text-primary"
               }`}
             >
@@ -291,7 +291,7 @@ export default function CurriculumSection({
         </div>
 
         {/* Career CTA */}
-        <div className="text-center p-8 rounded-2xl bg-[var(--secondary)]/5 border border-[var(--secondary)]/20">
+        <div className="text-center p-8 rounded-2xl bg-[var(--primary)]/8 dark:bg-[var(--secondary)]/10 border border-[var(--primary)]/25 dark:border-[var(--secondary)]/30">
           <p className="text-lg font-bold text-text-primary mb-2">
             Toma la carrera completa o solo los módulos que necesitas
           </p>

@@ -27,13 +27,13 @@ function SalaryBar({
     <div className="mb-3.5">
       <div className="flex justify-between mb-1">
         <span className="text-sm text-text-muted">{label}</span>
-        <span className="text-sm font-bold text-[var(--secondary)] font-mono">
+        <span className="text-sm font-bold text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
           {sub || `$${value.toLocaleString()}`}
         </span>
       </div>
-      <div className="bg-border-color/30 rounded-md h-2.5 overflow-hidden">
+      <div className="bg-[var(--primary)]/10 dark:bg-[var(--primary)]/10 rounded-md h-2.5 overflow-hidden">
         <div
-          className="h-full rounded-md bg-gradient-to-r from-[var(--secondary)] to-[var(--secondary)]/50 transition-all duration-700"
+          className="h-full rounded-md bg-gradient-to-r from-[var(--primary)] dark:from-[var(--secondary)] to-[var(--primary)]/60 dark:to-[var(--secondary)]/60 transition-all duration-700"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -51,13 +51,13 @@ function StatCard({
   sub?: string;
 }) {
   return (
-    <div className="flex-1 min-w-[140px] text-center p-5 rounded-xl bg-[var(--card-background)] border border-border-color">
-      <span className="block text-2xl font-extrabold text-[var(--secondary)] font-mono leading-none">
+    <div className="flex-1 min-w-[140px] text-center p-5 rounded-xl bg-[var(--card-background)] border border-border-color shadow-sm">
+      <span className="block text-2xl font-extrabold text-[var(--primary)] dark:text-[var(--secondary)] font-mono leading-none">
         {number}
       </span>
       <span className="block text-xs text-text-muted mt-1.5">{label}</span>
       {sub && (
-        <span className="block text-[10px] text-text-muted/60 mt-1">{sub}</span>
+        <span className="block text-[10px] text-text-muted mt-1">{sub}</span>
       )}
     </div>
   );
@@ -78,7 +78,7 @@ function StackItem({
         <span className="text-sm font-bold text-text-primary">{name}</span>
         <span className="block text-xs text-text-muted mt-0.5">{desc}</span>
       </div>
-      <span className="text-[10px] font-bold text-[var(--secondary)] bg-[var(--secondary)]/10 px-2.5 py-1 rounded-full font-mono whitespace-nowrap ml-3">
+      <span className="text-[10px] font-bold text-[var(--primary)] dark:text-[var(--secondary)] bg-[var(--primary)]/10 dark:bg-[var(--secondary)]/12 px-2.5 py-1 rounded-full font-mono whitespace-nowrap ml-3">
         {tag}
       </span>
     </div>
@@ -88,7 +88,7 @@ function StackItem({
 function PerfilTab() {
   return (
     <div>
-      <h3 className="text-xl font-bold text-[var(--secondary)] mb-4">
+      <h3 className="text-xl font-bold text-[var(--primary)] dark:text-[var(--secondary)] mb-4">
         ¿Qué es un AI Engineer?
       </h3>
       <p className="text-sm text-text-muted leading-relaxed mb-6">
@@ -100,8 +100,8 @@ function PerfilTab() {
         en 2025.
       </p>
 
-      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6">
-        <p className="text-xs font-bold tracking-widest uppercase text-[var(--secondary)] mb-3 font-mono">
+      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6 shadow-sm">
+        <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-3 font-mono">
           Responsabilidades clave
         </p>
         {[
@@ -113,14 +113,14 @@ function PerfilTab() {
           "MLOps: pipelines de CI/CD, versionado de modelos, observabilidad",
         ].map((item, i) => (
           <div key={i} className="flex items-start gap-2.5 mb-2.5">
-            <span className="text-[var(--secondary)] mt-0.5">→</span>
+            <span className="text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5">→</span>
             <span className="text-sm text-text-muted">{item}</span>
           </div>
         ))}
       </div>
 
-      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6">
-        <p className="text-xs font-bold tracking-widest uppercase text-amber-400 mb-3 font-mono">
+      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6 shadow-sm">
+        <p className="text-xs font-bold tracking-widest uppercase text-amber-600 dark:text-amber-400 mb-3 font-mono">
           Diferencia con otros roles
         </p>
         <div className="space-y-3">
@@ -143,7 +143,7 @@ function PerfilTab() {
             },
           ].map((item, i) => (
             <div key={i} className="flex gap-3 items-start">
-              <span className="text-xs font-bold text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full font-mono whitespace-nowrap">
+              <span className="text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-500/12 px-2.5 py-0.5 rounded-full font-mono whitespace-nowrap">
                 vs
               </span>
               <p className="text-sm">
@@ -177,15 +177,15 @@ function PerfilTab() {
 function SalariosTab() {
   return (
     <div>
-      <h3 className="text-xl font-bold text-[var(--secondary)] mb-1">
+      <h3 className="text-xl font-bold text-[var(--primary)] dark:text-[var(--secondary)] mb-1">
         Salarios Globales
       </h3>
       <p className="text-xs text-text-muted mb-5">
         Compensación anual promedio en USD (2025–2026)
       </p>
 
-      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6">
-        <p className="text-xs font-bold tracking-widest uppercase text-[var(--secondary)] mb-4 font-mono">
+      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6 shadow-sm">
+        <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-4 font-mono">
           Por región — Promedio anual
         </p>
         <SalaryBar label="Estados Unidos" value={147524} max={210000} />
@@ -198,52 +198,22 @@ function SalariosTab() {
         <SalaryBar label="India" value={22000} max={210000} />
       </div>
 
-      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6">
-        <p className="text-xs font-bold tracking-widest uppercase text-rose-400 mb-4 font-mono">
+      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6 shadow-sm">
+        <p className="text-xs font-bold tracking-widest uppercase text-rose-600 dark:text-rose-400 mb-4 font-mono">
           Latinoamérica — Detalle por país
         </p>
         <p className="text-xs text-text-muted mb-4">
           Salarios locales vs. remotos para empresas de EE.UU.
         </p>
-        <SalaryBar
-          label="México"
-          value={58075}
-          max={112000}
-          sub="$58K local · $85K remoto US"
-        />
-        <SalaryBar
-          label="Argentina"
-          value={55900}
-          max={112000}
-          sub="$56K local · $93K remoto US"
-        />
-        <SalaryBar
-          label="Brasil"
-          value={54000}
-          max={112000}
-          sub="$41–54K local · $100K remoto US"
-        />
-        <SalaryBar
-          label="Colombia"
-          value={45000}
-          max={112000}
-          sub="$36–45K local · $91K remoto US"
-        />
-        <SalaryBar
-          label="Chile"
-          value={49000}
-          max={112000}
-          sub="$49K local · $94K remoto US"
-        />
-        <SalaryBar
-          label="Uruguay"
-          value={61000}
-          max={112000}
-          sub="$61K · mercado premium"
-        />
+        <SalaryBar label="México" value={58075} max={112000} sub="$58K local · $85K remoto US" />
+        <SalaryBar label="Argentina" value={55900} max={112000} sub="$56K local · $93K remoto US" />
+        <SalaryBar label="Brasil" value={54000} max={112000} sub="$41–54K local · $100K remoto US" />
+        <SalaryBar label="Colombia" value={45000} max={112000} sub="$36–45K local · $91K remoto US" />
+        <SalaryBar label="Chile" value={49000} max={112000} sub="$49K local · $94K remoto US" />
+        <SalaryBar label="Uruguay" value={61000} max={112000} sub="$61K · mercado premium" />
 
-        <div className="mt-4 p-3.5 rounded-lg bg-[var(--secondary)]/5 border border-[var(--secondary)]/15">
-          <p className="text-xs font-bold text-[var(--secondary)] mb-1">
+        <div className="mt-4 p-3.5 rounded-lg bg-[var(--primary)]/8 dark:bg-[var(--secondary)]/10 border border-[var(--primary)]/20 dark:border-[var(--secondary)]/25">
+          <p className="text-xs font-bold text-[var(--primary)] dark:text-[var(--secondary)] mb-1">
             Dato clave
           </p>
           <p className="text-xs text-text-muted leading-relaxed">
@@ -255,8 +225,8 @@ function SalariosTab() {
         </div>
       </div>
 
-      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5">
-        <p className="text-xs font-bold tracking-widest uppercase text-amber-400 mb-4 font-mono">
+      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 shadow-sm">
+        <p className="text-xs font-bold tracking-widest uppercase text-amber-600 dark:text-amber-400 mb-4 font-mono">
           EE.UU. por nivel de experiencia
         </p>
         <SalaryBar label="Junior (0–2 años)" value={120513} max={315000} />
@@ -271,121 +241,49 @@ function SalariosTab() {
 function StackTab() {
   return (
     <div>
-      <h3 className="text-xl font-bold text-[var(--secondary)] mb-1">
+      <h3 className="text-xl font-bold text-[var(--primary)] dark:text-[var(--secondary)] mb-1">
         Tech Stack del AI Engineer
       </h3>
       <p className="text-xs text-text-muted mb-5">
         Herramientas y tecnologías más demandadas en 2025–2026
       </p>
 
-      <p className="text-xs font-bold tracking-widest uppercase text-[var(--secondary)] mb-2.5 font-mono">
+      <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-2.5 font-mono">
         Lenguajes & Frameworks
       </p>
-      <StackItem
-        name="Python"
-        desc="71% de las ofertas laborales lo requieren"
-        tag="ESENCIAL"
-      />
-      <StackItem
-        name="PyTorch"
-        desc="55%+ de producción, estándar en deep learning"
-        tag="37.7% JOBS"
-      />
-      <StackItem
-        name="TensorFlow"
-        desc="Escalabilidad y despliegue en producción"
-        tag="32.9% JOBS"
-      />
-      <StackItem
-        name="FastAPI"
-        desc="APIs de alto rendimiento para servir modelos"
-        tag="CRECIENDO"
-      />
-      <StackItem
-        name="JavaScript/TypeScript"
-        desc="Frontends de agentes, integraciones web"
-        tag="COMPLEMENTO"
-      />
+      <StackItem name="Python" desc="71% de las ofertas laborales lo requieren" tag="ESENCIAL" />
+      <StackItem name="PyTorch" desc="55%+ de producción, estándar en deep learning" tag="37.7% JOBS" />
+      <StackItem name="TensorFlow" desc="Escalabilidad y despliegue en producción" tag="32.9% JOBS" />
+      <StackItem name="FastAPI" desc="APIs de alto rendimiento para servir modelos" tag="CRECIENDO" />
+      <StackItem name="JavaScript/TypeScript" desc="Frontends de agentes, integraciones web" tag="COMPLEMENTO" />
 
-      <p className="text-xs font-bold tracking-widest uppercase text-rose-400 mt-6 mb-2.5 font-mono">
+      <p className="text-xs font-bold tracking-widest uppercase text-rose-600 dark:text-rose-400 mt-6 mb-2.5 font-mono">
         LLMs & Agentes
       </p>
-      <StackItem
-        name="OpenAI API / GPT-4"
-        desc="Modelo más usado en producción empresarial"
-        tag="DOMINANTE"
-      />
-      <StackItem
-        name="Google Gemini SDK"
-        desc="Multimodalidad, function calling, grounding"
-        tag="EN AUGE"
-      />
-      <StackItem
-        name="Anthropic Claude"
-        desc="Context windows amplios, razonamiento complejo"
-        tag="PREMIUM"
-      />
-      <StackItem
-        name="LangChain / LangGraph"
-        desc="Orquestación de agentes y cadenas de LLM"
-        tag="ESTÁNDAR"
-      />
-      <StackItem
-        name="CrewAI / Pydantic AI"
-        desc="Sistemas multi-agente y tipado estricto"
-        tag="2026 TREND"
-      />
+      <StackItem name="OpenAI API / GPT-4" desc="Modelo más usado en producción empresarial" tag="DOMINANTE" />
+      <StackItem name="Google Gemini SDK" desc="Multimodalidad, function calling, grounding" tag="EN AUGE" />
+      <StackItem name="Anthropic Claude" desc="Context windows amplios, razonamiento complejo" tag="PREMIUM" />
+      <StackItem name="LangChain / LangGraph" desc="Orquestación de agentes y cadenas de LLM" tag="ESTÁNDAR" />
+      <StackItem name="CrewAI / Pydantic AI" desc="Sistemas multi-agente y tipado estricto" tag="2026 TREND" />
 
-      <p className="text-xs font-bold tracking-widest uppercase text-amber-400 mt-6 mb-2.5 font-mono">
+      <p className="text-xs font-bold tracking-widest uppercase text-amber-600 dark:text-amber-400 mt-6 mb-2.5 font-mono">
         Datos & RAG
       </p>
-      <StackItem
-        name="ChromaDB / Pinecone / Weaviate"
-        desc="Bases de datos vectoriales para embeddings"
-        tag="RAG CORE"
-      />
-      <StackItem
-        name="PostgreSQL + pgvector"
-        desc="Base relacional con capacidad vectorial"
-        tag="VERSÁTIL"
-      />
-      <StackItem
-        name="Neo4j + Graphiti"
-        desc="Knowledge graphs para relaciones complejas"
-        tag="AVANZADO"
-      />
+      <StackItem name="ChromaDB / Pinecone / Weaviate" desc="Bases de datos vectoriales para embeddings" tag="RAG CORE" />
+      <StackItem name="PostgreSQL + pgvector" desc="Base relacional con capacidad vectorial" tag="VERSÁTIL" />
+      <StackItem name="Neo4j + Graphiti" desc="Knowledge graphs para relaciones complejas" tag="AVANZADO" />
 
-      <p className="text-xs font-bold tracking-widest uppercase text-violet-400 mt-6 mb-2.5 font-mono">
+      <p className="text-xs font-bold tracking-widest uppercase text-violet-700 dark:text-violet-400 mt-6 mb-2.5 font-mono">
         Cloud & MLOps
       </p>
-      <StackItem
-        name="AWS (SageMaker, Lambda, S3)"
-        desc="32.9% de ofertas piden AWS"
-        tag="#1 CLOUD"
-      />
-      <StackItem
-        name="Azure (ML, OpenAI Service)"
-        desc="26% de ofertas piden Azure"
-        tag="#2 CLOUD"
-      />
-      <StackItem
-        name="GCP (Vertex AI, Cloud Run)"
-        desc="Integración nativa con Gemini"
-        tag="#3 CLOUD"
-      />
-      <StackItem
-        name="Docker / Kubernetes"
-        desc="Contenedorización y orquestación"
-        tag="ESENCIAL"
-      />
-      <StackItem
-        name="GitHub Actions"
-        desc="CI/CD para pipelines de ML"
-        tag="ESTÁNDAR"
-      />
+      <StackItem name="AWS (SageMaker, Lambda, S3)" desc="32.9% de ofertas piden AWS" tag="#1 CLOUD" />
+      <StackItem name="Azure (ML, OpenAI Service)" desc="26% de ofertas piden Azure" tag="#2 CLOUD" />
+      <StackItem name="GCP (Vertex AI, Cloud Run)" desc="Integración nativa con Gemini" tag="#3 CLOUD" />
+      <StackItem name="Docker / Kubernetes" desc="Contenedorización y orquestación" tag="ESENCIAL" />
+      <StackItem name="GitHub Actions" desc="CI/CD para pipelines de ML" tag="ESTÁNDAR" />
 
-      <div className="mt-5 p-3.5 rounded-lg bg-violet-500/5 border border-violet-500/15">
-        <p className="text-xs font-bold text-violet-400 mb-1">
+      <div className="mt-5 p-3.5 rounded-lg bg-violet-500/10 border border-violet-500/25">
+        <p className="text-xs font-bold text-violet-700 dark:text-violet-400 mb-1">
           Skills que más pagan en 2026
         </p>
         <p className="text-xs text-text-muted leading-relaxed">
@@ -401,7 +299,7 @@ function StackTab() {
 function ProyeccionTab() {
   return (
     <div>
-      <h3 className="text-xl font-bold text-[var(--secondary)] mb-1">
+      <h3 className="text-xl font-bold text-[var(--primary)] dark:text-[var(--secondary)] mb-1">
         Proyección de Crecimiento
       </h3>
       <p className="text-xs text-text-muted mb-5">
@@ -410,20 +308,12 @@ function ProyeccionTab() {
 
       <div className="flex flex-wrap gap-3 mb-6">
         <StatCard number="~30%" label="CAGR mercado global IA" sub="Hasta 2030" />
-        <StatCard
-          number="78M"
-          label="nuevos empleos netos por IA"
-          sub="WEF 2030"
-        />
-        <StatCard
-          number="22–37%"
-          label="CAGR mercado IA en LATAM"
-          sub="2025–2034"
-        />
+        <StatCard number="78M" label="nuevos empleos netos por IA" sub="WEF 2030" />
+        <StatCard number="22–37%" label="CAGR mercado IA en LATAM" sub="2025–2034" />
       </div>
 
-      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6">
-        <p className="text-xs font-bold tracking-widest uppercase text-[var(--secondary)] mb-3 font-mono">
+      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6 shadow-sm">
+        <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-3 font-mono">
           Mercado global de IA
         </p>
         {[
@@ -434,28 +324,24 @@ function ProyeccionTab() {
         ].map((d) => (
           <div key={d.year} className="mb-2.5">
             <div className="flex justify-between mb-1">
-              <span className="text-xs text-text-muted font-mono">
-                {d.year}
-              </span>
-              <span className="text-xs font-bold text-[var(--secondary)] font-mono">
-                {d.val}
-              </span>
+              <span className="text-xs text-text-muted font-mono">{d.year}</span>
+              <span className="text-xs font-bold text-[var(--primary)] dark:text-[var(--secondary)] font-mono">{d.val}</span>
             </div>
-            <div className="bg-border-color/30 rounded-md h-2 overflow-hidden">
+            <div className="bg-[var(--primary)]/10 rounded-md h-2 overflow-hidden">
               <div
-                className="h-full rounded-md bg-gradient-to-r from-[var(--secondary)] to-sky-500 transition-all duration-700"
+                className="h-full rounded-md bg-gradient-to-r from-[var(--primary)] dark:from-[var(--secondary)] to-sky-600 dark:to-sky-500 transition-all duration-700"
                 style={{ width: `${d.pct}%` }}
               />
             </div>
           </div>
         ))}
-        <p className="text-[10px] text-text-muted/60 mt-2">
+        <p className="text-[10px] text-text-muted mt-2">
           Fuente: Statista, PwC, proyecciones de mercado
         </p>
       </div>
 
-      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6">
-        <p className="text-xs font-bold tracking-widest uppercase text-rose-400 mb-3 font-mono">
+      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6 shadow-sm">
+        <p className="text-xs font-bold tracking-widest uppercase text-rose-600 dark:text-rose-400 mb-3 font-mono">
           LATAM: El mercado emergente
         </p>
         {[
@@ -466,48 +352,31 @@ function ProyeccionTab() {
           "84% de empleadores LATAM aceleran upskilling en cloud, IA y datos",
         ].map((item, i) => (
           <div key={i} className="flex items-start gap-2.5 mb-2.5">
-            <span className="text-rose-400 mt-0.5 text-sm">▸</span>
+            <span className="text-rose-600 dark:text-rose-400 mt-0.5 text-sm">▸</span>
             <span className="text-sm text-text-muted">{item}</span>
           </div>
         ))}
       </div>
 
-      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6">
-        <p className="text-xs font-bold tracking-widest uppercase text-amber-400 mb-3 font-mono">
+      <div className="rounded-xl bg-[var(--card-background)] border border-border-color p-5 mb-6 shadow-sm">
+        <p className="text-xs font-bold tracking-widest uppercase text-amber-600 dark:text-amber-400 mb-3 font-mono">
           Tendencias 2026 y más allá
         </p>
         {[
-          {
-            trend: "De chatbots a agentes autónomos",
-            desc: "2026 es el año de la IA agéntica: sistemas que planifican, razonan y ejecutan acciones de forma independiente.",
-          },
-          {
-            trend: "El 'AI Builder' emerge como rol",
-            desc: "Empresas como Meta y Walmart ya contratan 'builders': perfiles que van de la idea al producto usando IA.",
-          },
-          {
-            trend: "Multi-modal AI",
-            desc: "Ingenieros que trabajan con texto, imagen, audio y video simultáneamente serán los más demandados.",
-          },
-          {
-            trend: "Premium salarial por skills de IA: +30%",
-            desc: "PwC encontró que trabajadores con skills de IA ganan en promedio 30% más que sus pares en el mismo puesto.",
-          },
-          {
-            trend: "LATAM como hub nearshore de IA",
-            desc: "Alineación horaria con EE.UU., talento en crecimiento y ahorro del 60–70% posicionan la región como centro estratégico.",
-          },
+          { trend: "De chatbots a agentes autónomos", desc: "2026 es el año de la IA agéntica: sistemas que planifican, razonan y ejecutan acciones de forma independiente." },
+          { trend: "El 'AI Builder' emerge como rol", desc: "Empresas como Meta y Walmart ya contratan 'builders': perfiles que van de la idea al producto usando IA." },
+          { trend: "Multi-modal AI", desc: "Ingenieros que trabajan con texto, imagen, audio y video simultáneamente serán los más demandados." },
+          { trend: "Premium salarial por skills de IA: +30%", desc: "PwC encontró que trabajadores con skills de IA ganan en promedio 30% más que sus pares en el mismo puesto." },
+          { trend: "LATAM como hub nearshore de IA", desc: "Alineación horaria con EE.UU., talento en crecimiento y ahorro del 60–70% posicionan la región como centro estratégico." },
         ].map((item, i) => (
           <div key={i} className="mb-4 last:mb-0">
-            <p className="text-sm font-bold text-amber-400">{item.trend}</p>
-            <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
-              {item.desc}
-            </p>
+            <p className="text-sm font-bold text-amber-700 dark:text-amber-400">{item.trend}</p>
+            <p className="text-xs text-text-muted mt-0.5 leading-relaxed">{item.desc}</p>
           </div>
         ))}
       </div>
 
-      <div className="p-4 rounded-xl bg-gradient-to-r from-[var(--secondary)]/5 to-violet-500/5 border border-[var(--secondary)]/15">
+      <div className="p-4 rounded-xl bg-[var(--primary)]/8 dark:bg-[var(--secondary)]/10 border border-[var(--primary)]/20 dark:border-[var(--secondary)]/25">
         <p className="text-sm font-bold text-text-primary mb-2">
           ¿Por qué formar AI Engineers en LATAM ahora?
         </p>
@@ -530,7 +399,7 @@ export default function IndustryDataSection() {
     <section className="py-20 px-4">
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-10">
-          <p className="text-xs font-bold tracking-widest uppercase text-[var(--secondary)] mb-3 font-mono">
+          <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-3 font-mono">
             Investigación de Mercado · 2025–2026
           </p>
           <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
@@ -544,14 +413,14 @@ export default function IndustryDataSection() {
         </header>
 
         {/* Tabs */}
-        <nav className="flex gap-1 p-1 mb-8 rounded-xl bg-[var(--card-background)] border border-border-color">
+        <nav className="flex gap-1 p-1.5 mb-8 rounded-xl bg-[var(--card-background)] border border-border-color shadow-sm">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                 activeTab === tab.id
-                  ? "bg-[var(--secondary)]/15 text-[var(--secondary)]"
+                  ? "bg-[var(--primary)]/12 dark:bg-[var(--secondary)]/15 text-[var(--primary)] dark:text-[var(--secondary)] shadow-sm"
                   : "text-text-muted hover:text-text-primary"
               }`}
             >
@@ -560,7 +429,6 @@ export default function IndustryDataSection() {
           ))}
         </nav>
 
-        {/* Tab content */}
         <div>
           {activeTab === "perfil" && <PerfilTab />}
           {activeTab === "salarios" && <SalariosTab />}
@@ -568,8 +436,7 @@ export default function IndustryDataSection() {
           {activeTab === "proyeccion" && <ProyeccionTab />}
         </div>
 
-        {/* Sources */}
-        <p className="mt-8 pt-4 border-t border-border-color text-[10px] text-text-muted/50 font-mono">
+        <p className="mt-8 pt-4 border-t border-border-color text-[10px] text-text-muted font-mono">
           Fuentes: Glassdoor, BLS, Coursera, LinkedIn, PwC AI Jobs Barometer,
           WEF Future of Jobs 2025, IMARC Group, 365 Data Science, InterviewQuery.
         </p>

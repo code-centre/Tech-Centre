@@ -65,7 +65,7 @@ export default function SuccessRoutes() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
-    <section className="py-20 px-4 bg-[var(--card-background)]/50">
+    <section className="py-20 px-4 bg-[var(--bg-secondary)]">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
@@ -83,7 +83,7 @@ export default function SuccessRoutes() {
             return (
               <article
                 key={route.id}
-                className="rounded-2xl border border-border-color bg-background overflow-hidden transition-all duration-300 hover:border-[var(--secondary)]/40"
+                className="rounded-2xl border border-border-color bg-[var(--card-background)] overflow-hidden transition-all duration-300 hover:border-[var(--primary)]/50 dark:hover:border-[var(--secondary)]/50 shadow-sm"
               >
                 <button
                   onClick={() =>
@@ -91,8 +91,8 @@ export default function SuccessRoutes() {
                   }
                   className="w-full flex items-start gap-4 p-6 text-left cursor-pointer"
                 >
-                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--secondary)]/10 border border-[var(--secondary)]/20 shrink-0">
-                    <route.icon className="w-6 h-6 text-[var(--secondary)]" />
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--primary)]/10 dark:bg-[var(--secondary)]/12 border border-[var(--primary)]/25 dark:border-[var(--secondary)]/30 shrink-0">
+                    <route.icon className="w-6 h-6 text-[var(--primary)] dark:text-[var(--secondary)]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-lg font-bold text-text-primary mb-1">
@@ -115,13 +115,13 @@ export default function SuccessRoutes() {
                   }`}
                 >
                   <div className="px-6 pb-6 pt-0">
-                    <p className="text-xs font-bold tracking-widest uppercase text-[var(--secondary)] mb-3 font-mono">
+                    <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-3 font-mono">
                       Tu meta realista al terminar
                     </p>
                     <ul className="space-y-3">
                       {route.goals.map((goal, i) => (
                         <li key={i} className="flex items-start gap-3">
-                          <ArrowRight className="w-4 h-4 text-[var(--secondary)] mt-0.5 shrink-0" />
+                          <ArrowRight className="w-4 h-4 text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5 shrink-0" />
                           <span className="text-sm text-text-muted leading-relaxed">
                             {goal}
                           </span>

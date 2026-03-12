@@ -1,115 +1,141 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
-
 const tiers = [
   {
-    level: "Empleo local Colombia (junior tech + IA)",
-    salary: "$8K–$15K USD",
-    cop: "$3M–$5M COP/mes",
-    note: "Más probable al iniciar",
-    highlight: false,
+    level: "Graduado del programa",
+    local: "$3–5M COP",
+    localUsd: "$8K–$15K",
+    remote: "$15–25K",
+    note: "Con portafolio; 3–6 meses de búsqueda",
   },
   {
-    level: "Nearshoring LATAM → EE.UU. (junior/mid)",
-    salary: "$36K–$60K USD",
-    cop: "$12M–$20M COP/mes",
-    note: "Alcanzable en 6–12 meses de experiencia",
-    highlight: true,
+    level: "+6 meses experiencia",
+    local: "$4–8M COP",
+    localUsd: "$12K–$24K",
+    remote: "$25–40K",
+    note: "Junior establecido, proyectos en producción",
   },
   {
-    level: "Remoto para empresa de EE.UU. (senior)",
-    salary: "$60K–$112K USD",
-    cop: "$20M–$38M COP/mes",
-    note: "Requiere 1–2 años de experiencia",
-    highlight: false,
+    level: "+1 año experiencia",
+    local: "$6–12M COP",
+    localUsd: "$18K–$36K",
+    remote: "$36–60K",
+    note: "Mid-level, puede liderar módulos",
   },
   {
-    level: "Freelance / consultoría IA",
-    salary: "$15K–$50K USD",
-    cop: "$5M–$17M COP/mes",
-    note: "Variable según clientes",
-    highlight: false,
-  },
-  {
-    level: "Emprendimiento con IA",
-    salary: "Variable",
-    cop: "Alto impacto",
-    note: "Ahorro significativo en desarrollo",
-    highlight: false,
+    level: "+2 años experiencia",
+    local: "$10–20M COP",
+    localUsd: "$30K–$60K",
+    remote: "$60–112K",
+    note: "Senior, arquitecto de soluciones IA",
   },
 ];
 
 export default function SalaryTiers() {
   return (
-    <section className="py-20 px-4 bg-[var(--card-background)]/50">
+    <section className="py-20 px-4 bg-[var(--bg-secondary)]">
       <div className="max-w-5xl mx-auto">
         <header className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-            Retorno de inversión: expectativas reales
+            ¿Cuánto puedes ganar?
           </h2>
           <p className="text-lg text-text-muted max-w-2xl mx-auto">
-            Creemos en la transparencia. No te vamos a prometer que al terminar
-            ganarás $150K dólares. Lo que sí podemos mostrarte son los
-            escenarios reales.
+            Proyección salarial basada en datos reales de Glassdoor,
+            LinkedIn y PwC para Colombia y el mercado remoto (USD/año).
           </p>
         </header>
 
-        <div className="rounded-2xl border border-border-color bg-background overflow-hidden mb-8">
-          <div className="hidden md:grid grid-cols-[1fr_150px_180px_200px] gap-4 px-6 py-4 bg-[var(--secondary)]/5 border-b border-border-color">
-            <span className="text-xs font-bold tracking-widest uppercase text-text-muted font-mono">
-              Escenario
-            </span>
-            <span className="text-xs font-bold tracking-widest uppercase text-text-muted font-mono text-right">
-              Salario anual
-            </span>
-            <span className="text-xs font-bold tracking-widest uppercase text-text-muted font-mono text-right">
-              Salario mensual
-            </span>
-            <span className="text-xs font-bold tracking-widest uppercase text-text-muted font-mono text-right">
-              Nota
-            </span>
-          </div>
+        {/* Desktop table */}
+        <div className="hidden md:block rounded-2xl border border-border-color overflow-hidden bg-[var(--card-background)] shadow-sm">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-[var(--primary)]/8 dark:bg-[var(--secondary)]/10 border-b border-border-color">
+                <th className="px-6 py-4 text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
+                  Nivel
+                </th>
+                <th className="px-6 py-4 text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
+                  Local (COP)
+                </th>
+                <th className="px-6 py-4 text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
+                  Local (USD)
+                </th>
+                <th className="px-6 py-4 text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
+                  Remoto (USD)
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border-color">
+              {tiers.map((tier) => (
+                <tr key={tier.level} className="hover:bg-[var(--primary)]/5 dark:hover:bg-[var(--secondary)]/5 transition-colors">
+                  <td className="px-6 py-4">
+                    <span className="text-sm font-semibold text-text-primary">
+                      {tier.level}
+                    </span>
+                    <span className="block text-xs text-text-muted mt-0.5">
+                      {tier.note}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-text-primary font-mono">
+                    {tier.local}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-text-primary font-mono">
+                    {tier.localUsd}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-bold text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
+                    {tier.remote}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-4">
           {tiers.map((tier) => (
-            <div
+            <article
               key={tier.level}
-              className={`flex flex-col md:grid md:grid-cols-[1fr_150px_180px_200px] gap-2 md:gap-4 px-6 py-5 border-b border-border-color last:border-b-0 ${
-                tier.highlight ? "bg-[var(--secondary)]/5" : ""
-              }`}
+              className="rounded-xl p-5 bg-[var(--card-background)] border border-border-color shadow-sm"
             >
-              <div className="flex items-center gap-2">
-                {tier.highlight && (
-                  <TrendingUp className="w-4 h-4 text-[var(--secondary)] shrink-0" />
-                )}
-                <span className="text-sm font-medium text-text-primary">
-                  {tier.level}
-                </span>
+              <h3 className="text-sm font-bold text-text-primary mb-1">
+                {tier.level}
+              </h3>
+              <p className="text-xs text-text-muted mb-3">{tier.note}</p>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <span className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-1">
+                    Local COP
+                  </span>
+                  <span className="text-sm font-medium text-text-primary font-mono">
+                    {tier.local}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-1">
+                    Local USD
+                  </span>
+                  <span className="text-sm font-medium text-text-primary font-mono">
+                    {tier.localUsd}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-1">
+                    Remoto USD
+                  </span>
+                  <span className="text-sm font-bold text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
+                    {tier.remote}
+                  </span>
+                </div>
               </div>
-              <span className="text-sm font-bold text-[var(--secondary)] font-mono md:text-right">
-                {tier.salary}
-              </span>
-              <span className="text-sm text-text-muted md:text-right">
-                {tier.cop}
-              </span>
-              <span className="text-xs text-text-muted/70 md:text-right">
-                {tier.note}
-              </span>
-            </div>
+            </article>
           ))}
         </div>
 
-        <div className="p-6 rounded-2xl bg-[var(--secondary)]/5 border border-[var(--secondary)]/20 text-center">
-          <p className="text-sm text-text-muted leading-relaxed max-w-2xl mx-auto">
-            Incluso en el escenario más conservador ($3M COP/mes), la inversión
-            de la carrera completa ($2.4M COP){" "}
-            <strong className="text-text-primary">
-              se recupera en el primer mes de empleo
-            </strong>
-            . Y si tomas un solo módulo ($600K–$800K COP), el retorno es
-            prácticamente inmediato.
-          </p>
-        </div>
+        <p className="text-center text-xs text-text-muted mt-8">
+          Fuente: Glassdoor, LinkedIn Salary Insights, PwC AI Jobs Barometer
+          2025. Salarios remotos reflejan empresas de EE.UU. contratando en
+          LATAM.
+        </p>
       </div>
     </section>
   );

@@ -25,7 +25,7 @@ const problems = [
 
 export default function ProblemSection() {
   return (
-    <section className="py-20 px-4 bg-[var(--card-background)]/50">
+    <section className="py-20 px-4 bg-[var(--bg-secondary)]">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
@@ -41,10 +41,10 @@ export default function ProblemSection() {
           {problems.map((problem) => (
             <article
               key={problem.title}
-              className="relative p-8 rounded-2xl bg-background border border-border-color hover:border-[var(--secondary)]/40 transition-all duration-300 group"
+              className="relative p-8 rounded-2xl bg-[var(--card-background)] border border-border-color hover:border-[var(--primary)]/50 dark:hover:border-[var(--secondary)]/50 transition-all duration-300 group shadow-sm"
             >
-              <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-[var(--secondary)]/10 border border-[var(--secondary)]/20 mb-6 group-hover:bg-[var(--secondary)]/15 transition-colors">
-                <problem.icon className="w-7 h-7 text-[var(--secondary)]" />
+              <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-[var(--primary)]/10 dark:bg-[var(--secondary)]/12 border border-[var(--primary)]/25 dark:border-[var(--secondary)]/30 mb-6 group-hover:bg-[var(--primary)]/15 dark:group-hover:bg-[var(--secondary)]/20 transition-colors">
+                <problem.icon className="w-7 h-7 text-[var(--primary)] dark:text-[var(--secondary)]" />
               </div>
               <h3 className="text-xl font-bold text-text-primary mb-3">
                 {problem.title}

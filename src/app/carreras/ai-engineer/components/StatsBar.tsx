@@ -5,19 +5,19 @@ const stats = [
     value: "#1",
     label: "puesto de mayor crecimiento",
     source: "LinkedIn 2025",
-    color: "text-[var(--secondary)]",
+    color: "text-[var(--primary)] dark:text-[var(--secondary)]",
   },
   {
     value: "26%",
     label: "crecimiento laboral proyectado",
     source: "BLS 2023–2033",
-    color: "text-amber-400",
+    color: "text-amber-600 dark:text-amber-400",
   },
   {
     value: "56%",
     label: "premium salarial IA",
     source: "PwC AI Jobs Barometer",
-    color: "text-rose-400",
+    color: "text-rose-600 dark:text-rose-400",
   },
 ];
 
@@ -29,7 +29,7 @@ export default function StatsBar() {
           {stats.map((stat) => (
             <article
               key={stat.label}
-              className="text-center p-8 rounded-2xl bg-[var(--card-background)] border border-border-color"
+              className="text-center p-8 rounded-2xl bg-[var(--card-background)] border border-border-color shadow-sm"
             >
               <span
                 className={`block text-5xl md:text-6xl font-extrabold ${stat.color} font-mono leading-none mb-3`}

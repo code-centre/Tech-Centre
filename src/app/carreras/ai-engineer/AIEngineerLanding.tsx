@@ -45,7 +45,10 @@ export default function AIEngineerLanding({ career }: AIEngineerLandingProps) {
       <MethodologySection />
       <IndustryDataSection />
       <SalaryTiers />
-      <InvestmentSection onEnroll={() => openEnrollment("career")} />
+      <InvestmentSection
+        onEnrollCareer={() => openEnrollment("career")}
+        onEnrollModule={(name) => openEnrollment("module", name)}
+      />
       <FAQSection />
       <VisionSection />
       <FinalCTA onEnroll={() => openEnrollment("career")} />
@@ -53,8 +56,7 @@ export default function AIEngineerLanding({ career }: AIEngineerLandingProps) {
       <EnrollmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        type={enrollmentType}
-        moduleName={selectedModule}
+        selectedModule={selectedModule}
         careerName={career.name}
       />
     </div>

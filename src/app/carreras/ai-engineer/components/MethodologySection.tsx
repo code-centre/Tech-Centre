@@ -31,7 +31,7 @@ const principles = [
 
 export default function MethodologySection() {
   return (
-    <section className="py-20 px-4 bg-[var(--card-background)]/50">
+    <section className="py-20 px-4 bg-[var(--bg-secondary)]">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
@@ -47,14 +47,14 @@ export default function MethodologySection() {
           {principles.map((p, i) => (
             <article
               key={p.title}
-              className="flex gap-5 p-6 rounded-2xl bg-background border border-border-color"
+              className="flex gap-5 p-6 rounded-2xl bg-[var(--card-background)] border border-border-color shadow-sm"
             >
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--secondary)]/10 border border-[var(--secondary)]/20 shrink-0">
-                <p.icon className="w-6 h-6 text-[var(--secondary)]" />
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--primary)]/10 dark:bg-[var(--secondary)]/12 border border-[var(--primary)]/25 dark:border-[var(--secondary)]/30 shrink-0">
+                <p.icon className="w-6 h-6 text-[var(--primary)] dark:text-[var(--secondary)]" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-text-primary mb-2">
-                  <span className="text-[var(--secondary)] font-mono mr-2">
+                  <span className="text-[var(--primary)] dark:text-[var(--secondary)] font-mono mr-2">
                     {i + 1}.
                   </span>
                   {p.title}
@@ -68,8 +68,8 @@ export default function MethodologySection() {
         </div>
 
         {/* Format table */}
-        <div className="rounded-2xl border border-border-color bg-background overflow-hidden">
-          <div className="px-6 py-4 border-b border-border-color bg-[var(--secondary)]/5">
+        <div className="rounded-2xl border border-border-color bg-[var(--card-background)] overflow-hidden shadow-sm">
+          <div className="px-6 py-4 border-b border-border-color bg-[var(--primary)]/8 dark:bg-[var(--secondary)]/10">
             <h3 className="font-bold text-text-primary">
               Formato y dedicación
             </h3>

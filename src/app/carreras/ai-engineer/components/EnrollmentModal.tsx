@@ -1,86 +1,32 @@
 "use client";
 
-import { useState, FormEvent, useEffect } from "react";
-import { X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { X, Loader2, CheckCircle } from "lucide-react";
 import { createCareerLead } from "../actions";
 
 interface EnrollmentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: "career" | "module";
-  moduleName: string | null;
+  selectedModule?: string | null;
   careerName: string;
 }
-
-interface FormData {
-  name: string;
-  email: string;
-  whatsapp: string;
-  intent: string;
-  message: string;
-  company: string;
-}
-
-interface FormErrors {
-  name?: string;
-  email?: string;
-  whatsapp?: string;
-  intent?: string;
-}
-
-const intents = [
-  "Quiero inscribirme en la carrera completa",
-  "Quiero inscribirme en un módulo individual",
-  "Quiero resolver dudas antes de pagar",
-  "Quiero conocer opciones de pago",
-];
 
 export default function EnrollmentModal({
   isOpen,
   onClose,
-  type,
-  moduleName,
+  selectedModule,
   careerName,
 }: EnrollmentModalProps) {
-  const [formData, setFormData] = useState<FormData>({
-    name: "",
-    email: "",
-    whatsapp: "",
-    intent:
-      type === "career"
-        ? "Quiero inscribirme en la carrera completa"
-        : "Quiero inscribirme en un módulo individual",
-    message: "",
-    company: "",
-  });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setFormData((prev) => ({
-        ...prev,
-        intent:
-          type === "career"
-            ? "Quiero inscribirme en la carrera completa"
-            : "Quiero inscribirme en un módulo individual",
-        message:
-          type === "module" && moduleName
-            ? `Me interesa el módulo: ${moduleName}`
-            : "",
-      }));
-      setIsSuccess(false);
-      setSubmitError(null);
-      setErrors({});
-    }
-  }, [isOpen, type, moduleName]);
-
-  useEffect(() => {
-    if (isOpen) {
+      dialogRef.current?.showModal();
       document.body.style.overflow = "hidden";
     } else {
+      dialogRef.current?.close();
       document.body.style.overflow = "";
     }
     return () => {
@@ -88,264 +34,161 @@ export default function EnrollmentModal({
     };
   }, [isOpen]);
 
-  const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    if (!formData.name.trim()) newErrors.name = "El nombre es requerido";
-
-    if (!formData.email.trim()) {
-      newErrors.email = "El correo es requerido";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Correo no válido";
-    }
-
-    if (!formData.whatsapp.trim()) {
-      newErrors.whatsapp = "El WhatsApp es requerido";
-    } else if (formData.whatsapp.replace(/\D/g, "").length < 8) {
-      newErrors.whatsapp = "Mínimo 8 dígitos";
-    }
-
-    if (!formData.intent.trim()) newErrors.intent = "Selecciona una opción";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!validate()) return;
+    setStatus("loading");
+    setErrorMsg("");
 
-    setIsLoading(true);
-    setSubmitError(null);
-
-    const result = await createCareerLead({
-      name: formData.name,
-      email: formData.email,
-      whatsapp: formData.whatsapp,
-      intent: formData.intent,
-      message: formData.message,
-      company: formData.company,
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      whatsapp: formData.get("whatsapp") as string,
+      intent: selectedModule
+        ? "Quiero inscribirme en un módulo individual"
+        : "Quiero inscribirme en la carrera completa",
       careerName,
-      moduleName: type === "module" ? moduleName : null,
-    });
+      moduleName: selectedModule || undefined,
+    };
 
-    setIsLoading(false);
-
-    if (result.success) {
-      setIsSuccess(true);
-    } else {
-      setSubmitError(
-        result.error || "No pudimos registrar tu cupo. Intenta de nuevo.",
-      );
+    try {
+      const result = await createCareerLead(data);
+      if (result.success) {
+        setStatus("success");
+      } else {
+        setStatus("error");
+        setErrorMsg(result.error || "Error al enviar. Inténtalo de nuevo.");
+      }
+    } catch {
+      setStatus("error");
+      setErrorMsg("Error de conexión. Inténtalo de nuevo.");
     }
-  };
+  }
+
+  function handleClose() {
+    setStatus("idle");
+    setErrorMsg("");
+    onClose();
+  }
 
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
+    <dialog
+      ref={dialogRef}
+      onClose={handleClose}
+      className="fixed inset-0 z-50 bg-transparent backdrop:bg-black/60 backdrop:backdrop-blur-sm p-4 m-auto max-w-lg w-full rounded-2xl"
     >
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-background border border-border-color shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-border-color bg-background rounded-t-2xl">
+      <div className="bg-[var(--card-background)] border border-border-color rounded-2xl shadow-2xl overflow-hidden">
+        {/* Header */}
+        <header className="flex items-center justify-between px-6 py-4 border-b border-border-color">
           <div>
-            <h3 className="text-lg font-bold text-text-primary">
-              {isSuccess
-                ? "Registro exitoso"
-                : type === "career"
-                  ? "Inscribirme en AI Engineer"
-                  : `Inscribirme: ${moduleName}`}
-            </h3>
-            {!isSuccess && (
-              <p className="text-xs text-text-muted mt-0.5">
-                Completa tus datos y nos pondremos en contacto
+            <h2 className="text-lg font-bold text-text-primary">
+              {selectedModule ? "Inscripción a módulo" : "Inscripción a la carrera"}
+            </h2>
+            {selectedModule && (
+              <p className="text-sm text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5">
+                {selectedModule}
               </p>
             )}
           </div>
           <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-[var(--card-background)] transition-colors cursor-pointer"
+            onClick={handleClose}
+            className="p-2 rounded-lg text-text-muted hover:bg-border-color/40 transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5 text-text-muted" />
+            <X className="w-5 h-5" />
           </button>
-        </div>
+        </header>
 
+        {/* Body */}
         <div className="p-6">
-          {isSuccess ? (
+          {status === "success" ? (
             <div className="text-center py-8">
-              <CheckCircle className="w-16 h-16 text-[var(--secondary)] mx-auto mb-4" />
-              <h4 className="text-xl font-bold text-text-primary mb-2">
-                ¡Tu cupo ha sido apartado!
-              </h4>
+              <CheckCircle className="w-16 h-16 text-[var(--primary)] dark:text-[var(--secondary)] mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-text-primary mb-2">
+                ¡Cupo apartado!
+              </h3>
               <p className="text-sm text-text-muted mb-6">
-                Nos pondremos en contacto contigo por WhatsApp para finalizar tu
-                inscripción.
+                Te contactaremos pronto por WhatsApp para confirmar tu
+                inscripción y darte los detalles de pago.
               </p>
               <button
-                onClick={onClose}
-                className="btn-primary px-8 py-3 rounded-lg font-medium cursor-pointer"
+                onClick={handleClose}
+                className="btn-primary px-8 py-3 font-semibold rounded-xl cursor-pointer"
               >
                 Cerrar
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Honeypot */}
-              <div className="absolute -left-[9999px]" aria-hidden="true">
-                <input
-                  type="text"
-                  name="company"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  value={formData.company}
-                  onChange={(e) =>
-                    setFormData({ ...formData, company: e.target.value })
-                  }
-                />
-              </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <p className="text-sm text-text-muted mb-2">
+                Aparta tu cupo y te contactamos por WhatsApp para completar tu
+                inscripción.
+              </p>
 
               <div>
                 <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-text-primary mb-1.5"
+                  htmlFor="enroll-name"
+                  className="block text-sm font-semibold text-text-primary mb-1.5"
                 >
-                  Nombre completo *
+                  Nombre completo
                 </label>
                 <input
-                  id="name"
+                  id="enroll-name"
+                  name="name"
                   type="text"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className={`w-full px-4 py-3 rounded-lg border bg-[var(--card-background)] text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/50 ${
-                    errors.name ? "border-red-500" : "border-border-color"
-                  }`}
+                  required
                   placeholder="Tu nombre"
+                  className="w-full px-4 py-3 rounded-lg bg-background border border-border-color text-text-primary placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 dark:focus:ring-[var(--secondary)]/50 focus:border-[var(--primary)] dark:focus:border-[var(--secondary)] transition-all"
                 />
-                {errors.name && (
-                  <p className="text-xs text-red-500 mt-1">{errors.name}</p>
-                )}
               </div>
 
               <div>
                 <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-text-primary mb-1.5"
+                  htmlFor="enroll-email"
+                  className="block text-sm font-semibold text-text-primary mb-1.5"
                 >
-                  Correo electrónico *
+                  Email
                 </label>
                 <input
-                  id="email"
+                  id="enroll-email"
+                  name="email"
                   type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className={`w-full px-4 py-3 rounded-lg border bg-[var(--card-background)] text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/50 ${
-                    errors.email ? "border-red-500" : "border-border-color"
-                  }`}
+                  required
                   placeholder="tu@email.com"
+                  className="w-full px-4 py-3 rounded-lg bg-background border border-border-color text-text-primary placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 dark:focus:ring-[var(--secondary)]/50 focus:border-[var(--primary)] dark:focus:border-[var(--secondary)] transition-all"
                 />
-                {errors.email && (
-                  <p className="text-xs text-red-500 mt-1">{errors.email}</p>
-                )}
               </div>
 
               <div>
                 <label
-                  htmlFor="whatsapp"
-                  className="block text-sm font-medium text-text-primary mb-1.5"
+                  htmlFor="enroll-whatsapp"
+                  className="block text-sm font-semibold text-text-primary mb-1.5"
                 >
-                  WhatsApp *
+                  WhatsApp
                 </label>
                 <input
-                  id="whatsapp"
+                  id="enroll-whatsapp"
+                  name="whatsapp"
                   type="tel"
-                  value={formData.whatsapp}
-                  onChange={(e) =>
-                    setFormData({ ...formData, whatsapp: e.target.value })
-                  }
-                  className={`w-full px-4 py-3 rounded-lg border bg-[var(--card-background)] text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/50 ${
-                    errors.whatsapp ? "border-red-500" : "border-border-color"
-                  }`}
-                  placeholder="3001234567"
-                />
-                {errors.whatsapp && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {errors.whatsapp}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="intent"
-                  className="block text-sm font-medium text-text-primary mb-1.5"
-                >
-                  ¿Qué te interesa? *
-                </label>
-                <select
-                  id="intent"
-                  value={formData.intent}
-                  onChange={(e) =>
-                    setFormData({ ...formData, intent: e.target.value })
-                  }
-                  className={`w-full px-4 py-3 rounded-lg border bg-[var(--card-background)] text-text-primary focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/50 ${
-                    errors.intent ? "border-red-500" : "border-border-color"
-                  }`}
-                >
-                  <option value="">Selecciona una opción</option>
-                  {intents.map((intent) => (
-                    <option key={intent} value={intent}>
-                      {intent}
-                    </option>
-                  ))}
-                </select>
-                {errors.intent && (
-                  <p className="text-xs text-red-500 mt-1">{errors.intent}</p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-text-primary mb-1.5"
-                >
-                  Mensaje (opcional)
-                </label>
-                <textarea
-                  id="message"
-                  rows={3}
-                  value={formData.message}
-                  onChange={(e) =>
-                    setFormData({ ...formData, message: e.target.value })
-                  }
-                  className="w-full px-4 py-3 rounded-lg border border-border-color bg-[var(--card-background)] text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-[var(--secondary)]/50 resize-none"
-                  placeholder="¿Alguna pregunta o comentario?"
+                  required
+                  placeholder="+57 300 123 4567"
+                  className="w-full px-4 py-3 rounded-lg bg-background border border-border-color text-text-primary placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 dark:focus:ring-[var(--secondary)]/50 focus:border-[var(--primary)] dark:focus:border-[var(--secondary)] transition-all"
                 />
               </div>
 
-              {submitError && (
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-500">{submitError}</p>
-                </div>
+              {errorMsg && (
+                <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+                  {errorMsg}
+                </p>
               )}
 
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full btn-primary py-4 rounded-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                disabled={status === "loading"}
+                className="btn-primary w-full inline-flex items-center justify-center gap-2 px-6 py-4 font-semibold rounded-xl disabled:opacity-60 cursor-pointer"
               >
-                {isLoading ? (
+                {status === "loading" ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
                     Enviando...
@@ -354,15 +197,10 @@ export default function EnrollmentModal({
                   "Apartar mi cupo"
                 )}
               </button>
-
-              <p className="text-[11px] text-text-muted/60 text-center">
-                Al enviar este formulario aceptas ser contactado por WhatsApp
-                sobre el programa AI Engineer de Tech Centre.
-              </p>
             </form>
           )}
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

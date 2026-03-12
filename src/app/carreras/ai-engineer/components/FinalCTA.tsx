@@ -8,35 +8,31 @@ interface FinalCTAProps {
 
 export default function FinalCTA({ onEnroll }: FinalCTAProps) {
   return (
-    <section className="py-24 px-4 bg-gradient-to-br from-[var(--primary)]/20 via-[var(--secondary)]/5 to-background">
+    <section className="py-20 px-4 bg-[var(--bg-secondary)]">
       <div className="max-w-3xl mx-auto text-center">
-        <p className="text-sm font-bold tracking-widest uppercase text-[var(--secondary)] mb-6 font-mono">
-          Tu siguiente paso
-        </p>
-
         <h2 className="text-3xl md:text-5xl font-extrabold text-text-primary mb-6 leading-tight">
-          El mercado de IA crece al 30% anual.
+          Tu futuro en IA empieza hoy
         </h2>
-
-        <div className="space-y-2 mb-10">
-          <p className="text-lg text-text-muted">
-            Hay 500,000+ vacantes abiertas globalmente.
-          </p>
-          <p className="text-lg text-text-muted">
-            Barranquilla puede ser parte de esa historia.
-          </p>
-          <p className="text-xl font-bold text-text-primary mt-4">
-            Tu siguiente paso empieza aquí.
-          </p>
-        </div>
+        <p className="text-lg text-text-muted mb-4 max-w-xl mx-auto">
+          No necesitas permiso, ni un título especial, ni años de experiencia.
+          Necesitas decidirte y empezar.
+        </p>
+        <p className="text-base text-text-muted mb-10 max-w-lg mx-auto">
+          25 semanas. 100+ horas de clase en vivo. Portafolio real. Comunidad
+          para toda la vida.
+        </p>
 
         <button
           onClick={onEnroll}
-          className="btn-primary inline-flex items-center gap-3 px-10 py-5 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+          className="btn-primary inline-flex items-center gap-2 px-10 py-5 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
         >
-          Inscribirme en AI Engineer
-          <ArrowRight className="w-6 h-6" />
+          Apartar mi cupo ahora
+          <ArrowRight className="w-5 h-5" />
         </button>
+
+        <p className="mt-6 text-sm text-text-muted">
+          Próximo inicio: Abril 2026 &middot; Cupos limitados
+        </p>
       </div>
     </section>
   );
