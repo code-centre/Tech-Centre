@@ -190,7 +190,8 @@ export default function CurriculumSection({
     const point = learningPoints.find((lp) =>
       lp.title.toLowerCase().includes(title.toLowerCase()),
     );
-    return point?.url;
+    const url = point?.url?.trim();
+    return url || undefined;
   };
 
   return (
