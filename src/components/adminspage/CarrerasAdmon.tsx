@@ -15,6 +15,10 @@ import {
   ChevronDown,
   ChevronUp,
   GraduationCap,
+  UserPlus,
+  Mail,
+  Phone,
+  Calendar,
 } from 'lucide-react';
 import Image from 'next/image';
 import { useSupabaseClient, useUser } from '@/lib/supabase';
@@ -54,6 +58,17 @@ const emptyForm = {
 
 type FormState = typeof emptyForm;
 
+interface CareerLead {
+  id: number;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  source: string;
+  stage: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -85,6 +100,9 @@ export default function CarrerasAdmon() {
 
   const [uploadingImage, setUploadingImage] = useState<'image' | 'hero_image' | null>(null);
 
+  const [leads, setLeads] = useState<CareerLead[]>([]);
+  const [leadsLoading, setLeadsLoading] = useState(true);
+
   const fetchCareers = useCallback(async () => {
     setLoading(true);
     const { data, error: fetchError } = await supabase
@@ -111,10 +129,25 @@ export default function CarrerasAdmon() {
     }
   }, [supabase]);
 
+  const fetchLeads = useCallback(async () => {
+    setLeadsLoading(true);
+    const { data, error: fetchError } = await supabase
+      .from('leads')
+      .select('id, full_name, email, phone, source, stage, notes, created_at')
+      .like('source', 'carrera_%')
+      .order('created_at', { ascending: false });
+
+    if (!fetchError && data) {
+      setLeads(data as CareerLead[]);
+    }
+    setLeadsLoading(false);
+  }, [supabase]);
+
   useEffect(() => {
     fetchCareers();
     fetchPrograms();
-  }, [fetchCareers, fetchPrograms]);
+    fetchLeads();
+  }, [fetchCareers, fetchPrograms, fetchLeads]);
 
   const handleEdit = (career: Career) => {
     setEditingId(career.id);
@@ -449,7 +482,7 @@ export default function CarrerasAdmon() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
@@ -484,6 +517,17 @@ export default function CarrerasAdmon() {
             </div>
             <div className="p-3 bg-text-muted/10 rounded-lg">
               <EyeOff className="text-text-muted" size={24} />
+            </div>
+          </div>
+        </div>
+        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-text-muted text-sm mb-1">Interesados</p>
+              <p className="text-3xl font-bold text-purple-400">{leads.length}</p>
+            </div>
+            <div className="p-3 bg-purple-500/10 rounded-lg">
+              <UserPlus className="text-purple-400" size={24} />
             </div>
           </div>
         </div>
@@ -1378,6 +1422,127 @@ export default function CarrerasAdmon() {
           </div>
         </div>
       )}
+
+      {/* Interesados en Carreras */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-purple-500/10 rounded-lg">
+            <UserPlus className="text-purple-400" size={24} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-text-primary">Interesados en Carreras</h2>
+            <p className="text-text-muted text-sm">
+              Personas que han registrado su interés desde las páginas de carreras
+            </p>
+          </div>
+        </div>
+
+        {leadsLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+          </div>
+        ) : leads.length === 0 ? (
+          <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-12 text-center">
+            <UserPlus className="w-12 h-12 text-text-muted mx-auto mb-3" />
+            <p className="text-text-muted">Aún no hay interesados registrados</p>
+          </div>
+        ) : (
+          <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-border-color">
+                <thead className="bg-bg-secondary/50 border-b border-border-color">
+                  <tr>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                      Nombre
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                      Teléfono
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                      Carrera
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                      Etapa
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                      Fecha
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-color bg-[var(--card-background)]">
+                  {leads.map((lead) => {
+                    let parsedNotes: { careerName?: string; moduleName?: string } = {};
+                    try {
+                      if (lead.notes) parsedNotes = JSON.parse(lead.notes);
+                    } catch { /* ignore parse errors */ }
+
+                    const stageLabels: Record<string, string> = {
+                      apartar: 'Apartar cupo',
+                      dudas: 'Resolver dudas',
+                      pagos: 'Opciones de pago',
+                    };
+
+                    return (
+                      <tr key={lead.id} className="hover:bg-bg-secondary/30 transition-colors">
+                        <td className="px-4 py-3">
+                          <p className="font-medium text-text-primary text-sm">{lead.full_name}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <a
+                            href={`mailto:${lead.email}`}
+                            className="inline-flex items-center gap-1.5 text-sm text-secondary hover:underline"
+                          >
+                            <Mail className="w-3.5 h-3.5" />
+                            {lead.email}
+                          </a>
+                        </td>
+                        <td className="px-4 py-3">
+                          {lead.phone ? (
+                            <span className="inline-flex items-center gap-1.5 text-sm text-text-muted">
+                              <Phone className="w-3.5 h-3.5" />
+                              {lead.phone}
+                            </span>
+                          ) : (
+                            <span className="text-sm text-text-muted">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-sm text-text-primary">
+                            {parsedNotes.careerName || lead.source.replace('carrera_', '').replace(/_/g, ' ')}
+                          </div>
+                          {parsedNotes.moduleName && (
+                            <p className="text-xs text-text-muted mt-0.5">
+                              Módulo: {parsedNotes.moduleName}
+                            </p>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                            {(lead.stage && stageLabels[lead.stage]) || lead.stage || '—'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center gap-1.5 text-sm text-text-muted">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {new Date(lead.created_at).toLocaleDateString('es-CO', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
