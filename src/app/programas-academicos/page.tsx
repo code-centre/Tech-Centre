@@ -18,11 +18,13 @@ const WHATSAPP_URL = 'https://wa.me/573005523872?text=Hola%2C%20quiero%20informa
 export default function ProgramasAcademicos() {
   return (
     <main className="min-h-screen">
+      
       <ProgramsList 
         fetchPrograms={true}
         showHeader={true}
         backgroundColor="bg-background"
       />
+      
       {/* Sección de asesoría */}
       <section className="py-16 px-4 bg-background">
         <div className="max-w-4xl mx-auto text-center">
