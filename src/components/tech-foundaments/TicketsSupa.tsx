@@ -16,7 +16,6 @@ interface ProgramData {
   kind: string;
   total_hours: number;
   default_price: number;
-  is_active: boolean;
   created_at: string;
   updated_at: string;
   image: string;

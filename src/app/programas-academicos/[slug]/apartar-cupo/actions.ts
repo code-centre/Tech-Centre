@@ -95,7 +95,6 @@ export async function createLead(
       .from('programs')
       .select('id')
       .eq('id', programId)
-      .eq('is_active', true)
       .single()
 
     if (programError || !program) {

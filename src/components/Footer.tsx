@@ -21,8 +21,7 @@ export function Footer() {
       try {
         const { data, error } = await supabase
           .from('programs')
-          .select('id, name, code, is_active')
-          .eq('is_active', true)
+          .select('id, name, code')
           .order('created_at', { ascending: false })
           .limit(6)
 

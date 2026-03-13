@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useSupabaseClient, useUser } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 import CardLoader from '@/components/loaders-skeletons/CardLoader'
 import ProgramCardOptimized from '@/components/ProgramCardOptimized'
 import type { Program } from '@/types/programs'
@@ -19,8 +19,6 @@ interface ProgramWithCohorts {
 
 export default function AcademicOffer() {
   const supabase = useSupabaseClient()
-  const { user } = useUser()
-  const isAdmin = user?.role === 'admin'
   
   const [programsWithCohorts, setProgramsWithCohorts] = useState<ProgramWithCohorts[]>([])
   const [loading, setLoading] = useState(true)
@@ -40,11 +38,6 @@ export default function AcademicOffer() {
             programs:program_id!inner (*)
           `)
           .eq('offering', true)
-        
-        // Si no es admin, solo mostrar programas activos
-        if (!isAdmin) {
-          query = query.eq('programs.is_active', true)
-        }
 
         // Ordenar por fecha de inicio de la cohorte (más próximas primero)
         query = query.order('start_date', { ascending: true })
@@ -62,11 +55,6 @@ export default function AcademicOffer() {
               : item.programs
             
             if (!program) return null
-            
-            // Filtrar programas activos si no es admin (por si acaso)
-            if (!isAdmin && !(program as Program).is_active) {
-              return null
-            }
             
             return {
               program: program as Program,
@@ -103,7 +91,7 @@ export default function AcademicOffer() {
     }
 
     fetchProgramsWithCohorts()
-  }, [isAdmin, supabase])
+  }, [supabase])
 
   return (
     <section id="programs" className="py-16 px-4 sm:px-6 bg-background grain-bg">

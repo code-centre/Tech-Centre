@@ -17,7 +17,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       .from('programs')
       .select('name, subtitle')
       .eq('code', slug)
-      .eq('is_active', true)
       .single()
 
     if (program && !error) {
@@ -51,7 +50,6 @@ export default async function ApartarCupoPage({ params }: Props) {
       .from('programs')
       .select('*')
       .eq('code', slug)
-      .eq('is_active', true)
       .single()
 
     if (programError || !program) {

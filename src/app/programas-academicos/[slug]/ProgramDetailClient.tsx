@@ -88,11 +88,9 @@ export default function ProgramDetailClient({
           return
         }
 
-        // Si no se encuentra, cargar todos los programas activos
         const { data: programs, error: programsError } = await supabase
           .from('programs')
           .select('*')
-          .eq('is_active', true)
           .order('created_at', { ascending: false })
 
         if (!programsError && programs) {
@@ -108,7 +106,6 @@ export default function ProgramDetailClient({
           const { data: programs } = await supabase
             .from('programs')
             .select('*')
-            .eq('is_active', true)
             .order('created_at', { ascending: false })
           
           if (programs) {

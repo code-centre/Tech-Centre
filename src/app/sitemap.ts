@@ -42,7 +42,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data: programs, error }: { data: Program[] | null, error: any } = await supabase
       .from('programs')
       .select('code, updated_at')
-      .eq('is_active', true)
       .order('updated_at', { ascending: false })
 
     if (!error && programs) {

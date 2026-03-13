@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Users, ArrowRight, CheckCircle2, GraduationCap, Zap } from 'lucide-react'
+import { MapPin, Users, CheckCircle2, GraduationCap, Zap, ArrowRight } from 'lucide-react'
 import type { Program } from '@/types/programs'
 import type { Cohort } from '@/types/cohorts'
 import { formatDate } from '@/utils/formatDate'
@@ -43,21 +43,19 @@ const getProgramBadge = (program: Program): { label: string; icon: React.ReactNo
 
 // Estilos de card según tipo de programa
 const getCardStyles = (type: ProgramType) => {
-  const baseStyles = 'rounded-xl border overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full'
+  const baseStyles = 'group block rounded-xl border overflow-hidden transition-all duration-500 ease-out hover:shadow-2xl hover:-translate-y-1.5 flex flex-col h-full cursor-pointer'
   
   if (type === 'diplomado') {
-    // Diplomado: mayor peso visual, se adapta al tema
     return {
-      card: `${baseStyles} [background-color:var(--card-diplomado-bg)] [border-color:var(--card-diplomado-border)] hover:border-secondary/60 hover:shadow-secondary/25`,
+      card: `${baseStyles} [background-color:var(--card-diplomado-bg)] [border-color:var(--card-diplomado-border)] hover:border-secondary/60 hover:shadow-secondary/20`,
       inner: '',
       badge: 'bg-secondary/20 text-white border-secondary/40 dark:bg-secondary/20 dark:text-secondary dark:border-secondary/40',
       imageOverlay: 'bg-linear-to-t from-transparent via-transparent to-[var(--card-diplomado-bg)]/40'
     }
   }
   
-  // Curso corto: sensación de accesibilidad, se adapta al tema
   return {
-    card: `${baseStyles} [background-color:var(--card-curso-bg)] [border-color:var(--card-curso-border)] hover:border-secondary/50 hover:shadow-secondary/20`,
+    card: `${baseStyles} [background-color:var(--card-curso-bg)] [border-color:var(--card-curso-border)] hover:border-secondary/50 hover:shadow-secondary/15`,
     inner: '',
     badge: 'bg-emerald-500/20 text-emerald-500 border-emerald-500/40 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/40',
     imageOverlay: 'bg-linear-to-t from-transparent via-transparent to-[var(--card-curso-bg)]/40'
@@ -171,14 +169,14 @@ export default function ProgramCardOptimized({ program, cohorts }: ProgramCardPr
   const scheduleDays = getScheduleDays(cohort)
   
   return (
-    <div className={styles.card}>
+    <Link href={`/programas-academicos/${slug}`} className={styles.card}>
       {/* Imagen del programa con badge */}
       <div className="relative h-48 overflow-hidden bg-bg-secondary">
         <Image
           src={program.image || '/placeholder-course.jpg'}
           alt={program.name || 'Programa'}
           fill
-          className="object-cover transition-transform duration-500 hover:scale-105"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <div className={`absolute inset-0 ${styles.imageOverlay}`} />
@@ -244,25 +242,12 @@ export default function ProgramCardOptimized({ program, cohorts }: ProgramCardPr
           </div>
         </div>
 
-        {/* CTAs */}
-        <div className="flex flex-col gap-2 mt-auto">
-          <Link
-            href={hasMultipleSchedules
-              ? `/programas-academicos/${slug}`
-              : `/checkout?slug=${slug}&cohortId=${cohort.id}`}
-            className="group flex items-center justify-center gap-2 px-4 py-3 bg-secondary text-white font-semibold rounded-lg hover:bg-secondary/90 dark:bg-(--secondary) dark:hover:bg-[#1A8F9D] transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-secondary/30 dark:shadow-secondary/40 dark:hover:shadow-secondary/50 transform hover:-translate-y-0.5 active:scale-[0.98] btn-primary"
-          >
-            <span>Quiero inscribirme</span>
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <Link
-            href={`/programas-academicos/${slug}`}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 card-text-primary font-medium rounded-lg border card-border-subtle hover:border-secondary/50 hover:bg-white/5 dark:hover:bg-white/5 transition-all duration-300"
-          >
-            <span>Ver detalles</span>
-          </Link>
+        {/* CTA indicator */}
+        <div className="mt-auto flex items-center justify-between pt-3 border-t card-border-subtle">
+          <span className="text-sm font-semibold text-secondary">Ver detalles</span>
+          <ArrowRight className="h-4 w-4 text-secondary transition-transform duration-300 group-hover:translate-x-1.5" />
         </div>
       </div>
-    </div>
+    </Link>
   )
 }

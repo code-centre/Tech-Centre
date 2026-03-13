@@ -20,7 +20,6 @@ export function ProgramCard({
   date: propDate,
   slug: propSlug,
   eventData,
-  isActive: propIsActive,
 }: ProgramCardProps) {
   const title = eventData?.title || eventData?.name || propTitle || '';
   const subtitle = eventData?.subtitle || propSubtitle || '';
@@ -36,8 +35,7 @@ export function ProgramCard({
   const slug = eventData?.slug || propSlug || '';
   
 
-  const isActiveStatus = propIsActive || 
-                        eventData?.isActive || 
+  const isActiveStatus = eventData?.isActive || 
                         eventData?.status === 'draft' || 
                         eventData?.status === 'Borrador';
 

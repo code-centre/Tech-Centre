@@ -73,28 +73,29 @@ export default function EnrollmentModal({
 
   if (!isOpen) return null;
 
+  const inputClasses =
+    "w-full px-4 py-3 rounded-lg border border-border-color text-text-primary dark:text-white placeholder:text-text-muted dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary transition-all [background-color:var(--background)] dark:bg-[#2d3d4f]";
+
   return (
     <dialog
       ref={dialogRef}
       onClose={handleClose}
       className="fixed inset-0 z-50 bg-transparent backdrop:bg-black/60 backdrop:backdrop-blur-sm p-4 m-auto max-w-lg w-full rounded-2xl"
     >
-      <div className="bg-[var(--card-background)] border border-border-color rounded-2xl shadow-2xl overflow-hidden">
+      <div className="rounded-2xl shadow-2xl overflow-hidden bg-[var(--card-background)] border border-border-color">
         {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 border-b border-border-color">
           <div>
-            <h2 className="text-lg font-bold text-text-primary">
+            <h2 className="text-lg font-bold text-text-primary dark:text-white">
               {selectedModule ? "Inscripción a módulo" : "Inscripción a la carrera"}
             </h2>
             {selectedModule && (
-              <p className="text-sm text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5">
-                {selectedModule}
-              </p>
+              <p className="text-sm text-secondary mt-0.5">{selectedModule}</p>
             )}
           </div>
           <button
             onClick={handleClose}
-            className="p-2 rounded-lg text-text-muted hover:bg-border-color/40 transition-colors cursor-pointer"
+            className="p-2 rounded-lg text-text-muted dark:text-gray-300 hover:bg-bg-secondary transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -104,11 +105,11 @@ export default function EnrollmentModal({
         <div className="p-6">
           {status === "success" ? (
             <div className="text-center py-8">
-              <CheckCircle className="w-16 h-16 text-[var(--primary)] dark:text-[var(--secondary)] mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-text-primary mb-2">
+              <CheckCircle className="w-16 h-16 text-secondary mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-text-primary dark:text-white mb-2">
                 ¡Cupo apartado!
               </h3>
-              <p className="text-sm text-text-muted mb-6">
+              <p className="text-sm text-text-muted dark:text-gray-300 mb-6">
                 Te contactaremos pronto por WhatsApp para confirmar tu
                 inscripción y darte los detalles de pago.
               </p>
@@ -121,7 +122,7 @@ export default function EnrollmentModal({
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
-              <p className="text-sm text-text-muted mb-2">
+              <p className="text-sm text-text-muted dark:text-gray-300">
                 Aparta tu cupo y te contactamos por WhatsApp para completar tu
                 inscripción.
               </p>
@@ -129,7 +130,7 @@ export default function EnrollmentModal({
               <div>
                 <label
                   htmlFor="enroll-name"
-                  className="block text-sm font-semibold text-text-primary mb-1.5"
+                  className="block text-sm font-semibold text-text-primary dark:text-white mb-1.5"
                 >
                   Nombre completo
                 </label>
@@ -139,14 +140,14 @@ export default function EnrollmentModal({
                   type="text"
                   required
                   placeholder="Tu nombre"
-                  className="w-full px-4 py-3 rounded-lg bg-background border border-border-color text-text-primary placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 dark:focus:ring-[var(--secondary)]/50 focus:border-[var(--primary)] dark:focus:border-[var(--secondary)] transition-all"
+                  className={inputClasses}
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="enroll-email"
-                  className="block text-sm font-semibold text-text-primary mb-1.5"
+                  className="block text-sm font-semibold text-text-primary dark:text-white mb-1.5"
                 >
                   Email
                 </label>
@@ -156,14 +157,14 @@ export default function EnrollmentModal({
                   type="email"
                   required
                   placeholder="tu@email.com"
-                  className="w-full px-4 py-3 rounded-lg bg-background border border-border-color text-text-primary placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 dark:focus:ring-[var(--secondary)]/50 focus:border-[var(--primary)] dark:focus:border-[var(--secondary)] transition-all"
+                  className={inputClasses}
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="enroll-whatsapp"
-                  className="block text-sm font-semibold text-text-primary mb-1.5"
+                  className="block text-sm font-semibold text-text-primary dark:text-white mb-1.5"
                 >
                   WhatsApp
                 </label>
@@ -173,14 +174,12 @@ export default function EnrollmentModal({
                   type="tel"
                   required
                   placeholder="+57 300 123 4567"
-                  className="w-full px-4 py-3 rounded-lg bg-background border border-border-color text-text-primary placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 dark:focus:ring-[var(--secondary)]/50 focus:border-[var(--primary)] dark:focus:border-[var(--secondary)] transition-all"
+                  className={inputClasses}
                 />
               </div>
 
               {errorMsg && (
-                <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                  {errorMsg}
-                </p>
+                <p className="text-sm text-red-600 font-medium">{errorMsg}</p>
               )}
 
               <button

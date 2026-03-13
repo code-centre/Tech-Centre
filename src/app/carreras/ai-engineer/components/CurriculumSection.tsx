@@ -9,6 +9,8 @@ import {
   BrainCircuit,
   Cloud,
   ArrowRight,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 interface CurriculumSectionProps {
@@ -124,6 +126,8 @@ function ModuleCard({
   onEnroll: () => void;
   learningUrl?: string;
 }) {
+  const [topicsOpen, setTopicsOpen] = useState(false);
+
   return (
     <article className="flex flex-col p-6 rounded-xl bg-[var(--card-background)] border border-border-color hover:border-[var(--primary)]/50 dark:hover:border-[var(--secondary)]/50 transition-colors shadow-sm">
       <div className="flex items-center gap-3 mb-4">
@@ -144,17 +148,37 @@ function ModuleCard({
         </span>
       </div>
 
-      <ul className="space-y-2 mb-6 flex-1">
-        {mod.topics.map((topic, i) => (
-          <li
-            key={i}
-            className="flex items-start gap-2 text-sm text-text-muted"
-          >
-            <span className="text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5">•</span>
-            {topic}
-          </li>
-        ))}
-      </ul>
+      {/* Acordeón de temas */}
+      <div className="mb-6 flex-1">
+        <button
+          type="button"
+          onClick={() => setTopicsOpen(!topicsOpen)}
+          className="w-full flex items-center justify-between py-2 text-left rounded-lg hover:bg-[var(--primary)]/5 dark:hover:bg-[var(--secondary)]/5 transition-colors cursor-pointer"
+          aria-expanded={topicsOpen}
+        >
+          <span className="text-sm font-semibold text-text-primary">
+            Temas del módulo
+          </span>
+          {topicsOpen ? (
+            <ChevronUp className="w-4 h-4 text-[var(--primary)] dark:text-[var(--secondary)] shrink-0" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-text-muted shrink-0" />
+          )}
+        </button>
+        {topicsOpen && (
+          <ul className="space-y-2 pt-2 pl-1">
+            {mod.topics.map((topic, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-2 text-sm text-text-muted"
+              >
+                <span className="text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5">•</span>
+                {topic}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <div className="flex flex-col sm:flex-row gap-2 mt-auto">
         <button

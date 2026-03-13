@@ -19,7 +19,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       .from('programs')
       .select('*')
       .eq('code', slug)
-      .eq('is_active', true)
       .single()
 
     if (program && !error) {
@@ -53,7 +52,6 @@ export default async function DetailCourse({ params, searchParams }: Props) {
       .from('programs')
       .select('*')
       .eq('code', slug)
-      .eq('is_active', true)
       .single()
 
     if (supabaseProgram && !error) {

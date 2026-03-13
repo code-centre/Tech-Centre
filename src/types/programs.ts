@@ -48,7 +48,6 @@ export interface Program {
   difficulty?: DifficultyLevel;
   total_hours?: number;
   default_price?: number;
-  is_active: boolean;
   created_at: string;
   updated_at: string;
   image: string;
@@ -85,7 +84,6 @@ export interface ProgramCardProps {
   heroImage?: string;
   date?: string;
   slug?: string;
-  isActive?: boolean;
   eventData?: any;
 }
 

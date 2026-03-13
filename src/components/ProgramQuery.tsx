@@ -17,7 +17,6 @@ function ProgramQuery({ onProgramsLoaded }: { onProgramsLoaded: (programs: any[]
         const { data: programs, error } = await supabase
           .from('programs')
           .select('*')
-          .eq('is_active', true)  // Solo programas activos
           .order('created_at', { ascending: false });
 
         if (error) {

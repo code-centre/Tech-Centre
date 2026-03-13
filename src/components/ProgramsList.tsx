@@ -103,11 +103,6 @@ export function ProgramsList({
             programs:program_id!inner (*)
           `)
           .eq('offering', true)
-        
-        // Si no es admin, solo mostrar programas activos
-        if (!isAdmin) {
-          query = query.eq('programs.is_active', true)
-        }
 
         // Ordenar por fecha de inicio de la cohorte (más próximas primero)
         query = query.order('start_date', { ascending: true })
@@ -125,11 +120,6 @@ export function ProgramsList({
               : item.programs
             
             if (!program) return null
-            
-            // Filtrar programas activos si no es admin (por si acaso)
-            if (!isAdmin && !(program as Program).is_active) {
-              return null
-            }
             
             return {
               program: program as Program,
@@ -167,7 +157,7 @@ export function ProgramsList({
     }
 
     fetchProgramsWithCohorts()
-  }, [isAdmin, supabase])
+  }, [supabase])
 
   // Manejar la creación de nuevos programas - refrescar desde Supabase
   const handleProgramCreate = async (newProgram: Program) => {
@@ -275,10 +265,8 @@ export function ProgramsList({
             ) : programsWithCohorts.length > 0 ? (
               horizontalScroll ? (
                 <>
-                  {/* Modo scroll horizontal: todos los programas activos en una fila */}
                   <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
                     {programsWithCohorts
-                      .filter(item => item.program.is_active) // Solo programas activos
                       .map(({ program, cohorts }) => (
                         <div key={program.id} className="shrink-0 w-[350px]">
                           <ProgramCardOptimized

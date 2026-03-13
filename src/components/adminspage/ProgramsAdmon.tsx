@@ -15,7 +15,6 @@ type Program = {
   kind: string;
   total_hours: number;
   default_price: number;
-  is_active: boolean;
   created_at: string;
   updated_at: string;
   audience?: string;
@@ -182,7 +181,6 @@ export default function ProgramsAdmon() {
           .insert([
             {
               ...baseData,
-              is_active: false,
               syllabus: {},
               image: null,
               description: null,

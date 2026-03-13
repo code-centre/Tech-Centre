@@ -66,15 +66,6 @@ export default function ProgramHeader({ program }: ProgramHeaderProps) {
               )}
             </div>
             <div className="flex flex-wrap gap-2">
-              <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                  program.is_active
-                    ? 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30'
-                    : 'bg-gray-500/20 text-text-muted border border-border-color'
-                }`}
-              >
-                {program.is_active ? 'Activo' : 'Inactivo'}
-              </span>
               {program.kind && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-secondary/20 text-secondary border border-secondary/30 capitalize">
                   {program.kind}

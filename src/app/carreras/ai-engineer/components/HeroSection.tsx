@@ -48,7 +48,7 @@ export default function HeroSection({ onEnroll }: HeroSectionProps) {
                 Ruta Python
               </span>
               <span className="text-sm text-text-primary">
-                AI Engineer &middot; Agentes, RAG, Google ADK
+                AI Engineer &middot; APIs, Backend & Datos 
               </span>
             </div>
             <span className="text-text-muted font-bold text-sm">o</span>

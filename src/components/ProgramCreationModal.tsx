@@ -69,7 +69,6 @@ export default function ProgramCreationModal({ isOpen, onClose, onProgramCreate 
         difficulty,
         total_hours: totalHours ? parseInt(totalHours, 10) : 0,
         default_price: defaultPrice ? parseFloat(defaultPrice) : 0,
-        is_active: true,
         syllabus: {},
         image: null,
         schedule: null,
