@@ -322,7 +322,7 @@ export default function ResumenSection({
         throw new Error('No se encontraron datos del programa. Por favor, intenta nuevamente.')
       }
 
-      const requiredFields = ['name', 'subtitle', 'kind']
+      const requiredFields = ['name', 'kind']
       const missingFields = requiredFields.filter((field) => !data[field as keyof Program])
 
       if (missingFields.length > 0) {
