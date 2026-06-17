@@ -1,178 +1,112 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import Link from 'next/link'
-import { MapPin, Phone, Mail, Facebook, InstagramIcon } from 'lucide-react'
 import Image from 'next/image'
+import { MapPin, Phone, Mail, Facebook, InstagramIcon, MessageCircle } from 'lucide-react'
 import { LinkedInIcon } from './Icons'
-import { useSupabaseClient } from '@/lib/supabase'
-import type { Program } from '@/types/programs'
+import EcosistemaStrip from './landing/EcosistemaStrip'
+import { CONTACT } from './landing/data'
 
-interface FooterProps {
-  slug?: string;
-  programasEducativos?: Program[];
-}
+const navLinks = [
+  { href: '/programas', label: 'Programas' },
+  { href: '/metodologia', label: 'Cómo aprendes' },
+  { href: '/comunidad', label: 'Comunidad' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/nosotros', label: 'Nosotros' },
+  { href: '/empleabilidad', label: 'Empleabilidad' },
+  { href: '/inversion', label: 'Inversión' },
+  { href: '/faq', label: 'FAQ' },
+]
+
 export function Footer() {
-  const supabase = useSupabaseClient()
-  const [programs, setPrograms] = useState<Program[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchPrograms = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('programs')
-          .select('id, name, code')
-          .order('created_at', { ascending: false })
-          .limit(6)
-
-        if (error) throw error
-
-        setPrograms(data as Program[] || [])
-      } catch (err) {
-        console.error('Error cargando programas para el footer:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchPrograms()
-  }, [supabase])
-
   return (
-    <footer className="relative z-40 card-background text-text-primary py-8 border-t border-border-color">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Tech Centre Column */}
-          <div>
-            <h3 className="font-bold text-secondary mb-4 flex items-center">
-              <Image
-                src="/tech-center-logos/logo-primary.png"
-                alt="Tech Centre Logo"
-                width={100}
-                height={100}
-                className="mr-2"
-              />
-            </h3>
-            <p className="text-sm text-text-muted mb-4">
-              Formamos a los profesionales tech del futuro con programas prácticos y actualizados.
+    <footer
+      className="landing-v2 relative z-40"
+      style={{ background: 'var(--ink)', backgroundImage: 'none' }}
+    >
+      <EcosistemaStrip />
+
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-12">
+          {/* Marca */}
+          <div className="md:col-span-5">
+            <Image
+              src="/tech-center-logos/logo-blanco-extendido.png"
+              alt="Tech Centre"
+              width={170}
+              height={42}
+              className="h-10 w-auto"
+            />
+            <p className="lv2-display mt-5 max-w-xs text-lg text-[var(--paper)]">
+              Despierta el genio tech que llevas dentro.{' '}
+              <span className="lv2-mint">Desde el Caribe hacia el futuro.</span>
             </p>
-            <div className="flex space-x-4">
-              <a href="https://www.facebook.com/profile.php?id=100092748068869" className="text-text-primary hover:text-secondary transition-colors">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="https://www.instagram.com/techcentre.co/" className="text-text-primary hover:text-secondary transition-colors">
+            <div className="mt-6 flex gap-3">
+              <a href={CONTACT.social.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] text-[var(--soft)] transition-colors hover:border-[var(--mint)] hover:text-[var(--mint)]">
                 <InstagramIcon className="h-5 w-5" />
               </a>
-              <a href="https://www.linkedin.com/company/tech-centrebaq/" className="text-text-primary hover:text-secondary transition-colors">
+              <a href={CONTACT.social.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] text-[var(--soft)] transition-colors hover:border-[var(--mint)] hover:text-[var(--mint)]">
                 <LinkedInIcon className="h-5 w-5" />
-              </a> 
+              </a>
+              <a href={CONTACT.social.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] text-[var(--soft)] transition-colors hover:border-[var(--mint)] hover:text-[var(--mint)]">
+                <Facebook className="h-5 w-5" />
+              </a>
             </div>
           </div>
 
-          {/* Enlaces rápidos Column */}
-          <div>
-            <h3 className="font-bold text-text-primary mb-4">Enlaces rápidos</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/#quienes-somos" className="text-text-muted hover:text-secondary text-sm transition-colors">
-                  Quiénes somos
-                </Link>
-              </li>
-              <li>
-                <Link href="/#cursos" className="text-text-muted hover:text-secondary text-sm transition-colors">
-                  Oferta académica
-                </Link>
-              </li>
-              <li>
-                <Link href="/#testimonios" className="text-text-muted hover:text-secondary text-sm transition-colors">
-                  Testimonios
-                </Link>
-              </li>              
-              <li>
-                <div className="text-text-muted opacity-50 cursor-not-allowed text-sm">
-                  Noticias
-                </div>
-              </li>
-              <li>
-                <div className="text-text-muted opacity-50 cursor-not-allowed text-sm">
-                  Preguntas frecuentes
-                </div>
-              </li>
+          {/* Navegar */}
+          <nav className="md:col-span-3" aria-label="Navegación del pie de página">
+            <h2 className="lv2-mono mb-4">Navegar</h2>
+            <ul className="space-y-2.5">
+              {navLinks.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="text-sm lv2-soft transition-colors hover:text-[var(--mint)]">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
-          {/* Programas Column */}
-          <div>
-            <h3 className="font-bold text-text-primary mb-4">Programas y cursos</h3>
-            {loading ? (
-              <ul className="space-y-2">
-                <li className="text-text-muted text-sm">Cargando programas...</li>
-              </ul>
-            ) : programs.length > 0 ? (
-              <ul className="space-y-2">
-                {programs.map((programa) => (
-                  <li key={programa.id}>
-                    <Link 
-                      href={`/programas-academicos/${programa.slug || programa.code}`} 
-                      className="text-text-muted hover:text-secondary text-sm transition-colors"
-                    >
-                      {programa.name}
-                    </Link>
-                  </li>
-                ))}
-                <li>
-                  <Link 
-                    href="/programas-academicos" 
-                    className="text-text-muted hover:text-secondary text-sm font-medium transition-colors"
-                  >
-                    Ver todos →
-                  </Link>
-                </li>
-              </ul>
-            ) : (
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/programas-academicos" className="text-text-muted hover:text-secondary text-sm transition-colors">
-                    Ver programas
-                  </Link>
-                </li>
-              </ul>
-            )}
-          </div>
+          </nav>
 
-          {/* Contacto Column */}
-          <div id="contacto">
-            <h3 className="font-bold text-text-primary mb-4">Contacto</h3>
+          {/* Contacto */}
+          <div className="md:col-span-4">
+            <h2 className="lv2-mono mb-4">Contacto</h2>
             <ul className="space-y-4">
-              <li className="flex items-start">
-                <MapPin className="h-5 w-5 text-secondary mr-2 mt-0.5" />
-                <span className="text-text-muted text-sm">
-                  Cra. 50 # 72-126, Centro Histórico, Barranquilla
-                </span>
+              <li className="flex items-start gap-3">
+                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[var(--mint)]" aria-hidden="true" />
+                <span className="text-sm lv2-soft">{CONTACT.address}</span>
               </li>
-              <li className="flex items-center">
-                <Phone className="h-5 w-5 text-secondary mr-2" />
-                <a href="tel:+573003234567" className="text-text-muted hover:text-secondary text-sm transition-colors">
-                  +57 300 552 3872
+              <li className="flex items-center gap-3">
+                <Phone className="h-5 w-5 shrink-0 text-[var(--mint)]" aria-hidden="true" />
+                <a href={`tel:+${CONTACT.whatsapp}`} className="text-sm lv2-soft transition-colors hover:text-[var(--mint)]">
+                  {CONTACT.phone}
                 </a>
               </li>
-              <li className="flex items-center">
-                <Mail className="h-5 w-5 text-secondary mr-2" />
-                <a href="mailto:info@techcentre.edu.co" className="text-text-muted hover:text-secondary text-sm transition-colors">
-                  admisiones@techcentre.co
+              <li className="flex items-center gap-3">
+                <Mail className="h-5 w-5 shrink-0 text-[var(--mint)]" aria-hidden="true" />
+                <a href={`mailto:${CONTACT.email}`} className="text-sm lv2-soft transition-colors hover:text-[var(--mint)]">
+                  {CONTACT.email}
+                </a>
+              </li>
+              <li>
+                <a href={CONTACT.whatsappUrl} target="_blank" rel="noopener noreferrer" className="lv2-btn-secondary mt-1 inline-flex text-sm">
+                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                  WhatsApp
                 </a>
               </li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-border-color mt-8 pt-6 text-center text-text-muted text-sm">
-          <p>© 2025 · Tech Centre. Todos los derechos reservados.</p>
-          <div className="flex flex-wrap justify-center items-center gap-3 mt-3">
-            <Link href="/terminos-y-condiciones" className="hover:text-secondary transition-colors">
-              Términos y Condiciones
+
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-[var(--line)] pt-6 text-sm lv2-mute sm:flex-row">
+          <p>© 2026 · Tech Centre. Todos los derechos reservados.</p>
+          <div className="flex items-center gap-4">
+            <Link href="/terminos-y-condiciones" className="transition-colors hover:text-[var(--mint)]">
+              Términos
             </Link>
-            <span className="text-text-muted">|</span>
-            <Link href="/aviso-de-privacidad" className="hover:text-secondary transition-colors">
-              Aviso de Privacidad
+            <span aria-hidden="true">·</span>
+            <Link href="/aviso-de-privacidad" className="transition-colors hover:text-[var(--mint)]">
+              Privacidad
             </Link>
           </div>
         </div>

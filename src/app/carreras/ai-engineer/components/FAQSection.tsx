@@ -6,27 +6,27 @@ import { ChevronDown } from "lucide-react";
 const faqs = [
   {
     q: "¿Necesito saber programar para entrar?",
-    a: "No. El módulo 0 (Fundamentos Tech) empieza desde cero con Terminal, Git y entorno de desarrollo. El módulo 1 te enseña programación desde los conceptos más básicos. Solo necesitas computador, internet y disposición real de aprender.",
+    a: "No. La Etapa 1 (Fundamentos) empieza desde cero: pensamiento computacional, terminal, Git y programación desde los conceptos más básicos. Solo necesitas computador, internet y disposición real de aprender.",
   },
   {
-    q: "¿Qué ruta debo elegir, Python o JavaScript?",
-    a: "Si tu objetivo es AI/ML Engineering, investigación o data science → elige Python. Si quieres ser Full Stack Developer que integra IA en productos web → elige JavaScript. Ambas rutas convergen en los módulos 3 y 4 donde aprenderás IA aplicada y cloud.",
+    q: "¿Qué ruta debo elegir, Web o Datos?",
+    a: "Si quieres construir productos con IA que la gente usa todos los días (interfaces, apps) → Ruta Web · Construye, con TypeScript, React y Next.js. Si te atrae entender los datos y construir sistemas que razonan sobre información → Ruta de Datos · Revela, con Python, FastAPI y pipelines. Ambas rutas son independientes y completas, y comparten las etapas de IA aplicada y despliegue seguro.",
   },
   {
-    q: "¿Puedo trabajar mientras estudio?",
-    a: "Sí, el programa está diseñado para personas que trabajan. Requiere ~9–12 horas/semana: 4 horas de clase presencial + 5–8 horas de práctica autónoma. Es exigente pero compatible con un empleo full-time.",
+    q: "¿Ya tengo experiencia en web o datos, puedo saltarme lo básico?",
+    a: "Sí. Si ya programas, puedes unirte directamente en la Etapa 3 · IA aplicada tras una breve validación de nivel, y enfocarte en agentes, RAG, evals y despliegue.",
   },
   {
-    q: "¿Puedo tomar un solo módulo?",
-    a: "Sí, cada módulo funciona como un curso independiente con su propio proyecto y certificado. El módulo 3 (IA Aplicada) y el 4 (Cloud) requieren conocimientos previos de programación equivalentes a los módulos 1 y 2.",
+    q: "¿Cuánto tiempo me toma y cuántas horas a la semana?",
+    a: "Cada ruta dura 6 meses, de cero al perfil. Son 18 horas a la semana: 6 horas presenciales en el centro (Barranquilla) + 12 horas virtuales de práctica y proyecto guiado. Cada ruta se cursa por separado.",
   },
   {
-    q: "¿Qué pasa si me atraso o no puedo asistir a una clase?",
-    a: "Todas las clases se graban y están disponibles en la plataforma. Tienes acceso al canal de soporte y a sesiones semanales de Q&A para ponerte al día. Si necesitas pausar, puedes retomar en la siguiente cohorte.",
+    q: "¿Puedo tomar una sola etapa?",
+    a: "Sí, cada etapa entrega algo real y desplegado. La Etapa 3 (IA aplicada) y la Etapa 4 (Despliegue seguro) requieren conocimientos previos equivalentes a las etapas 1 y 2 de tu ruta.",
   },
   {
     q: "¿Qué voy a tener al terminar?",
-    a: "Un portafolio en GitHub con proyectos reales desplegados, certificado de Tech Centre de Costa Digital, acceso permanente a la comunidad, y las habilidades técnicas para aplicar a roles de AI/ML Engineer, Full Stack AI Developer o empezar tu propio proyecto.",
+    a: "Un portafolio de productos reales desplegados, certificado de Tech Centre, acceso a la comunidad de egresados, y el perfil que la industria busca: Ingeniero de Aplicaciones de IA (AI Product / Full-Stack Engineer en Web, o AI Application Engineer · datos).",
   },
   {
     q: "¿Hay garantía de empleo?",
@@ -34,7 +34,7 @@ const faqs = [
   },
   {
     q: "¿Cuáles son las formas de pago?",
-    a: "Módulos individuales: pago único antes del inicio. Carrera completa ($2,500,000 COP): pago único, 3 cuotas o 6 cuotas. Aceptamos transferencia bancaria, tarjeta de crédito y Nequi/Daviplata.",
+    a: "Etapas individuales: pago único antes del inicio. Ruta completa ($3,600,000 COP): pago único, 3 cuotas de $1,200,000 o 6 cuotas de $600,000. Aceptamos transferencia bancaria, tarjeta de crédito y Nequi/Daviplata.",
   },
 ];
 
@@ -45,7 +45,7 @@ export default function FAQSection() {
     <section className="py-20 px-4 bg-[var(--bg-secondary)]">
       <div className="max-w-3xl mx-auto">
         <header className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
+          <h2 className="font-highlight text-3xl md:text-5xl font-extrabold text-text-primary mb-4">
             Preguntas frecuentes
           </h2>
         </header>

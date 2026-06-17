@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
   Terminal,
-  Code2,
   Globe,
+  Database,
   BrainCircuit,
-  Cloud,
+  ShieldCheck,
   ArrowRight,
   ChevronDown,
   ChevronUp,
+  Sparkles,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface CurriculumSectionProps {
   learningPoints: Array<{ title: string; url?: string }>;
@@ -19,112 +20,203 @@ interface CurriculumSectionProps {
   onEnrollModule: (moduleName: string) => void;
 }
 
-type Route = "python" | "javascript";
+type Route = "web" | "datos";
 
-const sharedFoundation = {
-  icon: Terminal,
-  badge: "Compartido",
-  title: "Fundamentos Tech",
-  duration: "1 semana",
-  price: "$200,000",
-  topics: ["Terminal", "Git", "GitHub", "Entorno de desarrollo"],
-};
+interface ModuleData {
+  icon: LucideIcon;
+  stage: string;
+  title: string;
+  summary: string;
+  topics: string[];
+}
 
-const routeModules: Record<
-  Route,
-  { mod1: typeof sharedFoundation; mod2: typeof sharedFoundation }
-> = {
-  python: {
-    mod1: {
-      icon: Code2,
-      badge: "Ruta Python",
-      title: "1A · Python & Programación",
-      duration: "6 semanas",
-      price: "$600,000",
-      topics: [
-        "Variables, funciones, datos",
-        "Pandas, Matplotlib, Jupyter",
-        "Consumo de APIs públicas",
-      ],
-    },
-    mod2: {
-      icon: Globe,
-      badge: "Ruta Python",
-      title: "2A · APIs, Backend & Datos",
-      duration: "6 semanas",
-      price: "$600,000",
-      topics: [
-        "APIs REST con FastAPI y Pydantic",
-        "SQLite/SQLAlchemy, Docker",
-        "Primera integración con LLM",
-      ],
-    },
-  },
-  javascript: {
-    mod1: {
-      icon: Code2,
-      badge: "Ruta JavaScript",
-      title: "1B · JavaScript & Programación",
-      duration: "6 semanas",
-      price: "$600,000",
-      topics: [
-        "Variables, funciones, async/await",
-        "Node.js, npm, intro TypeScript",
-        "Consumo de APIs públicas",
-      ],
-    },
-    mod2: {
-      icon: Globe,
-      badge: "Ruta JavaScript",
-      title: "2B · React & Full Stack",
-      duration: "6 semanas",
-      price: "$600,000",
-      topics: [
-        "React, Tailwind CSS, Next.js",
-        "Node.js backend, Prisma ORM",
-        "App full stack desplegada",
-      ],
-    },
-  },
-};
+interface RouteData {
+  label: string;
+  tagline: string;
+  perfil: string;
+  forWho: string;
+  build: string;
+  stack: string[];
+  modules: ModuleData[];
+}
 
-const sharedAdvanced = [
-  {
-    icon: BrainCircuit,
-    badge: "Ambas rutas",
-    title: "3 · IA Aplicada: Agentes con Google ADK",
-    duration: "6 semanas",
-    price: "$800,000",
-    topics: [
-      "Prompt engineering, function calling",
-      "RAG (Retrieval Augmented Generation)",
-      "Google Agent Development Kit",
-      "Agentes multi-step, guardrails",
+const routeData: Record<Route, RouteData> = {
+  web: {
+    label: "Ruta Web · Construye",
+    tagline: "Construye lo que se ve.",
+    perfil: "AI Product / Full-Stack Engineer",
+    forWho:
+      "Quieres construir productos con IA que la gente usa todos los días. Vienes del mundo web, o quieres entrar por esa puerta.",
+    build:
+      "Aplicaciones web modernas con agentes de IA embebidos: interfaces que conversan, asisten y deciden, desplegadas y reales.",
+    stack: [
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Vercel AI SDK",
+      "SQL",
+      "Docker",
+      "structured outputs",
+      "function calling",
+      "agentes",
+      "RAG",
+      "guardrails",
+      "evals · observabilidad",
+    ],
+    modules: [
+      {
+        icon: Terminal,
+        stage: "Etapa 1",
+        title: "Fundamentos",
+        summary: "Programar desde cero.",
+        topics: [
+          "Pensamiento computacional y lógica",
+          "Terminal y línea de comandos",
+          "Git y GitHub",
+          "JavaScript: variables, flujo, funciones, estructuras",
+          "Debugging y buenas prácticas",
+          "IA como copiloto desde el día 1",
+        ],
+      },
+      {
+        icon: Globe,
+        stage: "Etapa 2",
+        title: "Desarrollo web",
+        summary: "React, Next.js, APIs y bases de datos.",
+        topics: [
+          "HTML, CSS y diseño responsivo",
+          "JavaScript a profundidad → TypeScript",
+          "React y Next.js",
+          "SQL y bases de datos (Prisma)",
+          "APIs REST: consumir y construir",
+          "Autenticación, Docker y despliegue (Vercel)",
+          "CI con GitHub Actions",
+        ],
+      },
+      {
+        icon: BrainCircuit,
+        stage: "Etapa 3",
+        title: "IA aplicada",
+        summary: "Agentes user-facing, RAG y evals.",
+        topics: [
+          "Harness y context engineering",
+          "LLMs en la app + streaming UX (Vercel AI SDK)",
+          "Structured outputs y validación (Zod)",
+          "Function/tool calling e idempotencia",
+          "Agentes: guardrails, límites y terminación",
+          "RAG embebido y model routing",
+          "Evals, observabilidad (Langfuse) y prompt injection",
+        ],
+      },
+      {
+        icon: ShieldCheck,
+        stage: "Etapa 4",
+        title: "Despliegue seguro",
+        summary: "Servidores, nube vs. local y seguridad.",
+        topics: [
+          "Del local a producción: cómo desplegar tu app con IA",
+          "Servicios gestionados vs. nube vs. servidor propio",
+          "Modelos por API vs. modelos locales (Ollama, vLLM)",
+          "Cuándo usar cada uno: costo, latencia y privacidad",
+          "Contenedores en producción (Docker) y CI/CD",
+          "Seguridad: secrets, variables de entorno, HTTPS y permisos",
+          "Monitoreo, logs y control de costos",
+        ],
+      },
     ],
   },
-  {
-    icon: Cloud,
-    badge: "Ambas rutas",
-    title: "4 · Cloud & Despliegue",
-    duration: "6 semanas",
-    price: "$800,000",
-    topics: [
-      "Docker, GCP/AWS o Vercel",
-      "CI/CD con GitHub Actions",
-      "Proyecto integrador",
-      "Demo Day",
+  datos: {
+    label: "Ruta de Datos · Revela",
+    tagline: "Revela el patrón.",
+    perfil: "AI Application Engineer · datos",
+    forWho:
+      "Te atrae entender los datos, automatizar y construir sistemas que razonan sobre información. Entras por la puerta de los datos.",
+    build:
+      "Agentes que razonan sobre datos y bases de conocimiento: pipelines, RAG y sistemas que convierten información en respuestas confiables.",
+    stack: [
+      "Python",
+      "FastAPI",
+      "PostgreSQL",
+      "pandas",
+      "Airflow",
+      "Docker",
+      "RAG · pgvector",
+      "Qdrant",
+      "Pydantic AI",
+      "LangGraph",
+      "retrieval evals",
+      "MLflow",
+    ],
+    modules: [
+      {
+        icon: Terminal,
+        stage: "Etapa 1",
+        title: "Fundamentos",
+        summary: "Programar desde cero.",
+        topics: [
+          "Pensamiento computacional y lógica",
+          "Terminal y línea de comandos",
+          "Git y GitHub",
+          "Python: variables, flujo, funciones, estructuras",
+          "Debugging y buenas prácticas",
+          "IA como copiloto desde el día 1",
+        ],
+      },
+      {
+        icon: Database,
+        stage: "Etapa 2",
+        title: "Ingeniería de datos",
+        summary: "SQL, FastAPI, pipelines y análisis.",
+        topics: [
+          "Python sólido",
+          "SQL y PostgreSQL (antes que APIs)",
+          "Docker desde temprano",
+          "APIs con FastAPI y Pydantic",
+          "Pipelines: Airflow, dbt, DuckDB/BigQuery",
+          "Estadística (antes que visualización)",
+          "EDA y visualización con Streamlit",
+        ],
+      },
+      {
+        icon: BrainCircuit,
+        stage: "Etapa 3",
+        title: "IA aplicada",
+        summary: "Agentes sobre conocimiento, RAG y evals.",
+        topics: [
+          "Harness y context engineering",
+          "LLMs y RAG primero: chunking, embeddings, hybrid search, reranking",
+          "Vector DB: pgvector y Qdrant",
+          "Agentes sobre datos: Pydantic AI, LangGraph, MCP",
+          "Retrieval evals: recall, grounding y citación",
+          "Evals (LLM-as-judge), observabilidad y costo (Langfuse)",
+          "ML clásico después: scikit-learn, XGBoost, MLflow",
+        ],
+      },
+      {
+        icon: ShieldCheck,
+        stage: "Etapa 4",
+        title: "Despliegue seguro",
+        summary: "Servidores, nube vs. local y seguridad.",
+        topics: [
+          "Del local a producción: cómo desplegar tu agente de datos",
+          "Servicios gestionados vs. nube vs. servidor propio",
+          "Modelos por API vs. modelos locales (Ollama, vLLM)",
+          "Cuándo usar cada uno: costo, latencia y privacidad",
+          "Contenedores en producción (Docker) y CI/CD",
+          "Seguridad: secrets, variables de entorno, HTTPS y permisos",
+          "Monitoreo, logs y control de costos",
+        ],
+      },
     ],
   },
-];
+};
 
 function ModuleCard({
   mod,
   onEnroll,
-  learningUrl,
 }: {
-  mod: typeof sharedFoundation;
+  mod: ModuleData;
   onEnroll: () => void;
-  learningUrl?: string;
 }) {
   const [topicsOpen, setTopicsOpen] = useState(false);
 
@@ -135,18 +227,12 @@ function ModuleCard({
           <mod.icon className="w-5 h-5 text-[var(--primary)] dark:text-[var(--secondary)]" />
         </div>
         <span className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
-          {mod.badge}
+          {mod.stage}
         </span>
       </div>
 
       <h4 className="text-lg font-bold text-text-primary mb-1">{mod.title}</h4>
-      <div className="flex items-center gap-3 text-sm text-text-muted mb-4">
-        <span>{mod.duration}</span>
-        <span className="text-border-color">&middot;</span>
-        <span className="font-semibold text-[var(--primary)] dark:text-[var(--secondary)]">
-          {mod.price}
-        </span>
-      </div>
+      <p className="text-sm text-text-muted mb-4">{mod.summary}</p>
 
       {/* Acordeón de temas */}
       <div className="mb-6 flex-1">
@@ -157,7 +243,7 @@ function ModuleCard({
           aria-expanded={topicsOpen}
         >
           <span className="text-sm font-semibold text-text-primary">
-            Temas del módulo
+            Qué vas a aprender
           </span>
           {topicsOpen ? (
             <ChevronUp className="w-4 h-4 text-[var(--primary)] dark:text-[var(--secondary)] shrink-0" />
@@ -172,7 +258,9 @@ function ModuleCard({
                 key={i}
                 className="flex items-start gap-2 text-sm text-text-muted"
               >
-                <span className="text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5">•</span>
+                <span className="text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5">
+                  •
+                </span>
                 {topic}
               </li>
             ))}
@@ -180,55 +268,43 @@ function ModuleCard({
         )}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-2 mt-auto">
+      <div className="mt-auto">
         <button
           onClick={onEnroll}
-          className="btn-primary inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all cursor-pointer"
+          className="btn-primary inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all cursor-pointer w-full sm:w-auto"
         >
           Inscribirme
           <ArrowRight className="w-4 h-4" />
         </button>
-        {learningUrl && (
-          <Link
-            href={`/programas-academicos/${learningUrl}`}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium border-2 border-border-color rounded-lg hover:border-[var(--primary)] dark:hover:border-[var(--secondary)] hover:bg-[var(--primary)]/8 dark:hover:bg-[var(--secondary)]/10 text-text-primary transition-all"
-          >
-            Ver curso
-          </Link>
-        )}
       </div>
     </article>
   );
 }
 
 export default function CurriculumSection({
-  learningPoints,
   onEnrollCareer,
   onEnrollModule,
 }: CurriculumSectionProps) {
-  const [activeRoute, setActiveRoute] = useState<Route>("python");
-
-  const currentModules = routeModules[activeRoute];
-
-  const getUrlForModule = (title: string): string | undefined => {
-    const point = learningPoints.find((lp) =>
-      lp.title.toLowerCase().includes(title.toLowerCase()),
-    );
-    const url = point?.url?.trim();
-    return url || undefined;
-  };
+  const [activeRoute, setActiveRoute] = useState<Route>("web");
+  const current = routeData[activeRoute];
 
   return (
     <section id="programa" className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-            ¿Qué vas a aprender?
+          <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-3 font-mono">
+            De 0 a la industria
+          </p>
+          <h2 className="font-highlight text-3xl md:text-5xl font-extrabold text-text-primary mb-4">
+            Dos rutas paralelas.{" "}
+            <span className="text-[var(--primary)] dark:text-[var(--secondary)]">
+              Un mismo destino.
+            </span>
           </h2>
           <p className="text-lg text-text-muted max-w-2xl mx-auto">
-            Elige tu ruta según tu objetivo profesional. Los módulos 1 y 2 se
-            ofrecen en dos versiones. Los módulos 3 y 4 cubren los mismos
-            conceptos de IA, adaptados a tu ruta.
+            Mismo viaje, dos mundos. Eliges por dónde entrar: por lo que se ve,
+            o por lo que esconden los datos. Cada ruta es independiente y
+            completa por sí sola.
           </p>
         </header>
 
@@ -236,99 +312,111 @@ export default function CurriculumSection({
         <div className="flex justify-center mb-10">
           <div className="inline-flex p-1.5 rounded-xl bg-[var(--card-background)] border border-border-color shadow-sm">
             <button
-              onClick={() => setActiveRoute("python")}
+              onClick={() => setActiveRoute("web")}
               className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-                activeRoute === "python"
+                activeRoute === "web"
                   ? "bg-[var(--primary)]/12 dark:bg-[var(--secondary)]/15 text-[var(--primary)] dark:text-[var(--secondary)] shadow-sm"
                   : "text-text-muted hover:text-text-primary"
               }`}
             >
-              Ruta Python
+              Ruta Web · Construye
             </button>
             <button
-              onClick={() => setActiveRoute("javascript")}
+              onClick={() => setActiveRoute("datos")}
               className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-                activeRoute === "javascript"
+                activeRoute === "datos"
                   ? "bg-[var(--primary)]/12 dark:bg-[var(--secondary)]/15 text-[var(--primary)] dark:text-[var(--secondary)] shadow-sm"
                   : "text-text-muted hover:text-text-primary"
               }`}
             >
-              Ruta JavaScript
+              Ruta de Datos · Revela
             </button>
           </div>
         </div>
 
-        {/* Foundation */}
-        <div className="mb-8">
-          <p className="text-xs font-bold tracking-widest uppercase text-text-muted mb-4 font-mono">
-            Punto de entrada
-          </p>
-          <div className="max-w-md">
-            <ModuleCard
-              mod={sharedFoundation}
-              onEnroll={() => onEnrollModule(sharedFoundation.title)}
-              learningUrl={getUrlForModule("Fundamentos")}
-            />
+        {/* Route overview */}
+        <div className="grid md:grid-cols-2 gap-6 mb-10">
+          <div className="p-6 rounded-2xl bg-[var(--card-background)] border border-border-color shadow-sm">
+            <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-2 font-mono">
+              Para quién
+            </p>
+            <p className="text-sm text-text-muted leading-relaxed mb-5">
+              {current.forWho}
+            </p>
+            <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-2 font-mono">
+              Qué vas a construir
+            </p>
+            <p className="text-sm text-text-muted leading-relaxed">
+              {current.build}
+            </p>
+          </div>
+          <div className="p-6 rounded-2xl bg-[var(--primary)]/8 dark:bg-[var(--secondary)]/10 border border-[var(--primary)]/25 dark:border-[var(--secondary)]/30 shadow-sm">
+            <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-3 font-mono">
+              El stack del oficio
+            </p>
+            <ul className="flex flex-wrap gap-2 mb-6">
+              {current.stack.map((tech) => (
+                <li
+                  key={tech}
+                  className="text-xs font-medium text-text-primary bg-[var(--card-background)] border border-border-color px-2.5 py-1 rounded-full"
+                >
+                  {tech}
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center gap-2 pt-4 border-t border-[var(--primary)]/20 dark:border-[var(--secondary)]/25">
+              <Sparkles className="w-4 h-4 text-[var(--primary)] dark:text-[var(--secondary)] shrink-0" />
+              <p className="text-sm text-text-primary">
+                Perfil al egresar:{" "}
+                <strong className="font-semibold">{current.perfil}</strong>
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Route-specific modules */}
+        {/* Stages */}
         <div className="mb-8">
           <p className="text-xs font-bold tracking-widest uppercase text-text-muted mb-4 font-mono">
-            Módulos de ruta &middot;{" "}
-            {activeRoute === "python" ? "Python" : "JavaScript"}
+            Cuatro etapas · {current.label} · 6 meses · 18 h/sem
           </p>
-          <div className="grid md:grid-cols-2 gap-6">
-            <ModuleCard
-              mod={currentModules.mod1}
-              onEnroll={() => onEnrollModule(currentModules.mod1.title)}
-              learningUrl={getUrlForModule(
-                activeRoute === "python" ? "Python" : "JavaScript",
-              )}
-            />
-            <ModuleCard
-              mod={currentModules.mod2}
-              onEnroll={() => onEnrollModule(currentModules.mod2.title)}
-              learningUrl={getUrlForModule(
-                activeRoute === "python" ? "Backend" : "web",
-              )}
-            />
-          </div>
-        </div>
-
-        {/* Shared advanced */}
-        <div className="mb-10">
-          <p className="text-xs font-bold tracking-widest uppercase text-text-muted mb-4 font-mono">
-            Módulos avanzados &middot; Ambas rutas
-          </p>
-          <div className="grid md:grid-cols-2 gap-6">
-            {sharedAdvanced.map((mod) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {current.modules.map((mod) => (
               <ModuleCard
                 key={mod.title}
                 mod={mod}
-                onEnroll={() => onEnrollModule(mod.title)}
-                learningUrl={getUrlForModule(
-                  mod.title.includes("IA") ? "Agentes" : "Cloud",
-                )}
+                onEnroll={() =>
+                  onEnrollModule(`${current.label} · ${mod.title}`)
+                }
               />
             ))}
           </div>
         </div>
 
+        {/* Already coding note */}
+        <div className="mb-10 flex items-start gap-3 p-5 rounded-xl bg-[var(--card-background)] border border-border-color shadow-sm">
+          <Sparkles className="w-5 h-5 text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5 shrink-0" />
+          <p className="text-sm text-text-muted leading-relaxed">
+            <strong className="text-text-primary">¿Ya programas?</strong> Si
+            tienes experiencia en web o datos, puedes unirte directamente en la{" "}
+            <strong className="text-text-primary">Etapa 3 · IA aplicada</strong>
+            , tras una breve validación de nivel.
+          </p>
+        </div>
+
         {/* Career CTA */}
         <div className="text-center p-8 rounded-2xl bg-[var(--primary)]/8 dark:bg-[var(--secondary)]/10 border border-[var(--primary)]/25 dark:border-[var(--secondary)]/30">
           <p className="text-lg font-bold text-text-primary mb-2">
-            Toma la carrera completa o solo los módulos que necesitas
+            Toma la ruta completa o solo la etapa que necesitas
           </p>
           <p className="text-sm text-text-muted mb-6">
-            Cada módulo funciona como un curso independiente con su propio
-            proyecto y certificado.
+            Cada etapa entrega algo real y desplegado. Terminas con portafolio,
+            no con apuntes.
           </p>
           <button
             onClick={onEnrollCareer}
             className="btn-primary inline-flex items-center gap-2 px-8 py-4 font-semibold rounded-xl cursor-pointer"
           >
-            Inscribirme en la carrera completa
+            Inscribirme en la ruta completa
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>

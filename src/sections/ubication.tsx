@@ -51,7 +51,7 @@ export function Ubication() {
             <header className="mb-8">
               <h2 
                 id="ubication-heading"
-                className="text-3xl md:text-4xl font-bold text-white mb-3"
+                className="font-highlight text-3xl md:text-5xl font-extrabold text-white mb-3"
               >
                 Visítanos en Barranquilla
               </h2>

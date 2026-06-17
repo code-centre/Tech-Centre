@@ -56,7 +56,7 @@ export default function Reviews() {
     <section className="py-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-secondary">Lo que dicen nuestros estudiantes</h2>
+          <h2 className="font-highlight text-3xl md:text-5xl font-extrabold text-secondary">Lo que dicen nuestros estudiantes</h2>
           <p className="mt-4 text-lg text-text-primary">
             Historias reales de personas que decidieron aprender tecnología en Tech Centre
           </p>

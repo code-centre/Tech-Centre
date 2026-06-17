@@ -96,7 +96,7 @@ export default async function CareerPage({ params }: CareerPageProps) {
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
+              <h1 className="font-highlight text-4xl md:text-6xl font-extrabold text-text-primary mb-6 leading-tight">
                 {career.name}
               </h1>
 

@@ -112,7 +112,7 @@ export default function Testimonials({ backgroundColor }: Props) {
           </div>
           <div className=" self-center flex flex-col gap-6">
             <div>
-              <h2 className="text-2xl md:text-4xl font-semibold text-text-primary">
+              <h2 className="font-highlight text-2xl md:text-4xl font-extrabold text-text-primary">
                 Escucha los testimonios
               </h2>
               <h3 className="text-4xl md:text-5xl font-semibold text-secondary">

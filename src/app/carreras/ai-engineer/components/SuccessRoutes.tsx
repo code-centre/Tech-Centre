@@ -68,12 +68,12 @@ export default function SuccessRoutes() {
     <section className="py-20 px-4 bg-[var(--bg-secondary)]">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-            Rutas de éxito: ¿Para quién es este programa?
+          <h2 className="font-highlight text-3xl md:text-5xl font-extrabold text-text-primary mb-4">
+            ¿Para quién es este programa?
           </h2>
           <p className="text-lg text-text-muted max-w-2xl mx-auto">
             No todos llegan con el mismo background ni persiguen la misma meta.
-            Por eso diseñamos rutas diferenciadas para cada perfil.
+            Elijas la Ruta Web o la de Datos, este es tu punto de partida.
           </p>
         </header>
 

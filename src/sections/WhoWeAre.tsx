@@ -35,7 +35,7 @@ export function WhoWeAre() {
       </div>
       <div className="relative z-10 mx-auto px-4 sm:px-6 max-w-7xl">
         <header className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Aquí se forma el talento tech del Caribe</h2>
+          <h2 className="font-highlight text-3xl md:text-5xl font-extrabold mb-4 text-white">Aquí se forma el talento tech del Caribe</h2>
           <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">Personas reales, aprendiendo y construyendo tecnología para el mundo real.</p>
         </header>
         

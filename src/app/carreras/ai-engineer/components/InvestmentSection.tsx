@@ -8,15 +8,14 @@ interface InvestmentSectionProps {
 }
 
 const modules = [
-  { name: "0 · Fundamentos Tech", price: 200000, duration: "1 sem" },
-  { name: "1 · Lenguaje & Programación", price: 600000, duration: "6 sem" },
-  { name: "2 · Backend & Datos", price: 600000, duration: "6 sem" },
-  { name: "3 · IA Aplicada: Agentes", price: 800000, duration: "6 sem" },
-  { name: "4 · Cloud & Despliegue", price: 800000, duration: "6 sem" },
+  { name: "Etapa 1 · Fundamentos", price: 800000, duration: "Programar desde cero" },
+  { name: "Etapa 2 · Especialidad (Web o Datos)", price: 1100000, duration: "Desarrollo web / Ing. de datos" },
+  { name: "Etapa 3 · IA aplicada", price: 1300000, duration: "Agentes, RAG y evals" },
+  { name: "Etapa 4 · Despliegue seguro", price: 1200000, duration: "Servidores, nube y seguridad" },
 ];
 
 const totalIndividual = modules.reduce((sum, m) => sum + m.price, 0);
-const careerPrice = 2500000;
+const careerPrice = 3600000;
 
 function fmt(n: number) {
   return "$" + n.toLocaleString("es-CO");
@@ -30,12 +29,12 @@ export default function InvestmentSection({
     <section className="py-20 px-4">
       <div className="max-w-5xl mx-auto">
         <header className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
+          <h2 className="font-highlight text-3xl md:text-5xl font-extrabold text-text-primary mb-4">
             Inversión
           </h2>
           <p className="text-lg text-text-muted max-w-2xl mx-auto">
-            Puedes tomar un módulo individual o inscribirte en la carrera
-            completa con descuento.
+            Puedes tomar una etapa individual o inscribirte en la ruta completa
+            (Web o Datos) con descuento.
           </p>
         </header>
 
@@ -44,10 +43,10 @@ export default function InvestmentSection({
           <div className="rounded-2xl border border-border-color bg-[var(--card-background)] overflow-hidden shadow-sm">
             <div className="px-6 py-4 border-b border-border-color">
               <h3 className="text-lg font-bold text-text-primary">
-                Módulos individuales
+                Etapas individuales
               </h3>
               <p className="text-sm text-text-muted mt-1">
-                Toma solo los que necesites
+                Toma solo las que necesites
               </p>
             </div>
             <div className="divide-y divide-border-color">
@@ -98,10 +97,10 @@ export default function InvestmentSection({
           <div className="rounded-2xl border-2 border-[var(--primary)] dark:border-[var(--secondary)] bg-[var(--card-background)] overflow-hidden shadow-lg">
             <div className="px-6 pt-6 pb-4 border-b border-border-color">
               <h3 className="text-lg font-bold text-text-primary">
-                Carrera completa
+                Ruta completa
               </h3>
               <p className="text-sm text-text-muted mt-1">
-                5 módulos + beneficios exclusivos
+                4 etapas · 6 meses + beneficios exclusivos
               </p>
               <div className="mt-4 flex items-baseline gap-3">
                 <span className="text-4xl font-extrabold text-text-primary font-mono">
@@ -119,11 +118,11 @@ export default function InvestmentSection({
               </p>
               <ul className="space-y-3 mb-6">
                 {[
-                  "Los 5 módulos completos (25 semanas)",
-                  "Proyecto integrador con Demo Day",
-                  "Certificado de carrera de Tech Centre",
-                  "Acceso a la comunidad Costa Digital",
-                  "Sesiones de Q&A semanales",
+                  "Las 4 etapas completas (6 meses, 18 h/sem)",
+                  "Mentoría presencial en Barranquilla",
+                  "Proyectos reales y portafolio desplegado",
+                  "Certificado de Tech Centre",
+                  "Comunidad de egresados que no te suelta",
                   "Plan de pago en 3 o 6 cuotas",
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
@@ -137,13 +136,13 @@ export default function InvestmentSection({
                 onClick={onEnrollCareer}
                 className="btn-primary w-full inline-flex items-center justify-center gap-2 px-6 py-4 font-semibold rounded-xl cursor-pointer"
               >
-                Inscribirme en la carrera
+                Inscribirme en la ruta
                 <ArrowRight className="w-5 h-5" />
               </button>
 
               <p className="text-center text-xs text-text-muted mt-4">
-                Planes de pago: 3 cuotas de {fmt(850000)} o
-                6 cuotas de {fmt(475000)}
+                Planes de pago: 3 cuotas de {fmt(1200000)} o
+                6 cuotas de {fmt(600000)}
               </p>
             </div>
           </div>

@@ -1,49 +1,41 @@
 import type { Metadata } from "next";
-import Testimonials from "@/sections/Testimonials";
-import { WhoWeAre } from "@/sections/WhoWeAre";
-import Reviews from "@/sections/Reviews";
-import NoticiasSection from "@/sections/Noticias";
-import { Ubication } from "@/sections/ubication";
-import HeroCarrusel from "@/components/HeroCarrusel";
-import { AliadosSection } from '@/components/aliadosSection';
-import HowYouLearn from "@/sections/HowYouLearn";
-import AcademicOffer from "@/sections/AcademicOffer";
 import { LocalBusinessSchema } from "@/components/seo/StructuredData";
+import Hero from "@/components/landing/sections/Hero";
+import Manifiesto from "@/components/landing/sections/Manifiesto";
+import ComoAprendes from "@/components/landing/sections/ComoAprendes";
+import Experiencia from "@/components/landing/sections/Experiencia";
+import Rutas from "@/components/landing/sections/Rutas";
+import ParaQuien from "@/components/landing/sections/ParaQuien";
+import SiPuedes from "@/components/landing/sections/SiPuedes";
+import Testimonios from "@/components/landing/sections/Testimonios";
+import PrensaAliados from "@/components/landing/sections/PrensaAliados";
+import Visitanos from "@/components/landing/sections/Visitanos";
+import CtaFinal from "@/components/landing/sections/CtaFinal";
 
 export const metadata: Metadata = {
-  title: "Tech Centre - Centro de Tecnología del Caribe | Educación Tech de Vanguardia",
-  description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia. Cursos de inteligencia artificial, análisis de datos, Python, JavaScript, React, diseño y más.",
+  title:
+    "Tech Centre - Despierta el genio tech que llevas dentro | Centro de Tecnología del Caribe",
+  description:
+    "Aprende a construir con inteligencia artificial, de cero al perfil que la industria busca. Clases presenciales en Barranquilla, dos rutas (Web y Datos), acompañándote paso a paso.",
   keywords: [
     "centro tecnología Caribe",
     "cursos programación Barranquilla",
-    "diplomados tech Colombia",
-    "educación tecnológica vanguardia",
-    "formación tech Caribe",
-    "aprender tecnología Barranquilla",
-    "cursos tecnología calidad",
     "inteligencia artificial",
+    "AI Engineer",
+    "ingeniero de aplicaciones de IA",
+    "agentes IA",
     "análisis de datos",
     "python",
-    "javascript",
     "react",
-    "diseño",
-    "figma",
-    "agentes IA",
-    "machine learning",
-    "data science",
+    "next.js",
     "desarrollo web",
-    "programación python",
-    "desarrollo react",
-    "diseño UI/UX",
-    "análisis datos python",
-    "inteligencia artificial Colombia",
-    "cursos python Barranquilla",
-    "cursos react Caribe",
-    "diseño figma Barranquilla",
+    "formación tech Caribe",
+    "clases presenciales Barranquilla",
   ],
   openGraph: {
-    title: "Tech Centre - Centro de Tecnología del Caribe | Educación Tech de Vanguardia",
-    description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
+    title: "Tech Centre - Despierta el genio tech que llevas dentro",
+    description:
+      "Aprende a construir con inteligencia artificial, de cero al perfil que la industria busca. Presencial, en el Caribe, acompañándote paso a paso.",
     type: "website",
     images: [
       {
@@ -58,27 +50,19 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <>
+    <div className="landing-v2">
       <LocalBusinessSchema />
-      <HeroCarrusel 
-        className="w-full z-10 rounded-lg mt-12"
-      />
-      <HowYouLearn />
-      <div id="quienes-somos">
-        <WhoWeAre />
-      </div>
-      <div id="programs">
-        <AcademicOffer />
-      </div>
-      <div id="ubicacion">
-        <Ubication />
-      </div>
-      <div id="testimonios">
-        <Reviews />
-      </div>
-      <Testimonials />
-      <NoticiasSection/>
-      <AliadosSection />      
-    </>
+      <Hero />
+      <Manifiesto />
+      <ComoAprendes />
+      <Experiencia />
+      <Rutas />
+      <ParaQuien />
+      <SiPuedes />
+      <Testimonios />
+      <PrensaAliados />
+      <Visitanos />
+      <CtaFinal />
+    </div>
   );
 }

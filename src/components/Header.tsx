@@ -5,22 +5,15 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, GraduationCap, Newspaper, CalendarDays, UserCog, Shield } from "lucide-react"
 import { useRouter } from 'next/navigation'
 import { useUser, useSupabaseClient } from '@/lib/supabase'
-import ProgramQuery from "./ProgramQuery"
 import { ThemeToggle } from "./ThemeToggle"
-import type { Program } from '@/types/programs'
 
 export default function Header() {
   const { user, loading: loadingUser } = useUser()
   const supabase = useSupabaseClient()
   const router = useRouter()
-  const [supabasePrograms, setSupabasePrograms] = useState<Program[]>([])
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [mobileDropdown, setMobileDropdown] = useState<string | null>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
-
-  const handleProgramsLoaded = useCallback((programs: Program[]) => {
-    setSupabasePrograms(programs)
-  }, [])
 
   const handleSignOut = async () => {
     console.log('Cerrando sesión')
@@ -60,8 +53,6 @@ export default function Header() {
   return (
     <>
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0E1116]/80 backdrop-blur-sm shadow-lg border-b border-[#374151]">
-      <ProgramQuery onProgramsLoaded={handleProgramsLoaded} />
-
       <div className="max-w-7xl mx-auto container px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex-shrink-0">
@@ -75,108 +66,46 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-12 text-lg">
-            {/* Programas Dropdown */}
+          <nav className="hidden lg:flex items-center space-x-10 text-lg">
+            {/* Programas dropdown */}
             <div className="relative group">
-              <button
-                className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
-                font-medium transition-all duration-200 group cursor-pointer"
+              <Link
+                href="/programas"
+                className="flex items-center gap-1 text-white hover:text-[#3FE0A0] font-medium transition-all duration-200"
               >
-                <span
-                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-[#2FB7C4] after:transition-all group-hover:after:w-full"
-                >
+                <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[#3FE0A0] after:transition-all group-hover:after:w-full">
                   Programas
                 </span>
                 <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
-              </button>
-
-              <div
-                className="invisible group-hover:visible opacity-0 group-hover:opacity-100 
-                absolute top-full left-0 mt-2 w-80 bg-[#0E1116] backdrop-blur-md rounded-xl 
-                shadow-lg border border-[#374151] py-3 transition-all duration-200"
-              >
-                <div className="px-4 py-2">
-                  <Link
-                    href="/programas-academicos"
-                    className="block px-3 py-2 text-sm font-medium text-[#2FB7C4] hover:bg-[#1A1F2E] 
-                      rounded-md transition-all duration-200 mb-2 border-b border-[#374151]"
-                  >
-                    Oferta académica
-                  </Link>
-                  <div
-                    className="space-y-1 max-h-[180px] overflow-y-auto scrollbar-thin 
-                    scrollbar-thumb-secondary/20 hover:scrollbar-thumb-secondary/40"
-                  >
-                    {supabasePrograms.map((program) => (
-                      <Link
-                        key={program.id}
-                        href={`/programas-academicos/${program.code}`}
-                        className="block px-3 py-2 text-sm text-white hover:bg-[#1A1F2E] 
-                          hover:text-[#2FB7C4] rounded-md transition-all duration-200 animate-fade-in-up"
-                      >
-                        {program.name}
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="border-t border-[#374151] mt-2 pt-2">
-                    <p className="px-3 py-1 text-xs font-semibold text-white/50 uppercase tracking-wider">
-                      Carreras
-                    </p>
-                    <Link
-                      href="/carreras/ai-engineer"
-                      className="block px-3 py-2 text-sm text-white hover:bg-[#1A1F2E] 
-                        hover:text-[#2FB7C4] rounded-md transition-all duration-200"
-                    >
-                      AI Engineer
-                    </Link>
-                  </div>
-                </div>
+              </Link>
+              <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 mt-2 w-56 bg-[#0D1A16] rounded-xl shadow-xl border border-[#1f3a30] py-2 transition-all duration-200 z-50">
+                <Link href="/programas/construye" className="block px-4 py-2.5 text-white hover:bg-[#10241E] hover:text-[#3FE0A0] transition-colors">
+                  <span className="text-sm font-semibold">Construye</span>
+                  <span className="block text-xs text-white/50">Ruta Web</span>
+                </Link>
+                <Link href="/programas/revela" className="block px-4 py-2.5 text-white hover:bg-[#10241E] hover:text-[#74BAFF] transition-colors">
+                  <span className="text-sm font-semibold">Revela</span>
+                  <span className="block text-xs text-white/50">Ruta de Datos</span>
+                </Link>
               </div>
             </div>
 
-            <Link
-              href="/carreras/ai-engineer"
-              className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
-              font-medium transition-all duration-200 group"
-            >
-              <span
-                className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                after:w-0 after:bg-[#2FB7C4] after:transition-all group-hover:after:w-full"
+            {[
+              { href: "/metodologia", label: "Cómo aprendes" },
+              { href: "/comunidad", label: "Comunidad" },
+              { href: "/blog", label: "Blog" },
+              { href: "/nosotros", label: "Nosotros" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center space-x-2 text-white hover:text-[#3FE0A0] font-medium transition-all duration-200 group"
               >
-                AI Engineer
-              </span>
-            </Link>
-
-            <Link
-              href="/blog"
-              className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
-              font-medium transition-all duration-200 group"
-            >
-              <span
-                className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                after:w-0 after:bg-[#2FB7C4] after:transition-all group-hover:after:w-full"
-              >
-                Blog
-              </span>
-            </Link>
-
-            <div className="relative group">
-              <a
-                href="https://www.codigoabierto.tech/eventos"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-white hover:text-[#2FB7C4] 
-                font-medium transition-all duration-200 group"
-              >
-                <span
-                  className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 
-                  after:w-0 after:bg-[#2FB7C4] after:transition-all group-hover:after:w-full"
-                >
-                  Comunidad
+                <span className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[#3FE0A0] after:transition-all group-hover:after:w-full">
+                  {item.label}
                 </span>
-              </a>
-            </div>
+              </Link>
+            ))}
           </nav>
 
           {/* User Actions */}
@@ -318,13 +247,11 @@ export default function Header() {
               <ThemeToggle />
               
               <Link
-                href="/registro"
-                className="relative inline-flex items-center justify-center px-6 py-2.5 font-medium text-white bg-[#2FB7C4] hover:bg-[#2FB7C4]/90 focus:outline-none focus:ring-2 focus:ring-[#2FB7C4] focus:ring-offset-2 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
+                href="/inscripcion"
+                className="relative inline-flex items-center justify-center px-6 py-2.5 font-semibold text-[#07100D] bg-[#3FE0A0] hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[#3FE0A0] focus:ring-offset-2 focus:ring-offset-[#0E1116] rounded-full overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
                 >
-                <span className="absolute inset-0 bg-[#2FB7C4] opacity-0 
-                  group-hover:opacity-100 transition-opacity duration-300"></span>
-                <span className="relative text-white">
-                  Registrarse
+                <span className="relative">
+                  Inscríbete
                 </span>
                 <svg
                   className="w-4 h-4 ml-2 -mr-1 transition-transform duration-300 transform hover:translate-x-1"
@@ -398,61 +325,43 @@ export default function Header() {
               </button>
             </div>
 
-            {/* Programas Link */}
+            {/* Programas (expandible) */}
             <div className="py-2">
-              <Link
-                href="/programas-academicos"
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#2FB7C4] transition-colors duration-200"
-                onClick={() => {
-                  setIsMenuOpen(false)
-                  setMobileDropdown(null)
-                }}
+              <button
+                onClick={() => toggleMobileDropdown('programas')}
+                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#3FE0A0] transition-colors duration-200"
               >
                 <span>Programas</span>
-              </Link>
+                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === 'programas' ? 'rotate-180' : ''}`} />
+              </button>
+              {mobileDropdown === 'programas' && (
+                <div className="pl-4 flex flex-col">
+                  <Link href="/programas" className="py-2 text-sm text-white/90 hover:text-[#3FE0A0]" onClick={() => setIsMenuOpen(false)}>Ver todos</Link>
+                  <Link href="/programas/construye" className="py-2 text-sm text-white/90 hover:text-[#3FE0A0]" onClick={() => setIsMenuOpen(false)}>Construye · Ruta Web</Link>
+                  <Link href="/programas/revela" className="py-2 text-sm text-white/90 hover:text-[#74BAFF]" onClick={() => setIsMenuOpen(false)}>Revela · Ruta de Datos</Link>
+                </div>
+              )}
             </div>
 
-            {/* AI Engineer Link */}
-            <div className="py-2">
-              <Link
-                href="/carreras/ai-engineer"
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#2FB7C4] transition-colors duration-200"
-                onClick={() => {
-                  setIsMenuOpen(false)
-                  setMobileDropdown(null)
-                }}
-              >
-                <span>AI Engineer</span>
-              </Link>
-            </div>
-
-            {/* Blog Link */}
-            <div className="py-2">
-              <Link
-                href="/blog"
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#2FB7C4] transition-colors duration-200"
-                onClick={() => {
-                  setIsMenuOpen(false)
-                  setMobileDropdown(null)
-                }}
-              >
-                <span>Blog</span>
-              </Link>
-            </div>
-
-            {/* Comunidad Link */}
-            <div className="py-2">
-              <a
-                href="https://www.codigoabierto.tech/eventos"
-                className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#2FB7C4] transition-colors duration-200"
-                onClick={() => {
-                  setIsMenuOpen(false)
-                  setMobileDropdown(null)
-                }}
-              >
-                <span>Comunidad</span>
-              </a>
-            </div>
+            {[
+              { href: "/metodologia", label: "Cómo aprendes" },
+              { href: "/comunidad", label: "Comunidad" },
+              { href: "/blog", label: "Blog" },
+              { href: "/nosotros", label: "Nosotros" },
+            ].map((item) => (
+              <div key={item.href} className="py-2">
+                <Link
+                  href={item.href}
+                  className="flex items-center justify-between w-full py-3 text-white font-semibold hover:text-[#3FE0A0] transition-colors duration-200"
+                  onClick={() => {
+                    setIsMenuOpen(false)
+                    setMobileDropdown(null)
+                  }}
+                >
+                  <span>{item.label}</span>
+                </Link>
+              </div>
+            ))}
 
             {/* User Actions */}
             <div className="py-4">
@@ -584,11 +493,11 @@ export default function Header() {
               ) : (
                 <div className="flex flex-col items-start space-y-3">
                   <Link
-                    href="/registro"
-                    className="px-4 py-3 text-white bg-[#2FB7C4] hover:bg-[#2FB7C4]/90 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-medium flex items-center justify-center space-x-2"
+                    href="/inscripcion"
+                    className="px-4 py-3 text-[#07100D] bg-[#3FE0A0] hover:brightness-110 rounded-full transition-all duration-300 shadow-md hover:shadow-lg w-full text-center font-semibold flex items-center justify-center space-x-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <span className="text-white">Registrarse</span>
+                    <span>Inscríbete</span>
                     <svg
                       className="w-4 h-4 transition-transform duration-300 transform hover:translate-x-1"
                       fill="none"

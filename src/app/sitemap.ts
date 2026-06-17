@@ -8,32 +8,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient()
   
   // Páginas estáticas principales
-  const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/programas-academicos`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/empresas`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/blog`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
+  const now = new Date()
+  const routeList: Array<{ path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] }> = [
+    { path: '', priority: 1, changeFrequency: 'daily' },
+    { path: '/programas', priority: 0.9, changeFrequency: 'weekly' },
+    { path: '/programas/construye', priority: 0.9, changeFrequency: 'weekly' },
+    { path: '/programas/revela', priority: 0.9, changeFrequency: 'weekly' },
+    { path: '/metodologia', priority: 0.8, changeFrequency: 'monthly' },
+    { path: '/comunidad', priority: 0.7, changeFrequency: 'weekly' },
+    { path: '/nosotros', priority: 0.8, changeFrequency: 'monthly' },
+    { path: '/empleabilidad', priority: 0.7, changeFrequency: 'monthly' },
+    { path: '/inversion', priority: 0.7, changeFrequency: 'monthly' },
+    { path: '/contacto', priority: 0.6, changeFrequency: 'monthly' },
+    { path: '/faq', priority: 0.6, changeFrequency: 'monthly' },
+    { path: '/inscripcion', priority: 0.8, changeFrequency: 'monthly' },
+    { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
+    { path: '/empresas', priority: 0.6, changeFrequency: 'weekly' },
   ]
+  const staticPages: MetadataRoute.Sitemap = routeList.map((r) => ({
+    url: `${baseUrl}${r.path}`,
+    lastModified: now,
+    changeFrequency: r.changeFrequency,
+    priority: r.priority,
+  }))
 
   // Obtener programas activos desde Supabase
   let programPages: MetadataRoute.Sitemap = []

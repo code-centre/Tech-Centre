@@ -98,7 +98,7 @@ export default function AcademicOffer() {
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header de sección */}
         <header className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-3">
+          <h2 className="font-highlight text-3xl md:text-4xl lg:text-5xl font-extrabold text-text-primary mb-3">
             Encuentra tu programa
           </h2>
           <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto">

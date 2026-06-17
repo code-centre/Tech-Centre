@@ -29,7 +29,21 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-  }
+  },
+  async redirects() {
+    return [
+      {
+        source: '/programas-academicos',
+        destination: '/programas',
+        permanent: true,
+      },
+      {
+        source: '/carreras/ai-engineer',
+        destination: '/programas',
+        permanent: true,
+      },
+    ]
+  },
 };
 
 export default nextConfig;

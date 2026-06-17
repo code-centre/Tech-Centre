@@ -55,7 +55,7 @@ export function HowYouLearn() {
         {/* Title */}
         <h2 
           id="how-you-learn-heading"
-          className="text-3xl md:text-4xl lg:text-5xl font-bold text-center text-text-primary mb-6 md:mb-8 max-w-3xl mx-auto"
+          className="font-highlight text-3xl md:text-4xl lg:text-5xl font-extrabold text-center text-text-primary mb-6 md:mb-8 max-w-3xl mx-auto"
         >
           ¿Cómo aprendes en Tech Centre?
         </h2>

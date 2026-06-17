@@ -402,7 +402,7 @@ export default function IndustryDataSection() {
           <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-3 font-mono">
             Investigación de Mercado · 2025–2026
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
+          <h2 className="font-highlight text-3xl md:text-5xl font-extrabold text-text-primary mb-4">
             Datos de la Industria
           </h2>
           <p className="text-base text-text-muted max-w-xl mx-auto">

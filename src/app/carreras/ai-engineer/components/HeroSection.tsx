@@ -1,106 +1,131 @@
 "use client";
 
-import { ArrowRight, Clock, BookOpen, Zap, Code2 } from "lucide-react";
+import { ArrowRight, Clock, MapPin, Layers, Code2 } from "lucide-react";
 
 interface HeroSectionProps {
   onEnroll: () => void;
 }
 
 const stats = [
-  { value: "25", label: "semanas", icon: Clock },
-  { value: "4h", label: "clase/semana", icon: BookOpen },
-  { value: "~300h", label: "de formación total", icon: Zap },
-  { value: "100%", label: "práctico", icon: Code2 },
+  { value: "6", label: "meses por ruta", icon: Clock },
+  { value: "18h", label: "por semana", icon: Layers },
+  { value: "0", label: "experiencia previa", icon: Code2 },
+  { value: "100%", label: "presencial en BAQ", icon: MapPin },
 ];
+
+/* Loop / interlocking-circles brand motif */
+function BrandLoop({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 64 40"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <circle cx="22" cy="20" r="15" stroke="currentColor" strokeWidth="2.5" />
+      <circle cx="42" cy="20" r="15" stroke="currentColor" strokeWidth="2.5" />
+    </svg>
+  );
+}
 
 export default function HeroSection({ onEnroll }: HeroSectionProps) {
   return (
-    <section className="relative py-20 md:py-28 px-4 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/15 via-transparent to-transparent" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[var(--primary)]/5 dark:bg-[var(--secondary)]/8 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[var(--primary)]/8 dark:bg-[var(--primary)]/12 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
+    <section className="px-4 pt-6 pb-16 md:pt-10 md:pb-20">
+      <div className="max-w-6xl mx-auto">
+        <div className="relative overflow-hidden rounded-3xl brand-gradient text-white shadow-2xl">
+          {/* Decorative layers */}
+          <div className="absolute inset-0 brand-grid opacity-60" aria-hidden="true" />
+          <div
+            className="absolute -top-24 -right-24 w-[460px] h-[460px] rounded-full blur-3xl"
+            style={{ background: "radial-gradient(circle, rgba(31,211,130,0.30), transparent 70%)" }}
+            aria-hidden="true"
+          />
+          <BrandLoop className="absolute top-10 right-8 w-40 text-[var(--secondary)]/25 hidden md:block" />
+          <BrandLoop className="absolute -bottom-10 -left-8 w-52 text-[var(--secondary)]/15" />
 
-      <div className="max-w-6xl mx-auto relative z-10">
-        <div className="text-center max-w-4xl mx-auto">
-          <p className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.2em] uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-6 font-mono">
-            <span className="w-8 h-px bg-[var(--primary)] dark:bg-[var(--secondary)]" />
-            Conviértete en
-            <span className="w-8 h-px bg-[var(--primary)] dark:bg-[var(--secondary)]" />
-          </p>
+          <div className="relative z-10 px-6 py-16 sm:px-10 md:px-14 md:py-24">
+            <div className="max-w-3xl">
+              <p className="inline-flex items-center gap-3 text-xs font-bold tracking-[0.2em] uppercase text-[var(--secondary)] mb-6 font-mono">
+                <BrandLoop className="w-7 text-[var(--secondary)]" />
+                Programas · Ciclo 2026
+              </p>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold text-text-primary mb-6 leading-[0.95] tracking-tight">
-            AI Engineer
-          </h1>
+              <h1 className="font-highlight text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[0.95] tracking-tight mb-6">
+                Despierta el genio{" "}
+                <span className="text-gradient-brand">tech que llevas dentro</span>
+              </h1>
 
-          <p className="text-lg md:text-xl text-text-muted mb-4 max-w-2xl mx-auto leading-relaxed">
-            Prepárate para la nueva era de la tecnología.
-          </p>
-          <p className="text-base text-text-muted mb-10 max-w-xl mx-auto">
-            La industria está cambiando. Este programa te pone del lado correcto
-            de la transición: construyendo con IA, no siendo reemplazado por
-            ella.
-          </p>
+              <p className="text-lg md:text-xl text-white/80 mb-4 max-w-2xl leading-relaxed">
+                Dos rutas para ir de cero a{" "}
+                <strong className="text-white font-semibold">
+                  Ingeniero de Aplicaciones de IA
+                </strong>
+                , el perfil que la industria busca y casi nadie está formando.
+              </p>
+              <p className="text-base text-white/60 mb-9 max-w-xl italic">
+                “El conocimiento se revela cuando te atreves a explorar.”
+              </p>
 
-          {/* Route badges */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
-            <div className="flex items-center gap-3 px-5 py-3 rounded-xl border border-[var(--primary)]/40 dark:border-[var(--secondary)]/40 bg-[var(--primary)]/8 dark:bg-[var(--secondary)]/10">
-              <span className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
-                Ruta Python
-              </span>
-              <span className="text-sm text-text-primary">
-                AI Engineer &middot; APIs, Backend & Datos 
-              </span>
+              {/* Route badges */}
+              <ul className="flex flex-col sm:flex-row sm:items-center gap-3 mb-10">
+                <li className="inline-flex items-center gap-3 px-5 py-3 rounded-xl border border-[var(--secondary)]/40 bg-[var(--secondary)]/10">
+                  <span className="text-xs font-bold tracking-widest uppercase text-[var(--secondary)] font-mono">
+                    Ruta Web
+                  </span>
+                  <span className="text-sm text-white/90">Construye lo que se ve</span>
+                </li>
+                <li aria-hidden="true" className="hidden sm:block text-white/40 font-bold text-sm">
+                  o
+                </li>
+                <li className="inline-flex items-center gap-3 px-5 py-3 rounded-xl border border-[var(--secondary)]/40 bg-[var(--secondary)]/10">
+                  <span className="text-xs font-bold tracking-widest uppercase text-[var(--secondary)] font-mono">
+                    Ruta de Datos
+                  </span>
+                  <span className="text-sm text-white/90">Revela el patrón</span>
+                </li>
+              </ul>
+
+              {/* CTA */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                <button
+                  onClick={onEnroll}
+                  className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold rounded-xl"
+                >
+                  Empieza a explorar
+                  <ArrowRight className="w-5 h-5" aria-hidden="true" />
+                </button>
+                <a
+                  href="#programa"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/25 text-white font-medium rounded-xl hover:border-[var(--secondary)] hover:bg-white/5 transition-all duration-300"
+                >
+                  Conoce las rutas
+                </a>
+              </div>
             </div>
-            <span className="text-text-muted font-bold text-sm">o</span>
-            <div className="flex items-center gap-3 px-5 py-3 rounded-xl border border-[var(--primary)]/40 dark:border-[var(--secondary)]/40 bg-[var(--primary)]/8 dark:bg-[var(--secondary)]/10">
-              <span className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] font-mono">
-                Ruta JavaScript
-              </span>
-              <span className="text-sm text-text-primary">
-                Full Stack AI Dev &middot; React, Next.js, IA
-              </span>
-            </div>
-          </div>
 
-          {/* CTA */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
-            <button
-              onClick={onEnroll}
-              className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-            >
-              Inscribirme ahora
-              <ArrowRight className="w-5 h-5" />
-            </button>
-            <a
-              href="#programa"
-              className="inline-flex items-center gap-2 px-8 py-4 border-2 border-border-color text-text-primary font-medium rounded-xl hover:border-[var(--primary)] dark:hover:border-[var(--secondary)] hover:bg-[var(--primary)]/8 dark:hover:bg-[var(--secondary)]/10 transition-all duration-300"
-            >
-              Ver programa completo
-            </a>
-          </div>
+            {/* Stats grid */}
+            <ul className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-14 max-w-3xl">
+              {stats.map((stat) => (
+                <li
+                  key={stat.label}
+                  className="flex flex-col items-center gap-2 p-5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm"
+                >
+                  <stat.icon className="w-5 h-5 text-[var(--secondary)]" aria-hidden="true" />
+                  <span className="text-2xl md:text-3xl font-extrabold text-white font-mono leading-none">
+                    {stat.value}
+                  </span>
+                  <span className="text-xs text-white/65 text-center">
+                    {stat.label}
+                  </span>
+                </li>
+              ))}
+            </ul>
 
-          {/* Stats grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-            {stats.map((stat) => (
-              <article
-                key={stat.label}
-                className="flex flex-col items-center gap-2 p-5 rounded-xl bg-[var(--card-background)] border border-border-color shadow-sm"
-              >
-                <stat.icon className="w-5 h-5 text-[var(--primary)] dark:text-[var(--secondary)]" />
-                <span className="text-2xl md:text-3xl font-extrabold text-text-primary font-mono leading-none">
-                  {stat.value}
-                </span>
-                <span className="text-xs text-text-muted text-center">
-                  {stat.label}
-                </span>
-              </article>
-            ))}
+            <p className="relative z-10 mt-8 text-sm text-white/55">
+              Barranquilla · 6 h presenciales + 12 h virtuales por semana ·
+              Portafolio real · Comunidad que no te suelta
+            </p>
           </div>
-
-          <p className="mt-8 text-sm text-text-muted">
-            Presencial en Barranquilla &middot; 5-8 horas de práctica semanal
-            &middot; Portafolio real &middot; Comunidad de soporte
-          </p>
         </div>
       </div>
     </section>

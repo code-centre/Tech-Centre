@@ -87,10 +87,12 @@ export default function EnrollmentModal({
         <header className="flex items-center justify-between px-6 py-4 border-b border-border-color">
           <div>
             <h2 className="text-lg font-bold text-text-primary dark:text-white">
-              {selectedModule ? "Inscripción a módulo" : "Inscripción a la carrera"}
+              {selectedModule ? "Inscripción a etapa" : "Inscripción a la ruta"}
             </h2>
             {selectedModule && (
-              <p className="text-sm text-secondary mt-0.5">{selectedModule}</p>
+              <p className="text-sm text-[var(--primary)] dark:text-[var(--secondary)] mt-0.5">
+                {selectedModule}
+              </p>
             )}
           </div>
           <button

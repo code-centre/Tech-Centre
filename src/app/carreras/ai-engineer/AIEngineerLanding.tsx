@@ -15,6 +15,7 @@ import FAQSection from "./components/FAQSection";
 import VisionSection from "./components/VisionSection";
 import FinalCTA from "./components/FinalCTA";
 import EnrollmentModal from "./components/EnrollmentModal";
+import CommunityGallery from "@/components/CommunityGallery";
 
 interface AIEngineerLandingProps {
   career: Career;
@@ -51,6 +52,7 @@ export default function AIEngineerLanding({ career }: AIEngineerLandingProps) {
       />
       <FAQSection />
       <VisionSection />
+      <CommunityGallery />
       <FinalCTA onEnroll={() => openEnrollment("career")} />
 
       <EnrollmentModal

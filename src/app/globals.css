@@ -8,8 +8,46 @@
 /* Parabole font face */
 @font-face {
   font-family: 'Parabole';
-  src: url('/Parabole.woff2') format('woff2');
+  src: url('/fonts/Parabole.ttf') format('truetype');
   font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+  font-display: swap;
+}
+
+/* Space Grotesk font faces (self-hosted) */
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/SpaceGrotesk-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/SpaceGrotesk-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/SpaceGrotesk-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/SpaceGrotesk-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/SpaceGrotesk-Bold.ttf') format('truetype');
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
@@ -17,10 +55,20 @@
 /* Light theme (default) */
 :root {
   --font-space-grotesk: 'Space Grotesk', system-ui, arial, sans-serif;
+
+  /* ===== Tech Centre brand palette ===== */
+  --brand-graphite: #0E1116;      /* dark base */
+  --brand-teal: #0F3D4C;          /* deep petroleum, gradient base */
+  --brand-green: #1FD382;         /* vivid emerald, accent + button bg */
+  --brand-green-deep: #0A6E44;    /* dark emerald, readable on light */
+  --brand-blue: #1F6AE1;          /* secondary accent */
+  --brand-cyan: #2FB7C4;          /* minor accent */
+  --brand-gray: #E6E8EB;          /* light surface */
+
   /* Colors */
-  --primary: #0F5C4C;
-  --secondary: #6ee7b7;
-  --highlight: #1F6AE1;
+  --primary: #0A6E44;             /* light-mode accent text/fills (AA on light) */
+  --secondary: #1FD382;           /* brand emerald spark */
+  --highlight: #1F6AE1;           /* technical blue accent */
   --background: #E6E8EB;
   --background-light: #E6E8EB;
   
@@ -28,11 +76,11 @@
   --bg-primary: #E6E8EB;
   --bg-secondary: #FFFFFF;
   --bg-card: #FFFFFF;
-  --text-primary: #000000;
-  --text-secondary: #2FB7C4;
-  --text-muted: #6B7280;
-  --border-color: #E5E7EB;
-  --foreground: #000000;
+  --text-primary: #0E1116;
+  --text-secondary: #0A6E44;
+  --text-muted: #586070;
+  --border-color: #D2D7DD;
+  --foreground: #0E1116;
   
   /* Card colors for light theme */
   --card-background: #FFFFFF;
@@ -40,14 +88,14 @@
   --card-diplomado-border: #CBD5E1;
   --card-curso-bg: #FFFFFF;
   --card-curso-border: #CBD5E1;
-  --card-text-primary: #0F172A;
-  --card-text-secondary: #0F3D4C;
-  --card-text-muted: #64748B;
+  --card-text-primary: #0E1116;
+  --card-text-secondary: #0A6E44;
+  --card-text-muted: #586070;
   --card-border-subtle: #CBD5E1;
   
-  /* Button colors */
+  /* Button colors — emerald with graphite text for AA contrast */
   --button-bg: var(--secondary);
-  --button-text: #FFFFFF;
+  --button-text: #0E1116;
   
   /* Legacy colors (for backward compatibility during migration) */
   --background-card: #FFFFFF;
@@ -58,45 +106,45 @@
   --color-darkBlue: #1F6AE1;
 }
 
-/* Dark theme */
+/* Dark theme — graphite base with emerald accents (brand primary mode) */
 [data-theme="dark"] {
   /* Colors */
-  --primary: #0F5C4C;
-  --secondary: #6ee7b7;
-  --highlight: #1F6AE1;
+  --primary: #15B873;            /* emerald for tints/fills on dark */
+  --secondary: #1FD382;          /* vivid emerald accent text on dark */
+  --highlight: #1F6AE1;          /* technical blue accent */
   --background: #0E1116;
   --background-light: #E6E8EB;
   
   /* Semantic colors for dark theme */
   --bg-primary: #0E1116;
-  --bg-secondary: #1A1F2E;
-  /* Estándar de cards: gris azulado oscuro (#243545) - usado en cursos cortos */
-  --bg-card: #243545;
-  --text-primary: #FFFFFF;
-  --text-secondary: #6ee7b7;
-  --text-muted: #9CA3AF;
-  --border-color: #374151;
-  --foreground: #FFFFFF;
+  --bg-secondary: #12181F;
+  /* Cards: dark slate con leve matiz petróleo */
+  --bg-card: #16222C;
+  --text-primary: #F4F6F8;
+  --text-secondary: #1FD382;
+  --text-muted: #9BA6B2;
+  --border-color: #283642;
+  --foreground: #F4F6F8;
   
-  /* Card colors - estándar unificado para dark theme (#243545) */
-  --card-background: #243545;
-  --card-diplomado-bg: #243545;
-  --card-diplomado-border: #344555;
-  --card-curso-bg: #243545;
-  --card-curso-border: #344555;
-  --card-text-primary: #FFFFFF;
-  --card-text-secondary: #2FB7C4;
-  --card-text-muted: #D1D5DB;
+  /* Card colors - estándar unificado para dark theme */
+  --card-background: #16222C;
+  --card-diplomado-bg: #16222C;
+  --card-diplomado-border: #27343E;
+  --card-curso-bg: #16222C;
+  --card-curso-border: #27343E;
+  --card-text-primary: #F4F6F8;
+  --card-text-secondary: #1FD382;
+  --card-text-muted: #C2CAD3;
   --card-border-subtle: rgba(255, 255, 255, 0.1);
   
-  /* Button colors */
+  /* Button colors — emerald with graphite text */
   --button-bg: var(--secondary);
-  --button-text: #FFFFFF;
+  --button-text: #0E1116;
   
   /* Legacy - alineado al estándar de cards */
-  --background-card: #243545;
+  --background-card: #16222C;
   --color-lightBlue: #2FB7C4;
-  --color-bgCard: #243545;
+  --color-bgCard: #16222C;
   --color-blueApp: #0F3D4C;
   --color-grayApp: #4B5563;
   --color-darkBlue: #1F6AE1;
@@ -107,6 +155,7 @@
   --color-foreground: var(--foreground);
   --font-space-grotesk: 'Space Grotesk', system-ui, arial, sans-serif;
   --font-parabole: 'Parabole', sans-serif;
+  --font-highlight: 'Parabole', sans-serif;
   --color-lightBlue: var(--color-lightBlue);
   --color-bgCard: var(--background-card);
   --color-blueApp: var(--color-blueApp);
@@ -231,7 +280,7 @@ section[id], div[id] {
 
 /* Gradient background for WhoWeAre section */
 .who-we-are-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary) 60%, var(--secondary) 100%);
+  background: linear-gradient(135deg, var(--brand-graphite, #0E1116) 0%, var(--brand-teal, #0F3D4C) 55%, var(--secondary) 130%);
   color: white;
   position: relative;
   overflow: hidden;
@@ -277,7 +326,7 @@ section[id], div[id] {
 }
 
 [data-theme="dark"] .who-we-are-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, rgba(15, 61, 76, 0.98) 55%, var(--secondary) 100%);
+  background: linear-gradient(135deg, var(--brand-graphite, #0E1116) 0%, var(--brand-teal, #0F3D4C) 58%, var(--secondary) 135%);
 }
 
 [data-theme="dark"] .who-we-are-gradient::before {
@@ -407,7 +456,7 @@ section[id], div[id] {
   color: #fcd34d;
 }
 
-/* Primary Button - Estándar de la plataforma */
+/* Primary Button - Estándar de la plataforma (emerald + graphite text) */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -415,7 +464,7 @@ section[id], div[id] {
   gap: 0.5rem;
   padding: 0.875rem 1.5rem;
   background-color: var(--secondary);
-  color: white;
+  color: var(--brand-graphite, #0E1116);
   font-weight: 600;
   border-radius: 0.5rem;
   transition: all 0.3s;
@@ -424,8 +473,8 @@ section[id], div[id] {
 }
 
 .btn-primary:hover {
-  background-color: rgba(47, 183, 196, 0.9);
-  box-shadow: 0 20px 25px -5px rgba(47, 183, 196, 0.3), 0 10px 10px -5px rgba(47, 183, 196, 0.2);
+  background-color: #19BE74;
+  box-shadow: 0 20px 25px -5px rgba(31, 211, 130, 0.32), 0 10px 10px -5px rgba(31, 211, 130, 0.22);
   transform: translateY(-2px);
 }
 
@@ -434,12 +483,88 @@ section[id], div[id] {
 }
 
 [data-theme="dark"] .btn-primary {
-  background-color: var(--highlight);
+  background-color: var(--secondary);
+  color: var(--brand-graphite, #0E1116);
 }
 
 [data-theme="dark"] .btn-primary:hover {
-  background-color: #1A8F9D;
-  box-shadow: 0 20px 25px -5px rgba(47, 183, 196, 0.4), 0 10px 10px -5px rgba(47, 183, 196, 0.3);
+  background-color: #2BE08F;
+  box-shadow: 0 20px 25px -5px rgba(31, 211, 130, 0.4), 0 10px 10px -5px rgba(31, 211, 130, 0.3);
+}
+
+/* Secondary Button - azul técnico (acento complementario) */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background-color: var(--highlight);
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+  box-shadow: 0 10px 15px -3px rgba(31, 106, 225, 0.18);
+}
+
+.btn-secondary:hover {
+  background-color: #1A5BC7;
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(31, 106, 225, 0.32);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* ===== Accesibilidad: foco visible por teclado ===== */
+:where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+  outline: 3px solid var(--highlight);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+[data-theme="dark"] :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+  outline-color: var(--secondary);
+}
+
+/* ===== Motivos de marca ===== */
+/* Gradiente de marca: petróleo profundo -> esmeralda */
+.brand-gradient {
+  background: linear-gradient(135deg, var(--brand-graphite, #0E1116) 0%, var(--brand-teal, #0F3D4C) 48%, var(--secondary) 130%);
+}
+
+/* Texto con degradado esmeralda para palabras destacadas */
+.text-gradient-brand {
+  background: linear-gradient(120deg, var(--brand-teal, #0F3D4C) 0%, var(--secondary) 60%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+[data-theme="dark"] .text-gradient-brand {
+  background: linear-gradient(120deg, #4BE3A2 0%, var(--secondary) 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Rejilla técnica sutil para paneles oscuros */
+.brand-grid {
+  background-image:
+    linear-gradient(to right, rgba(31, 211, 130, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(31, 211, 130, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* Aro/loop del logo como motivo decorativo */
+.brand-ring {
+  border: 1.5px solid color-mix(in srgb, var(--secondary) 35%, transparent);
+  border-radius: 9999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scroll { animation: none; }
 }
 
 /* Program Description Content Styles */
@@ -842,4 +967,206 @@ html:not([data-theme="dark"]) .faq-section [aria-label="Editar"]:hover {
 [data-theme="dark"] .faq-section [aria-label="Editar"]:hover {
   color: var(--secondary) !important;
   border-color: var(--secondary) !important;
+}
+
+/* =========================================================================
+   LANDING V2 — "El Despertar del Genio"
+   Sistema de diseño oscuro con destello menta. Scoped a .landing-v2 para no
+   afectar el sistema de tema global del resto del sitio.
+   ========================================================================= */
+.landing-v2 {
+  --ink: #07100D;
+  --deep: #0B231C;
+  --forest: #14463A;
+  --panel: #0D1A16;
+  --panel-2: #10241E;
+  --line: rgba(255, 255, 255, 0.09);
+  --mint: #3FE0A0;
+  --mint-dim: #2BBF85;
+  --cyan: #74BAFF;
+  --paper: #F1F6F3;
+  --soft: #C7D4CE;
+  --mute: #8FA59C;
+  --mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  position: relative;
+  color: var(--paper);
+  background-color: var(--ink);
+  background-image: radial-gradient(120% 90% at 85% 5%, #1C5A49 0%, #0E2A22 38%, #07100D 78%);
+  overflow-x: clip;
+}
+
+.landing-v2 ::selection {
+  background: var(--mint);
+  color: var(--ink);
+}
+
+/* Texto */
+.landing-v2 .lv2-mono {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.72rem;
+  color: var(--mute);
+}
+
+.landing-v2 .lv2-display {
+  font-family: var(--font-parabole), "Space Grotesk", sans-serif;
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.landing-v2 .lv2-mint { color: var(--mint); }
+.landing-v2 .lv2-cyan { color: var(--cyan); }
+.landing-v2 .lv2-soft { color: var(--soft); }
+.landing-v2 .lv2-mute { color: var(--mute); }
+
+/* Eyebrow con chispa menta */
+.landing-v2 .lv2-spark {
+  display: inline-block;
+  width: 26px;
+  height: 1.5px;
+  background: var(--mint);
+  box-shadow: 0 0 10px var(--mint);
+  transform-origin: left center;
+}
+
+/* Botones */
+.landing-v2 .lv2-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  background: var(--mint);
+  color: var(--ink);
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.3s ease, filter 0.2s ease;
+}
+.landing-v2 .lv2-btn:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 0 0 1px rgba(63, 224, 160, 0.4), 0 8px 30px rgba(63, 224, 160, 0.25);
+  transform: scale(1.02);
+}
+.landing-v2 .lv2-btn:active { transform: scale(0.98); }
+
+.landing-v2 .lv2-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid var(--line);
+  transition: border-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+.landing-v2 .lv2-btn-secondary:hover { border-color: var(--mint); color: var(--mint); }
+.landing-v2 .lv2-btn-secondary:active { transform: scale(0.98); }
+
+/* Tarjeta */
+.landing-v2 .lv2-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.landing-v2 .lv2-card:hover {
+  border-color: rgba(63, 224, 160, 0.45);
+  box-shadow: 0 0 0 1px rgba(63, 224, 160, 0.18), 0 18px 50px -20px rgba(63, 224, 160, 0.25);
+}
+
+/* Chip técnico */
+.landing-v2 .lv2-chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--soft);
+  white-space: nowrap;
+}
+
+/* Glow detrás de elementos revelados */
+.landing-v2 .lv2-glow::before {
+  content: "";
+  position: absolute;
+  inset: -40% -10%;
+  background: radial-gradient(45% 45% at 50% 50%, rgba(63, 224, 160, 0.16) 0%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Anillo pulsante (Módulo 3) */
+.landing-v2 .lv2-ring {
+  box-shadow: 0 0 0 0 rgba(63, 224, 160, 0.55);
+  animation: lv2-pulse 2.4s ease-out infinite;
+}
+@keyframes lv2-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(63, 224, 160, 0.5); }
+  70% { box-shadow: 0 0 0 12px rgba(63, 224, 160, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(63, 224, 160, 0); }
+}
+
+/* Punto menta pulsante (badges) */
+.landing-v2 .lv2-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--mint);
+  box-shadow: 0 0 8px var(--mint);
+  animation: lv2-blink 1.8s ease-in-out infinite;
+}
+@keyframes lv2-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* Texturas de bloques translúcidos */
+.landing-v2 .lv2-tex {
+  position: absolute;
+  border-radius: 24px;
+  background: rgba(63, 224, 160, 0.05);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scroll cue */
+@keyframes lv2-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(8px); opacity: 1; }
+}
+.landing-v2 .lv2-cue { animation: lv2-bounce 1.8s ease-in-out infinite; }
+
+/* Marquee de fotos / logos */
+@keyframes lv2-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 1rem)); }
+}
+.landing-v2 .lv2-marquee-track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  animation: lv2-marquee var(--lv2-marquee-duration, 60s) linear infinite;
+  animation-direction: var(--lv2-marquee-direction, normal);
+  will-change: transform;
+}
+.landing-v2 .lv2-marquee:hover .lv2-marquee-track { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-v2 .lv2-ring,
+  .landing-v2 .lv2-dot,
+  .landing-v2 .lv2-cue,
+  .landing-v2 .lv2-marquee-track {
+    animation: none !important;
+  }
 }

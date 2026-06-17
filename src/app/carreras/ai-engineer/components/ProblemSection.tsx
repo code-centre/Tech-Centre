@@ -5,21 +5,21 @@ import { Bot, GraduationCap, Puzzle } from "lucide-react";
 const problems = [
   {
     icon: Bot,
-    title: "Tu trabajo puede automatizarse",
+    title: "Ya no basta con escribir código",
     description:
-      "La IA está transformando cada industria. El World Economic Forum proyecta 78 millones de empleos netos creados por IA para 2030. ¿Estás del lado correcto de la transición?",
+      "La forma de programar cambió. El oficio ahora es construir sistemas confiables alrededor de la IA: agentes que deciden, sistemas que razonan sobre datos, productos en los que se puede confiar.",
   },
   {
     icon: GraduationCap,
-    title: "La universidad no te prepara",
+    title: "No vendemos cursos de un lenguaje",
     description:
-      "Las universidades enseñan tecnologías de hace años. Los bootcamps tradicionales se enfocan en programación web general, no en inteligencia artificial aplicada.",
+      "Las universidades y los bootcamps enseñan tecnologías de hace años. Aquí te llevamos de cero al oficio que el mercado contrata, no a memorizar la sintaxis de un lenguaje.",
   },
   {
     icon: Puzzle,
     title: "Aprender solo no funciona",
     description:
-      "Los tutoriales de YouTube dan fragmentos sin estructura. Sin un camino claro, la mayoría abandona antes de construir algo real.",
+      "Los tutoriales dan fragmentos sin estructura. Sin un camino claro y acompañamiento humano, la mayoría abandona antes de construir algo real.",
   },
 ];
 
@@ -28,12 +28,19 @@ export default function ProblemSection() {
     <section className="py-20 px-4 bg-[var(--bg-secondary)]">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-            El mundo cambió. ¿Tu carrera ya cambió?
+          <p className="text-xs font-bold tracking-widest uppercase text-[var(--primary)] dark:text-[var(--secondary)] mb-3 font-mono">
+            El método
+          </p>
+          <h2 className="font-highlight text-3xl md:text-5xl font-extrabold text-text-primary mb-4">
+            El genio no se enseña.{" "}
+            <span className="text-[var(--primary)] dark:text-[var(--secondary)]">
+              Se revela.
+            </span>
           </h2>
           <p className="text-lg text-text-muted max-w-2xl mx-auto">
-            La inteligencia artificial está transformando cada industria. La
-            mayoría de las personas no sabe cómo prepararse.
+            No vendemos cursos de un lenguaje: te llevamos de cero al oficio que
+            el mercado contrata, aquí en el Caribe, construyendo de verdad desde
+            el primer día.
           </p>
         </header>
 

@@ -30,7 +30,7 @@ export default function NoticiasSection() {
                 <header className="text-center mb-12">
                     <h2 
                         id="noticias-heading"
-                        className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4"
+                        className="font-highlight text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4"
                     >
                         Reconocidos por impulsar el ecosistema tech del Caribe
                     </h2>

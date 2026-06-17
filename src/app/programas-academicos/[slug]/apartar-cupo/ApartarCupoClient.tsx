@@ -58,7 +58,7 @@ export default function ApartarCupoClient({
           <div className="lg:col-span-2 order-2 lg:order-1">
             {/* Header - contenido mínimo visible */}
             <div className="mb-10">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-3">
+              <h1 className="font-highlight text-3xl md:text-4xl lg:text-5xl font-extrabold text-text-primary mb-3">
                 Aparta tu cupo en el {program.name}
               </h1>
               <p className="text-base md:text-lg text-text-muted mb-5">
