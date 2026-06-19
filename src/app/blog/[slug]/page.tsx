@@ -3,9 +3,10 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import parse, { Element } from 'html-react-parser';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, ArrowRight } from 'lucide-react';
 import CommentsSection from '@/components/blog/CommentsSection';
 import LikeButton from '@/components/blog/LikeButton';
+import BlogEyebrow from '@/components/blog/BlogEyebrow';
 import { ArticleSchema, BreadcrumbListSchema } from '@/components/seo/StructuredData';
 
 interface CommentWithAuthor {
@@ -29,6 +30,37 @@ function formatDate(dateStr: string | null): string {
     month: 'long',
     day: 'numeric',
   });
+}
+
+function readingTimeMinutes(html: string | null): number {
+  if (!html) return 1;
+  const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const words = text ? text.split(' ').length : 0;
+  return Math.max(1, Math.round(words / 200));
+}
+
+// Quita de los estilos en línea las propiedades de color y tipografía que
+// rompen el tema (vienen pegadas desde editores como Google Docs). Conserva
+// el resto (text-align, etc.).
+const STRIPPED_STYLE_PROPS = new Set([
+  'color',
+  'background-color',
+  'background',
+  'font-family',
+  'font-size',
+  'line-height',
+]);
+
+function sanitizeInlineStyle(style: string): string | undefined {
+  const kept = style
+    .split(';')
+    .map((decl) => decl.trim())
+    .filter(Boolean)
+    .filter((decl) => {
+      const prop = decl.split(':')[0]?.trim().toLowerCase();
+      return prop ? !STRIPPED_STYLE_PROPS.has(prop) : false;
+    });
+  return kept.length ? kept.join(';') : undefined;
 }
 
 const BASE_URL =
@@ -244,18 +276,19 @@ export default async function BlogPostPage({
       <nav className="mb-6">
         <Link
           href="/blog"
-          className="inline-flex items-center gap-2 text-text-muted hover:text-secondary transition-colors"
+          className="inline-flex items-center gap-2 text-text-muted transition-colors hover:text-primary"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           Volver al blog
         </Link>
       </nav>
 
       <header className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
+        <BlogEyebrow>Artículo</BlogEyebrow>
+        <h1 className="font-highlight mb-5 mt-4 text-3xl font-extrabold leading-tight text-text-primary md:text-5xl">
           {post.title}
         </h1>
-        <div className="flex flex-wrap items-center gap-4 text-text-muted">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-text-muted">
           <div className="flex items-center gap-2">
             {author?.profile_image ? (
               <Image
@@ -266,15 +299,19 @@ export default async function BlogPostPage({
                 className="rounded-full object-cover"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-secondary/30 flex items-center justify-center text-secondary font-medium">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 font-medium text-primary">
                 {authorName.charAt(0).toUpperCase()}
               </div>
             )}
-            <span>{authorName}</span>
+            <span className="text-text-primary">{authorName}</span>
           </div>
-          <span className="flex items-center gap-1">
-            <Calendar className="w-4 h-4" />
+          <span className="flex items-center gap-1.5">
+            <Calendar className="h-4 w-4" />
             {formatDate(post.published_at || post.created_at)}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Clock className="h-4 w-4" />
+            {readingTimeMinutes(post.content)} min de lectura
           </span>
         </div>
       </header>
@@ -292,22 +329,32 @@ export default async function BlogPostPage({
         </figure>
       )}
 
-      <div className="mb-8 text-text-primary [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-4 [&_img]:rounded-lg [&_img]:my-4 [&_img]:max-w-full [&_img]:h-auto [&_a]:text-secondary [&_a]:hover:underline">
+      <div className="mb-8">
         {post.content ? (
-          <div className="blog-content overflow-x-hidden">
+          <div className="blog-prose blog-content overflow-x-hidden">
             {parse(post.content, {
               replace: (domNode) => {
-                if (domNode instanceof Element && domNode.name === 'img' && domNode.attribs) {
-                  const { width: _w, height: _h, style: _s, ...rest } = domNode.attribs;
-                  return (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      {...rest}
-                      className="max-w-full h-auto rounded-lg my-4 block"
-                      style={{ maxWidth: '100%', height: 'auto' }}
-                      loading="lazy"
-                    />
-                  );
+                if (domNode instanceof Element && domNode.attribs) {
+                  if (domNode.name === 'img') {
+                    const { width: _w, height: _h, style: _s, ...rest } = domNode.attribs;
+                    return (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        {...rest}
+                        className="max-w-full h-auto rounded-lg my-4 block"
+                        style={{ maxWidth: '100%', height: 'auto' }}
+                        loading="lazy"
+                      />
+                    );
+                  }
+                  // Saneamos estilos en línea (p. ej. pegados desde Google Docs:
+                  // color:#000000, font-family:Arial) para que mande el tema y se
+                  // lea bien en modo claro y oscuro.
+                  if (domNode.attribs.style) {
+                    const cleaned = sanitizeInlineStyle(domNode.attribs.style);
+                    if (cleaned) domNode.attribs.style = cleaned;
+                    else delete domNode.attribs.style;
+                  }
                 }
                 return undefined;
               },
@@ -318,13 +365,38 @@ export default async function BlogPostPage({
         )}
       </div>
 
-      <div className="mb-8">
+      <div className="mb-10">
         <LikeButton
           postId={post.id}
           initialCount={likesCount ?? 0}
           initialLiked={initialLiked}
         />
       </div>
+
+      <aside className="mb-12 overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-8 text-center">
+        <h2 className="font-highlight text-2xl font-extrabold text-text-primary sm:text-3xl">
+          ¿Listo para construir con IA?
+        </h2>
+        <p className="mx-auto mt-3 max-w-xl text-text-muted">
+          Aprende a construir aplicaciones y agentes de IA de cero a desplegar, presencial en
+          Barranquilla. Dos rutas: Construye (web) y Revela (datos).
+        </p>
+        <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+          <Link
+            href="/programas"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-secondary px-6 py-3 font-semibold text-[#0E1116] transition-transform hover:scale-[1.02]"
+          >
+            Ver programas
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            href="/inscripcion"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-border-color px-6 py-3 font-semibold text-text-primary transition-colors hover:border-primary hover:text-primary"
+          >
+            Inscríbete
+          </Link>
+        </div>
+      </aside>
 
       <CommentsSection postId={post.id} initialComments={comments} />
     </article>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, Calendar } from 'lucide-react';
+import { Heart, Calendar, ArrowUpRight } from 'lucide-react';
 import type { BlogPost } from '@/types/supabase';
 
 interface BlogPostWithAuthor extends BlogPost {
@@ -16,6 +16,7 @@ interface BlogPostWithAuthor extends BlogPost {
 
 interface BlogPostCardProps {
   post: BlogPostWithAuthor;
+  featured?: boolean;
 }
 
 function formatDate(dateStr: string | null): string {
@@ -28,68 +29,99 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
-export default function BlogPostCard({ post }: BlogPostCardProps) {
+export default function BlogPostCard({ post, featured = false }: BlogPostCardProps) {
   const authorName = post.author
     ? `${post.author.first_name || ''} ${post.author.last_name || ''}`.trim() || 'Anónimo'
     : 'Anónimo';
 
   return (
-    <article className="group rounded-xl border border-border-color overflow-hidden bg-[var(--card-background)] transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full">
-      <Link href={`/blog/${post.slug}`} className="block flex-1 flex flex-col">
-        <div className="relative aspect-video overflow-hidden bg-bg-secondary">
+    <article
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border-color bg-[var(--card-background)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl ${
+        featured ? 'md:flex-row' : ''
+      }`}
+    >
+      <span
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 z-10 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100"
+      />
+      <Link
+        href={`/blog/${post.slug}`}
+        className={`flex flex-1 flex-col ${featured ? 'md:flex-row' : ''}`}
+        aria-label={post.title}
+      >
+        <div
+          className={`relative overflow-hidden bg-bg-secondary ${
+            featured ? 'aspect-video md:aspect-auto md:w-1/2' : 'aspect-video'
+          }`}
+        >
           {post.cover_image ? (
             <Image
               src={post.cover_image}
               alt={post.title}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes={featured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
             />
           ) : (
-            <div className="w-full h-full bg-secondary/10 flex items-center justify-center">
-              <span className="text-4xl text-secondary/40 font-serif">“</span>
+            <div className="flex h-full w-full items-center justify-center bg-primary/10">
+              <span className="font-highlight text-5xl text-primary/40">“</span>
             </div>
           )}
         </div>
-        <div className="flex flex-col flex-1 p-5">
-          <h2 className="text-lg font-semibold text-text-primary line-clamp-2 group-hover:text-secondary transition-colors mb-2">
+
+        <div className={`flex flex-1 flex-col p-5 ${featured ? 'md:justify-center md:p-8' : ''}`}>
+          <h2
+            className={`line-clamp-2 font-semibold text-text-primary transition-colors group-hover:text-primary ${
+              featured ? 'text-2xl md:text-3xl' : 'text-lg'
+            }`}
+          >
             {post.title}
           </h2>
           {post.excerpt && (
-            <p className="text-sm text-text-muted line-clamp-3 mb-4 flex-1">
+            <p
+              className={`mt-2 flex-1 text-sm text-text-muted ${
+                featured ? 'line-clamp-3 md:text-base' : 'line-clamp-3'
+              }`}
+            >
               {post.excerpt}
             </p>
           )}
-          <footer className="flex items-center justify-between gap-3 mt-auto pt-3 border-t border-border-color">
-            <div className="flex items-center gap-2 min-w-0">
+
+          <footer className="mt-auto flex items-center justify-between gap-3 border-t border-border-color pt-4">
+            <div className="flex min-w-0 items-center gap-2">
               {post.author?.profile_image ? (
                 <Image
                   src={post.author.profile_image}
                   alt={authorName}
                   width={28}
                   height={28}
-                  className="rounded-full object-cover flex-shrink-0"
+                  className="flex-shrink-0 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-secondary/30 flex items-center justify-center text-secondary text-xs font-medium flex-shrink-0">
+                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-medium text-primary">
                   {authorName.charAt(0).toUpperCase()}
                 </div>
               )}
-              <span className="text-xs text-text-muted truncate">{authorName}</span>
+              <span className="truncate text-xs text-text-muted">{authorName}</span>
             </div>
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex flex-shrink-0 items-center gap-3">
               <span className="flex items-center gap-1 text-xs text-text-muted">
-                <Calendar className="w-3.5 h-3.5" />
+                <Calendar className="h-3.5 w-3.5" />
                 {formatDate(post.published_at || post.created_at)}
               </span>
               {(post.likes_count ?? 0) > 0 && (
                 <span className="flex items-center gap-1 text-xs text-text-muted">
-                  <Heart className="w-3.5 h-3.5 fill-current" />
+                  <Heart className="h-3.5 w-3.5 fill-current" />
                   {post.likes_count}
                 </span>
               )}
             </div>
           </footer>
+
+          <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            Leer artículo
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </span>
         </div>
       </Link>
     </article>

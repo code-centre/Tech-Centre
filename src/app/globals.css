@@ -606,6 +606,119 @@ section[id], div[id] {
   max-width: 100%;
 }
 
+/* =========================================================================
+   BLOG PROSE — tipografía del artículo, legible en modo claro y oscuro.
+   Usa los tokens de tema (--text-primary, --primary, etc.) para adaptarse.
+   ========================================================================= */
+.blog-prose {
+  color: var(--text-primary);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+.blog-prose p {
+  color: var(--text-primary);
+  margin: 0 0 1.15rem;
+}
+.blog-prose h2 {
+  font-family: var(--font-parabole), 'Space Grotesk', sans-serif;
+  font-size: 1.7rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 2.2rem 0 0.75rem;
+}
+.blog-prose h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 1.8rem 0 0.5rem;
+}
+.blog-prose h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 1.4rem 0 0.4rem;
+}
+.blog-prose > :first-child {
+  margin-top: 0;
+}
+.blog-prose a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+.blog-prose a:hover {
+  text-decoration-color: var(--primary);
+}
+.blog-prose strong,
+.blog-prose b {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+.blog-prose ul,
+.blog-prose ol {
+  margin: 0 0 1.15rem;
+  padding-left: 1.4rem;
+}
+.blog-prose ul {
+  list-style: disc;
+}
+.blog-prose ol {
+  list-style: decimal;
+}
+.blog-prose li {
+  margin-top: 0.4rem;
+  color: var(--text-primary);
+}
+.blog-prose li::marker {
+  color: var(--primary);
+}
+.blog-prose blockquote {
+  border-left: 3px solid var(--secondary);
+  padding: 0.25rem 0 0.25rem 1.1rem;
+  margin: 1.5rem 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.blog-prose code {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.1rem 0.4rem;
+  overflow-wrap: anywhere;
+}
+.blog-prose pre {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  font-size: 0.9rem;
+  margin: 1.5rem 0;
+}
+.blog-prose pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.blog-prose img {
+  border-radius: 0.75rem;
+  margin: 1.5rem 0;
+  max-width: 100%;
+  height: auto;
+}
+.blog-prose hr {
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  margin: 2rem 0;
+}
+
 .program-description-content {
   color: var(--card-text-primary);
 }

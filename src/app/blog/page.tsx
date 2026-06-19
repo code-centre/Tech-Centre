@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import BlogPostCard from '@/components/blog/BlogPostCard';
+import BlogEyebrow from '@/components/blog/BlogEyebrow';
 import { CollectionPageSchema } from '@/components/seo/StructuredData';
 import type { BlogPost } from '@/types/supabase';
 
@@ -93,6 +94,8 @@ export default async function BlogPage() {
     })
   );
 
+  const [featured, ...rest] = postsWithLikes;
+
   return (
     <article>
       <CollectionPageSchema
@@ -105,25 +108,31 @@ export default async function BlogPage() {
           description: p.excerpt || undefined,
         }))}
       />
-      <header className="mb-12">
-        <h1 className="text-3xl font-bold text-text-primary mb-2">Blog</h1>
-        <p className="text-text-muted">
-          Artículos, tutoriales y recursos sobre tecnología y formación profesional.
+      <header className="mb-12 max-w-2xl">
+        <BlogEyebrow>Blog</BlogEyebrow>
+        <h1 className="font-highlight mt-4 text-4xl font-extrabold text-text-primary sm:text-5xl">
+          Aprende y explora
+        </h1>
+        <p className="mt-4 text-lg text-text-muted">
+          Artículos, tutoriales y recursos sobre tecnología, inteligencia artificial y formación
+          profesional, desde el Caribe.
         </p>
       </header>
 
       {postsWithLikes.length === 0 ? (
-        <p className="text-center py-16 text-text-muted">
+        <p className="py-16 text-center text-text-muted">
           Aún no hay artículos publicados. ¡Vuelve pronto!
         </p>
       ) : (
-        <section
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          aria-label="Lista de artículos del blog"
-        >
-          {postsWithLikes.map((post) => (
-            <BlogPostCard key={post.id} post={post} />
-          ))}
+        <section className="space-y-6" aria-label="Lista de artículos del blog">
+          {featured && <BlogPostCard post={featured} featured />}
+          {rest.length > 0 && (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {rest.map((post) => (
+                <BlogPostCard key={post.id} post={post} />
+              ))}
+            </div>
+          )}
         </section>
       )}
     </article>
