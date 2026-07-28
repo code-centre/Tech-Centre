@@ -1501,8 +1501,9 @@ html:not([data-theme="dark"]) .faq-section [aria-label="Editar"]:hover {
   height: 100%;
   padding: 1.75rem;
   border-radius: 16px;
-  border: 1px solid var(--line);
-  background: var(--panel);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.09));
+  background: var(--panel, #0D1A16);
+  color: var(--paper, #F1F6F3);
 }
 .agentes-fit-card-no {
   border-color: rgba(255, 180, 84, 0.22);
@@ -1525,7 +1526,7 @@ html:not([data-theme="dark"]) .faq-section [aria-label="Editar"]:hover {
   gap: 0.75rem;
   align-items: flex-start;
   line-height: 1.45;
-  color: var(--text-primary, #F5F1EA);
+  color: var(--paper, #F1F6F3);
 }
 .agentes-fit-icon { width: 1.15rem; height: 1.15rem; margin-top: 0.15rem; flex-shrink: 0; }
 .agentes-fit-icon-yes { color: var(--mint); }
@@ -1533,10 +1534,10 @@ html:not([data-theme="dark"]) .faq-section [aria-label="Editar"]:hover {
 .agentes-fit-closing {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--line, rgba(255, 255, 255, 0.09));
   font-size: 0.95rem;
   line-height: 1.55;
-  color: var(--text-muted, rgba(245, 241, 234, 0.6));
+  color: var(--soft, #C7D4CE);
 }
 
 .agentes-deliverable {
@@ -1996,13 +1997,15 @@ html:not([data-theme="dark"]) .faq-section [aria-label="Editar"]:hover {
   }
 }
 
-/* Home: tipografía de CTAs ámbar hereda tokens del programa */
+/* Home: tokens del programa (no heredar --text-primary oscuro de :root) */
 .landing-v2.home-conversion {
   --accent-advanced: #FFB454;
-  --text-muted: rgba(245, 241, 234, 0.6);
+  --text-primary: #F5F1EA;
+  --text-muted: rgba(245, 241, 234, 0.72);
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --panel: #0D1A16;
   --line: rgba(255, 255, 255, 0.09);
+  --soft: #C7D4CE;
 }
 
 .agentes-funnel {
