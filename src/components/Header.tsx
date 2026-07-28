@@ -78,14 +78,10 @@ export default function Header() {
                 </span>
                 <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
               </Link>
-              <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 mt-2 w-56 bg-[#0D1A16] rounded-xl shadow-xl border border-[#1f3a30] py-2 transition-all duration-200 z-50">
-                <Link href="/programas/construye" className="block px-4 py-2.5 text-white hover:bg-[#10241E] hover:text-[#3FE0A0] transition-colors">
-                  <span className="text-sm font-semibold">Construye</span>
-                  <span className="block text-xs text-white/50">Ruta Web</span>
-                </Link>
-                <Link href="/programas/revela" className="block px-4 py-2.5 text-white hover:bg-[#10241E] hover:text-[#74BAFF] transition-colors">
-                  <span className="text-sm font-semibold">Revela</span>
-                  <span className="block text-xs text-white/50">Ruta de Datos</span>
+              <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 mt-2 w-64 bg-[#0D1A16] rounded-xl shadow-xl border border-[#1f3a30] py-2 transition-all duration-200 z-50">
+                <Link href="/programas/ingenieria-de-agentes" className="block px-4 py-2.5 text-white hover:bg-[#10241E] hover:text-[#FFB454] transition-colors">
+                  <span className="text-sm font-semibold">Ingeniería de agentes</span>
+                  <span className="block text-xs text-white/50">Avanzado · inicia 5 sep</span>
                 </Link>
               </div>
             </div>
@@ -336,9 +332,9 @@ export default function Header() {
               </button>
               {mobileDropdown === 'programas' && (
                 <div className="pl-4 flex flex-col">
-                  <Link href="/programas" className="py-2 text-sm text-white/90 hover:text-[#3FE0A0]" onClick={() => setIsMenuOpen(false)}>Ver todos</Link>
-                  <Link href="/programas/construye" className="py-2 text-sm text-white/90 hover:text-[#3FE0A0]" onClick={() => setIsMenuOpen(false)}>Construye · Ruta Web</Link>
-                  <Link href="/programas/revela" className="py-2 text-sm text-white/90 hover:text-[#74BAFF]" onClick={() => setIsMenuOpen(false)}>Revela · Ruta de Datos</Link>
+                  <Link href="/programas" className="py-2 text-sm text-white/90 hover:text-[#FFB454]" onClick={() => setIsMenuOpen(false)}>
+                    Ingeniería de agentes · inicia 5 sep
+                  </Link>
                 </div>
               )}
             </div>

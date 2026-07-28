@@ -1,48 +1,43 @@
 import type { Metadata } from "next";
 import { LocalBusinessSchema } from "@/components/seo/StructuredData";
+import StickyDiagnosticCta from "@/components/landing/agentes/StickyDiagnosticCta";
 import Hero from "@/components/landing/sections/Hero";
-import Manifiesto from "@/components/landing/sections/Manifiesto";
-import ComoAprendes from "@/components/landing/sections/ComoAprendes";
-import Experiencia from "@/components/landing/sections/Experiencia";
 import Rutas from "@/components/landing/sections/Rutas";
 import ParaQuien from "@/components/landing/sections/ParaQuien";
-import SiPuedes from "@/components/landing/sections/SiPuedes";
+import HomeDemoBand from "@/components/landing/sections/HomeDemoBand";
 import Testimonios from "@/components/landing/sections/Testimonios";
-import PrensaAliados from "@/components/landing/sections/PrensaAliados";
+import ComoAprendes from "@/components/landing/sections/ComoAprendes";
+import Experiencia from "@/components/landing/sections/Experiencia";
 import Visitanos from "@/components/landing/sections/Visitanos";
 import CtaFinal from "@/components/landing/sections/CtaFinal";
+import { AGENTES_COHORT, AGENTES_DEMO_EVENT } from "@/components/landing/agentes/data";
 
 export const metadata: Metadata = {
-  title:
-    "Tech Centre - Despierta el genio tech que llevas dentro | Centro de Tecnología del Caribe",
-  description:
-    "Aprende a construir con inteligencia artificial, de cero al perfil que la industria busca. Clases presenciales en Barranquilla, dos rutas (Web y Datos), acompañándote paso a paso.",
+  title: {
+    absolute:
+      "Ingeniería de agentes de IA · Inicia 5 de septiembre · Tech Centre Barranquilla",
+  },
+  description: `Programa avanzado presencial para developers. Inicia el ${AGENTES_COHORT.startLabel}. Clase demo el ${AGENTES_DEMO_EVENT.dateShort}. Primero diagnóstico de 20 minutos, después inscripción. Doce cupos en El Prado.`,
   keywords: [
-    "centro tecnología Caribe",
-    "cursos programación Barranquilla",
-    "inteligencia artificial",
-    "AI Engineer",
-    "ingeniero de aplicaciones de IA",
-    "agentes IA",
-    "análisis de datos",
-    "python",
-    "react",
-    "next.js",
-    "desarrollo web",
-    "formación tech Caribe",
-    "clases presenciales Barranquilla",
+    "ingeniería de agentes de IA",
+    "curso de agentes de IA Barranquilla",
+    "MCP",
+    "RAG",
+    "LangGraph",
+    "AI engineer Colombia",
+    "formación presencial IA Caribe",
+    "Tech Centre",
   ],
   openGraph: {
-    title: "Tech Centre - Despierta el genio tech que llevas dentro",
-    description:
-      "Aprende a construir con inteligencia artificial, de cero al perfil que la industria busca. Presencial, en el Caribe, acompañándote paso a paso.",
+    title: "Ingeniería de agentes de IA · Tech Centre Barranquilla",
+    description: `Inicia el ${AGENTES_COHORT.startLabel}. Ocho semanas presenciales para developers que ya programan. Primero diagnóstico, después inscripción.`,
     type: "website",
     images: [
       {
-        url: "/tech-center-logos/TechCentreLogoColor.png",
+        url: "/community/manos-teclado.webp",
         width: 1200,
         height: 630,
-        alt: "Tech Centre - Centro de Tecnología del Caribe",
+        alt: "Programa avanzado de ingeniería de agentes · Tech Centre",
       },
     ],
   },
@@ -50,17 +45,16 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="landing-v2">
+    <div className="landing-v2 home-conversion">
       <LocalBusinessSchema />
+      <StickyDiagnosticCta />
       <Hero />
-      <Manifiesto />
-      <ComoAprendes />
-      <Experiencia />
       <Rutas />
       <ParaQuien />
-      <SiPuedes />
+      <HomeDemoBand />
       <Testimonios />
-      <PrensaAliados />
+      <ComoAprendes />
+      <Experiencia />
       <Visitanos />
       <CtaFinal />
     </div>

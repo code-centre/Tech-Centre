@@ -43,8 +43,7 @@ export const metadata: Metadata = {
   },
 };
 
-/** Hub de programas: por ahora el programa avanzado es el protagonista. */
-export default function ProgramasPage() {
+export default function IngenieriaDeAgentesPage() {
   return (
     <>
       <AgentesCourseSchema />

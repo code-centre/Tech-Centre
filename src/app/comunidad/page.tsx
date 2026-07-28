@@ -18,6 +18,12 @@ const COSTA_AGENDA = "https://www.codigoabierto.tech/eventos";
 
 // Listado editable de próximos eventos (agenda Costa Digital).
 const upcomingEvents: EventItem[] = [
+  {
+    name: "Clase demo · Ingeniería de agentes",
+    date: "Sábado 15 ago · 10:00 a.m.",
+    place: "Casa Tech · El Prado",
+    href: "/programas/ingenieria-de-agentes/clase-demo",
+  },
   { name: "Tech Nights", date: "Mensual", place: "Casa Tech · El Prado", href: COSTA_AGENDA },
   { name: "Café Cursor · Meetup", date: "Próximamente", place: "Casa Tech · El Prado", href: COSTA_AGENDA },
   { name: "Build with AI", date: "Gira universitaria", place: "Universidades del Caribe", href: COSTA_AGENDA },
@@ -47,7 +53,7 @@ export default function ComunidadPage() {
               Lo que viene en el ecosistema
             </h2>
           </Reveal>
-          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {upcomingEvents.map((event, i) => (
               <Reveal key={event.name} delay={i * 0.07}>
                 <EventCard event={event} />

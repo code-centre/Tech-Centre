@@ -10,11 +10,14 @@ export interface EventItem {
 }
 
 export default function EventCard({ event }: { event: EventItem }) {
+  const external = /^https?:\/\//.test(event.href);
+
   return (
     <a
       href={event.href}
-      target="_blank"
-      rel="noopener noreferrer"
+      {...(external
+        ? { target: "_blank", rel: "noopener noreferrer" }
+        : {})}
       className="lv2-card group flex h-full flex-col p-6 transition-transform duration-300 hover:-translate-y-1"
     >
       <span className="lv2-mono flex items-center gap-2">

@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { MessageCircle } from "lucide-react";
-
-const WHATSAPP_URL =
-  "https://wa.me/573005523872?text=Hola%2C%20quiero%20inscribirme%20en%20Tech%20Centre";
+import {
+  AGENTES_COHORT,
+  AGENTES_DIAGNOSTICO_URL,
+  AGENTES_PATH,
+} from "../agentes/data";
+import { trackAgentes } from "../agentes/track";
 
 export default function CtaFinal() {
   const reduce = useReducedMotion();
@@ -17,48 +19,48 @@ export default function CtaFinal() {
       aria-labelledby="cta-title"
     >
       <motion.div
-        className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-[rgba(63,224,160,0.4)] px-6 py-16 text-center md:px-12"
+        className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-[rgba(255,180,84,0.45)] px-6 py-16 text-center md:px-12"
         style={{
           background:
-            "radial-gradient(120% 120% at 50% 0%, rgba(63,224,160,0.22) 0%, rgba(20,70,58,0.4) 45%, rgba(7,16,13,0.9) 100%)",
+            "radial-gradient(120% 120% at 50% 0%, rgba(255,180,84,0.18) 0%, rgba(20,70,58,0.4) 45%, rgba(7,16,13,0.9) 100%)",
         }}
-        initial={{ opacity: 0, boxShadow: "0 0 0 0 rgba(63,224,160,0)" }}
+        initial={{ opacity: 0, boxShadow: "0 0 0 0 rgba(255,180,84,0)" }}
         whileInView={{
           opacity: 1,
           boxShadow: reduce
-            ? "0 0 0 0 rgba(63,224,160,0)"
-            : "0 0 80px -20px rgba(63,224,160,0.6)",
+            ? "0 0 0 0 rgba(255,180,84,0)"
+            : "0 0 80px -20px rgba(255,180,84,0.45)",
         }}
         viewport={{ once: true, margin: "-20%" }}
         transition={{ duration: 0.9, ease: "easeOut" }}
       >
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[120%] -translate-x-1/2 bg-[radial-gradient(closest-side,rgba(63,224,160,0.3),transparent)]"
-        />
         <h2
           id="cta-title"
           className="lv2-display relative text-4xl text-[var(--paper)] sm:text-5xl md:text-6xl"
         >
-          Empieza a explorar.{" "}
-          <span className="lv2-mint">El viaje apenas comienza.</span>
+          Veinte minutos.{" "}
+          <span style={{ color: "#FFB454" }}>Sin examen y sin compromiso.</span>
         </h2>
         <p className="relative mt-5 text-lg lv2-soft">
-          Grupos pequeños · clases presenciales · cupos limitados.
+          Inicia el {AGENTES_COHORT.startLabel}. Primero validamos nivel y ritmo.
+          El pago viene después.
         </p>
-        <div className="relative mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link href="/registro" className="lv2-btn text-lg">
-            Inscríbete
-          </Link>
+        <div className="relative mt-9 flex flex-col items-center gap-3">
           <a
-            href={WHATSAPP_URL}
+            href={AGENTES_DIAGNOSTICO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="lv2-btn-secondary text-lg"
+            className="agentes-btn-amber agentes-btn-lg text-lg"
+            onClick={() =>
+              trackAgentes("click_cta_diagnostico", { section: "home_cta_final" })
+            }
           >
-            <MessageCircle className="h-5 w-5" aria-hidden="true" />
-            Escríbenos por WhatsApp
+            Agendar sesión de diagnóstico
           </a>
+          <p className="agentes-cta-note">20 min · sin examen · sin pago</p>
+          <Link href={AGENTES_PATH} className="agentes-text-link mt-2">
+            Ver el programa completo
+          </Link>
         </div>
       </motion.div>
     </section>

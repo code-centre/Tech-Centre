@@ -14,6 +14,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '/programas', priority: 0.9, changeFrequency: 'weekly' },
     { path: '/programas/construye', priority: 0.9, changeFrequency: 'weekly' },
     { path: '/programas/revela', priority: 0.9, changeFrequency: 'weekly' },
+    { path: '/programas/ingenieria-de-agentes', priority: 0.9, changeFrequency: 'weekly' },
+    { path: '/programas/ingenieria-de-agentes/clase-demo', priority: 0.8, changeFrequency: 'weekly' },
     { path: '/metodologia', priority: 0.8, changeFrequency: 'monthly' },
     { path: '/comunidad', priority: 0.7, changeFrequency: 'weekly' },
     { path: '/nosotros', priority: 0.8, changeFrequency: 'monthly' },

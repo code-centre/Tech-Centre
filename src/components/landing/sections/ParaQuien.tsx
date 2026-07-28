@@ -1,40 +1,13 @@
 "use client";
 
-import { Compass, RefreshCw, Hammer } from "lucide-react";
-import type { ElementType } from "react";
+import { Check, X } from "lucide-react";
 import SparkEyebrow from "../SparkEyebrow";
 import Reveal from "../Reveal";
-
-interface Perfil {
-  icon: ElementType;
-  title: string;
-  range: string;
-  description: string;
-}
-
-const perfiles: Perfil[] = [
-  {
-    icon: Compass,
-    title: "El Curioso",
-    range: "18 a 24",
-    description:
-      'Sientes que la tecnología "no es para gente como yo". Aquí encuentras ruta y comunidad.',
-  },
-  {
-    icon: RefreshCw,
-    title: "El Reinventor",
-    range: "25 a 35",
-    description:
-      "Quieres migrar a tech con un camino serio, presencial y acompañado.",
-  },
-  {
-    icon: Hammer,
-    title: "El Constructor",
-    range: "dev con experiencia",
-    description:
-      "Ya programas y quieres pasar de usar IA a construir agentes y productos. Entra directo al Módulo 3.",
-  },
-];
+import {
+  AGENTES_DIAGNOSTICO_URL,
+  AGENTES_FIT,
+} from "../agentes/data";
+import { trackAgentes } from "../agentes/track";
 
 export default function ParaQuien() {
   return (
@@ -50,33 +23,74 @@ export default function ParaQuien() {
             id="para-quien-title"
             className="lv2-display mt-5 text-4xl text-[var(--paper)] sm:text-5xl"
           >
-            Un mensaje, tres puertas
+            Hecho para el Constructor
           </h2>
+          <p className="mt-4 max-w-2xl text-lg lv2-soft">
+            Ya programas, trabajas de lunes a viernes y usas IA todos los días.
+            Lo que falta es pasar al otro lado: diseñar sistemas, no pedir código.
+          </p>
         </Reveal>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {perfiles.map((perfil, i) => {
-            const Icon = perfil.icon;
-            return (
-              <Reveal key={perfil.title} delay={i * 0.09}>
-                <article className="lv2-card group h-full p-7 transition-transform duration-300 hover:-translate-y-1">
-                  <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[rgba(63,224,160,0.12)] text-[var(--mint)] transition-transform duration-300 group-hover:scale-110">
-                    <Icon className="h-6 w-6" aria-hidden="true" />
-                  </div>
-                  <div className="flex items-baseline gap-3">
-                    <h3 className="lv2-display text-2xl text-[var(--paper)]">
-                      {perfil.title}
-                    </h3>
-                    <span className="lv2-mono">{perfil.range}</span>
-                  </div>
-                  <p className="mt-3 leading-relaxed lv2-soft">
-                    {perfil.description}
-                  </p>
-                </article>
-              </Reveal>
-            );
-          })}
+        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Reveal>
+            <article className="agentes-fit-card h-full">
+              <h3 className="agentes-fit-title agentes-fit-title-yes">Es para ti si</h3>
+              <ul className="agentes-fit-list">
+                {AGENTES_FIT.yes.map((item) => (
+                  <li key={item}>
+                    <Check className="agentes-fit-icon agentes-fit-icon-yes" aria-hidden="true" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          </Reveal>
+          <Reveal delay={0.04}>
+            <article className="agentes-fit-card agentes-fit-card-no h-full">
+              <h3 className="agentes-fit-title agentes-fit-title-no">Todavía no es para ti si</h3>
+              <ul className="agentes-fit-list">
+                {AGENTES_FIT.no.map((item) => (
+                  <li key={item}>
+                    <X className="agentes-fit-icon agentes-fit-icon-no" aria-hidden="true" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="agentes-fit-closing">
+                {AGENTES_FIT.noClosing}{" "}
+                <a
+                  href={AGENTES_FIT.careersHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="agentes-mint-link"
+                >
+                  {AGENTES_FIT.careersLabel}
+                </a>
+              </p>
+            </article>
+          </Reveal>
         </div>
+
+        <Reveal delay={0.08}>
+          <p className="agentes-needs-note mt-8 max-w-3xl">{AGENTES_FIT.pythonNote}</p>
+        </Reveal>
+
+        <Reveal className="mt-10">
+          <div className="agentes-inline-cta">
+            <a
+              href={AGENTES_DIAGNOSTICO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="agentes-btn-amber"
+              onClick={() =>
+                trackAgentes("click_cta_diagnostico", { section: "home_fit" })
+              }
+            >
+              Agendar sesión de diagnóstico
+            </a>
+            <p>20 min · sin examen · sin pago</p>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

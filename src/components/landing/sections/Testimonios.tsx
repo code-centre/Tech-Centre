@@ -38,10 +38,10 @@ export default function Testimonios() {
             id="testimonios-title"
             className="lv2-display mx-auto mt-5 max-w-3xl text-4xl text-[var(--paper)] sm:text-5xl"
           >
-            Historias de personas que se atrevieron
+            La sede, la gente y el ritmo real
           </h2>
           <p className="mt-4 lv2-soft">
-            Despierta el genio tech que llevas dentro.
+            Así se vive construir en Tech Centre, presencial en Barranquilla.
           </p>
         </Reveal>
 

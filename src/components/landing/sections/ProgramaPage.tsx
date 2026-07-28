@@ -6,6 +6,7 @@ import IntensityCards from "../IntensityCards";
 import CtaBand from "../CtaBand";
 import FaqAccordion from "../FaqAccordion";
 import Testimonios from "./Testimonios";
+import AlumniNextStep from "../agentes/AlumniNextStep";
 import type { RouteData } from "../data";
 import { FAQS } from "../data";
 import { ArrowRight } from "lucide-react";
@@ -179,6 +180,8 @@ export default function ProgramaPage({ route }: { route: RouteData }) {
           </Reveal>
         </div>
       </section>
+
+      <AlumniNextStep />
 
       <CtaBand title="Esta es tu ruta." highlight="Empieza ahora." />
     </div>

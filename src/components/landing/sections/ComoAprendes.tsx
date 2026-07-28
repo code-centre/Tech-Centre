@@ -64,11 +64,11 @@ export default function ComoAprendes() {
             id="metodo-title"
             className="lv2-display mt-5 max-w-2xl text-4xl text-[var(--paper)] sm:text-5xl"
           >
-            Una experiencia diseñada para la industria real
+            Presencial, con code review cara a cara
           </h2>
           <p className="mt-4 max-w-2xl text-lg lv2-soft">
-            Metodología práctica, acompañamiento cercano y una comunidad que
-            crece contigo.
+            Construyes en la sede los sábados. En casa preparas con videos cortos
+            y entregas pequeñas. Feedback real, no foros anónimos.
           </p>
         </Reveal>
 
