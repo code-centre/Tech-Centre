@@ -528,7 +528,7 @@ export default function CohortesAdmon() {
       {/* Encabezado */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3.5">
-          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary/10 text-[var(--text-secondary)]">
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary/10 text-text-secondary">
             <CalendarDays size={24} aria-hidden="true" />
           </span>
           <div>
@@ -569,7 +569,7 @@ export default function CohortesAdmon() {
                 onClick={() => setStatusFilter(tab.value)}
                 className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border px-3.5 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'border-secondary/30 bg-secondary/10 text-[var(--text-secondary)]'
+                    ? 'border-secondary/30 bg-secondary/10 text-text-secondary'
                     : 'border-transparent text-text-muted hover:text-text-primary'
                 }`}
               >
@@ -626,7 +626,7 @@ export default function CohortesAdmon() {
         cohorts.length === 0 ? (
           /* Primera vez: nunca se ha creado una cohorte */
           <div className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-14 text-center shadow-lg">
-            <span className="inline-flex h-14 w-14 items-center justify-center rounded-[14px] bg-secondary/10 text-[var(--text-secondary)]">
+            <span className="inline-flex h-14 w-14 items-center justify-center rounded-[14px] bg-secondary/10 text-text-secondary">
               <CalendarPlus size={28} strokeWidth={1.8} aria-hidden="true" />
             </span>
             <h2 className="mt-5 text-xl font-semibold text-text-primary">
@@ -734,7 +734,7 @@ export default function CohortesAdmon() {
                             className={`block text-[15px] font-semibold ${
                               terminada
                                 ? 'text-text-primary'
-                                : 'text-[var(--text-secondary)] group-hover:underline'
+                                : 'text-text-secondary group-hover:underline'
                             }`}
                           >
                             {cohort.name}
@@ -821,18 +821,18 @@ export default function CohortesAdmon() {
                           aria-label={cohort.offering ? 'Ocultar en el sitio' : 'Mostrar en el sitio'}
                           className={`relative inline-flex h-[22px] w-[38px] items-center rounded-full border transition-colors disabled:opacity-50 ${
                             cohort.offering
-                              ? 'border-secondary/45 bg-secondary/20'
-                              : 'border-border-color bg-bg-secondary'
+                              ? 'border-secondary/50 bg-secondary/25'
+                              : 'border-text-muted/45 bg-text-muted/30'
                           }`}
                         >
                           {togglingOffering === cohort.id ? (
                             <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin text-text-muted" />
                           ) : (
                             <span
-                              className={`absolute top-[2px] h-4 w-4 rounded-full transition-all ${
+                              className={`absolute top-[2px] h-4 w-4 rounded-full shadow-sm transition-all ${
                                 cohort.offering
                                   ? 'right-[2px] bg-[var(--text-secondary)]'
-                                  : 'left-[2px] bg-text-muted'
+                                  : 'left-[2px] bg-text-primary/80'
                               }`}
                             />
                           )}
@@ -917,7 +917,7 @@ export default function CohortesAdmon() {
                     <Link href={`/admin/cohortes/${cohort.id}`} className="min-w-0">
                       <span
                         className={`block text-base font-semibold ${
-                          terminada ? 'text-text-primary' : 'text-[var(--text-secondary)]'
+                          terminada ? 'text-text-primary' : 'text-text-secondary'
                         }`}
                       >
                         {cohort.name}
@@ -995,18 +995,18 @@ export default function CohortesAdmon() {
                       <span
                         className={`relative inline-flex h-[22px] w-[38px] shrink-0 items-center rounded-full border transition-colors ${
                           cohort.offering
-                            ? 'border-secondary/45 bg-secondary/20'
-                            : 'border-border-color bg-bg-secondary'
+                            ? 'border-secondary/50 bg-secondary/25'
+                            : 'border-text-muted/45 bg-text-muted/30'
                         }`}
                       >
                         {togglingOffering === cohort.id ? (
                           <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin text-text-muted" />
                         ) : (
                           <span
-                            className={`absolute top-[2px] h-4 w-4 rounded-full transition-all ${
+                            className={`absolute top-[2px] h-4 w-4 rounded-full shadow-sm transition-all ${
                               cohort.offering
                                 ? 'right-[2px] bg-[var(--text-secondary)]'
-                                : 'left-[2px] bg-text-muted'
+                                : 'left-[2px] bg-text-primary/80'
                             }`}
                           />
                         )}
@@ -1026,7 +1026,7 @@ export default function CohortesAdmon() {
                       </button>
                       <Link
                         href={`/admin/cohortes/${cohort.id}`}
-                        className="inline-flex h-11 items-center gap-1 rounded-lg border border-secondary/30 px-3.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-secondary/10"
+                        className="inline-flex h-11 items-center gap-1 rounded-lg border border-secondary/30 px-3.5 text-sm font-medium text-text-secondary transition-colors hover:bg-secondary/10"
                       >
                         Alumnos
                         <ChevronRight className="h-[15px] w-[15px]" />
@@ -1226,7 +1226,7 @@ export default function CohortesAdmon() {
 
               <fieldset className="space-y-3 p-4 rounded-lg border border-border-color bg-bg-secondary/30">
                 <legend className="flex items-center gap-2 text-sm font-medium text-text-primary px-2">
-                  <Clock className="w-4 h-4 text-secondary" />
+                  <Clock className="w-4 h-4 text-text-secondary" />
                   Horario
                 </legend>
                 <div>
@@ -1243,7 +1243,7 @@ export default function CohortesAdmon() {
                           type="checkbox"
                           checked={formData.schedule_days.includes(dia)}
                           onChange={() => handleScheduleDayToggle(dia)}
-                          className="rounded border-border-color text-secondary focus:ring-secondary"
+                          className="rounded border-border-color text-text-secondary focus:ring-secondary"
                         />
                         <span className="text-sm text-text-primary">{dia}</span>
                       </label>
@@ -1279,7 +1279,7 @@ export default function CohortesAdmon() {
                     <button
                       type="button"
                       onClick={addScheduleHour}
-                      className="inline-flex items-center gap-2 text-sm text-secondary hover:text-secondary/80"
+                      className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-text-secondary/80"
                     >
                       <PlusCircle className="w-4 h-4" />
                       Agregar otro horario

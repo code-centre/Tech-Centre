@@ -166,6 +166,28 @@
   --highlight: var(--highlight);
   --background: var(--background);
   --background-light: var(--background-light);
+
+  /*
+   * Colores semánticos como utilidades de Tailwind.
+   * tailwind.config.js ya no se lee: Tailwind v4 lo ignora sin una directiva
+   * @config, así que clases como bg-secondary o text-text-primary no generaban
+   * nada. Registrarlos aquí, en el namespace --color-*, las revive y además
+   * deja funcionar los modificadores de opacidad (bg-secondary/10), que sobre
+   * un var() arbitrario se descartan.
+   */
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-highlight: var(--highlight);
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-card: var(--bg-card);
+  --color-card-background: var(--card-background);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-color: var(--border-color);
+  --color-button-bg: var(--button-bg);
+  --color-button-text: var(--button-text);
 }
 
 /* Máscara de gradiente para transición entre secciones - efecto más agresivo y corto */

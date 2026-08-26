@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useSupabaseClient } from '@/lib/supabase';
 import { StudentsList } from '@/components/adminspage/StudentsList';
 import EnrollmentModal from '@/components/adminspage/EnrollmentModal';
 import SessionsList from '@/components/adminspage/SessionsList';
 import Link from 'next/link';
-import { ArrowLeft, UserPlus, Calendar, BookOpen, Hash, Users, BookMarked } from 'lucide-react';
+import { ArrowLeft, UserPlus, Calendar, BookOpen, Hash, Users, BookMarked, Trash2, TriangleAlert, Loader2, X } from 'lucide-react';
 import type { Session, ProgramModule } from '@/types/supabase';
 
 interface Profile {
@@ -42,6 +42,7 @@ interface Enrollment {
 export default function CohortStudentsPage() {
   const params = useParams();
   const supabase = useSupabaseClient();
+  const router = useRouter();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [modules, setModules] = useState<ProgramModule[]>([]);
@@ -50,6 +51,9 @@ export default function CohortStudentsPage() {
   const [cohort, setCohort] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'students' | 'classes'>('students');
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const cohortId = params.cohort_id as string;
 
@@ -169,6 +173,35 @@ export default function CohortStudentsPage() {
     );
   }
 
+  /**
+   * Borra la cohorte. Se bloquea si tiene matriculados: con estudiantes de por
+   * medio hay pagos y notas colgando, y no vamos a borrarlos en cascada desde aquí.
+   */
+  const handleDeleteCohort = async () => {
+    if (enrollments.length > 0) return;
+    try {
+      setDeleting(true);
+      setDeleteError(null);
+
+      // La asignación de instructor es una fila puente: se puede limpiar.
+      await supabase.from('cohort_instructors').delete().eq('cohort_id', cohortId);
+
+      const { error } = await supabase.from('cohorts').delete().eq('id', cohortId);
+      if (error) throw error;
+
+      router.push('/admin/cohortes');
+      router.refresh();
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === 'object' && 'message' in err
+          ? String((err as { message: string }).message)
+          : 'Error desconocido';
+      console.error('Error al eliminar la cohorte:', err);
+      setDeleteError(message);
+      setDeleting(false);
+    }
+  };
+
   const programName = Array.isArray(cohort?.programs)
     ? cohort?.programs?.[0]?.name
     : cohort?.programs?.name;
@@ -183,7 +216,7 @@ export default function CohortStudentsPage() {
         <div className="p-6">
           <Link
             href="/admin/cohortes"
-            className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-secondary transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-secondary transition-colors mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
             Volver a Cohortes
@@ -196,36 +229,49 @@ export default function CohortStudentsPage() {
                 className="text-2xl md:text-3xl font-bold text-text-primary mb-4 flex items-center gap-3"
               >
                 <div className="p-2.5 bg-secondary/10 rounded-xl">
-                  <Calendar className="w-7 h-7 text-secondary" />
+                  <Calendar className="w-7 h-7 text-text-secondary" />
                 </div>
                 {cohortName}
               </h1>
               <div className="flex flex-wrap gap-6 text-sm">
                 <span className="flex items-center gap-2 text-text-muted">
-                  <Hash className="w-4 h-4 text-secondary" />
+                  <Hash className="w-4 h-4 text-text-secondary" />
                   <span className="text-text-primary font-medium">ID:</span>
                   {cohort?.id}
                 </span>
                 <span className="flex items-center gap-2 text-text-muted">
-                  <BookOpen className="w-4 h-4 text-secondary" />
+                  <BookOpen className="w-4 h-4 text-text-secondary" />
                   <span className="text-text-primary font-medium">Programa:</span>
                   {programName || '—'}
                 </span>
                 <span className="flex items-center gap-2 text-text-muted">
-                  <Calendar className="w-4 h-4 text-secondary" />
+                  <Calendar className="w-4 h-4 text-text-secondary" />
                   <span className="text-text-primary font-medium">Fechas:</span>
                   {cohort?.start_date} — {cohort?.end_date}
                 </span>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="btn-primary inline-flex items-center gap-2 shrink-0"
-            >
-              <UserPlus className="w-5 h-5" />
-              Añadir Estudiante
-            </button>
+            <div className="flex shrink-0 items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteError(null);
+                  setIsDeleteOpen(true);
+                }}
+                className="inline-flex h-11 items-center gap-2 rounded-lg border border-red-500/40 px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400"
+              >
+                <Trash2 className="h-4 w-4" />
+                Eliminar cohorte
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                <UserPlus className="w-5 h-5" />
+                Añadir Estudiante
+              </button>
+            </div>
           </div>
         </div>
 
@@ -238,7 +284,7 @@ export default function CohortStudentsPage() {
             onClick={() => setActiveTab('students')}
             className={`flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-medium transition-colors ${
               activeTab === 'students'
-                ? 'text-secondary border-b-2 border-secondary bg-bg-secondary/30'
+                ? 'text-text-secondary border-b-2 border-secondary bg-bg-secondary/30'
                 : 'text-text-muted hover:text-text-primary hover:bg-bg-secondary/20'
             }`}
           >
@@ -250,7 +296,7 @@ export default function CohortStudentsPage() {
             onClick={() => setActiveTab('classes')}
             className={`flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 text-sm font-medium transition-colors ${
               activeTab === 'classes'
-                ? 'text-secondary border-b-2 border-secondary bg-bg-secondary/30'
+                ? 'text-text-secondary border-b-2 border-secondary bg-bg-secondary/30'
                 : 'text-text-muted hover:text-text-primary hover:bg-bg-secondary/20'
             }`}
           >
@@ -294,6 +340,111 @@ export default function CohortStudentsPage() {
         }
         onEnrollmentCreated={handleEnrollmentCreated}
       />
+
+      {isDeleteOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-cohort-title"
+        >
+          <div className="w-full max-w-lg rounded-xl border border-border-color bg-[var(--card-background)] p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-red-500/10 text-red-600 dark:text-red-400">
+                  <TriangleAlert className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <h2
+                    id="delete-cohort-title"
+                    className="text-lg font-semibold text-text-primary"
+                  >
+                    {enrollments.length > 0
+                      ? 'Esta cohorte no se puede eliminar'
+                      : '¿Eliminar esta cohorte?'}
+                  </h2>
+                  <p className="mt-1 text-sm text-text-muted">{cohortName}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDeleteOpen(false)}
+                className="p-1 text-text-muted transition-colors hover:text-text-primary"
+                aria-label="Cerrar"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {enrollments.length > 0 ? (
+              <>
+                <p className="mt-5 text-[14.5px] leading-relaxed text-text-muted">
+                  Tiene{' '}
+                  <strong className="font-semibold text-text-primary">
+                    {enrollments.length}{' '}
+                    {enrollments.length === 1 ? 'estudiante matriculado' : 'estudiantes matriculados'}
+                  </strong>
+                  , con sus pagos y notas asociados. Saca a los estudiantes desde la
+                  pestaña Estudiantes antes de eliminarla, o déjala oculta en el sitio
+                  si solo quieres que deje de aparecer.
+                </p>
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsDeleteOpen(false)}
+                    className="inline-flex h-11 items-center rounded-lg border border-border-color px-4 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
+                  >
+                    Entendido
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="mt-5 text-[14.5px] leading-relaxed text-text-muted">
+                  No tiene estudiantes matriculados, así que se puede eliminar. Esta
+                  acción no se puede deshacer: se borra la cohorte y la asignación de
+                  su instructor.
+                </p>
+
+                {deleteError && (
+                  <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-600 dark:text-red-400">
+                    No se pudo eliminar: {deleteError}
+                  </p>
+                )}
+
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsDeleteOpen(false)}
+                    disabled={deleting}
+                    className="inline-flex h-11 items-center rounded-lg border border-border-color px-4 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDeleteCohort}
+                    disabled={deleting}
+                    className="inline-flex h-11 items-center gap-2 rounded-lg bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {deleting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Eliminando...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="h-4 w-4" />
+                        Eliminar cohorte
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

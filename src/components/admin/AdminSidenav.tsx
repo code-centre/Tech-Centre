@@ -42,7 +42,7 @@ export default function AdminSidenav() {
                 transition-all duration-200 ease-in-out relative overflow-hidden group
                 ${
                   isActive
-                    ? 'bg-secondary/20 text-[var(--text-secondary)] border border-secondary/30'
+                    ? 'bg-secondary/20 text-text-secondary border border-secondary/30'
                     : 'text-text-muted hover:text-text-primary hover:bg-bg-secondary border border-transparent'
                 }
               `}
@@ -52,7 +52,7 @@ export default function AdminSidenav() {
               )}
               <Icon
                 size={20}
-                className={isActive ? 'text-[var(--text-secondary)]' : 'text-text-muted group-hover:text-[var(--text-secondary)]'}
+                className={isActive ? 'text-text-secondary' : 'text-text-muted group-hover:text-text-secondary'}
               />
               <span className="flex-1 text-left">{item.label}</span>
             </Link>
