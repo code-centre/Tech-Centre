@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { LocalBusinessSchema } from "@/components/seo/StructuredData";
 import StickyDiagnosticCta from "@/components/landing/agentes/StickyDiagnosticCta";
 import Hero from "@/components/landing/sections/Hero";
+import PruebaBar from "@/components/landing/sections/PruebaBar";
+import EsParaTi from "@/components/landing/sections/EsParaTi";
 import Rutas from "@/components/landing/sections/Rutas";
-import ComoFunciona from "@/components/landing/sections/ComoFunciona";
-import Testimonios from "@/components/landing/sections/Testimonios";
+import ComoEntras from "@/components/landing/sections/ComoEntras";
+import PruebaSocial from "@/components/landing/sections/PruebaSocial";
 import ComoAprendes from "@/components/landing/sections/ComoAprendes";
-import Experiencia from "@/components/landing/sections/Experiencia";
+import Inversion from "@/components/landing/sections/Inversion";
 import DespuesDeLaCumbre from "@/components/landing/sections/DespuesDeLaCumbre";
+import FaqHome from "@/components/landing/sections/FaqHome";
 import Visitanos from "@/components/landing/sections/Visitanos";
 import CtaFinal from "@/components/landing/sections/CtaFinal";
 
@@ -50,12 +53,15 @@ export default function Home() {
       <LocalBusinessSchema />
       <StickyDiagnosticCta />
       <Hero />
+      <PruebaBar />
+      <EsParaTi />
       <Rutas />
-      <ComoFunciona />
-      <Testimonios />
+      <ComoEntras />
+      <PruebaSocial />
       <ComoAprendes />
-      <Experiencia />
+      <Inversion />
       <DespuesDeLaCumbre />
+      <FaqHome />
       <Visitanos />
       <CtaFinal />
     </div>

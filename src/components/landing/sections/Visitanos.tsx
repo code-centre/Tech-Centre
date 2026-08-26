@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { MapPin, Clock, Car, ExternalLink, MessageCircle } from "lucide-react";
 import type { ElementType } from "react";
@@ -103,27 +104,28 @@ export default function Visitanos() {
           </div>
 
           <Reveal glow>
-            <div className="lv2-card overflow-hidden p-3">
-              <motion.div
-                className="overflow-hidden rounded-xl"
-                initial={{ opacity: 0, scale: reduce ? 1 : 0.96 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, margin: "-15%" }}
-                transition={{ duration: 0.6 }}
-              >
-                <iframe
-                  src={EMBED_MAP_URL}
-                  className="h-[300px] w-full border-0 md:h-[420px]"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Ubicación de Tech Centre en Barranquilla"
-                />
-              </motion.div>
-              <p className="lv2-mono mt-3 flex items-center gap-2 px-1">
-                <MapPin className="h-4 w-4 text-[var(--mint)]" aria-hidden="true" />
-                El Prado, Barranquilla
-              </p>
-            </div>
+            <motion.figure
+              className="relative m-0 h-[320px] overflow-hidden rounded-2xl border border-[var(--line)] md:h-[440px]"
+              initial={{ opacity: 0, scale: reduce ? 1 : 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-15%" }}
+              transition={{ duration: 0.6 }}
+            >
+              <Image
+                src="/community/sede-codigo-abierto.webp"
+                alt="Fachada de Casa Tech, la sede de Tech Centre en Barranquilla"
+                fill
+                sizes="(max-width: 1024px) 100vw, 620px"
+                className="object-cover"
+              />
+              <span
+                aria-hidden="true"
+                className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(7,16,13,0.9))]"
+              />
+              <figcaption className="lv2-mono absolute bottom-5 left-6 !text-[var(--mint)]">
+                Casa Tech · El Prado, Barranquilla
+              </figcaption>
+            </motion.figure>
           </Reveal>
         </div>
       </div>

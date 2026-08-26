@@ -30,14 +30,14 @@ export default function PageHero({
   return (
     <section className="relative overflow-hidden px-4 pb-16 pt-32 sm:px-6 md:pb-24 md:pt-40 lg:px-8">
       {bgImage && (
-        <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 z-0">
           <Image src={bgImage} alt={bgAlt} fill priority sizes="100vw" className="object-cover" />
           <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(7,16,13,0.94)_0%,rgba(7,16,13,0.8)_55%,rgba(7,16,13,0.55)_100%)]" />
         </div>
       )}
       <div aria-hidden="true" className="lv2-tex right-[10%] top-[20%] hidden h-32 w-32 md:block" />
 
-      <div className="mx-auto max-w-7xl">
+      <div className="relative z-10 mx-auto max-w-7xl">
         <motion.div
           className="max-w-3xl"
           initial={{ opacity: 0, y: reduce ? 0 : 20 }}

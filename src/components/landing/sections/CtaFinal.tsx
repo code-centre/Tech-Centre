@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import CohorteBadge from "../CohorteBadge";
 import { whatsappWith } from "../data";
 import { RUTAS_CTA_FINAL, RUTAS_DIAGNOSTICO_URL, RUTAS_LEGAL } from "../rutas/data";
 import { trackAgentes } from "../agentes/track";
@@ -34,9 +35,11 @@ export default function CtaFinal() {
         viewport={{ once: true, margin: "-20%" }}
         transition={{ duration: 0.9, ease: "easeOut" }}
       >
+        <CohorteBadge className="relative !bg-[rgba(7,16,13,0.4)]" />
+
         <h2
           id="cta-title"
-          className="lv2-display relative text-4xl text-[var(--paper)] sm:text-5xl md:text-6xl"
+          className="lv2-display relative mt-6 text-4xl text-[var(--paper)] sm:text-5xl md:text-6xl"
         >
           El viaje <span className="lv2-mint">apenas comienza</span>
         </h2>

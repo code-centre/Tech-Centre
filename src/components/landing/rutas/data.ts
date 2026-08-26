@@ -29,9 +29,13 @@ export type RutaLevel = "Base" | "Ascenso" | "Cumbre";
 export interface RutaModule {
   level: RutaLevel;
   levelLabel: string;
+  /** Identificador de la página del módulo: /programas/modulos/<slug> */
+  slug: string;
   title: string;
   stack: string;
   outcome: string;
+  /** Qué se necesita para entrar directo a este módulo. */
+  requisito: string;
   bullets: string[];
 }
 
@@ -43,6 +47,8 @@ export interface Ruta {
   description: string;
   stackPills: string[];
   tone: RutaTone;
+  /** Página de la ruta con el temario completo. */
+  detailHref: string;
   modules: RutaModule[];
 }
 
@@ -56,13 +62,17 @@ export const RUTAS: Ruta[] = [
       "De cero a construir productos completos y agentes de IA. JavaScript, TypeScript y el stack agéntico moderno.",
     stackPills: ["JavaScript · TypeScript", "React · Node · PostgreSQL", "Claude API · MCP"],
     tone: "mint",
+    detailHref: "/programas/construye",
     modules: [
       {
         level: "Base",
         levelLabel: "Nivel inicial · Módulo 1",
+        slug: "fundamentos-de-programacion",
         title: "Fundamentos de Programación",
         stack: "JavaScript · terminal · Git · HTTP · IA asistida",
         outcome: "Terminas con tu primera aplicación publicada en internet.",
+        requisito:
+          "Nada. Este es el punto de entrada: empezamos desde cero, con computador, internet y ganas de aprender.",
         bullets: [
           "Programación desde cero: lógica, funciones, datos, resolución de problemas",
           "Las herramientas del oficio: terminal, Git y cómo funciona la web",
@@ -72,10 +82,13 @@ export const RUTAS: Ruta[] = [
       {
         level: "Ascenso",
         levelLabel: "Nivel intermedio · Módulo 2",
+        slug: "ingenieria-de-producto",
         title: "Ingeniería de Producto",
         stack: "TypeScript · React · Node · PostgreSQL · deploy",
         outcome:
           "Terminas con un producto completo desplegado, con usuarios de prueba reales.",
+        requisito:
+          "Saber programar lo básico en JavaScript, o haber hecho el módulo 1. Si ya programas, el diagnóstico valida tu nivel y entras directo.",
         bullets: [
           "Cómo se compone un producto completo: cliente, API, base de datos, arquitectura",
           "Entender al usuario y diseñar con criterio, no con plantillas",
@@ -87,10 +100,13 @@ export const RUTAS: Ruta[] = [
       {
         level: "Cumbre",
         levelLabel: "Nivel avanzado · Módulo 3",
+        slug: "harness-y-agentes-de-ia",
         title: "Harness y Agentes de IA",
         stack: "Claude API · MCP · sandboxes · evals",
         outcome:
           "Terminas con un agente completo con harness propio, listo para producción.",
+        requisito:
+          "El nivel del módulo 2, o experiencia construyendo aplicaciones completas. Es el módulo más exigente de la ruta.",
         bullets: [
           "Ingeniería de agentes: el loop agéntico, tools, permisos y context engineering",
           "Construcción de MCP servers y consumo seguro de herramientas",
@@ -109,13 +125,17 @@ export const RUTAS: Ruta[] = [
       "De cero a predecir con datos y machine learning en producción. Python, SQL y el stack de datos moderno.",
     stackPills: ["Python · SQL", "pipelines · warehouse", "ML · forecasting · evals"],
     tone: "cyan",
+    detailHref: "/programas/revela",
     modules: [
       {
         level: "Base",
         levelLabel: "Nivel inicial · Módulo 1",
+        slug: "fundamentos-con-python",
         title: "Fundamentos con Python",
         stack: "Python · SQL · terminal · Git · IA asistida",
         outcome: "Terminas con tu primer análisis de datos publicado.",
+        requisito:
+          "Nada. Este es el punto de entrada: empezamos desde cero, con computador, internet y ganas de aprender.",
         bullets: [
           "Programación desde cero con Python, trabajando con datos reales desde la semana uno",
           "SQL básico, terminal y Git: las herramientas de todo perfil de datos",
@@ -125,9 +145,12 @@ export const RUTAS: Ruta[] = [
       {
         level: "Ascenso",
         levelLabel: "Nivel intermedio · Módulo 2",
+        slug: "ingenieria-de-datos",
         title: "Ingeniería de Datos",
         stack: "SQL avanzado · pipelines · warehouse · orquestación",
         outcome: "Terminas con un pipeline completo funcionando en producción.",
+        requisito:
+          "Python y SQL básicos, o haber hecho el módulo 1. Si ya trabajas con datos, el diagnóstico valida tu nivel y entras directo.",
         bullets: [
           "Pipelines de datos de punta a punta: extracción, transformación, carga",
           "Modelado de datos y warehouse según cómo se usa la información",
@@ -137,10 +160,13 @@ export const RUTAS: Ruta[] = [
       {
         level: "Cumbre",
         levelLabel: "Nivel avanzado · Módulo 3",
+        slug: "machine-learning-aplicado",
         title: "Machine Learning Aplicado",
         stack: "predicción · forecasting · despliegue · evals",
         outcome:
           "Terminas con un modelo desplegado resolviendo un problema real.",
+        requisito:
+          "El nivel del módulo 2, o experiencia construyendo pipelines de datos. Es el módulo más exigente de la ruta.",
         bullets: [
           "ML con criterio de producto: predicción, clasificación y forecasting sobre problemas reales",
           "Evaluación rigurosa: la disciplina de medir lo que los LLMs no pueden responder",
@@ -235,3 +261,197 @@ export const RUTAS_CTA_FINAL = {
   empresas:
     "¿Buscas formar a tu equipo? También llevamos estos programas dentro de empresas. Escríbenos.",
 } as const;
+
+/* ==========================================================================
+   Cohorte, precios y bloques de conversión de la home.
+   Fuente editable: cambiar aquí actualiza hero, embudo, inversión y cierre.
+   ========================================================================== */
+
+/** Cohorte vigente. Actualizar al abrir la siguiente. */
+export const RUTAS_COHORTE = {
+  /** Fecha de inicio en texto, como se muestra al usuario. */
+  startDate: "28 de septiembre",
+  /** Cupos por grupo. */
+  seatsTotal: 12,
+  /**
+   * Cupos que quedan. Poner un número para activar el mensaje de escasez
+   * ("quedan 4 de 12 cupos"); dejar en null muestra solo "12 cupos por grupo".
+   */
+  seatsLeft: null as number | null,
+} as const;
+
+/** Precios por módulo. Un módulo son 8 semanas, 64 horas de formación. */
+export const RUTAS_PRECIOS = {
+  modulo: "$1.400.000",
+  moduloLabel: "Módulos 1 y 2 · nivel inicial e intermedio",
+  moduloAvanzado: "$1.600.000",
+  moduloAvanzadoLabel: "Módulo 3 · nivel avanzado",
+  reserva: "$100.000",
+  cuotas: 3,
+  descuentoEgresados: "10%",
+  moduloEgresados: "$1.260.000",
+  moduloAvanzadoEgresados: "$1.440.000",
+  incluye: [
+    "64 horas de formación con mentores activos en la industria",
+    "Proyecto real desplegado y presentado en demo day",
+    "Repos y biblioteca del módulo por 12 meses",
+    "Créditos de API para tus proyectos, con clave propia",
+    "Entrada a la comunidad, demo days y eventos del ecosistema",
+    "Programa de empleabilidad y constancia de participación",
+  ],
+  becas:
+    "Tenemos becas y convenios, como Becas Atlántico. Pregúntanos por las que están abiertas para tu caso.",
+  sinRiesgo:
+    "El diagnóstico es gratis y sin compromiso. Solo pagas si el nivel y el ritmo encajan contigo.",
+} as const;
+
+/** Calificador: a quién le sirve esto y a quién todavía no. */
+export const RUTAS_FIT = {
+  eyebrow: "Para quién es",
+  title: "Esto funciona si vienes a construir, no a mirar clases",
+  intro:
+    "Preferimos decírtelo antes del diagnóstico: el salón es la mitad del método, y no todo el mundo necesita esto ahora.",
+  yes: [
+    {
+      lead: "Nunca has programado",
+      body: "y quieres entrar a tecnología con alguien que te corrija al lado, no con un video en pausa.",
+    },
+    {
+      lead: "Ya programas",
+      body: "y quieres el stack que se está pagando hoy: agentes, MCP, evals, machine learning en producción.",
+    },
+    {
+      lead: "Tienes una idea de negocio",
+      body: "y quieres salir del módulo 2 con tu producto desplegado y usuarios de prueba reales.",
+    },
+    {
+      lead: "Trabajas",
+      body: "y necesitas 8 horas a la semana que encajen: sábados o entre semana, y práctica guiada en casa.",
+    },
+  ],
+  no: [
+    {
+      lead: "un curso 100% virtual y a tu ritmo",
+      body: "Aquí las 4 horas presenciales son el corazón del método.",
+    },
+    {
+      lead: "un título profesional",
+      body: "Son programas de educación informal: te llevas portafolio y constancia, no diploma.",
+    },
+    {
+      lead: "que el certificado te consiga el empleo",
+      body: "sin construir nada. Lo que abre puertas aquí es lo que construyes.",
+    },
+  ],
+  noClosing:
+    "Si estás en esta columna, dilo en el diagnóstico. Te decimos con franqueza si te sirve o no, sin venderte nada.",
+} as const;
+
+/** Embudo explícito: qué pasa cuando el visitante hace clic. */
+export const RUTAS_COMO_ENTRAS = {
+  eyebrow: "Cómo entras",
+  title: "Tres pasos, sin letra pequeña",
+  intro:
+    "No hay examen de admisión ni pago para empezar la conversación. El diagnóstico existe para que no pagues por repetir lo que ya sabes.",
+  steps: [
+    {
+      when: "Paso 01 · hoy",
+      title: "Agendas el diagnóstico",
+      body: "20 minutos con un mentor, en la sede o por videollamada. Nos cuentas de dónde vienes y a dónde quieres llegar. Gratis y sin compromiso.",
+    },
+    {
+      when: "Paso 02 · mismo día",
+      title: "Te ubicamos en tu módulo",
+      body: "Si nunca has programado, empiezas en el módulo 1. Si ya programas o trabajas con datos, entras directo al 2 o al 3, sin pagar lo que ya sabes.",
+    },
+    {
+      when: "Paso 03 · cuando decidas",
+      title: "Reservas tu cupo y empiezas",
+      body: "Con la reserva aseguras uno de los cupos de la cohorte. El resto lo pagas en cuotas sin interés.",
+    },
+  ],
+  note: "Cada módulo dura 8 semanas. La ruta completa son tres: unos seis meses en total, con compromisos cortos y avance visible cada dos meses.",
+  cta: "Descubre en qué módulo empiezas",
+} as const;
+
+/** Preguntas de la home: las objeciones que frenan el clic. */
+export const RUTAS_FAQS_HOME: { q: string; a: string }[] = [
+  {
+    q: "¿Necesito saber programar para entrar?",
+    a: "No. El módulo 1 empieza desde cero: lógica, terminal, Git y programación desde lo más básico. Solo necesitas computador, internet y ganas reales de aprender.",
+  },
+  {
+    q: "Ya programo, ¿puedo saltarme el módulo 1?",
+    a: "Sí. El diagnóstico gratuito te ubica directo en el módulo 2 o en el 3, sin pagar ni repetir lo que ya sabes.",
+  },
+  {
+    q: "¿Cuánto tiempo me toma a la semana?",
+    a: "8 horas: 4 presenciales en Casa Tech, sábados o entre semana, y 4 de práctica guiada en casa. Está pensado para que puedas seguir trabajando.",
+  },
+  {
+    q: "¿Puedo pagar a cuotas o hay becas?",
+    a: "Sí a las dos. Reservas tu cupo y pagas el resto en hasta tres cuotas sin interés. Si ya hiciste un módulo con nosotros, tienes 10% de descuento. También tenemos becas y convenios, como Becas Atlántico.",
+  },
+  {
+    q: "¿Esto me garantiza un empleo?",
+    a: "No prometemos empleo. Te llevas un portafolio de proyectos desplegados, el programa de empleabilidad y una red que sí se refiere entre ella. Lo que abre puertas es lo que construyes.",
+  },
+  {
+    q: "¿Qué me llevo al terminar?",
+    a: "Un proyecto real desplegado y presentado en demo day, constancia de participación de Tech Centre, y acceso a la comunidad de egresados y al ecosistema Costa Digital.",
+  },
+];
+
+/** Place ID de Google del que salen las reseñas de la home. */
+export const RUTAS_GOOGLE_PLACE_ID = "ChIJv01Wyvot9I4RUtzmOXikbpM";
+
+/**
+ * Reseñas que se destacan junto al video, por nombre de autor.
+ * Google devuelve las suyas por relevancia, no por qué tan bien venden: esta
+ * lista deja elegir cuáles se muestran. Si queda vacía o no coinciden, se usan
+ * las dos primeras que devuelva la API.
+ */
+export const RUTAS_RESENAS_DESTACADAS: string[] = [
+  "Abis Rafael Figueredo Martinez",
+  "Gabriel Landinez (Gabolandi)",
+];
+
+/* ==========================================================================
+   Módulos como páginas propias: /programas/modulos/<slug>
+   ========================================================================== */
+
+export interface ModuloPagina {
+  modulo: RutaModule;
+  ruta: Ruta;
+  /** Posición dentro de la ruta, empezando en 1. */
+  numero: number;
+}
+
+/** Los seis módulos de las dos rutas, aplanados y con su contexto de ruta. */
+export const MODULOS: ModuloPagina[] = RUTAS.flatMap((ruta) =>
+  ruta.modules.map((modulo, i) => ({ modulo, ruta, numero: i + 1 })),
+);
+
+export function getModulo(slug: string): ModuloPagina | undefined {
+  return MODULOS.find((m) => m.modulo.slug === slug);
+}
+
+export function moduloHref(slug: string): string {
+  return `/programas/modulos/${slug}`;
+}
+
+/** Precio del módulo: el nivel avanzado vale más. */
+export function precioModulo(modulo: RutaModule): {
+  precio: string;
+  egresados: string;
+} {
+  return modulo.level === "Cumbre"
+    ? {
+        precio: RUTAS_PRECIOS.moduloAvanzado,
+        egresados: RUTAS_PRECIOS.moduloAvanzadoEgresados,
+      }
+    : {
+        precio: RUTAS_PRECIOS.modulo,
+        egresados: RUTAS_PRECIOS.moduloEgresados,
+      };
+}

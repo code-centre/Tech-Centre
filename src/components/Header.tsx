@@ -6,6 +6,7 @@ import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, Gradua
 import { useRouter } from 'next/navigation'
 import { useUser, useSupabaseClient } from '@/lib/supabase'
 import { ThemeToggle } from "./ThemeToggle"
+import { RUTAS, moduloHref } from "./landing/rutas/data"
 
 export default function Header() {
   const { user, loading: loadingUser } = useUser()
@@ -78,19 +79,46 @@ export default function Header() {
                 </span>
                 <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
               </Link>
-              <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 mt-2 w-64 bg-[#0D1A16] rounded-xl shadow-xl border border-[#1f3a30] py-2 transition-all duration-200 z-50">
-                <Link href="/programas/ingenieria-de-agentes" className="block px-4 py-2.5 text-white hover:bg-[#10241E] hover:text-[#FFB454] transition-colors">
-                  <span className="text-sm font-semibold">Ingeniería de agentes</span>
-                  <span className="block text-xs text-white/50">Avanzado · inicia 5 sep</span>
-                </Link>
+              <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 mt-2 w-[38rem] bg-[#0D1A16] rounded-xl shadow-xl border border-[#1f3a30] p-3 transition-all duration-200 z-50">
+                <div className="grid grid-cols-2 gap-x-3">
+                  {RUTAS.map((ruta) => (
+                    <div key={ruta.slug}>
+                      <Link
+                        href={ruta.detailHref}
+                        className={`block px-3 pb-2 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
+                          ruta.tone === "cyan"
+                            ? "text-[#74BAFF] hover:text-white"
+                            : "text-[#3FE0A0] hover:text-white"
+                        }`}
+                      >
+                        {ruta.label}
+                      </Link>
+                      <ul>
+                        {ruta.modules.map((modulo, i) => (
+                          <li key={modulo.slug}>
+                            <Link
+                              href={moduloHref(modulo.slug)}
+                              className="block rounded-lg px-3 py-2 text-white transition-colors hover:bg-[#10241E] hover:text-[#3FE0A0]"
+                            >
+                              <span className="block text-sm font-semibold leading-snug">
+                                {modulo.title}
+                              </span>
+                              <span className="block text-xs text-white/50">
+                                Módulo {i + 1} · {modulo.stack}
+                              </span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
             {[
-              { href: "/metodologia", label: "Cómo aprendes" },
               { href: "/comunidad", label: "Comunidad" },
               { href: "/blog", label: "Blog" },
-              { href: "/nosotros", label: "Nosotros" },
             ].map((item) => (
               <Link
                 key={item.href}
@@ -331,19 +359,38 @@ export default function Header() {
                 <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileDropdown === 'programas' ? 'rotate-180' : ''}`} />
               </button>
               {mobileDropdown === 'programas' && (
-                <div className="pl-4 flex flex-col">
-                  <Link href="/programas" className="py-2 text-sm text-white/90 hover:text-[#FFB454]" onClick={() => setIsMenuOpen(false)}>
-                    Ingeniería de agentes · inicia 5 sep
-                  </Link>
+                <div className="pl-4 flex flex-col pb-2">
+                  {RUTAS.map((ruta) => (
+                    <div key={ruta.slug} className="mt-1">
+                      <Link
+                        href={ruta.detailHref}
+                        className={`block py-2 text-xs font-semibold uppercase tracking-[0.14em] ${
+                          ruta.tone === "cyan" ? "text-[#74BAFF]" : "text-[#3FE0A0]"
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {ruta.label}
+                      </Link>
+                      {ruta.modules.map((modulo, i) => (
+                        <Link
+                          key={modulo.slug}
+                          href={moduloHref(modulo.slug)}
+                          className="block py-2 pl-3 text-sm text-white/90 hover:text-[#3FE0A0]"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <span className="block">{modulo.title}</span>
+                          <span className="block text-xs text-white/45">Módulo {i + 1}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
             {[
-              { href: "/metodologia", label: "Cómo aprendes" },
               { href: "/comunidad", label: "Comunidad" },
               { href: "/blog", label: "Blog" },
-              { href: "/nosotros", label: "Nosotros" },
             ].map((item) => (
               <div key={item.href} className="py-2">
                 <Link

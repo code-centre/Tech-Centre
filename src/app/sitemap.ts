@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import type { Program } from '@/types/programs'
+import { MODULOS, moduloHref } from '@/components/landing/rutas/data'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co'
@@ -27,6 +28,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
     { path: '/empresas', priority: 0.6, changeFrequency: 'weekly' },
   ]
+  // Una entrada por página de módulo
+  for (const { modulo } of MODULOS) {
+    routeList.push({
+      path: moduloHref(modulo.slug),
+      priority: 0.85,
+      changeFrequency: 'weekly',
+    })
+  }
+
   const staticPages: MetadataRoute.Sitemap = routeList.map((r) => ({
     url: `${baseUrl}${r.path}`,
     lastModified: now,

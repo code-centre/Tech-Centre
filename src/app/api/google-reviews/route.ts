@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,reviews&language=es&key=${GOOGLE_PLACES_API_KEY}`,
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,user_ratings_total,reviews&language=es&key=${GOOGLE_PLACES_API_KEY}`,
       { next: { revalidate: 86400 } }
     );
 
