@@ -2,10 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, X, Users, Save, Loader2, Search, Calendar, CalendarCheck, Eye, EyeOff, Clock, PlusCircle, Trash2 } from 'lucide-react';
+import { Plus, X, Save, Loader2, Search, SearchX, CalendarDays, CalendarPlus, Clock, PlusCircle, Trash2, Pencil, ChevronRight, ChevronDown } from 'lucide-react';
 import { useSupabaseClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { formatDate as formatDateBogota, parseDateBogota } from '@/utils/formatDate';
+import {
+  parseDateBogota,
+  formatDateRange,
+  formatDateCompact,
+  weeksBetween,
+  currentWeek,
+} from '@/utils/formatDate';
 
 type Program = {
   id: string;
@@ -31,6 +37,20 @@ type Cohort = {
 };
 
 const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+/** Abreviatura de cada día para la fila de la tabla. */
+const DIA_CORTO: Record<string, string> = {
+  Lunes: 'Lun',
+  Martes: 'Mar',
+  Miércoles: 'Mié',
+  Jueves: 'Jue',
+  Viernes: 'Vie',
+  Sábado: 'Sáb',
+  Domingo: 'Dom',
+};
+
+/** Cuántas cohortes se listan por página. */
+const PAGE_SIZE = 15;
 
 type StatusFilterType = 'all' | 'por_iniciar' | 'en_curso' | 'terminada';
 
@@ -63,6 +83,7 @@ export default function CohortesAdmon() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [togglingOffering, setTogglingOffering] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const handleToggleOffering = async (cohortId: string, currentStatus: boolean) => {
     try {
@@ -92,6 +113,10 @@ export default function CohortesAdmon() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, statusFilter, selectedProgram]);
 
   const fetchData = async () => {
     try {
@@ -379,10 +404,39 @@ export default function CohortesAdmon() {
     }
   };
 
-  const formatDateWithMonth = (dateStr: string) => {
-    if (!dateStr) return '—';
-    const formatted = formatDateBogota(dateStr);
-    return formatted || '—';
+  /** Días y horas del schedule en una línea: "Sáb · 8:00 a.m. a 12:00 m." */
+  const scheduleLabel = (schedule?: { days?: string[]; hours?: string[] }) => {
+    const days = (schedule?.days ?? []).map((d) => DIA_CORTO[d] ?? d);
+    const hours = (schedule?.hours ?? []).filter((h) => h.trim() !== '');
+    const parts: string[] = [];
+    if (days.length) parts.push(days.join(', '));
+    if (hours.length) parts.push(hours.join(' y '));
+    return parts.join(' · ');
+  };
+
+  /** Segunda línea del calendario: duración, o en qué semana va si está en curso. */
+  const paceLabel = (cohort: Cohort) => {
+    if (!cohort.start_date || !cohort.end_date) return '';
+    const total = weeksBetween(cohort.start_date, cohort.end_date);
+    if (!total) return '';
+    const status = getCohortStatus(cohort.start_date, cohort.end_date);
+    if (status === 'en_curso') return `semana ${currentWeek(cohort.start_date, cohort.end_date)} de ${total}`;
+    if (status === 'terminada') return 'cerrada';
+    return `${total} semanas`;
+  };
+
+  /** Matriculados sobre capacidad, con el color de la barra. */
+  const getOccupancy = (cohort: Cohort) => {
+    const enrolled = cohort.enrollments_count ?? 0;
+    const capacity = cohort.capacity && cohort.capacity > 0 ? cohort.capacity : null;
+    const pct = capacity ? Math.min(100, Math.round((enrolled / capacity) * 100)) : null;
+    const tone =
+      pct === null || pct < 25
+        ? 'bg-text-muted'
+        : pct >= 85 && pct < 100
+          ? 'bg-amber-500'
+          : 'bg-[var(--text-secondary)]';
+    return { enrolled, capacity, pct, tone };
   };
 
   const getCohortStatus = (startDate: string, endDate: string): 'por_iniciar' | 'en_curso' | 'terminada' => {
@@ -405,240 +459,612 @@ export default function CohortesAdmon() {
     }
   };
 
-  const filteredCohorts = cohorts.filter((cohort) => {
-    const programName = Array.isArray(cohort.programs) ? cohort.programs[0]?.name : cohort.programs?.name;
+  const programNameOf = (cohort: Cohort) =>
+    (Array.isArray(cohort.programs) ? cohort.programs[0]?.name : cohort.programs?.name) || '';
+
+  /** Búsqueda y programa: sobre esto se cuentan los tabs de estatus. */
+  const scopedCohorts = cohorts.filter((cohort) => {
+    const term = searchTerm.toLowerCase();
     const matchesSearch =
-      cohort.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cohort.campus.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (programName?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
-    const status = cohort.start_date && cohort.end_date ? getCohortStatus(cohort.start_date, cohort.end_date) : null;
-    const matchesStatus = statusFilter === 'all' || status === statusFilter;
-    const programId = cohort.program_id;
-    const matchesProgram = selectedProgram === 'all' || String(programId) === String(selectedProgram);
-    return matchesSearch && matchesStatus && matchesProgram;
+      cohort.name.toLowerCase().includes(term) ||
+      cohort.campus.toLowerCase().includes(term) ||
+      programNameOf(cohort).toLowerCase().includes(term);
+    const matchesProgram =
+      selectedProgram === 'all' || String(cohort.program_id) === String(selectedProgram);
+    return matchesSearch && matchesProgram;
   });
+
+  const statusCounts = scopedCohorts.reduce(
+    (acc, cohort) => {
+      if (cohort.start_date && cohort.end_date) {
+        acc[getCohortStatus(cohort.start_date, cohort.end_date)] += 1;
+      }
+      return acc;
+    },
+    { por_iniciar: 0, en_curso: 0, terminada: 0 } as Record<'por_iniciar' | 'en_curso' | 'terminada', number>
+  );
+
+  const filteredCohorts = scopedCohorts.filter((cohort) => {
+    if (statusFilter === 'all') return true;
+    const status =
+      cohort.start_date && cohort.end_date
+        ? getCohortStatus(cohort.start_date, cohort.end_date)
+        : null;
+    return status === statusFilter;
+  });
+
+  const totalEnrolled = cohorts.reduce((sum, c) => sum + (c.enrollments_count ?? 0), 0);
+  const enCursoTotal = cohorts.filter(
+    (c) => c.start_date && c.end_date && getCohortStatus(c.start_date, c.end_date) === 'en_curso'
+  ).length;
+
+  const totalPages = Math.max(1, Math.ceil(filteredCohorts.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageCohorts = filteredCohorts.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  const STATUS_TABS: { value: StatusFilterType; label: string; count: number }[] = [
+    { value: 'all', label: 'Todas', count: scopedCohorts.length },
+    { value: 'en_curso', label: 'En curso', count: statusCounts.en_curso },
+    { value: 'por_iniciar', label: 'Por iniciar', count: statusCounts.por_iniciar },
+    { value: 'terminada', label: 'Terminadas', count: statusCounts.terminada },
+  ];
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-secondary" />
+      <div className="space-y-6">
+        <div className="h-11 w-64 rounded-lg bg-[var(--card-background)] animate-pulse" />
+        <div className="h-12 rounded-xl bg-[var(--card-background)] animate-pulse" />
+        <div className="rounded-xl border border-border-color bg-[var(--card-background)] p-4 space-y-3">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-14 rounded-lg bg-bg-secondary animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
-          <div className="p-2 bg-secondary/10 rounded-lg">
-            <Users className="text-secondary" size={28} />
+      {/* Encabezado */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-3.5">
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary/10 text-[var(--text-secondary)]">
+            <CalendarDays size={24} aria-hidden="true" />
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-text-primary sm:text-[27px]">
+              Cohortes
+            </h1>
+            <p className="mt-1 text-sm text-text-muted">
+              {cohorts.length} {cohorts.length === 1 ? 'cohorte' : 'cohortes'} · {enCursoTotal} en curso ·{' '}
+              {totalEnrolled} {totalEnrolled === 1 ? 'estudiante matriculado' : 'estudiantes matriculados'}
+            </p>
           </div>
-          Administración de Cohortes
-        </h1>
+        </div>
         <button
+          type="button"
           onClick={() => openModal()}
-          className="btn-primary inline-flex items-center gap-2"
+          className="btn-primary shrink-0"
         >
-          <Plus className="w-4 h-4" />
-          Nueva Cohorte
+          <Plus className="h-4 w-4" />
+          Nueva cohorte
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-4 shadow-lg">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Tabs de estatus + filtros */}
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div
+          className="flex items-center gap-1 overflow-x-auto rounded-[10px] border border-border-color bg-[var(--card-background)] p-1"
+          role="tablist"
+          aria-label="Filtrar por estatus"
+        >
+          {STATUS_TABS.map((tab) => {
+            const isActive = statusFilter === tab.value;
+            return (
+              <button
+                key={tab.value}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setStatusFilter(tab.value)}
+                className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border px-3.5 text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'border-secondary/30 bg-secondary/10 text-[var(--text-secondary)]'
+                    : 'border-transparent text-text-muted hover:text-text-primary'
+                }`}
+              >
+                {tab.label}
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[11px] font-semibold ${
+                    isActive ? 'bg-secondary/20' : 'bg-text-muted/15'
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted w-4 h-4" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
             <input
               type="text"
-              placeholder="Buscar cohortes..."
+              placeholder="Buscar por nombre, sede o programa"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full rounded-lg border border-border-color bg-bg-secondary text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+              className="h-9 w-full rounded-lg border border-border-color bg-bg-secondary pl-9 pr-3 text-sm text-text-primary placeholder-text-muted focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary sm:w-[268px]"
             />
           </div>
-          <select
-            value={selectedProgram}
-            onChange={(e) => setSelectedProgram(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary"
-          >
-            <option value="all">Todos los programas</option>
-            {programs.map((program) => (
-              <option key={program.id} value={program.id}>
-                {program.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as StatusFilterType)}
-            className="px-4 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary"
-          >
-            <option value="all">Todos los estatus</option>
-            <option value="por_iniciar">Por iniciar</option>
-            <option value="en_curso">En curso</option>
-            <option value="terminada">Terminada</option>
-          </select>
+          <div className="relative">
+            <select
+              value={selectedProgram}
+              onChange={(e) => setSelectedProgram(e.target.value)}
+              className="h-9 w-full appearance-none rounded-lg border border-border-color bg-transparent pl-3 pr-9 text-sm font-medium text-text-primary focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary sm:w-auto"
+              aria-label="Filtrar por programa"
+            >
+              <option value="all">Todos los programas</option>
+              {programs.map((program) => (
+                <option key={program.id} value={program.id}>
+                  {program.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+          </div>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg">
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-600 dark:text-red-400">
           {error}
         </div>
       )}
 
-      <div className="bg-[var(--card-background)] rounded-xl border border-border-color shadow-lg overflow-hidden">
-        {filteredCohorts.length === 0 ? (
-          <div className="text-center py-12">
-            <Users className="w-12 h-12 text-text-muted mx-auto mb-4" />
-            <p className="text-text-muted mb-4">
-              {cohorts.length === 0 ? 'No hay cohortes registradas' : 'No se encontraron cohortes con los filtros aplicados'}
+      {filteredCohorts.length === 0 ? (
+        cohorts.length === 0 ? (
+          /* Primera vez: nunca se ha creado una cohorte */
+          <div className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-14 text-center shadow-lg">
+            <span className="inline-flex h-14 w-14 items-center justify-center rounded-[14px] bg-secondary/10 text-[var(--text-secondary)]">
+              <CalendarPlus size={28} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+            <h2 className="mt-5 text-xl font-semibold text-text-primary">
+              Crea tu primera cohorte
+            </h2>
+            <p className="mx-auto mt-2.5 max-w-[420px] text-[14.5px] leading-relaxed text-text-muted">
+              Una cohorte agrupa a los estudiantes de un programa en unas fechas y un horario.
+              Al publicarla aparece en el sitio como cupo disponible.
             </p>
             <button
+              type="button"
               onClick={() => openModal()}
-              className="inline-flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors"
+              className="btn-primary mt-6"
             >
-              <Plus className="w-4 h-4" />
-              Crear Primera Cohorte
+              <Plus className="h-4 w-4" />
+              Nueva cohorte
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          /* Los filtros no devolvieron nada: no ofrecer crear */
+          <div className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-11 text-center shadow-lg">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-text-muted/10 text-text-muted">
+              <SearchX size={24} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+            <h2 className="mt-4.5 text-lg font-semibold text-text-primary">
+              {searchTerm
+                ? `Ningún resultado para “${searchTerm}”`
+                : 'Ninguna cohorte con estos filtros'}
+            </h2>
+            <p className="mx-auto mt-2 max-w-[400px] text-sm leading-relaxed text-text-muted">
+              Prueba con otro término o quita los filtros para ver todas las cohortes.
+            </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2.5">
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm('')}
+                  className="inline-flex h-9 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
+                >
+                  Limpiar búsqueda
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('all');
+                  setSelectedProgram('all');
+                }}
+                className="inline-flex h-9 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
+              >
+                Ver todas las cohortes
+              </button>
+            </div>
+          </div>
+        )
+      ) : (
+        <>
+          {/* Tabla, de lg hacia arriba */}
+          <div className="hidden overflow-hidden rounded-xl border border-border-color bg-[var(--card-background)] shadow-lg lg:block">
             <table className="w-full">
-              <thead className="bg-bg-secondary border-b border-border-color">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+              <thead>
+                <tr className="border-b border-border-color bg-bg-secondary">
+                  <th className="w-[25%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
                     Cohorte
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className="w-[17%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
                     Programa
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                    Fechas
+                  <th className="w-[21%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
+                    Calendario
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className="w-[14%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
+                    Ocupación
+                  </th>
+                  <th className="w-[11%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
                     Estatus
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                    Alumnos
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className="w-[7%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
                     Visible
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
-                    Acciones
+                  <th className="w-[5%] px-4 py-3 text-right">
+                    <span className="sr-only">Acciones</span>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-color">
-                {filteredCohorts.map((cohort) => (
-                  <tr
-                    key={cohort.id}
-                    className="hover:bg-bg-secondary/50 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <Link
-                        href={`/admin/cohortes/${cohort.id}`}
-                        className="block group"
-                      >
-                        <h3 className="font-medium text-secondary group-hover:text-secondary/80">
-                          {cohort.name}
-                        </h3>
-                        <p className="text-sm text-text-muted">
-                          {cohort.campus}
-                        </p>
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4 text-text-primary">
-                      {(Array.isArray(cohort.programs) ? cohort.programs[0]?.name : cohort.programs?.name) || '—'}
-                    </td>
-                    <td className="px-6 py-4 text-text-muted text-sm">
-                      <div className="flex flex-col gap-1">
-                        <span className="inline-flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-secondary shrink-0" />
-                          Inicio: {formatDateWithMonth(cohort.start_date)}
-                        </span>
-                        <span className="inline-flex items-center gap-2">
-                          <CalendarCheck className="w-4 h-4 text-secondary shrink-0" />
-                          Fin: {formatDateWithMonth(cohort.end_date)}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      {cohort.start_date && cohort.end_date && (() => {
-                        const status = getCohortStatus(cohort.start_date, cohort.end_date);
-                        const { label, className } = getStatusLabelAndClass(status);
-                        return (
+              <tbody>
+                {pageCohorts.map((cohort) => {
+                  const status =
+                    cohort.start_date && cohort.end_date
+                      ? getCohortStatus(cohort.start_date, cohort.end_date)
+                      : null;
+                  const terminada = status === 'terminada';
+                  const { enrolled, capacity, pct, tone } = getOccupancy(cohort);
+                  const schedule = scheduleLabel(cohort.schedule);
+                  const pace = paceLabel(cohort);
+                  return (
+                    <tr
+                      key={cohort.id}
+                      className="border-b border-border-color/50 transition-colors last:border-b-0 hover:bg-bg-secondary/40"
+                    >
+                      <td className="px-4 py-3.5">
+                        <Link href={`/admin/cohortes/${cohort.id}`} className="group block">
                           <span
-                            className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${className}`}
+                            className={`block text-[15px] font-semibold ${
+                              terminada
+                                ? 'text-text-primary'
+                                : 'text-[var(--text-secondary)] group-hover:underline'
+                            }`}
                           >
-                            {label}
+                            {cohort.name}
                           </span>
-                        );
-                      })()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Users className="w-4 h-4 text-secondary" />
-                        <span className="font-medium text-text-primary">
-                          {cohort.enrollments_count ?? 0}
-                        </span>
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleOffering(cohort.id, cohort.offering ?? false);
-                        }}
-                        disabled={togglingOffering === cohort.id}
-                        className={`p-2 rounded-lg transition-all border ${
-                          cohort.offering
-                            ? 'bg-green-500/30 text-green-400 border-green-500/50 hover:bg-green-500/40'
-                            : 'bg-red-500/30 text-red-400 border-red-500/50 hover:bg-red-500/40'
-                        } disabled:opacity-50`}
-                        title={cohort.offering ? 'Ocultar en tarjetas' : 'Mostrar en tarjetas'}
-                        aria-label={cohort.offering ? 'Ocultar en tarjetas' : 'Mostrar en tarjetas'}
-                      >
-                        {togglingOffering === cohort.id ? (
-                          <Loader2 className="animate-spin w-4 h-4" />
-                        ) : cohort.offering ? (
-                          <Eye className="w-4 h-4" />
-                        ) : (
-                          <EyeOff className="w-4 h-4" />
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Link
-                          href={`/admin/cohortes/${cohort.id}`}
-                          className="btn-primary inline-flex items-center gap-2 text-sm px-4 py-2"
-                        >
-                          Ver Alumnos
+                          <span className="mt-0.5 block text-xs text-text-muted">
+                            {cohort.campus}
+                          </span>
                         </Link>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        {programNameOf(cohort) ? (
+                          <span
+                            className={`inline-flex rounded-md border border-border-color bg-bg-secondary px-2.5 py-1 text-xs ${
+                              terminada ? 'text-text-muted' : 'text-text-primary'
+                            }`}
+                          >
+                            {programNameOf(cohort)}
+                          </span>
+                        ) : (
+                          <span className="text-text-muted">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span
+                          className={`block text-[13.5px] ${
+                            terminada ? 'text-text-muted' : 'text-text-primary'
+                          }`}
+                        >
+                          {cohort.start_date && cohort.end_date
+                            ? formatDateRange(cohort.start_date, cohort.end_date)
+                            : formatDateCompact(cohort.start_date || cohort.end_date || '') || '—'}
+                        </span>
+                        {(schedule || pace) && (
+                          <span className="mt-0.5 block text-xs text-text-muted">
+                            {[schedule, pace].filter(Boolean).join(' · ')}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className="flex items-baseline gap-1.5">
+                          <span
+                            className={`text-[15px] font-semibold ${
+                              terminada ? 'text-text-muted' : 'text-text-primary'
+                            }`}
+                          >
+                            {enrolled}
+                          </span>
+                          <span className="text-xs text-text-muted">
+                            {capacity ? `de ${capacity}` : 'sin límite'}
+                          </span>
+                        </span>
+                        {pct !== null && (
+                          <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-text-muted/20">
+                            <span
+                              className={`block h-full rounded-full ${tone} ${terminada ? 'opacity-50' : ''}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        {status && (() => {
+                          const { label, className } = getStatusLabelAndClass(status);
+                          return (
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${className}`}
+                            >
+                              {status === 'en_curso' && (
+                                <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                              )}
+                              {label}
+                            </span>
+                          );
+                        })()}
+                      </td>
+                      <td className="px-4 py-3.5">
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openModal(cohort);
-                          }}
-                          className="px-3 py-1.5 rounded-lg border border-border-color text-text-primary hover:bg-bg-secondary text-sm font-medium transition-colors"
+                          role="switch"
+                          aria-checked={cohort.offering ?? false}
+                          onClick={() => handleToggleOffering(cohort.id, cohort.offering ?? false)}
+                          disabled={togglingOffering === cohort.id}
+                          title={cohort.offering ? 'Visible en el sitio' : 'Oculta en el sitio'}
+                          aria-label={cohort.offering ? 'Ocultar en el sitio' : 'Mostrar en el sitio'}
+                          className={`relative inline-flex h-[22px] w-[38px] items-center rounded-full border transition-colors disabled:opacity-50 ${
+                            cohort.offering
+                              ? 'border-secondary/45 bg-secondary/20'
+                              : 'border-border-color bg-bg-secondary'
+                          }`}
                         >
-                          Editar
+                          {togglingOffering === cohort.id ? (
+                            <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin text-text-muted" />
+                          ) : (
+                            <span
+                              className={`absolute top-[2px] h-4 w-4 rounded-full transition-all ${
+                                cohort.offering
+                                  ? 'right-[2px] bg-[var(--text-secondary)]'
+                                  : 'left-[2px] bg-text-muted'
+                              }`}
+                            />
+                          )}
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-4 py-3.5 text-right">
+                        <span className="inline-flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => openModal(cohort)}
+                            className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-lg border border-border-color text-text-muted transition-colors hover:text-text-primary"
+                            title="Editar cohorte"
+                            aria-label={`Editar ${cohort.name}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <Link
+                            href={`/admin/cohortes/${cohort.id}`}
+                            className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-lg text-text-muted transition-colors hover:text-text-primary"
+                            title="Ver alumnos"
+                            aria-label={`Ver alumnos de ${cohort.name}`}
+                          >
+                            <ChevronRight className="h-[17px] w-[17px]" />
+                          </Link>
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
+
+            <div className="flex items-center justify-between gap-4 border-t border-border-color bg-bg-secondary px-4 py-3.5">
+              <p className="text-xs text-text-muted">
+                {filteredCohorts.length === cohorts.length
+                  ? `${filteredCohorts.length} ${filteredCohorts.length === 1 ? 'cohorte' : 'cohortes'}`
+                  : `${filteredCohorts.length} de ${cohorts.length} cohortes`}
+              </p>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setPage((n) => Math.max(1, n - 1))}
+                    disabled={safePage === 1}
+                    className="inline-flex h-8 items-center rounded-lg border border-border-color px-3 text-xs font-medium text-text-primary transition-colors hover:bg-[var(--card-background)] disabled:opacity-40"
+                  >
+                    Anterior
+                  </button>
+                  <span className="px-1 text-xs text-text-muted">
+                    {safePage} / {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPage((n) => Math.min(totalPages, n + 1))}
+                    disabled={safePage === totalPages}
+                    className="inline-flex h-8 items-center rounded-lg border border-border-color px-3 text-xs font-medium text-text-primary transition-colors hover:bg-[var(--card-background)] disabled:opacity-40"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
+
+          {/* Tarjetas, por debajo de lg */}
+          <ul className="flex flex-col gap-3 lg:hidden">
+            {pageCohorts.map((cohort) => {
+              const status =
+                cohort.start_date && cohort.end_date
+                  ? getCohortStatus(cohort.start_date, cohort.end_date)
+                  : null;
+              const terminada = status === 'terminada';
+              const { enrolled, capacity, pct, tone } = getOccupancy(cohort);
+              const schedule = scheduleLabel(cohort.schedule);
+              const pace = paceLabel(cohort);
+              return (
+                <li
+                  key={cohort.id}
+                  className="rounded-xl border border-border-color bg-[var(--card-background)] p-4 shadow-lg"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <Link href={`/admin/cohortes/${cohort.id}`} className="min-w-0">
+                      <span
+                        className={`block text-base font-semibold ${
+                          terminada ? 'text-text-primary' : 'text-[var(--text-secondary)]'
+                        }`}
+                      >
+                        {cohort.name}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-text-muted">{cohort.campus}</span>
+                    </Link>
+                    {status && (() => {
+                      const { label, className } = getStatusLabelAndClass(status);
+                      return (
+                        <span
+                          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${className}`}
+                        >
+                          {status === 'en_curso' && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                          )}
+                          {label}
+                        </span>
+                      );
+                    })()}
+                  </div>
+
+                  {programNameOf(cohort) && (
+                    <p className="mt-3.5">
+                      <span className="inline-flex rounded-md border border-border-color bg-bg-secondary px-2.5 py-1 text-xs text-text-primary">
+                        {programNameOf(cohort)}
+                      </span>
+                    </p>
+                  )}
+
+                  <div className="mt-3.5 flex flex-col gap-2 border-t border-border-color/50 pt-3.5">
+                    <p className="flex items-center gap-2.5 text-[13.5px] text-text-primary">
+                      <CalendarDays className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
+                      {cohort.start_date && cohort.end_date
+                        ? formatDateRange(cohort.start_date, cohort.end_date)
+                        : '—'}
+                    </p>
+                    {(schedule || pace) && (
+                      <p className="flex items-center gap-2.5 text-[13px] text-text-muted">
+                        <Clock className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        {[schedule, pace].filter(Boolean).join(' · ')}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-3.5">
+                    <div className="flex items-baseline justify-between gap-2.5">
+                      <span className="text-xs text-text-muted">Ocupación</span>
+                      <span className="text-[13.5px] text-text-primary">
+                        <strong className="font-semibold">{enrolled}</strong>{' '}
+                        <span className="text-text-muted">
+                          {capacity ? `de ${capacity}` : 'sin límite'}
+                        </span>
+                      </span>
+                    </div>
+                    {pct !== null && (
+                      <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-text-muted/20">
+                        <span
+                          className={`block h-full rounded-full ${tone} ${terminada ? 'opacity-50' : ''}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between gap-3 border-t border-border-color/50 pt-3.5">
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={cohort.offering ?? false}
+                      onClick={() => handleToggleOffering(cohort.id, cohort.offering ?? false)}
+                      disabled={togglingOffering === cohort.id}
+                      className="flex items-center gap-2.5 disabled:opacity-50"
+                      aria-label={cohort.offering ? 'Ocultar en el sitio' : 'Mostrar en el sitio'}
+                    >
+                      <span
+                        className={`relative inline-flex h-[22px] w-[38px] shrink-0 items-center rounded-full border transition-colors ${
+                          cohort.offering
+                            ? 'border-secondary/45 bg-secondary/20'
+                            : 'border-border-color bg-bg-secondary'
+                        }`}
+                      >
+                        {togglingOffering === cohort.id ? (
+                          <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin text-text-muted" />
+                        ) : (
+                          <span
+                            className={`absolute top-[2px] h-4 w-4 rounded-full transition-all ${
+                              cohort.offering
+                                ? 'right-[2px] bg-[var(--text-secondary)]'
+                                : 'left-[2px] bg-text-muted'
+                            }`}
+                          />
+                        )}
+                      </span>
+                      <span className="text-xs text-text-muted">
+                        {cohort.offering ? 'Visible' : 'Oculta'}
+                      </span>
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => openModal(cohort)}
+                        className="inline-flex h-11 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
+                      >
+                        Editar
+                      </button>
+                      <Link
+                        href={`/admin/cohortes/${cohort.id}`}
+                        className="inline-flex h-11 items-center gap-1 rounded-lg border border-secondary/30 px-3.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-secondary/10"
+                      >
+                        Alumnos
+                        <ChevronRight className="h-[15px] w-[15px]" />
+                      </Link>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+
+            {totalPages > 1 && (
+              <li className="flex items-center justify-between gap-3 rounded-xl border border-border-color bg-[var(--card-background)] px-4 py-3">
+                <span className="text-xs text-text-muted">
+                  {safePage} / {totalPages}
+                </span>
+                <span className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPage((n) => Math.max(1, n - 1))}
+                    disabled={safePage === 1}
+                    className="inline-flex h-11 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary disabled:opacity-40"
+                  >
+                    Anterior
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPage((n) => Math.min(totalPages, n + 1))}
+                    disabled={safePage === totalPages}
+                    className="inline-flex h-11 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary disabled:opacity-40"
+                  >
+                    Siguiente
+                  </button>
+                </span>
+              </li>
+            )}
+          </ul>
+        </>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">

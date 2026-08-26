@@ -2,7 +2,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect, useRef, useCallback } from "react"
-import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, GraduationCap, Newspaper, CalendarDays, UserCog, Shield } from "lucide-react"
+import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, GraduationCap, CalendarDays, UserCog, Shield } from "lucide-react"
 import { useRouter } from 'next/navigation'
 import { useUser, useSupabaseClient } from '@/lib/supabase'
 import { ThemeToggle } from "./ThemeToggle"
@@ -185,67 +185,56 @@ export default function Header() {
                     </div>
                   </Link>
 
-                  {/* Admin Section - admin ve todo; instructor solo Blog */}
-                  {(user?.role === 'admin' || user?.role === 'instructor') && (
+                  {/* Admin Section */}
+                  {user?.role === 'admin' && (
                     <>
                       <div className="border-t border-[#374151] my-2"></div>
                       <div className="px-4 py-2">
                         <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
-                          {user?.role === 'admin' ? 'Administración' : 'Blog'}
+                          Administración
                         </p>
                       </div>
-                      {user?.role === 'admin' && (
-                        <>
-                          <Link
-                            href="/admin/cohortes"
-                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
-                          >
-                            <CalendarDays className="w-4 h-4 text-[#2FB7C4]" />
-                            <span className="text-sm">Cohortes</span>
-                          </Link>
-                          <Link
-                            href="/admin/pagos"
-                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
-                          >
-                            <FileText className="w-4 h-4 text-[#2FB7C4]" />
-                            <span className="text-sm">Pagos</span>
-                          </Link>
-                          <Link
-                            href="/admin/estudiantes"
-                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
-                          >
-                            <Users className="w-4 h-4 text-[#2FB7C4]" />
-                            <span className="text-sm">Estudiantes</span>
-                          </Link>
-                          <Link
-                            href="/admin/programas"
-                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
-                          >
-                            <GraduationCap className="w-4 h-4 text-[#2FB7C4]" />
-                            <span className="text-sm">Programas</span>
-                          </Link>
-                          <Link
-                            href="/admin/instructores"
-                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
-                          >
-                            <UserCog className="w-4 h-4 text-[#2FB7C4]" />
-                            <span className="text-sm">Instructores</span>
-                          </Link>
-                          <Link
-                            href="/admin/admins"
-                            className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
-                          >
-                            <Shield className="w-4 h-4 text-[#2FB7C4]" />
-                            <span className="text-sm">Admins</span>
-                          </Link>
-                        </>
-                      )}
                       <Link
-                        href="/admin/blog"
+                        href="/admin/cohortes"
                         className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
                       >
-                        <Newspaper className="w-4 h-4 text-[#2FB7C4]" />
-                        <span className="text-sm">Blog</span>
+                        <CalendarDays className="w-4 h-4 text-[#2FB7C4]" />
+                        <span className="text-sm">Cohortes</span>
+                      </Link>
+                      <Link
+                        href="/admin/pagos"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                      >
+                        <FileText className="w-4 h-4 text-[#2FB7C4]" />
+                        <span className="text-sm">Pagos</span>
+                      </Link>
+                      <Link
+                        href="/admin/estudiantes"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                      >
+                        <Users className="w-4 h-4 text-[#2FB7C4]" />
+                        <span className="text-sm">Estudiantes</span>
+                      </Link>
+                      <Link
+                        href="/admin/programas"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                      >
+                        <GraduationCap className="w-4 h-4 text-[#2FB7C4]" />
+                        <span className="text-sm">Programas</span>
+                      </Link>
+                      <Link
+                        href="/admin/instructores"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                      >
+                        <UserCog className="w-4 h-4 text-[#2FB7C4]" />
+                        <span className="text-sm">Instructores</span>
+                      </Link>
+                      <Link
+                        href="/admin/admins"
+                        className="flex items-center space-x-3 px-4 py-2 text-white hover:bg-[#1A1F2E] transition-all duration-200"
+                      >
+                        <Shield className="w-4 h-4 text-[#2FB7C4]" />
+                        <span className="text-sm">Admins</span>
                       </Link>
                     </>
                   )}
@@ -446,89 +435,74 @@ export default function Header() {
                     <span>Cerrar Sesión</span>
                   </button>
 
-                  {/* Admin Section - admin ve todo; instructor solo Blog */}
-                  {(user?.role === 'admin' || user?.role === 'instructor') && (
+                  {/* Admin Section */}
+                  {user?.role === 'admin' && (
                     <div className="py-2 space-y-2">
-                      {user?.role === 'admin' && (
-                        <>
-                          <Link
-                            href="/admin/cohortes"
-                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              setMobileDropdown(null)
-                            }}
-                          >
-                            <CalendarDays className="w-4 h-4 text-[#2FB7C4]" />
-                            <span>Cohortes</span>
-                          </Link>
-                          <Link
-                            href="/admin/pagos"
-                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              setMobileDropdown(null)
-                            }}
-                          >
-                            <FileText className="w-4 h-4 text-[#2FB7C4]" />
-                            <span>Pagos</span>
-                          </Link>
-                          <Link
-                            href="/admin/estudiantes"
-                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              setMobileDropdown(null)
-                            }}
-                          >
-                            <Users className="w-4 h-4 text-[#2FB7C4]" />
-                            <span>Estudiantes</span>
-                          </Link>
-                          <Link
-                            href="/admin/programas"
-                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              setMobileDropdown(null)
-                            }}
-                          >
-                            <GraduationCap className="w-4 h-4 text-[#2FB7C4]" />
-                            <span>Programas</span>
-                          </Link>
-                          <Link
-                            href="/admin/instructores"
-                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              setMobileDropdown(null)
-                            }}
-                          >
-                            <UserCog className="w-4 h-4 text-[#2FB7C4]" />
-                            <span>Instructores</span>
-                          </Link>
-                          <Link
-                            href="/admin/admins"
-                            className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
-                            onClick={() => {
-                              setIsMenuOpen(false)
-                              setMobileDropdown(null)
-                            }}
-                          >
-                            <Shield className="w-4 h-4 text-[#2FB7C4]" />
-                            <span>Admins</span>
-                          </Link>
-                        </>
-                      )}
                       <Link
-                        href="/admin/blog"
-                        className="flex items-center justify-between w-full py-3 px-4 text-white font-semibold bg-[#1A1F2E]/50 hover:bg-[#1A1F2E] rounded-lg transition-colors duration-200"
+                        href="/admin/cohortes"
+                        className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
                         onClick={() => {
                           setIsMenuOpen(false)
                           setMobileDropdown(null)
                         }}
                       >
-                        <span>{user?.role === 'admin' ? 'Admin - Blog' : 'Blog'}</span>
-                        <Newspaper className="w-5 h-5 text-[#2FB7C4]" />
+                        <CalendarDays className="w-4 h-4 text-[#2FB7C4]" />
+                        <span>Cohortes</span>
+                      </Link>
+                      <Link
+                        href="/admin/pagos"
+                        className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
+                      >
+                        <FileText className="w-4 h-4 text-[#2FB7C4]" />
+                        <span>Pagos</span>
+                      </Link>
+                      <Link
+                        href="/admin/estudiantes"
+                        className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
+                      >
+                        <Users className="w-4 h-4 text-[#2FB7C4]" />
+                        <span>Estudiantes</span>
+                      </Link>
+                      <Link
+                        href="/admin/programas"
+                        className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
+                      >
+                        <GraduationCap className="w-4 h-4 text-[#2FB7C4]" />
+                        <span>Programas</span>
+                      </Link>
+                      <Link
+                        href="/admin/instructores"
+                        className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
+                      >
+                        <UserCog className="w-4 h-4 text-[#2FB7C4]" />
+                        <span>Instructores</span>
+                      </Link>
+                      <Link
+                        href="/admin/admins"
+                        className="flex items-center space-x-3 py-2 px-4 text-sm text-white hover:text-[#2FB7C4] hover:bg-[#1A1F2E]/30 rounded-md transition-all duration-200"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setMobileDropdown(null)
+                        }}
+                      >
+                        <Shield className="w-4 h-4 text-[#2FB7C4]" />
+                        <span>Admins</span>
                       </Link>
                     </div>
                   )}

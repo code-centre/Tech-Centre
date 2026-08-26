@@ -3,12 +3,18 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
 import { whatsappWith } from "@/components/landing/data";
+import { RUTAS } from "@/components/landing/rutas/data";
 
-const programas = [
-  "Construye · Ruta Web",
-  "Revela · Ruta de Datos",
-  "Aún no lo sé, oriéntame",
-];
+const gruposProgramas = RUTAS.map((ruta) => ({
+  label: `${ruta.label} · ${ruta.name}`,
+  opciones: ruta.modules.map(
+    (mod, i) => `${ruta.label} · Módulo ${i + 1}: ${mod.title}`,
+  ),
+}));
+
+const SIN_DECIDIR = "Aún no lo sé, oriéntame";
+
+const programaInicial = gruposProgramas[0].opciones[0];
 
 const fuentes = [
   "Instagram",
@@ -23,7 +29,7 @@ export default function InscripcionForm() {
     nombre: "",
     email: "",
     telefono: "",
-    programa: programas[0],
+    programa: programaInicial,
     fuente: fuentes[0],
   });
 
@@ -80,11 +86,16 @@ export default function InscripcionForm() {
           onChange={(e) => setForm({ ...form, programa: e.target.value })}
           className={field}
         >
-          {programas.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
+          {gruposProgramas.map((grupo) => (
+            <optgroup key={grupo.label} label={grupo.label}>
+              {grupo.opciones.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </optgroup>
           ))}
+          <option value={SIN_DECIDIR}>{SIN_DECIDIR}</option>
         </select>
       </label>
       <label className="mt-5 block">
