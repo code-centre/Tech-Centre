@@ -23,12 +23,13 @@ const pillars: Pillar[] = [
     icon: Users,
     title: "Clases presenciales y guiadas",
     description:
-      "Grupos reducidos y mentores que resuelven tus dudas en tiempo real.",
+      "Máximo 12 personas por curso y mentores que resuelven tus dudas en tiempo real. Guía cercana, no auditorios.",
   },
   {
     icon: Code,
     title: "Proyectos desde el primer día",
-    description: "Aprendes haciendo, con retos reales del mundo laboral.",
+    description:
+      "Aprendes haciendo. Cada módulo cierra con un proyecto real presentado en demo day.",
   },
   {
     icon: MessageSquare,
@@ -67,8 +68,9 @@ export default function ComoAprendes() {
             Presencial, con code review cara a cara
           </h2>
           <p className="mt-4 max-w-2xl text-lg lv2-soft">
-            Construyes en la sede los sábados. En casa preparas con videos cortos
-            y entregas pequeñas. Feedback real, no foros anónimos.
+            4 horas presenciales en Casa Tech, los sábados o entre semana, y 4
+            horas de práctica guiada en casa. Grupos de máximo 12 personas y
+            feedback real, no foros anónimos.
           </p>
         </Reveal>
 

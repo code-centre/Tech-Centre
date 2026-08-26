@@ -1,13 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import {
-  AGENTES_COHORT,
-  AGENTES_DIAGNOSTICO_URL,
-  AGENTES_PATH,
-} from "../agentes/data";
+import { whatsappWith } from "../data";
+import { RUTAS_CTA_FINAL, RUTAS_DIAGNOSTICO_URL, RUTAS_LEGAL } from "../rutas/data";
 import { trackAgentes } from "../agentes/track";
+
+const EMPRESAS_WA = whatsappWith(
+  "Hola, quiero información sobre los programas de Tech Centre para empresas.",
+);
 
 export default function CtaFinal() {
   const reduce = useReducedMotion();
@@ -19,17 +19,17 @@ export default function CtaFinal() {
       aria-labelledby="cta-title"
     >
       <motion.div
-        className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-[rgba(255,180,84,0.45)] px-6 py-16 text-center md:px-12"
+        className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-[rgba(63,224,160,0.45)] px-6 py-16 text-center md:px-12"
         style={{
           background:
-            "radial-gradient(120% 120% at 50% 0%, rgba(255,180,84,0.18) 0%, rgba(20,70,58,0.4) 45%, rgba(7,16,13,0.9) 100%)",
+            "radial-gradient(120% 120% at 50% 0%, rgba(63,224,160,0.16) 0%, rgba(20,70,58,0.4) 45%, rgba(7,16,13,0.9) 100%)",
         }}
-        initial={{ opacity: 0, boxShadow: "0 0 0 0 rgba(255,180,84,0)" }}
+        initial={{ opacity: 0, boxShadow: "0 0 0 0 rgba(63,224,160,0)" }}
         whileInView={{
           opacity: 1,
           boxShadow: reduce
-            ? "0 0 0 0 rgba(255,180,84,0)"
-            : "0 0 80px -20px rgba(255,180,84,0.45)",
+            ? "0 0 0 0 rgba(63,224,160,0)"
+            : "0 0 80px -20px rgba(63,224,160,0.45)",
         }}
         viewport={{ once: true, margin: "-20%" }}
         transition={{ duration: 0.9, ease: "easeOut" }}
@@ -38,31 +38,45 @@ export default function CtaFinal() {
           id="cta-title"
           className="lv2-display relative text-4xl text-[var(--paper)] sm:text-5xl md:text-6xl"
         >
-          Veinte minutos.{" "}
-          <span style={{ color: "#FFB454" }}>Sin examen y sin compromiso.</span>
+          El viaje <span className="lv2-mint">apenas comienza</span>
         </h2>
-        <p className="relative mt-5 text-lg lv2-soft">
-          Inicia el {AGENTES_COHORT.startLabel}. Primero validamos nivel y ritmo.
-          El pago viene después.
+        <p className="relative mx-auto mt-5 max-w-2xl text-lg lv2-soft">
+          {RUTAS_CTA_FINAL.body}
         </p>
         <div className="relative mt-9 flex flex-col items-center gap-3">
           <a
-            href={AGENTES_DIAGNOSTICO_URL}
+            href={RUTAS_DIAGNOSTICO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="agentes-btn-amber agentes-btn-lg text-lg"
+            className="lv2-btn px-8 py-4 text-lg"
             onClick={() =>
               trackAgentes("click_cta_diagnostico", { section: "home_cta_final" })
             }
           >
-            Agendar sesión de diagnóstico
+            {RUTAS_CTA_FINAL.cta}
           </a>
-          <p className="agentes-cta-note">20 min · sin examen · sin pago</p>
-          <Link href={AGENTES_PATH} className="agentes-text-link mt-2">
-            Ver el programa completo
-          </Link>
+          <p className="lv2-mono !normal-case !tracking-normal !text-[var(--mute)]">
+            {RUTAS_CTA_FINAL.note}
+          </p>
+          <p className="mt-4 text-sm lv2-soft">
+            ¿Buscas formar a tu equipo? También llevamos estos programas dentro de
+            empresas.{" "}
+            <a
+              href={EMPRESAS_WA}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="agentes-mint-link"
+            >
+              Escríbenos
+            </a>
+            .
+          </p>
         </div>
       </motion.div>
+
+      <p className="mx-auto mt-8 max-w-4xl text-center text-xs leading-relaxed lv2-mute">
+        {RUTAS_LEGAL}
+      </p>
     </section>
   );
 }

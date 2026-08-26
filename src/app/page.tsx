@@ -3,41 +3,42 @@ import { LocalBusinessSchema } from "@/components/seo/StructuredData";
 import StickyDiagnosticCta from "@/components/landing/agentes/StickyDiagnosticCta";
 import Hero from "@/components/landing/sections/Hero";
 import Rutas from "@/components/landing/sections/Rutas";
-import ParaQuien from "@/components/landing/sections/ParaQuien";
-import HomeDemoBand from "@/components/landing/sections/HomeDemoBand";
+import ComoFunciona from "@/components/landing/sections/ComoFunciona";
 import Testimonios from "@/components/landing/sections/Testimonios";
 import ComoAprendes from "@/components/landing/sections/ComoAprendes";
 import Experiencia from "@/components/landing/sections/Experiencia";
+import DespuesDeLaCumbre from "@/components/landing/sections/DespuesDeLaCumbre";
 import Visitanos from "@/components/landing/sections/Visitanos";
 import CtaFinal from "@/components/landing/sections/CtaFinal";
-import { AGENTES_COHORT, AGENTES_DEMO_EVENT } from "@/components/landing/agentes/data";
 
 export const metadata: Metadata = {
   title: {
     absolute:
-      "Ingeniería de agentes de IA · Inicia 5 de septiembre · Tech Centre Barranquilla",
+      "Rutas de aprendizaje en tecnología e IA · Tech Centre · Barranquilla",
   },
-  description: `Programa avanzado presencial para developers. Inicia el ${AGENTES_COHORT.startLabel}. Clase demo el ${AGENTES_DEMO_EVENT.dateShort}. Primero diagnóstico de 20 minutos, después inscripción. Doce cupos en El Prado.`,
+  description:
+    "Dos rutas para entrar a la industria tech: Producto (JavaScript, TypeScript y agentes de IA) y Datos (Python, SQL y machine learning). Tres módulos de 8 semanas que puedes tomar de forma independiente, presencial en Casa Tech, Barranquilla. Diagnóstico gratuito.",
   keywords: [
-    "ingeniería de agentes de IA",
-    "curso de agentes de IA Barranquilla",
-    "MCP",
-    "RAG",
-    "LangGraph",
-    "AI engineer Colombia",
-    "formación presencial IA Caribe",
+    "aprender a programar Barranquilla",
+    "curso de programación desde cero",
+    "curso de agentes de IA",
+    "curso de datos y machine learning",
+    "JavaScript TypeScript React",
+    "Python SQL machine learning",
+    "formación presencial tecnología Caribe",
     "Tech Centre",
   ],
   openGraph: {
-    title: "Ingeniería de agentes de IA · Tech Centre Barranquilla",
-    description: `Inicia el ${AGENTES_COHORT.startLabel}. Ocho semanas presenciales para developers que ya programan. Primero diagnóstico, después inscripción.`,
+    title: "Dos rutas para entrar a la industria tech · Tech Centre Barranquilla",
+    description:
+      "Ruta Producto: productos y agentes de IA. Ruta Datos: datos y machine learning. Tres módulos de 8 semanas, máximo 12 personas, presencial en Casa Tech. Empieza con un diagnóstico gratuito.",
     type: "website",
     images: [
       {
         url: "/community/manos-teclado.webp",
         width: 1200,
         height: 630,
-        alt: "Programa avanzado de ingeniería de agentes · Tech Centre",
+        alt: "Rutas de aprendizaje · Tech Centre, Centro de Tecnología del Caribe",
       },
     ],
   },
@@ -50,11 +51,11 @@ export default function Home() {
       <StickyDiagnosticCta />
       <Hero />
       <Rutas />
-      <ParaQuien />
-      <HomeDemoBand />
+      <ComoFunciona />
       <Testimonios />
       <ComoAprendes />
       <Experiencia />
+      <DespuesDeLaCumbre />
       <Visitanos />
       <CtaFinal />
     </div>

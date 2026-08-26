@@ -1,16 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import {
-  AGENTES_COHORT,
-  AGENTES_DEMO_EVENT,
-  AGENTES_DEMO_PATH,
-  AGENTES_DIAGNOSTICO_URL,
-  AGENTES_PATH,
-} from "../agentes/data";
+import { RUTAS_DIAGNOSTICO_URL, RUTAS_HERO } from "../rutas/data";
 import { trackAgentes } from "../agentes/track";
 
 export default function Hero() {
@@ -53,13 +46,9 @@ export default function Hero() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
           >
-            <span
-              aria-hidden="true"
-              className="lv2-spark"
-              style={{ background: "#FFB454", boxShadow: "0 0 10px #FFB454" }}
-            />
-            <span className="lv2-mono !text-[#FFB454]">
-              PROGRAMA AVANZADO · INICIA {AGENTES_COHORT.startLabel.toUpperCase()}
+            <span aria-hidden="true" className="lv2-spark" />
+            <span className="lv2-mono !text-[var(--mint)]">
+              {RUTAS_HERO.eyebrow.toUpperCase()}
             </span>
           </motion.span>
 
@@ -71,8 +60,8 @@ export default function Hero() {
               animate={reduce ? { opacity: 1 } : { clipPath: "inset(0 0% 0 0)" }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             >
-              Ya usas IA todos los días.{" "}
-              <span style={{ color: "#FFB454" }}>Todavía no has construido nada con ella.</span>
+              Dos rutas para entrar a{" "}
+              <span className="lv2-mint">la industria que define esta década</span>
             </motion.h1>
           </div>
 
@@ -82,9 +71,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            Ingeniería de agentes, presencial en Barranquilla. Ocho semanas,
-            cohorte pequeña. Primero diagnóstico de 20 minutos. Si aún dudas,
-            hay clase demo el 15 de agosto.
+            {RUTAS_HERO.subtitle}
           </motion.p>
 
           <motion.div
@@ -95,21 +82,23 @@ export default function Hero() {
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <a
-                href={AGENTES_DIAGNOSTICO_URL}
+                href={RUTAS_DIAGNOSTICO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="agentes-btn-amber"
+                className="lv2-btn"
                 onClick={() =>
                   trackAgentes("click_cta_diagnostico", { section: "home_hero" })
                 }
               >
-                Agendar sesión de diagnóstico
+                {RUTAS_HERO.primaryCta}
               </a>
-              <Link href={AGENTES_PATH} className="agentes-text-link">
-                Ver el programa
-              </Link>
+              <a href="#rutas" className="lv2-btn-secondary">
+                {RUTAS_HERO.secondaryCta}
+              </a>
             </div>
-            <p className="agentes-cta-note">20 min · sin examen · sin pago</p>
+            <p className="lv2-mono !normal-case !tracking-normal !text-[var(--mute)]">
+              {RUTAS_HERO.primaryNote}
+            </p>
           </motion.div>
 
           <motion.ul
@@ -119,14 +108,16 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.85 }}
           >
             <li className="flex items-center gap-2 lv2-mono">
-              <span className="lv2-dot !bg-[#FFB454]" style={{ boxShadow: "0 0 8px #FFB454" }} aria-hidden="true" />
-              Inicia {AGENTES_COHORT.startLabel} · cohorte pequeña
+              <span className="lv2-dot" aria-hidden="true" />
+              Ruta Producto · productos y agentes de IA
             </li>
             <li className="flex items-center gap-2 lv2-mono">
-              <span className="lv2-dot !bg-[#FFB454]" style={{ boxShadow: "0 0 8px #FFB454" }} aria-hidden="true" />
-              <Link href={AGENTES_DEMO_PATH} className="hover:text-[#FFB454]">
-                Clase demo {AGENTES_DEMO_EVENT.dateShort}
-              </Link>
+              <span
+                className="lv2-dot !bg-[var(--cyan)]"
+                style={{ boxShadow: "0 0 8px var(--cyan)" }}
+                aria-hidden="true"
+              />
+              Ruta Datos · datos y machine learning
             </li>
           </motion.ul>
         </div>
