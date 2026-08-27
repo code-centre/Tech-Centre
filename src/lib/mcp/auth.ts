@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { AuthInfo } from '@modelcontextprotocol/server';
 import type { Database } from '@/types/supabase';
 import type { AppRole } from '@/lib/auth/require-role';
+import { verifySupabaseAccessToken } from '@/lib/mcp/verify-token';
 
 export const MCP_SCOPES = {
   COHORTS_READ: 'cohorts:read',
@@ -59,11 +60,13 @@ export function createSupabaseClientForToken(token: string) {
   });
 }
 
-export async function verifyMcpToken(
-  _req: Request,
-  bearerToken?: string
-): Promise<McpAuthInfo | undefined> {
-  if (!bearerToken) return undefined;
+async function resolveUserIdFromToken(
+  bearerToken: string
+): Promise<{ userId: string; clientId?: string } | null> {
+  const verified = await verifySupabaseAccessToken(bearerToken);
+  if (verified) {
+    return { userId: verified.sub, clientId: verified.clientId };
+  }
 
   const supabase = createSupabaseClientForToken(bearerToken);
   const {
@@ -71,12 +74,24 @@ export async function verifyMcpToken(
     error,
   } = await supabase.auth.getUser();
 
-  if (error || !user) return undefined;
+  if (error || !user) return null;
+  return { userId: user.id };
+}
 
+export async function verifyMcpToken(
+  _req: Request,
+  bearerToken?: string
+): Promise<McpAuthInfo | undefined> {
+  if (!bearerToken) return undefined;
+
+  const identity = await resolveUserIdFromToken(bearerToken);
+  if (!identity) return undefined;
+
+  const supabase = createSupabaseClientForToken(bearerToken);
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('user_id', user.id)
+    .eq('user_id', identity.userId)
     .single();
 
   const role = (profile as { role?: AppRole } | null)?.role;
@@ -87,9 +102,9 @@ export async function verifyMcpToken(
 
   return {
     token: bearerToken,
-    clientId: user.id,
+    clientId: identity.clientId ?? identity.userId,
     scopes,
-    userId: user.id,
+    userId: identity.userId,
     role,
     extra: { role },
   };
@@ -99,4 +114,12 @@ export function getSupabaseAuthServerUrls(): string[] {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!supabaseUrl) return [];
   return [`${supabaseUrl.replace(/\/$/, '')}/auth/v1`];
+}
+
+export function getMcpResourceUrl(): string {
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    'http://localhost:3000';
+  return `${base.replace(/\/$/, '')}/api/mcp/mcp`;
 }

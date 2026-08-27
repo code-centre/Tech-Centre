@@ -103,8 +103,17 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Si ya está logueado y entra a login/registro, redirigir a perfil
+  // Si ya está logueado y entra a login/registro, redirigir a next o perfil
   if ((path === "/iniciar-sesion" || path === "/registro") && user) {
+    const next = req.nextUrl.searchParams.get("next");
+    if (next && next.startsWith("/") && !next.startsWith("//")) {
+      const url = req.nextUrl.clone();
+      url.pathname = next.split("?")[0];
+      const nextQuery = next.includes("?") ? next.split("?")[1] : "";
+      url.search = nextQuery ? `?${nextQuery}` : "";
+      return NextResponse.redirect(url);
+    }
+
     const url = req.nextUrl.clone();
     url.pathname = "/perfil";
     return NextResponse.redirect(url);

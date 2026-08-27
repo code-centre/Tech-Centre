@@ -119,6 +119,57 @@ Tech-Centre/
 | `/iniciar-sesion` | Login | Público |
 | `/registro` | Registro | Público |
 | `/blog` | Blog público | Público |
+| `/oauth/consent` | Consentimiento OAuth para agentes MCP | Admin / Instructor |
+| `/api/mcp/mcp` | Endpoint MCP (Model Context Protocol) | OAuth / Bearer |
+
+## MCP (Model Context Protocol)
+
+El servidor MCP expone herramientas para consultar cohortes, inscripciones y pagos según el rol del usuario autenticado.
+
+### Conectar desde Cursor
+
+1. En Supabase Dashboard → **Authentication → OAuth Server**, activa el servidor OAuth y configura:
+   - **Site URL:** `https://techcentre.co` (o tu dominio)
+   - **Authorization Path:** `/oauth/consent`
+   - **JWT signing keys:** asimétricas (recomendado para JWKS)
+2. Despliega la app con `NEXT_PUBLIC_SITE_URL` apuntando al dominio público.
+3. Opcional: habilita **Dynamic Client Registration** después de desplegar la página de consentimiento.
+4. En Cursor, agrega el servidor MCP sin token manual:
+
+```json
+{
+  "mcpServers": {
+    "tech-centre": {
+      "url": "https://techcentre.co/api/mcp/mcp"
+    }
+  }
+}
+```
+
+Cursor descubrirá OAuth vía `/.well-known/oauth-protected-resource` y abrirá el flujo de autorización. Solo cuentas **admin** o **instructor** pueden aprobar la conexión.
+
+### Herramientas disponibles
+
+| Tool | Scope | Roles |
+|------|-------|-------|
+| `list_cohorts`, `get_cohort` | `cohorts:read` | admin, instructor |
+| `create_cohort`, `update_cohort` | `cohorts:write` | admin |
+| `list_enrollments`, `enroll_student` | `enrollments:*` | read: ambos; write: admin |
+| `get_payment_summary`, `mark_invoice_paid` | `payments:*` | read: ambos; write: admin |
+
+### Webhook de pagos (Wompi)
+
+Registra en el dashboard de Wompi la URL:
+
+```
+https://techcentre.co/api/payments/webhook
+```
+
+Variables requeridas: `WOMPI_EVENTS_SECRET`, `WOMPI_SECRET_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+
+### Clientes sin OAuth (Grok Bot, scripts)
+
+Para clientes que no soportan OAuth dinámico, puedes usar un access token de Supabase como Bearer en el header `Authorization`. Los tokens emitidos por el OAuth Server se validan vía JWKS (`/auth/v1/.well-known/jwks.json`).
 
 ## Modelo de datos (Supabase)
 

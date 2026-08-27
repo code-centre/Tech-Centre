@@ -39,6 +39,7 @@ const Login = () => {
   const supabase = createClient();
 
   const showVerificationMessage = searchParams.get('verification') === 'email-sent';
+  const nextPath = searchParams.get('next');
 
   const handleGoogleLogin = async () => {
     setError('');
@@ -47,9 +48,13 @@ const Login = () => {
       const baseUrl =
         process.env.NEXT_PUBLIC_BASE_URL ||
         (typeof window !== 'undefined' ? window.location.origin : '');
+      const redirectTo =
+        nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//')
+          ? `${baseUrl}/auth/callback?next=${encodeURIComponent(nextPath)}`
+          : `${baseUrl}/auth/callback`;
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${baseUrl}/auth/callback` },
+        options: { redirectTo },
       });
       if (oauthError) throw oauthError;
       if (data?.url) window.location.href = data.url;
@@ -84,7 +89,11 @@ const Login = () => {
         }
       }
 
-      window.location.href = '/';
+      const redirectTo =
+        nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//')
+          ? nextPath
+          : '/';
+      window.location.href = redirectTo;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
     } finally {

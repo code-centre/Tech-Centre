@@ -33,6 +33,9 @@ export function useUser() {
         .eq('user_id', authContext.user.id)
         .single()
         .then(({ data, error }) => {
+          if (error) {
+            console.warn('No se pudo cargar el perfil:', error.message)
+          }
           if (!error && data) {
             setProfile(data);
           }

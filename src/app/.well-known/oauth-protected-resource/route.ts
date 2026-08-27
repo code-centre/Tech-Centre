@@ -2,10 +2,11 @@ import {
   metadataCorsOptionsRequestHandler,
   protectedResourceHandler,
 } from 'mcp-handler';
-import { getSupabaseAuthServerUrls } from '@/lib/mcp/auth';
+import { getMcpResourceUrl, getSupabaseAuthServerUrls } from '@/lib/mcp/auth';
 
 const handler = protectedResourceHandler({
   authServerUrls: getSupabaseAuthServerUrls(),
+  resourceUrl: getMcpResourceUrl(),
 });
 
 const corsHandler = metadataCorsOptionsRequestHandler();
