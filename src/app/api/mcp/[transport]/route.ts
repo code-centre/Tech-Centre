@@ -21,6 +21,7 @@ import {
   getPaymentSummary,
   markInvoicePaid,
 } from '@/lib/services/invoices-service';
+import { createProgram, listPrograms } from '@/lib/services/programs-service';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -31,6 +32,79 @@ function getAuth(ctx: { http?: { authInfo?: AuthInfo } }): McpAuthInfo | undefin
 
 const baseHandler = createMcpHandler(
   (server) => {
+    server.registerTool(
+      'list_programs',
+      {
+        title: 'List programs',
+        description:
+          'List academic programs with the fields needed to identify them (id, name, code, kind, difficulty, default_price, total_hours). Optionally filter by kind or difficulty.',
+        inputSchema: z.object({
+          kind: z.string().optional(),
+          difficulty: z.string().optional(),
+        }),
+      },
+      async ({ kind, difficulty }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.PROGRAMS_READ)) {
+          throw new Error('Missing scope programs:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const programs = await listPrograms(client, { kind, difficulty });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(programs, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'create_program',
+      {
+        title: 'Create program',
+        description:
+          'Create an academic program (admin only). The code is generated automatically from the name.',
+        inputSchema: z.object({
+          name: z.string().min(1),
+          subtitle: z.string().optional(),
+          description: z.string().optional(),
+          kind: z
+            .enum(['diplomado', 'curso especializado', 'curso corto'])
+            .optional(),
+          difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+          total_hours: z.number().int().nonnegative().optional(),
+          default_price: z.number().nonnegative().optional(),
+        }),
+      },
+      async (input, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.PROGRAMS_WRITE)) {
+          throw new Error('Missing scope programs:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const program = await createProgram(client, input);
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'create_program',
+            input,
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(program, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'create_program',
+            input,
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
     server.registerTool(
       'list_cohorts',
       {

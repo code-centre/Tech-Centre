@@ -5,6 +5,8 @@ import type { AppRole } from '@/lib/auth/require-role';
 import { decodeJwtClaims, verifySupabaseAccessToken } from '@/lib/mcp/verify-token';
 
 export const MCP_SCOPES = {
+  PROGRAMS_READ: 'programs:read',
+  PROGRAMS_WRITE: 'programs:write',
   COHORTS_READ: 'cohorts:read',
   COHORTS_WRITE: 'cohorts:write',
   ENROLLMENTS_READ: 'enrollments:read',
@@ -26,6 +28,7 @@ function scopesForRole(role: AppRole): McpScope[] {
       return Object.values(MCP_SCOPES);
     case 'instructor':
       return [
+        MCP_SCOPES.PROGRAMS_READ,
         MCP_SCOPES.COHORTS_READ,
         MCP_SCOPES.ENROLLMENTS_READ,
         MCP_SCOPES.PAYMENTS_READ,
