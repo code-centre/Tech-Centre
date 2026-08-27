@@ -35,7 +35,8 @@ const baseHandler = createMcpHandler(
       'list_cohorts',
       {
         title: 'List cohorts',
-        description: 'List cohorts. Optionally filter to active cohorts only.',
+        description:
+          'List cohorts. By default returns all cohorts; set activeOnly to true to return only currently active cohorts (being offered or within their start/end date range).',
         inputSchema: z.object({
           activeOnly: z.boolean().optional(),
         }),
@@ -47,7 +48,7 @@ const baseHandler = createMcpHandler(
         }
 
         const client = createSupabaseClientForToken(auth.token);
-        const cohorts = await listCohorts(client, { activeOnly: activeOnly ?? true });
+        const cohorts = await listCohorts(client, { activeOnly: activeOnly ?? false });
         return {
           content: [{ type: 'text', text: JSON.stringify(cohorts, null, 2) }],
         };
@@ -134,7 +135,6 @@ const baseHandler = createMcpHandler(
           name: z.string().min(1),
           program_id: z.string().min(1),
           slug: z.string().optional(),
-          status: z.string().optional(),
           offering: z.boolean().optional(),
           start_date: z.string().optional(),
           end_date: z.string().optional(),
@@ -183,7 +183,6 @@ const baseHandler = createMcpHandler(
           name: z.string().optional(),
           program_id: z.string().optional(),
           slug: z.string().optional(),
-          status: z.string().optional(),
           offering: z.boolean().optional(),
           start_date: z.string().optional(),
           end_date: z.string().optional(),
