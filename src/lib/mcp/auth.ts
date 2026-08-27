@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { AuthInfo } from '@modelcontextprotocol/server';
 import type { Database } from '@/types/supabase';
 import type { AppRole } from '@/lib/auth/require-role';
-import { verifySupabaseAccessToken } from '@/lib/mcp/verify-token';
+import { decodeJwtClaims, verifySupabaseAccessToken } from '@/lib/mcp/verify-token';
 
 export const MCP_SCOPES = {
   COHORTS_READ: 'cohorts:read',
@@ -63,19 +63,34 @@ export function createSupabaseClientForToken(token: string) {
 async function resolveUserIdFromToken(
   bearerToken: string
 ): Promise<{ userId: string; clientId?: string } | null> {
+  // Fast path: locally verify asymmetric (RS256/ES256) tokens against the JWKS.
   const verified = await verifySupabaseAccessToken(bearerToken);
   if (verified) {
     return { userId: verified.sub, clientId: verified.clientId };
   }
 
+  // Fallback for projects still on the legacy HS256 shared secret: the JWKS is
+  // empty so the token cannot be verified locally. Validate it authoritatively
+  // against the Auth server by passing the token explicitly to getUser().
+  // (Calling getUser() with no argument looks for a stored session, which never
+  // exists here, so the token would be ignored and auth would always fail.)
   const supabase = createSupabaseClientForToken(bearerToken);
   const {
     data: { user },
     error,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser(bearerToken);
 
   if (error || !user) return null;
-  return { userId: user.id };
+
+  const claims = decodeJwtClaims(bearerToken);
+  const clientId =
+    claims && typeof claims.client_id === 'string'
+      ? claims.client_id
+      : claims && typeof claims.azp === 'string'
+        ? claims.azp
+        : undefined;
+
+  return { userId: user.id, clientId };
 }
 
 export async function verifyMcpToken(
@@ -124,6 +139,17 @@ export function getPublicSiteUrl(): string {
   ).replace(/\/$/, '');
 }
 
-export function getMcpResourceUrl(): string {
-  return `${getPublicSiteUrl()}/api/mcp/mcp`;
+export const MCP_ENDPOINT_PATH = '/api/mcp/mcp';
+
+/**
+ * Canonical MCP resource identifier (RFC 9728 / RFC 8707).
+ *
+ * Pass the origin the client actually connected to (derived from the incoming
+ * request) so the advertised `resource` always matches the host in the request,
+ * regardless of apex-vs-www. Falls back to the configured public site URL when
+ * no request origin is available.
+ */
+export function getMcpResourceUrl(origin?: string): string {
+  const base = (origin ?? getPublicSiteUrl()).replace(/\/$/, '');
+  return `${base}${MCP_ENDPOINT_PATH}`;
 }
