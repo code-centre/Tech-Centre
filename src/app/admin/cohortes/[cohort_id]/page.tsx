@@ -6,9 +6,75 @@ import { useSupabaseClient } from '@/lib/supabase';
 import { StudentsList } from '@/components/adminspage/StudentsList';
 import EnrollmentModal from '@/components/adminspage/EnrollmentModal';
 import SessionsList from '@/components/adminspage/SessionsList';
+import { CohortEditModal, formatCohortSchedule } from '@/components/adminspage/CohortEditModal';
 import Link from 'next/link';
-import { ArrowLeft, UserPlus, Calendar, BookOpen, Hash, Users, BookMarked, Trash2, TriangleAlert, Loader2, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  UserPlus,
+  Calendar,
+  BookOpen,
+  Hash,
+  Users,
+  BookMarked,
+  Trash2,
+  TriangleAlert,
+  Loader2,
+  X,
+  Pencil,
+  MapPin,
+  Clock,
+  GraduationCap,
+  Eye,
+  CreditCard,
+} from 'lucide-react';
 import type { Session, ProgramModule } from '@/types/supabase';
+import {
+  formatDateRange,
+  parseDateBogota,
+  weeksBetween,
+  currentWeek,
+} from '@/utils/formatDate';
+
+interface InstructorProfile {
+  first_name: string;
+  last_name?: string;
+  email: string;
+}
+
+function getCohortStatus(startDate: string, endDate: string): 'por_iniciar' | 'en_curso' | 'terminada' {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = parseDateBogota(startDate);
+  start.setHours(0, 0, 0, 0);
+  const end = parseDateBogota(endDate);
+  end.setHours(0, 0, 0, 0);
+  if (today < start) return 'por_iniciar';
+  if (today > end) return 'terminada';
+  return 'en_curso';
+}
+
+function getStatusLabel(status: 'por_iniciar' | 'en_curso' | 'terminada') {
+  switch (status) {
+    case 'por_iniciar':
+      return { label: 'Por iniciar', className: 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30' };
+    case 'terminada':
+      return { label: 'Terminada', className: 'bg-text-muted/20 text-text-muted border border-border-color' };
+    case 'en_curso':
+      return { label: 'En curso', className: 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30' };
+  }
+}
+
+function getModalityLabel(modality?: string) {
+  switch (modality) {
+    case 'virtual':
+      return 'Virtual';
+    case 'híbrido':
+      return 'Híbrido';
+    case 'presencial':
+    default:
+      return 'Presencial';
+  }
+}
 
 interface Profile {
   user_id: string;
@@ -52,7 +118,9 @@ export default function CohortStudentsPage() {
   >({});
   const [loading, setLoading] = useState(true);
   const [cohort, setCohort] = useState<any>(null);
+  const [instructor, setInstructor] = useState<InstructorProfile | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'students' | 'classes'>('students');
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -75,6 +143,7 @@ export default function CohortStudentsPage() {
           programs:program_id (
             id,
             name,
+            code,
             default_price
           )
         `)
@@ -88,6 +157,31 @@ export default function CohortStudentsPage() {
       }
 
       setCohort(cohortData);
+
+      const { data: instructorRow } = await supabase
+        .from('cohort_instructors')
+        .select(`
+          instructor_id,
+          profiles:instructor_id (
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .eq('cohort_id', cohortId)
+        .maybeSingle();
+
+      const profileData = instructorRow?.profiles;
+      const instructorProfile = Array.isArray(profileData) ? profileData[0] : profileData;
+      setInstructor(
+        instructorProfile
+          ? {
+              first_name: instructorProfile.first_name,
+              last_name: instructorProfile.last_name,
+              email: instructorProfile.email,
+            }
+          : null
+      );
 
       const programId = cohortData?.program_id ?? (Array.isArray(cohortData?.programs)
         ? cohortData?.programs?.[0]?.id
@@ -266,7 +360,68 @@ export default function CohortStudentsPage() {
   const programName = Array.isArray(cohort?.programs)
     ? cohort?.programs?.[0]?.name
     : cohort?.programs?.name;
+  const programCode = Array.isArray(cohort?.programs)
+    ? cohort?.programs?.[0]?.code
+    : cohort?.programs?.code;
   const cohortName = cohort?.name || `Cohorte ${cohortId}`;
+  const cohortStatus =
+    cohort?.start_date && cohort?.end_date
+      ? getCohortStatus(cohort.start_date, cohort.end_date)
+      : null;
+  const statusBadge = cohortStatus ? getStatusLabel(cohortStatus) : null;
+  const totalWeeks =
+    cohort?.start_date && cohort?.end_date
+      ? weeksBetween(cohort.start_date, cohort.end_date)
+      : null;
+  const paceLabel =
+    cohortStatus === 'en_curso' && cohort?.start_date && cohort?.end_date && totalWeeks
+      ? `Semana ${currentWeek(cohort.start_date, cohort.end_date)} de ${totalWeeks}`
+      : totalWeeks
+        ? `${totalWeeks} semanas`
+        : null;
+  const scheduleText = formatCohortSchedule(cohort?.schedule);
+  const instructorName = instructor
+    ? `${instructor.first_name}${instructor.last_name ? ` ${instructor.last_name}` : ''}`
+    : null;
+  const capacity = cohort?.capacity && cohort.capacity > 0 ? cohort.capacity : null;
+
+  const detailItems = [
+    { label: 'ID', value: String(cohort?.id ?? '—'), icon: Hash },
+    { label: 'Programa', value: programName ? `${programName}${programCode ? ` (${programCode})` : ''}` : '—', icon: BookOpen },
+    { label: 'Sede', value: cohort?.campus || '—', icon: MapPin },
+    { label: 'Modalidad', value: getModalityLabel(cohort?.modality), icon: GraduationCap },
+    {
+      label: 'Calendario',
+      value:
+        cohort?.start_date && cohort?.end_date
+          ? formatDateRange(cohort.start_date, cohort.end_date)
+          : '—',
+      hint: paceLabel ?? undefined,
+      icon: Calendar,
+    },
+    { label: 'Horario', value: scheduleText, icon: Clock },
+    {
+      label: 'Capacidad',
+      value: capacity ? `${enrollments.length} matriculados de ${capacity}` : `${enrollments.length} matriculados · sin límite`,
+      icon: Users,
+    },
+    {
+      label: 'Cuotas máximas',
+      value: String(cohort?.maximum_payments ?? 1),
+      icon: CreditCard,
+    },
+    {
+      label: 'Instructor',
+      value: instructorName ?? 'Sin asignar',
+      hint: instructor?.email,
+      icon: GraduationCap,
+    },
+    {
+      label: 'Visible en el sitio',
+      value: cohort?.offering ? 'Sí, aparece en oferta' : 'No, oculta',
+      icon: Eye,
+    },
+  ];
 
   return (
     <main className="container mx-auto px-4 py-8 space-y-6">
@@ -287,32 +442,51 @@ export default function CohortStudentsPage() {
             <div>
               <h1
                 id="cohort-header-title"
-                className="text-2xl md:text-3xl font-bold text-text-primary mb-4 flex items-center gap-3"
+                className="text-2xl md:text-3xl font-bold text-text-primary mb-3 flex flex-wrap items-center gap-3"
               >
-                <div className="p-2.5 bg-secondary/10 rounded-xl">
-                  <Calendar className="w-7 h-7 text-text-secondary" />
-                </div>
-                {cohortName}
+                <span className="inline-flex items-center gap-3">
+                  <span className="p-2.5 bg-secondary/10 rounded-xl">
+                    <Calendar className="w-7 h-7 text-text-secondary" />
+                  </span>
+                  {cohortName}
+                </span>
+                {statusBadge && (
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium ${statusBadge.className}`}
+                  >
+                    {cohortStatus === 'en_curso' && (
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+                    )}
+                    {statusBadge.label}
+                  </span>
+                )}
               </h1>
-              <div className="flex flex-wrap gap-6 text-sm">
-                <span className="flex items-center gap-2 text-text-muted">
-                  <Hash className="w-4 h-4 text-text-secondary" />
-                  <span className="text-text-primary font-medium">ID:</span>
-                  {cohort?.id}
-                </span>
-                <span className="flex items-center gap-2 text-text-muted">
-                  <BookOpen className="w-4 h-4 text-text-secondary" />
-                  <span className="text-text-primary font-medium">Programa:</span>
-                  {programName || '—'}
-                </span>
-                <span className="flex items-center gap-2 text-text-muted">
-                  <Calendar className="w-4 h-4 text-text-secondary" />
-                  <span className="text-text-primary font-medium">Fechas:</span>
-                  {cohort?.start_date} — {cohort?.end_date}
-                </span>
-              </div>
+
+              <dl className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {detailItems.map(({ label, value, hint, icon: Icon }) => (
+                  <div
+                    key={label}
+                    className="rounded-xl border border-border-color bg-bg-secondary/30 px-4 py-3.5"
+                  >
+                    <dt className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-text-muted">
+                      <Icon className="h-3.5 w-3.5 text-text-secondary" aria-hidden="true" />
+                      {label}
+                    </dt>
+                    <dd className="mt-1.5 text-sm font-semibold text-text-primary">{value}</dd>
+                    {hint && <dd className="mt-0.5 text-xs text-text-muted">{hint}</dd>}
+                  </div>
+                ))}
+              </dl>
             </div>
-            <div className="flex shrink-0 items-center gap-2.5">
+            <div className="flex shrink-0 flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(true)}
+                className="inline-flex h-11 items-center gap-2 rounded-lg border border-border-color px-4 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
+              >
+                <Pencil className="h-4 w-4" />
+                Editar cohorte
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -387,6 +561,28 @@ export default function CohortStudentsPage() {
           onDataChange={fetchCohortAndStudents}
         />
       )}
+
+      <CohortEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        cohort={
+          cohort
+            ? {
+                id: String(cohort.id),
+                name: cohort.name,
+                campus: cohort.campus,
+                modality: cohort.modality,
+                start_date: cohort.start_date,
+                end_date: cohort.end_date,
+                capacity: cohort.capacity,
+                program_id: String(cohort.program_id),
+                maximum_payments: cohort.maximum_payments,
+                schedule: cohort.schedule,
+              }
+            : null
+        }
+        onSaved={fetchCohortAndStudents}
+      />
 
       <EnrollmentModal
         isOpen={isModalOpen}

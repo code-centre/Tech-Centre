@@ -647,8 +647,40 @@ export default function CohortesAdmon() {
               Nueva cohorte
             </button>
           </div>
+        ) : statusFilter === 'activos' && !searchTerm ? (
+          <div className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-14 text-center shadow-lg">
+            <span className="inline-flex h-14 w-14 items-center justify-center rounded-[14px] bg-secondary/10 text-text-secondary">
+              <CalendarPlus size={28} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+            <h2 className="mt-5 text-xl font-semibold text-text-primary">
+              No hay ninguna cohorte activa
+            </h2>
+            <p className="mx-auto mt-2.5 max-w-[420px] text-[14.5px] leading-relaxed text-text-muted">
+              {selectedProgram === 'all'
+                ? 'Aquí aparecen las cohortes en curso y por iniciar. Crea una nueva para abrir cupos en el sitio.'
+                : 'No hay cohortes en curso o por iniciar para el programa seleccionado. Puedes crear una nueva cohorte para este programa.'}
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => openModal()}
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Nueva cohorte
+              </button>
+              {selectedProgram !== 'all' && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedProgram('all')}
+                  className="inline-flex h-11 items-center rounded-lg border border-border-color px-4 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
+                >
+                  Ver todos los programas
+                </button>
+              )}
+            </div>
+          </div>
         ) : (
-          /* Los filtros no devolvieron nada: no ofrecer crear */
           <div className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-11 text-center shadow-lg">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-text-muted/10 text-text-muted">
               <SearchX size={24} strokeWidth={1.8} aria-hidden="true" />
@@ -656,10 +688,16 @@ export default function CohortesAdmon() {
             <h2 className="mt-4.5 text-lg font-semibold text-text-primary">
               {searchTerm
                 ? `Ningún resultado para “${searchTerm}”`
-                : 'Ninguna cohorte con estos filtros'}
+                : statusFilter === 'en_curso'
+                  ? 'No hay cohortes en curso'
+                  : statusFilter === 'por_iniciar'
+                    ? 'No hay cohortes por iniciar'
+                    : statusFilter === 'terminada'
+                      ? 'No hay cohortes terminadas'
+                      : 'Ninguna cohorte con estos filtros'}
             </h2>
             <p className="mx-auto mt-2 max-w-[400px] text-sm leading-relaxed text-text-muted">
-              Prueba con otro término o quita los filtros para ver todas las cohortes.
+              Prueba con otro término o cambia los filtros para ver más cohortes.
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2.5">
               {searchTerm && (
