@@ -96,7 +96,6 @@ export async function createProgram(client: ServiceClient, input: CreateProgramI
       default_price: input.default_price ?? 0,
       syllabus: {},
       image: null,
-      schedule: null,
       created_at: now,
       updated_at: now,
     })

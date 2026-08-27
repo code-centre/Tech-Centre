@@ -71,7 +71,6 @@ export default function ProgramCreationModal({ isOpen, onClose, onProgramCreate 
         default_price: defaultPrice ? parseFloat(defaultPrice) : 0,
         syllabus: {},
         image: null,
-        schedule: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
