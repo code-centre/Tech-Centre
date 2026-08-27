@@ -1,7 +1,10 @@
 {
   "mcpServers": {
     "tech-centre": {
-      "url": "https://techcentre.co/api/mcp/mcp"
+      "url": "https://www.techcentre.co/api/mcp/mcp"
+    },
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp?project_ref=jyrtclndzwhslfydadna"
     }
   }
 }

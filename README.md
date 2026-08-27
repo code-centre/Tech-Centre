@@ -43,7 +43,7 @@ Crea un archivo `.env` en la raíz con:
 |---------|-------------|-----------|
 | `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase | Sí |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave anónima de Supabase | Sí |
-| `NEXT_PUBLIC_SITE_URL` | URL pública del sitio (ej: https://techcentre.co) | Sí (producción) |
+| `NEXT_PUBLIC_SITE_URL` | URL pública canónica del sitio (usar `https://www.techcentre.co` en producción) | Sí (producción) |
 | `NEXT_PUBLIC_BASE_URL` | URL base para callbacks (ej: http://localhost:3000) | Sí |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | API Key de Google Maps (mapas) | Opcional |
 | `NEXT_PUBLIC_GOOGLE_PLACES_API_KEY` | API Key de Google Places (reseñas) | Opcional |
@@ -129,24 +129,40 @@ El servidor MCP expone herramientas para consultar cohortes, inscripciones y pag
 ### Conectar desde Cursor
 
 1. En Supabase Dashboard → **Authentication → OAuth Server**, activa el servidor OAuth y configura:
-   - **Site URL:** `https://techcentre.co` (o tu dominio)
+   - **Site URL:** `https://www.techcentre.co`
    - **Authorization Path:** `/oauth/consent`
    - **JWT signing keys:** asimétricas (recomendado para JWKS)
-2. Despliega la app con `NEXT_PUBLIC_SITE_URL` apuntando al dominio público.
-3. Opcional: habilita **Dynamic Client Registration** después de desplegar la página de consentimiento.
-4. En Cursor, agrega el servidor MCP sin token manual:
+2. En **Authentication → URL Configuration**, agrega redirect URLs:
+   - `https://www.techcentre.co/auth/callback`
+   - `https://techcentre.co/auth/callback` (por si alguien entra sin `www`)
+3. Registra un cliente OAuth estático (o activa **Dynamic Client Registration**) con estas **redirect URIs de MCP**:
+
+```
+https://www.cursor.com/agents/mcp/oauth/callback
+http://localhost:8787/callback
+cursor://anysphere.cursor-mcp/oauth/callback
+```
+
+   - **Grok Bot / Cloud Agents:** `https://www.cursor.com/agents/mcp/oauth/callback`
+   - **Cursor Desktop:** `http://localhost:8787/callback`
+   - **Cursor Desktop (legacy):** `cursor://anysphere.cursor-mcp/oauth/callback`
+
+4. Despliega la app con `NEXT_PUBLIC_SITE_URL=https://www.techcentre.co` en Vercel.
+5. En Cursor, agrega el servidor MCP sin token manual:
 
 ```json
 {
   "mcpServers": {
     "tech-centre": {
-      "url": "https://techcentre.co/api/mcp/mcp"
+      "url": "https://www.techcentre.co/api/mcp/mcp"
     }
   }
 }
 ```
 
 Cursor descubrirá OAuth vía `/.well-known/oauth-protected-resource` y abrirá el flujo de autorización. Solo cuentas **admin** o **instructor** pueden aprobar la conexión.
+
+**Grok Bot:** si OAuth no termina de conectar, usa Bearer token en el header `Authorization` (ver sección abajo).
 
 ### Herramientas disponibles
 
@@ -169,7 +185,16 @@ Variables requeridas: `WOMPI_EVENTS_SECRET`, `WOMPI_SECRET_KEY`, `SUPABASE_SERVI
 
 ### Clientes sin OAuth (Grok Bot, scripts)
 
-Para clientes que no soportan OAuth dinámico, puedes usar un access token de Supabase como Bearer en el header `Authorization`. Los tokens emitidos por el OAuth Server se validan vía JWKS (`/auth/v1/.well-known/jwks.json`).
+Grok Bot suele fallar con OAuth dinámico en MCP custom. Configura:
+
+| Campo | Valor |
+|-------|-------|
+| URL | `https://www.techcentre.co/api/mcp/mcp` |
+| Header | `Authorization: Bearer <access_token>` |
+
+Obtén el token desde la sesión en techcentre.co (Local Storage → `sb-*-auth-token` → `access_token`). Expira en horas; renueva cuando falle.
+
+Para scripts, también puedes usar un access token de Supabase OAuth; se validan vía JWKS (`/auth/v1/.well-known/jwks.json`).
 
 ## Modelo de datos (Supabase)
 

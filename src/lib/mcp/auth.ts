@@ -116,10 +116,14 @@ export function getSupabaseAuthServerUrls(): string[] {
   return [`${supabaseUrl.replace(/\/$/, '')}/auth/v1`];
 }
 
-export function getMcpResourceUrl(): string {
-  const base =
+export function getPublicSiteUrl(): string {
+  return (
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.NEXT_PUBLIC_BASE_URL ||
-    'http://localhost:3000';
-  return `${base.replace(/\/$/, '')}/api/mcp/mcp`;
+    'https://www.techcentre.co'
+  ).replace(/\/$/, '');
+}
+
+export function getMcpResourceUrl(): string {
+  return `${getPublicSiteUrl()}/api/mcp/mcp`;
 }
