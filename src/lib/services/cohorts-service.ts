@@ -7,7 +7,6 @@ export interface CohortSummary {
   id: number;
   name: string | null;
   slug: string | null;
-  status: string | null;
   offering: boolean | null;
   start_date: string | null;
   end_date: string | null;
@@ -18,13 +17,19 @@ export async function listCohorts(
   client: ServiceClient,
   options?: { activeOnly?: boolean }
 ): Promise<CohortSummary[]> {
-  let query = client
+  let query = (client as any)
     .from('cohorts')
-    .select('id, name, slug, status, offering, start_date, end_date, program_id')
+    .select('id, name, slug, offering, start_date, end_date, program_id')
     .order('start_date', { ascending: true });
 
+  // The live `cohorts` table has no `status` column, so "active" is derived
+  // from real columns: it is currently being offered, or today falls within
+  // the cohort's start/end date range.
   if (options?.activeOnly) {
-    query = query.in('status', ['en_curso', 'por_iniciar']);
+    const today = new Date().toISOString().slice(0, 10);
+    query = query.or(
+      `offering.eq.true,and(start_date.lte.${today},end_date.gte.${today})`
+    );
   }
 
   const { data, error } = await query;
@@ -47,7 +52,6 @@ export interface CreateCohortInput {
   name: string;
   program_id: string;
   slug?: string | null;
-  status?: string | null;
   offering?: boolean;
   start_date?: string | null;
   end_date?: string | null;
@@ -57,13 +61,14 @@ export interface CreateCohortInput {
 }
 
 export async function createCohort(client: ServiceClient, input: CreateCohortInput) {
+  // The live `cohorts` table has no `status` column, so it is intentionally
+  // omitted from the insert payload.
   const { data, error } = await (client as any)
     .from('cohorts')
     .insert({
       name: input.name,
       program_id: input.program_id,
       slug: input.slug ?? null,
-      status: input.status ?? 'por_iniciar',
       offering: input.offering ?? false,
       start_date: input.start_date ?? null,
       end_date: input.end_date ?? null,
@@ -83,12 +88,15 @@ export async function updateCohort(
   cohortId: number,
   input: Partial<CreateCohortInput>
 ) {
+  // Strip any fields that do not exist on the live `cohorts` table (e.g.
+  // `status`) so updates align with the real schema.
+  const { status: _status, ...allowed } = input as Partial<CreateCohortInput> & {
+    status?: unknown;
+  };
+
   const { data, error } = await (client as any)
     .from('cohorts')
-    .update({
-      ...input,
-      updated_at: new Date().toISOString(),
-    })
+    .update(allowed)
     .eq('id', cohortId)
     .select('*')
     .single();
