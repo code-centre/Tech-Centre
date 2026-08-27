@@ -139,6 +139,17 @@ export function getPublicSiteUrl(): string {
   ).replace(/\/$/, '');
 }
 
-export function getMcpResourceUrl(): string {
-  return `${getPublicSiteUrl()}/api/mcp/mcp`;
+export const MCP_ENDPOINT_PATH = '/api/mcp/mcp';
+
+/**
+ * Canonical MCP resource identifier (RFC 9728 / RFC 8707).
+ *
+ * Pass the origin the client actually connected to (derived from the incoming
+ * request) so the advertised `resource` always matches the host in the request,
+ * regardless of apex-vs-www. Falls back to the configured public site URL when
+ * no request origin is available.
+ */
+export function getMcpResourceUrl(origin?: string): string {
+  const base = (origin ?? getPublicSiteUrl()).replace(/\/$/, '');
+  return `${base}${MCP_ENDPOINT_PATH}`;
 }
