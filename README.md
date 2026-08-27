@@ -126,16 +126,36 @@ Tech-Centre/
 
 El servidor MCP expone herramientas para consultar cohortes, inscripciones y pagos según el rol del usuario autenticado.
 
+### Host canónico (importante)
+
+El endpoint MCP y todo el flujo OAuth deben usar **un solo host**. En Vercel el
+dominio primario es `www.techcentre.co` y el ápex `techcentre.co` responde con un
+**307 → www**. Los redirects entre hosts distintos **eliminan el header
+`Authorization`**, así que un cliente configurado con el ápex pierde el token en
+cada petición y la sesión "se cae" a `needsAuth` justo después de autenticar.
+
+- Usa siempre `https://www.techcentre.co/api/mcp/mcp` en el cliente MCP.
+- En Supabase, la **Site URL debe ser `https://www.techcentre.co`** (si es el
+  ápex, el flujo OAuth mezcla ápex/www y el cliente reporta
+  *"Protected resource … does not match expected …"*).
+- El metadata `oauth-protected-resource` ahora se genera según el host de la
+  petición, así que `resource` siempre coincide con el host que usó el cliente.
+
 ### Conectar desde Cursor
 
 1. En Supabase Dashboard → **Authentication → OAuth Server**, activa el servidor OAuth y configura:
    - **Site URL:** `https://www.techcentre.co`
    - **Authorization Path:** `/oauth/consent`
-   - **JWT signing keys:** asimétricas (recomendado para JWKS)
+   - **JWT signing keys:** asimétricas (RS256/ES256) recomendado. **No es
+     obligatorio:** si el proyecto sigue en HS256 (el endpoint
+     `/auth/v1/.well-known/jwks.json` devuelve `{"keys":[]}`), el servidor MCP
+     valida el token contra el servidor Auth (`getUser`) en lugar de vía JWKS.
 2. En **Authentication → URL Configuration**, agrega redirect URLs:
    - `https://www.techcentre.co/auth/callback`
    - `https://techcentre.co/auth/callback` (por si alguien entra sin `www`)
-3. Registra un cliente OAuth estático (o activa **Dynamic Client Registration**) con estas **redirect URIs de MCP**:
+3. Registra un cliente OAuth estático (o activa **Dynamic Client Registration**,
+   ya soportado: el metadata expone `registration_endpoint`) con estas
+   **redirect URIs de MCP**:
 
 ```
 https://www.cursor.com/agents/mcp/oauth/callback
@@ -162,7 +182,9 @@ cursor://anysphere.cursor-mcp/oauth/callback
 
 Cursor descubrirá OAuth vía `/.well-known/oauth-protected-resource` y abrirá el flujo de autorización. Solo cuentas **admin** o **instructor** pueden aprobar la conexión.
 
-**Grok Bot:** si OAuth no termina de conectar, usa Bearer token en el header `Authorization` (ver sección abajo).
+**Grok Bot:** el flujo OAuth con Dynamic Client Registration funciona; si tu
+cliente no lo soporta, usa un Bearer token en el header `Authorization`
+(ver sección abajo). Ambos caminos comparten la misma validación de token.
 
 ### Herramientas disponibles
 
@@ -185,7 +207,7 @@ Variables requeridas: `WOMPI_EVENTS_SECRET`, `WOMPI_SECRET_KEY`, `SUPABASE_SERVI
 
 ### Clientes sin OAuth (Grok Bot, scripts)
 
-Grok Bot suele fallar con OAuth dinámico en MCP custom. Configura:
+Si tu cliente no completa el flujo OAuth, usa un Bearer token estático:
 
 | Campo | Valor |
 |-------|-------|
@@ -194,7 +216,10 @@ Grok Bot suele fallar con OAuth dinámico en MCP custom. Configura:
 
 Obtén el token desde la sesión en techcentre.co (Local Storage → `sb-*-auth-token` → `access_token`). Expira en horas; renueva cuando falle.
 
-Para scripts, también puedes usar un access token de Supabase OAuth; se validan vía JWKS (`/auth/v1/.well-known/jwks.json`).
+Cualquier access token de Supabase (sesión normal o emitido por el servidor
+OAuth) es válido. El servidor MCP lo valida primero contra el JWKS asimétrico y,
+si el proyecto usa HS256 (JWKS vacío), lo valida contra el servidor Auth. La
+cuenta debe tener rol **admin** o **instructor**.
 
 ## Modelo de datos (Supabase)
 
