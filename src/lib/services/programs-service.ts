@@ -47,6 +47,29 @@ export interface CreateProgramInput {
 }
 
 /**
+ * The live `programs.difficulty` Postgres enum stores Spanish values. The MCP
+ * tool schema keeps exposing English values (beginner/intermediate/advanced),
+ * so map them to the Spanish enum members the database actually accepts.
+ * Values already in Spanish pass through unchanged.
+ */
+function toSpanishDifficulty(difficulty?: string): string {
+  switch (difficulty) {
+    case 'beginner':
+      return 'Principiante';
+    case 'intermediate':
+      return 'Intermedio';
+    case 'advanced':
+      return 'Avanzado';
+    case 'Principiante':
+    case 'Intermedio':
+    case 'Avanzado':
+      return difficulty;
+    default:
+      return 'Principiante';
+  }
+}
+
+/**
  * Derive a unique `code` slug from the program name, mirroring the admin modal
  * (ProgramCreationModal) which slugifies the name. The modal rejects a
  * collision; here we append a numeric suffix so the tool can be used
@@ -91,7 +114,7 @@ export async function createProgram(client: ServiceClient, input: CreateProgramI
       description: input.description?.trim() || null,
       code,
       kind: (input.kind ?? 'diplomado').toLowerCase(),
-      difficulty: input.difficulty ?? 'beginner',
+      difficulty: toSpanishDifficulty(input.difficulty),
       total_hours: input.total_hours ?? 0,
       default_price: input.default_price ?? 0,
       syllabus: {},
