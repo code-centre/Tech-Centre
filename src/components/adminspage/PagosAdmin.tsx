@@ -3,24 +3,30 @@
 import { useSupabaseClient, useUser } from '@/lib/supabase';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminFilterTabs from '@/components/admin/AdminFilterTabs';
+import AdminSearchInput from '@/components/admin/AdminSearchInput';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
+import AdminEmptyState from '@/components/admin/AdminEmptyState';
+import {
+  adminTableClass,
+  adminTableHeadCellClass,
+  adminTableRowClass,
+} from '@/components/admin/admin-table';
 import {
   DollarSign,
-  Filter,
   Loader2,
-  Search,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
   TrendingUp,
-  FileText,
-  Percent,
-  Clock,
   Trash2,
   CheckCircle,
   Landmark,
   CreditCard,
   Banknote,
   MessageSquare,
+  SearchX,
 } from 'lucide-react';
 import { MarkAsPaidModal } from './MarkAsPaidModal';
 import {
@@ -203,6 +209,8 @@ export function PagosAdmin() {
       totalPaid,
       totalPending,
       count: invoices.length,
+      paidCount: paid.length,
+      pendingCount: pending.length,
       collectionRate,
     };
   }, [invoices]);
@@ -419,88 +427,25 @@ export function PagosAdmin() {
     );
   }
 
+  if (loading) {
+    return <AdminPageSkeleton />;
+  }
+
+  const filterTabs = [
+    { value: 'all', label: 'Todos', count: stats.count },
+    { value: 'paid', label: 'Pagados', count: stats.paidCount },
+    { value: 'pending', label: 'Pendientes', count: stats.pendingCount },
+  ];
+
+  const headerSubtitle = `${stats.count} ${stats.count === 1 ? 'factura' : 'facturas'} · $${stats.totalPaid.toLocaleString()} recaudado · ${stats.collectionRate}% tasa de cobro`;
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
-            <div className="p-2 bg-secondary/10 rounded-lg">
-              <DollarSign className="text-secondary" size={28} />
-            </div>
-            Gestión de Pagos
-          </h1>
-          <p className="text-text-muted mt-2">
-            Dashboard de facturas y recaudación
-          </p>
-        </div>
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-          <input
-            type="text"
-            placeholder="Buscar por estudiante, programa o concepto..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
-          />
-        </div>
-      </div>
-
-      {/* Stats cards */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-4">
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Total recaudado</p>
-              <p className="text-3xl font-bold text-green-400">
-                ${stats.totalPaid.toLocaleString()}
-              </p>
-            </div>
-            <div className="p-3 bg-green-500/10 rounded-lg">
-              <DollarSign className="text-green-400" size={24} />
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Pendiente por cobrar</p>
-              <p className="text-3xl font-bold text-amber-400">
-                ${stats.totalPending.toLocaleString()}
-              </p>
-            </div>
-            <div className="p-3 bg-amber-500/10 rounded-lg">
-              <Clock className="text-amber-400" size={24} />
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Total facturas</p>
-              <p className="text-3xl font-bold text-text-primary">
-                {stats.count}
-              </p>
-            </div>
-            <div className="p-3 bg-secondary/10 rounded-lg">
-              <FileText className="text-secondary" size={24} />
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Tasa de cobro</p>
-              <p className="text-3xl font-bold text-blue-400">
-                {stats.collectionRate}%
-              </p>
-            </div>
-            <div className="p-3 bg-blue-500/10 rounded-lg">
-              <Percent className="text-blue-400" size={24} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <AdminPageHeader
+        icon={DollarSign}
+        title="Gestión de Pagos"
+        subtitle={headerSubtitle}
+      />
 
       {/* Revenue chart */}
       <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg overflow-hidden">
@@ -596,47 +541,33 @@ export function PagosAdmin() {
       )}
 
       {/* Filters */}
-      <div className="flex items-center gap-3">
-        <Filter className="text-text-muted" size={20} />
-        <div className="flex flex-wrap gap-2">
-          {[
-            { id: 'all' as FilterType, label: 'Todos' },
-            { id: 'paid' as FilterType, label: 'Pagados' },
-            { id: 'pending' as FilterType, label: 'Pendientes' },
-          ].map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => setFilter(id)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
-                filter === id
-                  ? 'btn-primary'
-                  : 'bg-bg-secondary text-text-primary border border-border-color hover:bg-bg-secondary/80 hover:border-secondary/50'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <AdminFilterTabs
+          tabs={filterTabs}
+          value={filter}
+          onChange={(value) => setFilter(value as FilterType)}
+          ariaLabel="Filtrar facturas"
+        />
+        <AdminSearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Buscar por estudiante, programa o concepto…"
+        />
       </div>
 
       {/* Table */}
-      <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden">
-        {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <Loader2 className="w-12 h-12 animate-spin text-secondary" />
-          </div>
-        ) : sortedInvoices.length === 0 ? (
-          <div className="p-12 text-center">
-            <FileText className="w-16 h-16 text-text-muted mx-auto mb-4" />
-            <p className="text-text-muted text-lg">
-              No hay facturas {filter !== 'all' ? 'en esta categoría' : ''}
-            </p>
-          </div>
-        ) : (
+      {sortedInvoices.length === 0 ? (
+        <AdminEmptyState
+          icon={SearchX}
+          title={invoices.length === 0 ? 'No hay facturas registradas' : 'No hay facturas en esta categoría'}
+          description="Las facturas aparecerán aquí cuando se generen matrículas con planes de pago."
+        />
+      ) : (
+        <div className={adminTableClass}>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border-color">
-              <thead className="bg-bg-secondary/50 border-b border-border-color">
-                <tr>
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border-color bg-bg-secondary">
                   <th className="px-4 py-3 text-left w-12">
                     <input
                       type="checkbox"
@@ -650,10 +581,10 @@ export function PagosAdmin() {
                       aria-label="Seleccionar todas"
                     />
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider w-12">
+                  <th className={`${adminTableHeadCellClass} w-12`}>
                     #
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('student')}
@@ -663,7 +594,7 @@ export function PagosAdmin() {
                       <SortIcon k="student" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('due_date')}
@@ -673,7 +604,7 @@ export function PagosAdmin() {
                       <SortIcon k="due_date" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('amount')}
@@ -683,7 +614,7 @@ export function PagosAdmin() {
                       <SortIcon k="amount" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('status')}
@@ -693,7 +624,7 @@ export function PagosAdmin() {
                       <SortIcon k="status" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('paid_at')}
@@ -703,10 +634,10 @@ export function PagosAdmin() {
                       <SortIcon k="paid_at" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className={adminTableHeadCellClass}>
                     Tipo de pago
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('label')}
@@ -716,7 +647,7 @@ export function PagosAdmin() {
                       <SortIcon k="label" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('program')}
@@ -726,12 +657,12 @@ export function PagosAdmin() {
                       <SortIcon k="program" />
                     </button>
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <th className={`${adminTableHeadCellClass} text-right`}>
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-color bg-[var(--card-background)]">
+              <tbody>
                 {sortedInvoices.map((inv, index) => {
                   const profile = Array.isArray(inv.enrollment?.profile)
                     ? inv.enrollment?.profile[0]
@@ -748,9 +679,7 @@ export function PagosAdmin() {
                   return (
                     <tr
                       key={inv.id}
-                      className={`hover:bg-bg-secondary/30 transition-colors ${
-                        selectedIds.has(inv.id) ? 'bg-secondary/5' : ''
-                      }`}
+                      className={`${adminTableRowClass}${selectedIds.has(inv.id) ? ' bg-secondary/5' : ''}`}
                     >
                       <td className="px-4 py-3">
                         <input
@@ -909,8 +838,8 @@ export function PagosAdmin() {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <MarkAsPaidModal
         invoice={markingInvoice}

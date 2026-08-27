@@ -2,7 +2,16 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, Eye, EyeOff, Newspaper, Filter, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, Newspaper, SearchX } from 'lucide-react';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminFilterTabs from '@/components/admin/AdminFilterTabs';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
+import AdminEmptyState from '@/components/admin/AdminEmptyState';
+import {
+  adminTableClass,
+  adminTableHeadCellClass,
+  adminTableRowClass,
+} from '@/components/admin/admin-table';
 import { useUser, useSupabaseClient } from '@/lib/supabase';
 import { toast } from 'sonner';
 import type { BlogPost } from '@/types/supabase';
@@ -128,132 +137,70 @@ export default function AdminBlogPage() {
     );
   }
 
+  if (loading) {
+    return (
+      <main className="container mx-auto">
+        <AdminPageSkeleton />
+      </main>
+    );
+  }
+
+  const filterTabs = [
+    { value: 'all', label: 'Todos', count: stats.total },
+    { value: 'published', label: 'Publicados', count: stats.published },
+    { value: 'draft', label: 'Borradores', count: stats.draft },
+  ];
+
   return (
-    <div className="container mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
-            <div className="p-2 bg-secondary/10 rounded-lg">
-              <Newspaper className="text-secondary" size={28} />
-            </div>
-            Blog
-          </h1>
-          <p className="text-text-muted mt-2">Gestiona los artículos del blog</p>
-        </div>
-        <Link
-          href="/admin/blog/nuevo"
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={20} />
-          Nuevo artículo
-        </Link>
-      </div>
+    <main className="container mx-auto space-y-6">
+      <AdminPageHeader
+        icon={Newspaper}
+        title="Blog"
+        subtitle={`${stats.total} ${stats.total === 1 ? 'artículo' : 'artículos'} · ${stats.published} publicados · ${stats.draft} borradores`}
+        action={
+          <Link href="/admin/blog/nuevo" className="btn-primary flex items-center gap-2">
+            <Plus size={20} />
+            Nuevo artículo
+          </Link>
+        }
+      />
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Total artículos</p>
-              <p className="text-3xl font-bold text-text-primary">{stats.total}</p>
-            </div>
-            <div className="p-3 bg-secondary/10 rounded-lg">
-              <Newspaper className="text-secondary" size={24} />
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Publicados</p>
-              <p className="text-3xl font-bold text-green-400">{stats.published}</p>
-            </div>
-            <div className="p-3 bg-green-500/10 rounded-lg">
-              <Eye className="text-green-400" size={24} />
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Borradores</p>
-              <p className="text-3xl font-bold text-amber-400">{stats.draft}</p>
-            </div>
-            <div className="p-3 bg-amber-500/10 rounded-lg">
-              <EyeOff className="text-amber-400" size={24} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <AdminFilterTabs
+        tabs={filterTabs}
+        value={filter}
+        onChange={(value) => setFilter(value as FilterType)}
+        ariaLabel="Filtrar artículos"
+      />
 
-      {/* Filters */}
-      <div className="flex items-center gap-3">
-        <Filter className="text-text-muted" size={20} />
-        <div className="flex gap-2">
-          {(['all', 'published', 'draft'] as FilterType[]).map((filterType) => (
-            <button
-              key={filterType}
-              type="button"
-              onClick={() => setFilter(filterType)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                filter === filterType
-                  ? 'btn-primary'
-                  : 'bg-bg-secondary text-text-primary border border-border-color hover:bg-bg-secondary/80 hover:border-secondary/50'
-              }`}
-            >
-              {filterType === 'all' ? 'Todos' : filterType === 'published' ? 'Publicados' : 'Borradores'}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden">
-        {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <Loader2 className="w-12 h-12 animate-spin text-secondary" />
-          </div>
-        ) : filteredPosts.length === 0 ? (
-          <div className="p-12 text-center">
-            <Newspaper className="w-16 h-16 text-text-muted mx-auto mb-4" />
-            <p className="text-text-muted text-lg mb-4">
-              {posts.length === 0
-                ? 'Aún no hay artículos'
-                : `No hay artículos ${filter !== 'all' ? 'en esta categoría' : ''}`}
-            </p>
-            {posts.length === 0 && (
-              <Link
-                href="/admin/blog/nuevo"
-                className="btn-primary inline-flex items-center gap-2"
-              >
+      {filteredPosts.length === 0 ? (
+        <AdminEmptyState
+          icon={SearchX}
+          title={posts.length === 0 ? 'Aún no hay artículos' : 'No hay artículos en esta categoría'}
+          description="Crea tu primer artículo para publicarlo en el blog."
+          actions={
+            posts.length === 0 ? (
+              <Link href="/admin/blog/nuevo" className="btn-primary inline-flex items-center gap-2">
                 <Plus size={20} />
                 Crear primer artículo
               </Link>
-            )}
-          </div>
-        ) : (
+            ) : undefined
+          }
+        />
+      ) : (
+        <div className={adminTableClass}>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border-color">
-              <thead className="bg-bg-secondary/50 border-b border-border-color">
-                <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                  Título
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                  Estado
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                  Fecha
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-color">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border-color bg-bg-secondary">
+                  <th scope="col" className={adminTableHeadCellClass}>Título</th>
+                  <th scope="col" className={adminTableHeadCellClass}>Estado</th>
+                  <th scope="col" className={adminTableHeadCellClass}>Fecha</th>
+                  <th scope="col" className={`${adminTableHeadCellClass} text-right`}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
               {filteredPosts.map((post) => (
-                <tr key={post.id} className="hover:bg-bg-primary/50">
+                <tr key={post.id} className={adminTableRowClass}>
                   <td className="px-4 py-3">
                     <Link
                       href={`/blog/${post.slug}`}
@@ -332,8 +279,8 @@ export default function AdminBlogPage() {
             </tbody>
           </table>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </main>
   );
 }

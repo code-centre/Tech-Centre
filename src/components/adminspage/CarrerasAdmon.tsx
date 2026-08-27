@@ -19,8 +19,18 @@ import {
   Mail,
   Phone,
   Calendar,
+  SearchX,
 } from 'lucide-react';
 import Image from 'next/image';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
+import AdminEmptyState from '@/components/admin/AdminEmptyState';
+import AdminErrorBanner from '@/components/admin/AdminErrorBanner';
+import {
+  adminTableClass,
+  adminTableHeadCellClass,
+  adminTableRowClass,
+} from '@/components/admin/admin-table';
 import { useSupabaseClient, useUser } from '@/lib/supabase';
 import type { Career } from '@/types/careers';
 
@@ -451,87 +461,38 @@ export default function CarrerasAdmon() {
     );
   }
 
+  if (loading && !isAdding && !editingId) {
+    return <AdminPageSkeleton />;
+  }
+
+  const visibleCount = careers.filter((c) => c.is_visible).length;
+  const headerSubtitle = `${careers.length} ${careers.length === 1 ? 'carrera' : 'carreras'} · ${visibleCount} visibles · ${leads.length} interesados`;
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
-            <div className="p-2 bg-secondary/10 rounded-lg">
-              <BrainCircuit className="text-secondary" size={28} />
-            </div>
-            Dashboard de Carreras
-          </h1>
-          <p className="text-text-muted mt-2">
-            Gestiona las carreras tecnológicas, sus programas asociados y visibilidad
-          </p>
-        </div>
-        {!isAdding && !editingId && (
-          <button
-            onClick={() => {
-              setIsAdding(true);
-              setForm({ ...emptyForm });
-              setExpandedForm(true);
-            }}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus size={20} />
-            Nueva Carrera
-          </button>
-        )}
-      </div>
+      <AdminPageHeader
+        icon={BrainCircuit}
+        title="Carreras"
+        subtitle={headerSubtitle}
+        action={
+          !isAdding && !editingId ? (
+            <button
+              type="button"
+              onClick={() => {
+                setIsAdding(true);
+                setForm({ ...emptyForm });
+                setExpandedForm(true);
+              }}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus size={20} />
+              Nueva carrera
+            </button>
+          ) : undefined
+        }
+      />
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Total Carreras</p>
-              <p className="text-3xl font-bold text-text-primary">{careers.length}</p>
-            </div>
-            <div className="p-3 bg-secondary/10 rounded-lg">
-              <BrainCircuit className="text-secondary" size={24} />
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Visibles</p>
-              <p className="text-3xl font-bold text-green-400">
-                {careers.filter((c) => c.is_visible).length}
-              </p>
-            </div>
-            <div className="p-3 bg-green-500/10 rounded-lg">
-              <Eye className="text-green-400" size={24} />
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Ocultas</p>
-              <p className="text-3xl font-bold text-text-muted">
-                {careers.filter((c) => !c.is_visible).length}
-              </p>
-            </div>
-            <div className="p-3 bg-text-muted/10 rounded-lg">
-              <EyeOff className="text-text-muted" size={24} />
-            </div>
-          </div>
-        </div>
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Interesados</p>
-              <p className="text-3xl font-bold text-purple-400">{leads.length}</p>
-            </div>
-            <div className="p-3 bg-purple-500/10 rounded-lg">
-              <UserPlus className="text-purple-400" size={24} />
-            </div>
-          </div>
-        </div>
-      </div>
+      {error && !isAdding && !editingId && <AdminErrorBanner message={error} />}
 
       {/* Form */}
       {(isAdding || editingId) && (
@@ -1193,69 +1154,56 @@ export default function CarrerasAdmon() {
       )}
 
       {/* Table */}
-      {loading && !isAdding && !editingId ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-12 h-12 animate-spin text-secondary" />
-            <p className="text-text-muted">Cargando carreras...</p>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden">
-          {careers.length === 0 ? (
-            <div className="p-12 text-center">
-              <BrainCircuit className="w-16 h-16 text-text-muted mx-auto mb-4" />
-              <p className="text-text-muted text-lg">No hay carreras registradas</p>
-            </div>
-          ) : (
+      {!isAdding && !editingId && (
+        careers.length === 0 ? (
+          <AdminEmptyState
+            icon={SearchX}
+            title="No hay carreras registradas"
+            description="Crea tu primera carrera para publicarla en el sitio."
+            actions={
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAdding(true);
+                  setForm({ ...emptyForm });
+                  setExpandedForm(true);
+                }}
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                <Plus size={20} />
+                Nueva carrera
+              </button>
+            }
+          />
+        ) : (
+        <div className={adminTableClass}>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border-color">
-                <thead className="bg-bg-secondary/50 border-b border-border-color">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                    >
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border-color bg-bg-secondary">
+                    <th scope="col" className={adminTableHeadCellClass}>
                       Carrera
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                    >
+                    <th scope="col" className={adminTableHeadCellClass}>
                       Duración
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                    >
+                    <th scope="col" className={adminTableHeadCellClass}>
                       Nivel
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                    >
+                    <th scope="col" className={adminTableHeadCellClass}>
                       Programas
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-center text-xs font-medium text-text-muted uppercase tracking-wider"
-                    >
+                    <th scope="col" className={`${adminTableHeadCellClass} text-center`}>
                       Visibilidad
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider"
-                    >
+                    <th scope="col" className={`${adminTableHeadCellClass} text-right`}>
                       Acciones
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border-color bg-[var(--card-background)]">
+                <tbody>
                   {careers.map((career) => (
-                    <tr
-                      key={career.id}
-                      className="hover:bg-bg-secondary/30 transition-colors"
-                    >
+                    <tr key={career.id} className={adminTableRowClass}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-bg-secondary border border-border-color">
@@ -1346,8 +1294,8 @@ export default function CarrerasAdmon() {
                 </tbody>
               </table>
             </div>
-          )}
         </div>
+        )
       )}
 
       {/* Delete confirmation modal */}
@@ -1425,54 +1373,47 @@ export default function CarrerasAdmon() {
 
       {/* Interesados en Carreras */}
       <section className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-purple-500/10 rounded-lg">
-            <UserPlus className="text-purple-400" size={24} />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-text-primary">Interesados en Carreras</h2>
-            <p className="text-text-muted text-sm">
-              Personas que han registrado su interés desde las páginas de carreras
-            </p>
-          </div>
-        </div>
+        <AdminPageHeader
+          icon={UserPlus}
+          title="Interesados en carreras"
+          subtitle={`${leads.length} ${leads.length === 1 ? 'registro' : 'registros'} desde las páginas de carreras`}
+        />
 
         {leadsLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
-          </div>
+          <AdminPageSkeleton rows={3} />
         ) : leads.length === 0 ? (
-          <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-12 text-center">
-            <UserPlus className="w-12 h-12 text-text-muted mx-auto mb-3" />
-            <p className="text-text-muted">Aún no hay interesados registrados</p>
-          </div>
+          <AdminEmptyState
+            icon={UserPlus}
+            title="Aún no hay interesados registrados"
+            description="Los leads aparecerán aquí cuando alguien registre interés desde una página de carrera."
+          />
         ) : (
-          <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden">
+          <div className={adminTableClass}>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border-color">
-                <thead className="bg-bg-secondary/50 border-b border-border-color">
-                  <tr>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border-color bg-bg-secondary">
+                    <th scope="col" className={adminTableHeadCellClass}>
                       Nombre
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                    <th scope="col" className={adminTableHeadCellClass}>
                       Email
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                    <th scope="col" className={adminTableHeadCellClass}>
                       Teléfono
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                    <th scope="col" className={adminTableHeadCellClass}>
                       Carrera
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                    <th scope="col" className={adminTableHeadCellClass}>
                       Etapa
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                    <th scope="col" className={adminTableHeadCellClass}>
                       Fecha
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border-color bg-[var(--card-background)]">
+                <tbody>
                   {leads.map((lead) => {
                     let parsedNotes: { careerName?: string; moduleName?: string } = {};
                     try {
@@ -1486,7 +1427,7 @@ export default function CarrerasAdmon() {
                     };
 
                     return (
-                      <tr key={lead.id} className="hover:bg-bg-secondary/30 transition-colors">
+                      <tr key={lead.id} className={adminTableRowClass}>
                         <td className="px-4 py-3">
                           <p className="font-medium text-text-primary text-sm">{lead.full_name}</p>
                         </td>

@@ -9,7 +9,6 @@ import {
   UserMinus,
   GraduationCap,
   BookOpen,
-  Filter,
   Loader2,
   Search,
   ChevronRight,
@@ -17,7 +16,19 @@ import {
   ArrowUp,
   ArrowDown,
   CreditCard,
+  SearchX,
 } from 'lucide-react';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminFilterTabs from '@/components/admin/AdminFilterTabs';
+import AdminSearchInput from '@/components/admin/AdminSearchInput';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
+import AdminEmptyState from '@/components/admin/AdminEmptyState';
+import {
+  adminTableShellClass,
+  adminTableHeadCellClass,
+  adminTableRowClass,
+  adminTableFooterClass,
+} from '@/components/admin/admin-table';
 import { formatPrice } from '../../../utils/formatCurrency';
 
 interface Profile {
@@ -46,6 +57,8 @@ type FilterType = 'all' | 'leads' | 'active' | 'alumni' | 'admin';
 
 type SortKey = 'name' | 'email' | 'role' | 'courses' | 'created_at';
 type SortDir = 'asc' | 'desc';
+
+const PAGE_SIZE = 15;
 
 export type RoleFilter = ('student' | 'lead' | 'instructor' | 'admin')[];
 
@@ -111,6 +124,7 @@ export function StudentsList({
   const [sortKey, setSortKey] = useState<SortKey>('created_at');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [expellingId, setExpellingId] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
 
   const enrollmentIdMap = useMemo(() => {
     if (!enrollments?.length) return new Map<string, number>();
@@ -177,6 +191,10 @@ export function StudentsList({
 
     fetchData();
   }, [supabase, roleFilter, enrollments]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filter, searchTerm, roleFilter]);
 
   const enrollmentStats = useMemo(() => {
     const today = new Date();
@@ -355,12 +373,27 @@ export function StudentsList({
     !isCohortContext && (roleFilter?.includes('student') || roleFilter?.includes('lead'));
   const filterTabs = showStudentFilters
     ? [
-        { id: 'all' as FilterType, label: 'Todos' },
-        { id: 'leads' as FilterType, label: 'Leads' },
-        { id: 'active' as FilterType, label: 'En curso' },
-        { id: 'alumni' as FilterType, label: 'Exalumnos' },
+        { value: 'all' as FilterType, label: 'Todos', count: stats.total },
+        { value: 'leads' as FilterType, label: 'Leads', count: stats.leads },
+        { value: 'active' as FilterType, label: 'En curso', count: stats.active },
+        { value: 'alumni' as FilterType, label: 'Exalumnos', count: stats.alumni },
       ]
-    : [{ id: 'all' as FilterType, label: 'Todos' }];
+    : [{ value: 'all' as FilterType, label: 'Todos', count: stats.total }];
+
+  const headerSubtitle = showStudentFilters
+    ? `${stats.total} ${stats.total === 1 ? 'usuario' : 'usuarios'} · ${stats.leads} leads · ${stats.active} en curso · ${stats.alumni} exalumnos`
+    : isInstructorView
+      ? `${stats.total} ${stats.total === 1 ? 'instructor' : 'instructores'}`
+      : roleFilter?.includes('admin')
+        ? `${stats.total} ${stats.total === 1 ? 'administrador' : 'administradores'}`
+        : `${stats.total} ${stats.total === 1 ? 'usuario' : 'usuarios'}`;
+
+  const totalPages = Math.max(1, Math.ceil(sortedProfiles.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageProfiles = sortedProfiles.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE
+  );
 
   if (!user || user?.role !== 'admin') {
     return (
@@ -370,139 +403,87 @@ export function StudentsList({
     );
   }
 
+  if (loading) {
+    return <AdminPageSkeleton />;
+  }
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
-            <div className="p-2 bg-secondary/10 rounded-lg">
-              <Users className="text-secondary" size={28} />
-            </div>
-            {title}
-          </h1>
-          <p className="text-text-muted mt-2">{subtitle}</p>
-        </div>
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-          <input
-            type="text"
-            placeholder="Buscar por nombre o email..."
+      <AdminPageHeader
+        icon={Users}
+        title={title}
+        subtitle={headerSubtitle}
+      />
+
+      {!isCohortContext && (
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <AdminFilterTabs
+            tabs={filterTabs}
+            value={filter}
+            onChange={(value) => setFilter(value as FilterType)}
+            ariaLabel="Filtrar usuarios"
+          />
+          <AdminSearchInput
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+            onChange={setSearchTerm}
+            placeholder="Buscar por nombre o email"
           />
         </div>
-      </div>
-
-      {/* Stats cards */}
-      <div
-        className={`grid gap-4 ${
-          showStudentFilters
-            ? 'grid-cols-1 md:grid-cols-4'
-            : 'grid-cols-1 md:grid-cols-1 max-w-xs'
-        }`}
-      >
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Total</p>
-              <p className="text-3xl font-bold text-text-primary">{stats.total}</p>
-            </div>
-            <div className="p-3 bg-secondary/10 rounded-lg">
-              <Users className="text-secondary" size={24} />
-            </div>
-          </div>
-        </div>
-        {showStudentFilters && (
-          <>
-            <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-text-muted text-sm mb-1">Leads</p>
-                  <p className="text-3xl font-bold text-blue-400">{stats.leads}</p>
-                </div>
-                <div className="p-3 bg-blue-500/10 rounded-lg">
-                  <UserPlus className="text-blue-400" size={24} />
-                </div>
-              </div>
-            </div>
-            <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-text-muted text-sm mb-1">En curso activo</p>
-                  <p className="text-3xl font-bold text-green-400">{stats.active}</p>
-                </div>
-                <div className="p-3 bg-green-500/10 rounded-lg">
-                  <GraduationCap className="text-green-400" size={24} />
-                </div>
-              </div>
-            </div>
-            <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-text-muted text-sm mb-1">Exalumnos</p>
-                  <p className="text-3xl font-bold text-amber-400">{stats.alumni}</p>
-                </div>
-                <div className="p-3 bg-amber-500/10 rounded-lg">
-                  <BookOpen className="text-amber-400" size={24} />
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Filters */}
-      {!isCohortContext && (
-      <div className="flex items-center gap-3">
-        <Filter className="text-text-muted" size={20} />
-        <div className="flex flex-wrap gap-2">
-          {filterTabs.map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => setFilter(id)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                filter === id
-                  ? 'btn-primary'
-                  : 'bg-bg-secondary text-text-primary border border-border-color hover:bg-bg-secondary/80 hover:border-secondary/50'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
       )}
 
-      {/* Table */}
-      <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden">
-        {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <Loader2 className="w-12 h-12 animate-spin text-secondary" />
-          </div>
-        ) : filteredProfiles.length === 0 ? (
-          <div className="p-12 text-center">
-            <Users className="w-16 h-16 text-text-muted mx-auto mb-4" />
-            <p className="text-text-muted text-lg">
-              No hay usuarios {filter !== 'all' ? 'en esta categoría' : ''}
-            </p>
-          </div>
-        ) : (
+      {isCohortContext && (
+        <AdminSearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Buscar por nombre o email"
+          className="w-full sm:max-w-xs"
+        />
+      )}
+
+      {filteredProfiles.length === 0 ? (
+        <AdminEmptyState
+          icon={SearchX}
+          title={
+            searchTerm
+              ? `Ningún resultado para “${searchTerm}”`
+              : filter !== 'all'
+                ? 'No hay usuarios en esta categoría'
+                : 'No hay usuarios registrados'
+          }
+          description="Prueba con otro término o cambia los filtros."
+          actions={
+            <>
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm('')}
+                  className="inline-flex h-9 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
+                >
+                  Limpiar búsqueda
+                </button>
+              )}
+              {filter !== 'all' && (
+                <button
+                  type="button"
+                  onClick={() => setFilter('all')}
+                  className="inline-flex h-9 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
+                >
+                  Ver todos
+                </button>
+              )}
+            </>
+          }
+        />
+      ) : (
+        <div className={adminTableShellClass}>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border-color">
-              <thead className="bg-bg-secondary/50 border-b border-border-color">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider w-12"
-                  >
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border-color bg-bg-secondary">
+                  <th scope="col" className={`${adminTableHeadCellClass} w-12`}>
                     #
                   </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                  >
+                  <th scope="col" className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('name')}
@@ -522,10 +503,7 @@ export function StudentsList({
                   </th>
                   {!isCohortContext && (
                     <>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                  >
+                  <th scope="col" className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('role')}
@@ -543,10 +521,7 @@ export function StudentsList({
                       )}
                     </button>
                   </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                  >
+                  <th scope="col" className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('courses')}
@@ -586,10 +561,7 @@ export function StudentsList({
                     </th>
                     </>
                   )}
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
-                  >
+                  <th scope="col" className={adminTableHeadCellClass}>
                     <button
                       type="button"
                       onClick={() => handleSort('created_at')}
@@ -607,16 +579,13 @@ export function StudentsList({
                       )}
                     </button>
                   </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider"
-                  >
+                  <th scope="col" className={`${adminTableHeadCellClass} text-right`}>
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-color bg-[var(--card-background)]">
-                {sortedProfiles.map((profile, index) => {
+              <tbody>
+                {pageProfiles.map((profile, index) => {
                   const courseCount =
                     profile.role === 'instructor'
                       ? instructorCohortCount.get(profile.user_id) ?? 0
@@ -626,12 +595,9 @@ export function StudentsList({
                       ? `/admin/instructores/${profile.user_id}`
                       : `/admin/estudiantes/${profile.user_id}`;
                   return (
-                    <tr
-                      key={profile.user_id}
-                      className="hover:bg-bg-secondary/30 transition-colors"
-                    >
-                      <td className="px-4 py-3 text-text-muted font-medium">
-                        {index + 1}
+                    <tr key={profile.user_id} className={adminTableRowClass}>
+                      <td className="px-4 py-3.5 text-text-muted font-medium">
+                        {(safePage - 1) * PAGE_SIZE + index + 1}
                       </td>
                       <td className="px-4 py-3">
                         <div>
@@ -769,8 +735,38 @@ export function StudentsList({
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+
+          <div className={adminTableFooterClass}>
+            <p className="text-xs text-text-muted">
+              {sortedProfiles.length}{' '}
+              {sortedProfiles.length === 1 ? 'usuario' : 'usuarios'}
+            </p>
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setPage((n) => Math.max(1, n - 1))}
+                  disabled={safePage === 1}
+                  className="inline-flex h-8 items-center rounded-lg border border-border-color px-3 text-xs font-medium text-text-primary transition-colors hover:bg-[var(--card-background)] disabled:opacity-40"
+                >
+                  Anterior
+                </button>
+                <span className="px-1 text-xs text-text-muted">
+                  {safePage} / {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPage((n) => Math.min(totalPages, n + 1))}
+                  disabled={safePage === totalPages}
+                  className="inline-flex h-8 items-center rounded-lg border border-border-color px-3 text-xs font-medium text-text-primary transition-colors hover:bg-[var(--card-background)] disabled:opacity-40"
+                >
+                  Siguiente
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, X, XCircle, GraduationCap, Users, Loader2, Calendar, Save } from 'lucide-react';
+import { Plus, Trash2, X, XCircle, GraduationCap, Users, Loader2, Calendar, Save, SearchX } from 'lucide-react';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
+import AdminEmptyState from '@/components/admin/AdminEmptyState';
+import AdminErrorBanner from '@/components/admin/AdminErrorBanner';
+import {
+  adminTableClass,
+  adminTableHeadCellClass,
+  adminTableRowClass,
+} from '@/components/admin/admin-table';
 import { useSupabaseClient, useUser } from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -337,56 +346,33 @@ export default function ProgramsAdmon() {
     return <div className="p-8 text-center text-text-primary">No tienes permisos para ver esta sección</div>;
   }
 
+  if (loading && !isAdding && !editingId) {
+    return <AdminPageSkeleton />;
+  }
+
+  const headerSubtitle = `${stats.total} ${stats.total === 1 ? 'programa' : 'programas'} · ${stats.withCohorts} con cohortes`;
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
-            <div className="p-2 bg-secondary/10 rounded-lg">
-              <GraduationCap className="text-secondary" size={28} />
-            </div>
-            Dashboard de Programas
-          </h1>
-          <p className="text-text-muted mt-2">Gestiona tus programas académicos y sus cohortes</p>
-        </div>
-        {!isAdding && !editingId && (
-          <button 
-            onClick={() => setIsAdding(true)}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus size={20} />
-            Nuevo Programa
-          </button>
-        )}
-      </div>
+      <AdminPageHeader
+        icon={GraduationCap}
+        title="Programas"
+        subtitle={headerSubtitle}
+        action={
+          !isAdding && !editingId ? (
+            <button
+              type="button"
+              onClick={() => setIsAdding(true)}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus size={20} />
+              Nuevo programa
+            </button>
+          ) : undefined
+        }
+      />
 
-      {/* Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Total Programas</p>
-              <p className="text-3xl font-bold text-text-primary">{stats.total}</p>
-            </div>
-            <div className="p-3 bg-secondary/10 rounded-lg">
-              <GraduationCap className="text-secondary" size={24} />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-text-muted text-sm mb-1">Con Cohortes</p>
-              <p className="text-3xl font-bold text-secondary">{stats.withCohorts}</p>
-            </div>
-            <div className="p-3 bg-secondary/10 rounded-lg">
-              <Users className="text-secondary" size={24} />
-            </div>
-          </div>
-        </div>
-      </div>
+      {error && !isAdding && !editingId && <AdminErrorBanner message={error} />}
 
       {/* Formulario para agregar/editar */}
       {(isAdding || editingId) && (
@@ -525,45 +511,42 @@ export default function ProgramsAdmon() {
       )}
 
       {/* Lista de programas */}
-      {loading && !isAdding && !editingId ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-12 h-12 animate-spin text-secondary" />
-            <p className="text-text-muted">Cargando programas...</p>
-          </div>
-        </div>
-      ) : error ? (
-        <div className="bg-red-900/20 border border-red-800/50 rounded-xl p-6 text-center">
-          <p className="text-red-400">{error}</p>
-        </div>
+      {error && (isAdding || editingId) ? (
+        <AdminErrorBanner message={error} />
+      ) : filteredPrograms.length === 0 ? (
+        <AdminEmptyState
+          icon={SearchX}
+          title="No hay programas registrados"
+          description="Crea tu primer programa académico para abrir cohortes."
+          actions={
+            <button type="button" onClick={() => setIsAdding(true)} className="btn-primary">
+              <Plus className="h-4 w-4" />
+              Nuevo programa
+            </button>
+          }
+        />
       ) : (
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden">
-          {filteredPrograms.length === 0 ? (
-            <div className="p-12 text-center">
-              <GraduationCap className="w-16 h-16 text-text-muted mx-auto mb-4" />
-              <p className="text-text-muted text-lg">No hay programas registrados</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border-color">
-                <thead className="bg-bg-secondary/50 border-b border-border-color">
-                  <tr>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                      Programa
-                    </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                      Cohortes activas
-                    </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                      Cohortes pasadas
-                    </th>
-                    <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-color bg-[var(--card-background)]">
-                  {filteredPrograms.map((program) => {
+        <div className={adminTableClass}>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border-color bg-bg-secondary">
+                  <th scope="col" className={adminTableHeadCellClass}>
+                    Programa
+                  </th>
+                  <th scope="col" className={adminTableHeadCellClass}>
+                    Cohortes activas
+                  </th>
+                  <th scope="col" className={adminTableHeadCellClass}>
+                    Cohortes pasadas
+                  </th>
+                  <th scope="col" className={`${adminTableHeadCellClass} text-right`}>
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPrograms.map((program) => {
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
                     const activeCohorts = (program.cohorts || []).filter(
@@ -573,7 +556,7 @@ export default function ProgramsAdmon() {
                       (c) => !c.end_date || new Date(c.end_date) < today
                     );
                     return (
-                      <tr key={program.id} className="hover:bg-bg-secondary/30 transition-colors">
+                      <tr key={program.id} className={adminTableRowClass}>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <div className="shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-bg-secondary border border-border-color">
@@ -634,9 +617,8 @@ export default function ProgramsAdmon() {
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
       {/* Modal de confirmación para eliminar */}
       {programToDelete && (
