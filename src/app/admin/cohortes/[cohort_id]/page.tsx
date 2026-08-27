@@ -47,6 +47,9 @@ export default function CohortStudentsPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [modules, setModules] = useState<ProgramModule[]>([]);
   const [absencesByEnrollmentId, setAbsencesByEnrollmentId] = useState<Record<number, number>>({});
+  const [paymentsByEnrollmentId, setPaymentsByEnrollmentId] = useState<
+    Record<number, { paidCount: number; totalCount: number; paidAmount: number; totalAmount: number }>
+  >({});
   const [loading, setLoading] = useState(true);
   const [cohort, setCohort] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -122,8 +125,66 @@ export default function CohortStudentsPage() {
 
       if (enrollmentsRes.error) {
         console.error('Error fetching enrollments:', enrollmentsRes.error);
+        setPaymentsByEnrollmentId({});
       } else {
-        setEnrollments((enrollmentsRes.data as Enrollment[]) || []);
+        const enrollmentRows = (enrollmentsRes.data as Enrollment[]) || [];
+        setEnrollments(enrollmentRows);
+
+        const enrollmentIds = enrollmentRows
+          .map((e) => e.id)
+          .filter((id): id is number => id != null);
+
+        if (enrollmentIds.length > 0) {
+          const { data: invoicesData } = await supabase
+            .from('invoices')
+            .select('enrollment_id, amount, status')
+            .in('enrollment_id', enrollmentIds);
+
+          const paymentsMap: Record<
+            number,
+            { paidCount: number; totalCount: number; paidAmount: number; totalAmount: number; invoiceTotal: number }
+          > = {};
+
+          enrollmentRows.forEach((e) => {
+            if (e.id == null) return;
+            paymentsMap[e.id] = {
+              paidCount: 0,
+              totalCount: 0,
+              paidAmount: 0,
+              totalAmount: e.agreed_price ?? 0,
+              invoiceTotal: 0,
+            };
+          });
+
+          (invoicesData || []).forEach((inv: { enrollment_id: number; amount: number; status: string }) => {
+            const summary = paymentsMap[inv.enrollment_id];
+            if (!summary) return;
+            summary.totalCount += 1;
+            summary.invoiceTotal += inv.amount ?? 0;
+            if (inv.status === 'paid') {
+              summary.paidCount += 1;
+              summary.paidAmount += inv.amount ?? 0;
+            }
+          });
+
+          const finalPayments: Record<
+            number,
+            { paidCount: number; totalCount: number; paidAmount: number; totalAmount: number }
+          > = {};
+
+          Object.entries(paymentsMap).forEach(([id, summary]) => {
+            finalPayments[Number(id)] = {
+              paidCount: summary.paidCount,
+              totalCount: summary.totalCount,
+              paidAmount: summary.paidAmount,
+              totalAmount: summary.totalAmount > 0 ? summary.totalAmount : summary.invoiceTotal,
+            };
+          });
+
+          setPaymentsByEnrollmentId(finalPayments);
+        } else {
+          setPaymentsByEnrollmentId({});
+        }
       }
 
       if (sessionsRes.error) {
@@ -313,6 +374,7 @@ export default function CohortStudentsPage() {
           cohortId={cohortId}
           onUserExpelled={fetchCohortAndStudents}
           absencesByEnrollmentId={absencesByEnrollmentId}
+          paymentsByEnrollmentId={paymentsByEnrollmentId}
         />
       )}
 

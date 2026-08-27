@@ -52,7 +52,7 @@ const DIA_CORTO: Record<string, string> = {
 /** Cuántas cohortes se listan por página. */
 const PAGE_SIZE = 15;
 
-type StatusFilterType = 'all' | 'por_iniciar' | 'en_curso' | 'terminada';
+type StatusFilterType = 'activos' | 'all' | 'por_iniciar' | 'en_curso' | 'terminada';
 
 export default function CohortesAdmon() {
   const supabase = useSupabaseClient();
@@ -65,7 +65,7 @@ export default function CohortesAdmon() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilterType>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilterType>('activos');
   const [selectedProgram, setSelectedProgram] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCohort, setEditingCohort] = useState<Cohort | null>(null);
@@ -485,11 +485,12 @@ export default function CohortesAdmon() {
   );
 
   const filteredCohorts = scopedCohorts.filter((cohort) => {
-    if (statusFilter === 'all') return true;
     const status =
       cohort.start_date && cohort.end_date
         ? getCohortStatus(cohort.start_date, cohort.end_date)
         : null;
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'activos') return status === 'en_curso' || status === 'por_iniciar';
     return status === statusFilter;
   });
 
@@ -503,6 +504,7 @@ export default function CohortesAdmon() {
   const pageCohorts = filteredCohorts.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const STATUS_TABS: { value: StatusFilterType; label: string; count: number }[] = [
+    { value: 'activos', label: 'Activos', count: statusCounts.en_curso + statusCounts.por_iniciar },
     { value: 'all', label: 'Todas', count: scopedCohorts.length },
     { value: 'en_curso', label: 'En curso', count: statusCounts.en_curso },
     { value: 'por_iniciar', label: 'Por iniciar', count: statusCounts.por_iniciar },
@@ -673,12 +675,12 @@ export default function CohortesAdmon() {
                 type="button"
                 onClick={() => {
                   setSearchTerm('');
-                  setStatusFilter('all');
+                  setStatusFilter('activos');
                   setSelectedProgram('all');
                 }}
                 className="inline-flex h-9 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
               >
-                Ver todas las cohortes
+                Ver cohortes activas
               </button>
             </div>
           </div>

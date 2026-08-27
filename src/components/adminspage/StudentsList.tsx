@@ -16,7 +16,9 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  CreditCard,
 } from 'lucide-react';
+import { formatPrice } from '../../../utils/formatCurrency';
 
 interface Profile {
   id: string;
@@ -47,6 +49,13 @@ type SortDir = 'asc' | 'desc';
 
 export type RoleFilter = ('student' | 'lead' | 'instructor' | 'admin')[];
 
+type PaymentSummary = {
+  paidCount: number;
+  totalCount: number;
+  paidAmount: number;
+  totalAmount: number;
+};
+
 interface StudentsListProps {
   filters?: {
     searchTerm?: string;
@@ -61,6 +70,7 @@ interface StudentsListProps {
   cohortId?: string;
   onUserExpelled?: () => void;
   absencesByEnrollmentId?: Record<number, number>;
+  paymentsByEnrollmentId?: Record<number, PaymentSummary>;
 }
 
 function getRoleBadgeClass(role: string): string {
@@ -88,6 +98,7 @@ export function StudentsList({
   cohortId,
   onUserExpelled,
   absencesByEnrollmentId = {},
+  paymentsByEnrollmentId = {},
 }: StudentsListProps = {}) {
   const supabase = useSupabaseClient();
   const { user } = useUser();
@@ -560,12 +571,20 @@ export function StudentsList({
                     </>
                   )}
                   {isCohortContext && (
+                    <>
                     <th
                       scope="col"
                       className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
                     >
                       Faltas
                     </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
+                    >
+                      Pagos
+                    </th>
+                    </>
                   )}
                   <th
                     scope="col"
@@ -650,11 +669,55 @@ export function StudentsList({
                         </>
                       )}
                       {isCohortContext && (
+                        <>
                         <td className="px-4 py-3">
                           <span className="inline-flex items-center justify-center min-w-[2rem] px-2.5 py-1 rounded-full text-sm font-medium bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
                             {absencesByEnrollmentId[enrollmentIdMap.get(profile.user_id) ?? -1] ?? 0}
                           </span>
                         </td>
+                        <td className="px-4 py-3">
+                          {(() => {
+                            const enrollmentId = enrollmentIdMap.get(profile.user_id);
+                            const payments =
+                              enrollmentId != null ? paymentsByEnrollmentId[enrollmentId] : undefined;
+
+                            if (!payments || payments.totalCount === 0) {
+                              return <span className="text-sm text-text-muted">Sin pagos</span>;
+                            }
+
+                            const isFullyPaid =
+                              payments.paidCount >= payments.totalCount &&
+                              payments.totalAmount > 0 &&
+                              payments.paidAmount >= payments.totalAmount;
+
+                            return (
+                              <div className="space-y-1">
+                                <span
+                                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                    isFullyPaid
+                                      ? 'bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/30'
+                                      : payments.paidCount > 0
+                                        ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30'
+                                        : 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20'
+                                  }`}
+                                >
+                                  <CreditCard className="h-3.5 w-3.5" aria-hidden="true" />
+                                  {payments.paidCount} de {payments.totalCount} pagos
+                                </span>
+                                <p className="text-sm text-text-primary">
+                                  <span className="font-semibold">{formatPrice(payments.paidAmount)}</span>
+                                  {payments.totalAmount > 0 && (
+                                    <span className="text-text-muted">
+                                      {' '}
+                                      de {formatPrice(payments.totalAmount)}
+                                    </span>
+                                  )}
+                                </p>
+                              </div>
+                            );
+                          })()}
+                        </td>
+                        </>
                       )}
                       <td className="px-4 py-3 text-sm text-text-muted">
                         {new Date(
