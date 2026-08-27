@@ -1,8 +1,25 @@
 import { NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rate-limit';
 
 const GOOGLE_PLACES_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
 export async function GET(request: Request) {
+  const clientIp =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'anonymous';
+
+  const limit = rateLimit(`google-reviews:${clientIp}`, 20, 60_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(limit.retryAfterSec) },
+      }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const placeId = searchParams.get('placeId');
 

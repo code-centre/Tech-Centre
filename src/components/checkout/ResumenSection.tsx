@@ -7,7 +7,6 @@ import DiscountCoupon from './DiscountCoupon'
 import QuickSignUp from './QuickSignUp'
 import PaymentMethodDropdown from './PaymentMethodDropdown'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
-import { getPaymentProvider } from '@/lib/payments/payment-factory'
 import { calculatePrice, calculateInstallments } from '@/lib/pricing/price-calculator'
 import { incrementCouponUses } from '@/lib/discounts/coupon-service'
 import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service'
@@ -400,48 +399,9 @@ export default function ResumenSection({
         throw new Error('No se pudo crear o recuperar la inscripción. Por favor, intenta nuevamente.')
       }
 
-      // 2. Crear link de pago usando PaymentProvider
-      const paymentProvider = getPaymentProvider()
-      
-      // Calcular el monto del primer pago: si es a cuotas, solo el primer pago; si es de contado, el total
-      let paymentAmount = totalAmount
-      if (paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation?.installmentAmount) {
-        // IMPORTANTE: La matrícula NO se difiere, siempre se paga completa en el primer pago
-        const matriculaInFirstPayment = matriculaAdded ? matriculaAmount : 0
-        paymentAmount = priceCalculation.installmentAmount + matriculaInFirstPayment
-      }
-      
-      let paymentLink
-      try {
-        paymentLink = await paymentProvider.createPaymentLink({
-          amount: Math.round(paymentAmount), // Redondear para evitar decimales
-          name: `${data.name} - ${data.subtitle}`,
-          description: `Inscripción para ${data.kind || 'programa'}`,
-          redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/confirmacion?id=${enrollment.id}`,
-          metadata: {
-            enrollment_id: enrollment.id,
-            program_id: data.id,
-            cohort_id: selectedCohortId,
-            payment_method: paymentMethod,
-            installments: selectedInstallments,
-          },
-        })
-      } catch (paymentError) {
-        console.error('Error al crear link de pago:', paymentError)
-        // Si falla la creación del link de pago, eliminar el enrollment creado
-        try {
-          await supabase
-            .from('enrollments')
-            .delete()
-            .eq('id', enrollment.id)
-        } catch (deleteError) {
-          console.error('Error al eliminar enrollment:', deleteError)
-        }
-        
-        throw new Error('No pudimos generar el link de pago. Por favor, intenta nuevamente o contacta con soporte.')
-      }
+      // 2. Crear facturas antes del link de pago (el link se genera en el servidor)
+      let firstInvoiceId: number | null = null
 
-      // 3. Crear facturas si es pago a cuotas (se crearán como 'pending', se marcarán como 'paid' en la confirmación)
       if (paymentMethod === 'installments' && selectedInstallments > 1) {
         const installments = calculateInstallments(totalAmount, selectedInstallments)
 
@@ -450,9 +410,8 @@ export default function ResumenSection({
           label: `Pago ${installment.number} de ${selectedInstallments} - ${data.name}`,
           amount: installment.amount,
           due_date: installment.dueDate,
-          status: 'pending', // Se marcará como 'paid' en la página de confirmación cuando el pago sea exitoso
+          status: 'pending',
           meta: {
-            payment_id: paymentLink.id,
             product_type: 'program',
             product_id: slugProgram || data.code?.toString() || 'unknown',
             user_id: user.id,
@@ -465,24 +424,27 @@ export default function ResumenSection({
           },
         }))
 
-        const { error: invoiceError } = await supabase
+        const { data: insertedInvoices, error: invoiceError } = await supabase
           .from('invoices')
           .insert(invoices)
+          .select('id, meta')
 
         if (invoiceError) {
           console.error('Error al crear facturas:', invoiceError)
-          // No lanzamos error aquí porque el enrollment ya se creó
+        } else {
+          const first = (insertedInvoices ?? []).find(
+            (inv: { meta?: { payment_number?: number } }) => inv.meta?.payment_number === 1
+          ) ?? insertedInvoices?.[0]
+          firstInvoiceId = first?.id ?? null
         }
       } else {
-        // Pago de contado: crear un invoice pendiente que se marcará como pagado en la confirmación
         const invoice = {
           enrollment_id: enrollment.id,
           label: `Pago completo - ${data.name}`,
           amount: totalAmount,
           due_date: new Date().toISOString().split('T')[0],
-          status: 'pending', // Se marcará como 'paid' en la página de confirmación
+          status: 'pending',
           meta: {
-            payment_id: paymentLink.id,
             product_type: 'program',
             product_id: slugProgram || data.code?.toString() || 'unknown',
             user_id: user.id,
@@ -495,17 +457,41 @@ export default function ResumenSection({
           },
         }
 
-        const { error: invoiceError } = await supabase
+        const { data: insertedInvoice, error: invoiceError } = await supabase
           .from('invoices')
           .insert([invoice])
+          .select('id')
+          .single()
 
         if (invoiceError) {
           console.error('Error al crear invoice:', invoiceError)
+        } else {
+          firstInvoiceId = insertedInvoice?.id ?? null
         }
       }
 
-      // 4. Redirigir al checkout del proveedor
-      router.push(paymentLink.url)
+      if (!firstInvoiceId) {
+        throw new Error('No se pudo crear la factura de pago. Por favor, intenta nuevamente.')
+      }
+
+      const paymentLinkResponse = await fetch(`/api/invoices/${firstInvoiceId}/payment-link`, {
+        method: 'POST',
+      })
+
+      const paymentLinkData = await paymentLinkResponse.json()
+
+      if (!paymentLinkResponse.ok || !paymentLinkData.url) {
+        try {
+          await supabase.from('enrollments').delete().eq('id', enrollment.id)
+        } catch (deleteError) {
+          console.error('Error al eliminar enrollment:', deleteError)
+        }
+        throw new Error(
+          paymentLinkData.error || 'No pudimos generar el link de pago. Por favor, intenta nuevamente.'
+        )
+      }
+
+      router.push(paymentLinkData.url)
     } catch (err) {
       console.error('Error en handleGetLinkToPay:', err)
       

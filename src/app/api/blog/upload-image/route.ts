@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/route-handler';
+import { requireApiRole } from '@/lib/auth/require-role';
 
 const BUCKET = 'blog-images';
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -32,6 +33,11 @@ export async function POST(request: NextRequest) {
         { error: 'Tipo de archivo no permitido. Use JPEG, PNG, GIF o WebP' },
         { status: 400 }
       );
+    }
+
+    const roleCheck = await requireApiRole(['admin', 'instructor']);
+    if (!roleCheck.ok) {
+      return NextResponse.json({ error: roleCheck.error }, { status: roleCheck.status });
     }
 
     const supabase = await createClient();
@@ -69,7 +75,6 @@ export async function POST(request: NextRequest) {
       data: { publicUrl },
     } = supabase.storage.from(BUCKET).getPublicUrl(data.path);
 
-    // Jodit expects { files: string[], path?: string, baseurl?: string }
     return NextResponse.json({
       files: [publicUrl],
       path: '',

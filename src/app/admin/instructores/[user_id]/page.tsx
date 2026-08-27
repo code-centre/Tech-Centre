@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { requireRole } from '@/lib/auth/require-role';
 import { ArrowLeft, Mail, Phone, Calendar } from 'lucide-react';
 import StudentProfileEditor from '@/components/adminspage/StudentProfileEditor';
 
@@ -52,6 +53,7 @@ type CohortWithProgram = {
 };
 
 export default async function InstructorDetailPage({ params }: Props) {
+  await requireRole(['admin', 'instructor']);
   const { user_id } = await params;
   const supabase = await createClient();
 

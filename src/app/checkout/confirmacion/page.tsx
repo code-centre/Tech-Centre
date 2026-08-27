@@ -1,13 +1,10 @@
 'use client'
 
 import { Suspense, useEffect, useState, useCallback } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { useSupabaseClient } from '@/lib/supabase'
-import { calculateInstallments } from '@/lib/pricing/price-calculator'
-import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service'
-import { incrementCouponUses } from '@/lib/discounts/coupon-service'
 import { ProfessorWelcome } from '@/components/checkout/ProfessorWelcome'
 
 export default function CheckoutPage() {
@@ -34,17 +31,39 @@ function ConfirmationLoader() {
 function CheckoutContent() {
   const supabase = useSupabaseClient()
   const searchParams = useSearchParams()
-  const router = useRouter()
   const [statusTransaction, setStatusTransaction] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [processingPayment, setProcessingPayment] = useState(false)
-  const [program, setProgram] = useState<any>(null)
+  const [program, setProgram] = useState<{ name?: string } | null>(null)
   const [cohortId, setCohortId] = useState<number | null>(null)
   const [isInvoicePayment, setIsInvoicePayment] = useState(false)
   const [invoiceLabel, setInvoiceLabel] = useState<string | null>(null)
-  const enrollmentId = searchParams.get('id') // enrollment_id (flujo de nueva matrícula)
-  const invoiceIdParam = searchParams.get('invoiceId') // flujo de pago de factura existente
+  const [invoicePaid, setInvoicePaid] = useState(false)
+  const enrollmentId = searchParams.get('id')
+  const invoiceIdParam = searchParams.get('invoiceId')
+
+  const resolveTransactionStatus = useCallback(
+    async (paymentId: string | null | undefined) => {
+      if (!paymentId) {
+        return { status: 'PENDING' }
+      }
+
+      try {
+        const res = await fetch(
+          `/api/payments/transaction-status?paymentId=${encodeURIComponent(paymentId)}`
+        )
+        const data = await res.json()
+        if (res.ok && data.status) {
+          return { status: data.status as string }
+        }
+      } catch (paymentErr) {
+        console.warn('No se pudo verificar estado del pago:', paymentErr)
+      }
+
+      return { status: 'PENDING' }
+    },
+    []
+  )
 
   const processInvoicePaymentConfirmation = useCallback(async () => {
     const invoiceId = invoiceIdParam ? parseInt(invoiceIdParam, 10) : NaN
@@ -70,7 +89,7 @@ function CheckoutContent() {
 
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
-        .select('id, enrollment_id, label, status, meta')
+        .select('id, enrollment_id, label, status, meta, paid_at')
         .eq('id', invoiceId)
         .single()
 
@@ -93,44 +112,21 @@ function CheckoutContent() {
       }
 
       setInvoiceLabel(invoice.label)
+      setInvoicePaid(invoice.status === 'paid')
 
       const paymentId =
         invoice.meta?.payment_id ||
         searchParams.get('reference') ||
         searchParams.get('id')
 
-      let transactionStatus: { status: string }
-      if (paymentId) {
-        try {
-          const res = await fetch(`/api/payments/transaction-status?paymentId=${encodeURIComponent(paymentId)}`)
-          const data = await res.json()
-          if (res.ok && data.status) {
-            transactionStatus = { status: data.status }
-          } else {
-            transactionStatus = { status: 'PENDING' }
-          }
-        } catch (paymentErr) {
-          console.warn('No se pudo verificar estado del pago:', paymentErr)
-          transactionStatus = { status: 'PENDING' }
-        }
+      const transactionStatus = await resolveTransactionStatus(
+        typeof paymentId === 'string' ? paymentId : null
+      )
+
+      if (invoice.status === 'paid') {
+        setStatusTransaction('APPROVED')
       } else {
-        transactionStatus = { status: 'PENDING' }
-      }
-
-      setStatusTransaction(transactionStatus.status)
-
-      if (transactionStatus.status === 'APPROVED' && invoice.status === 'pending') {
-        const { error: updateErr } = await supabase
-          .from('invoices')
-          .update({
-            status: 'paid',
-            paid_at: new Date().toISOString(),
-          })
-          .eq('id', invoice.id)
-
-        if (updateErr) {
-          console.error('Error al actualizar factura:', updateErr)
-        }
+        setStatusTransaction(transactionStatus.status)
       }
     } catch (err) {
       console.error('Error al procesar confirmación de pago de factura:', err)
@@ -138,7 +134,7 @@ function CheckoutContent() {
     } finally {
       setLoading(false)
     }
-  }, [invoiceIdParam, supabase, searchParams])
+  }, [invoiceIdParam, supabase, searchParams, resolveTransactionStatus])
 
   useEffect(() => {
     const processPaymentConfirmation = async () => {
@@ -157,7 +153,6 @@ function CheckoutContent() {
         setLoading(true)
         setError(null)
 
-        // 1. Obtener el enrollment con sus datos relacionados
         const { data: enrollment, error: enrollmentError } = await supabase
           .from('enrollments')
           .select(`
@@ -174,55 +169,39 @@ function CheckoutContent() {
           throw new Error('No se encontró la inscripción. Por favor, verifica el ID.')
         }
 
-        // Extraer el programa del enrollment para mostrarlo en la UI
-        const cohort = Array.isArray(enrollment.cohorts) ? enrollment.cohorts[0] : enrollment.cohorts
-        const programData = cohort?.programs ? (Array.isArray(cohort.programs) ? cohort.programs[0] : cohort.programs) : null
+        const cohort = Array.isArray(enrollment.cohorts)
+          ? enrollment.cohorts[0]
+          : enrollment.cohorts
+        const programData = cohort?.programs
+          ? Array.isArray(cohort.programs)
+            ? cohort.programs[0]
+            : cohort.programs
+          : null
+
         if (programData) {
           setProgram(programData)
         }
-        // Extraer el cohortId para el componente de bienvenida del profesor
         if (cohort?.id) {
           setCohortId(cohort.id)
         }
 
-        // 2. Obtener el estado de la transacción desde el proveedor de pago
-        // Buscar el payment_id en los metadatos o en invoices
         const { data: invoices } = await supabase
           .from('invoices')
-          .select('meta')
+          .select('meta, status')
           .eq('enrollment_id', enrollmentId)
-          .limit(1)
+          .order('id', { ascending: true })
 
-        let paymentId = null
-        if (invoices && invoices.length > 0 && invoices[0].meta?.payment_id) {
-          paymentId = invoices[0].meta.payment_id
-        }
+        const firstInvoice = invoices?.[0]
+        const paymentId =
+          firstInvoice?.meta?.payment_id || searchParams.get('id') || enrollmentId
 
-        // Si no hay payment_id en invoices, intentar obtenerlo del enrollment metadata
-        // o usar el enrollment_id como referencia
-        if (!paymentId) {
-          paymentId = enrollmentId
-        }
-
-        let transactionStatus: { status: string }
-        try {
-          const res = await fetch(`/api/payments/transaction-status?paymentId=${encodeURIComponent(paymentId)}`)
-          const data = await res.json()
-          if (res.ok && data.status) {
-            transactionStatus = { status: data.status }
-          } else {
-            transactionStatus = { status: 'PENDING' }
-          }
-        } catch (paymentError) {
-          console.warn('No se pudo verificar el estado del pago:', paymentError)
-          transactionStatus = { status: 'PENDING' }
-        }
-
-        setStatusTransaction(transactionStatus.status)
-
-        // 3. Si el pago fue exitoso, procesar la confirmación
-        if (transactionStatus.status === 'APPROVED') {
-          await handlePaymentSuccess(enrollment)
+        if (enrollment.status === 'enrolled' || firstInvoice?.status === 'paid') {
+          setStatusTransaction('APPROVED')
+        } else {
+          const transactionStatus = await resolveTransactionStatus(
+            typeof paymentId === 'string' ? paymentId : null
+          )
+          setStatusTransaction(transactionStatus.status)
         }
       } catch (err) {
         console.error('Error al procesar confirmación de pago:', err)
@@ -237,171 +216,28 @@ function CheckoutContent() {
     }
 
     processPaymentConfirmation()
-  }, [enrollmentId, invoiceIdParam, supabase, processInvoicePaymentConfirmation])
+  }, [
+    enrollmentId,
+    invoiceIdParam,
+    supabase,
+    processInvoicePaymentConfirmation,
+    resolveTransactionStatus,
+    searchParams,
+  ])
 
-  const handlePaymentSuccess = async (enrollment: any) => {
-    if (processingPayment) return // Evitar procesamiento duplicado
-    
-    try {
-      setProcessingPayment(true)
-
-      const cohort = Array.isArray(enrollment.cohorts) ? enrollment.cohorts[0] : enrollment.cohorts
-      const program = cohort?.programs ? (Array.isArray(cohort.programs) ? cohort.programs[0] : cohort.programs) : null
-
-      // 1. Actualizar el status del enrollment a 'enrolled' o 'paid'
-      const { error: updateError } = await supabase
-        .from('enrollments')
-        .update({ 
-          status: 'enrolled',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', enrollment.id)
-
-      if (updateError) {
-        console.error('Error al actualizar enrollment:', updateError)
-        throw new Error('Error al confirmar la inscripción')
-      }
-
-      // Actualizar rol de lead a student al confirmar pago (solo tras pago exitoso)
-      const { data: roleUpdateData, error: roleUpdateError } = await supabase
-        .from('profiles')
-        .update({ role: 'student', updated_at: new Date().toISOString() })
-        .eq('user_id', enrollment.student_id)
-        .eq('role', 'lead')
-        .select('user_id')
-
-      if (roleUpdateError) {
-        console.error('Error al promover lead a student:', roleUpdateError)
-      } else if (!roleUpdateData || roleUpdateData.length === 0) {
-        // No rows updated: usuario ya no es lead (p. ej. ya era student)
-        console.warn('Role update: no rows updated for user_id', enrollment.student_id, '(may already be student)')
-      }
-
-      // 2. Obtener información del pago desde invoices existentes
-      const { data: existingInvoices } = await supabase
-        .from('invoices')
-        .select('*')
-        .eq('enrollment_id', enrollment.id)
-
-      // Determinar si es pago a cuotas o de contado desde los invoices existentes
-      const isInstallments = existingInvoices && existingInvoices.length > 1
-      const paymentMethod = existingInvoices?.[0]?.meta?.payment_method || 'full'
-      const installments = existingInvoices?.[0]?.meta?.total_payments || 1
-
-      // 3. Crear o actualizar invoices
-      if (!existingInvoices || existingInvoices.length === 0) {
-        // No hay invoices, crear uno para pago de contado
-        const invoice = {
-          enrollment_id: enrollment.id,
-          label: `Pago completo - ${program?.name || 'Programa'}`,
-          amount: enrollment.agreed_price || 0,
-          due_date: new Date().toISOString().split('T')[0],
-          status: 'paid',
-          paid_at: new Date().toISOString(),
-          meta: {
-            payment_method: 'full',
-            product_type: 'program',
-            product_id: program?.code || program?.id?.toString() || 'unknown',
-            user_id: enrollment.student_id,
-            payment_number: 1,
-            total_payments: 1,
-          },
-        }
-
-        const { error: invoiceError } = await supabase
-          .from('invoices')
-          .insert([invoice])
-
-        if (invoiceError) {
-          console.error('Error al crear invoice:', invoiceError)
-        }
-      } else if (isInstallments) {
-        // Es pago a cuotas, actualizar el primer invoice a 'paid'
-        const firstInvoice = existingInvoices.find((inv: any) => inv.meta?.payment_number === 1) || existingInvoices[0]
-        if (firstInvoice.status === 'pending') {
-          const { error: updateInvoiceError } = await supabase
-            .from('invoices')
-            .update({ 
-              status: 'paid',
-              paid_at: new Date().toISOString()
-            })
-            .eq('id', firstInvoice.id)
-
-          if (updateInvoiceError) {
-            console.error('Error al actualizar invoice:', updateInvoiceError)
-          }
-        }
-      } else {
-        // Es un solo invoice (pago de contado), marcarlo como pagado
-        const invoice = existingInvoices[0]
-        if (invoice.status === 'pending') {
-          const { error: updateInvoiceError } = await supabase
-            .from('invoices')
-            .update({ 
-              status: 'paid',
-              paid_at: new Date().toISOString()
-            })
-            .eq('id', invoice.id)
-
-          if (updateInvoiceError) {
-            console.error('Error al actualizar invoice:', updateInvoiceError)
-          }
-        }
-      }
-
-      // 4. Marcar matrícula como pagada si aplica
-      // Verificar desde el invoice si se agregó matrícula
-      const firstInvoice = existingInvoices?.[0]
-      const matriculaAdded = firstInvoice?.meta?.matricula_added || false
-      const matriculaAmount = firstInvoice?.meta?.matricula_amount || 0
-
-      if (matriculaAdded && matriculaAmount > 0) {
-        try {
-          await markMatriculaAsPaid(supabase, enrollment.student_id)
-        } catch (matriculaError) {
-          console.warn('Error al marcar matrícula como pagada:', matriculaError)
-        }
-      }
-
-      // 5. Incrementar usos del cupón si se aplicó uno
-      const couponCode = firstInvoice?.meta?.coupon_code
-      if (couponCode) {
-        try {
-          const { data: couponData } = await supabase
-            .from('discount_coupons')
-            .select('id')
-            .eq('code', couponCode.toUpperCase())
-            .single()
-
-          if (couponData?.id) {
-            await incrementCouponUses(couponData.id)
-          }
-        } catch (couponError) {
-          console.warn('Error al incrementar usos del cupón:', couponError)
-        }
-      }
-
-    } catch (err) {
-      console.error('Error al procesar pago exitoso:', err)
-      // No lanzar error aquí para no interrumpir la UI
-    } finally {
-      setProcessingPayment(false)
-    }
-  }
-
-  const isApproved = statusTransaction === 'APPROVED'
-  const isPending = statusTransaction === 'PENDING'
+  const isApproved =
+    statusTransaction === 'APPROVED' || invoicePaid
+  const isPending = statusTransaction === 'PENDING' && !invoicePaid
   const isDeclined = statusTransaction === 'DECLINED' || statusTransaction === 'ERROR'
 
   return (
     <section>
-      {/* Background image con el mismo estilo que HeroCarrusel */}
-      <div 
+      <div
         className="fixed inset-0 -z-10 background-image-confirmation"
         aria-hidden="true"
       />
       <div className="fixed inset-0 bg-black/40 -z-10" />
-      
+
       <div className="mx-auto items-center justify-center min-h-screen px-5 flex flex-col gap-8">
         {loading ? (
           <ConfirmationLoader />
@@ -434,13 +270,9 @@ function CheckoutContent() {
                     ? `Tu pago de la factura "${invoiceLabel || ''}" ha sido confirmado exitosamente.`
                     : `Tu inscripción al programa ${program?.name || ''} ha sido confirmada exitosamente.`}
                 </p>
-                
-                {/* Componente de bienvenida del profesor - solo para flujo de enrollment */}
+
                 {!isInvoicePayment && cohortId && (
-                  <ProfessorWelcome 
-                    cohortId={cohortId}
-                    programName={program?.name}
-                  />
+                  <ProfessorWelcome cohortId={cohortId} programName={program?.name} />
                 )}
               </>
             )}
@@ -491,17 +323,11 @@ function CheckoutContent() {
               {isApproved && (
                 <>
                   {isInvoicePayment ? (
-                    <Link
-                      href="/perfil/facturas"
-                      className="btn-primary group"
-                    >
+                    <Link href="/perfil/facturas" className="btn-primary group">
                       Ver mis facturas
                     </Link>
                   ) : (
-                    <Link
-                      href="/perfil/cursos"
-                      className="btn-primary group"
-                    >
+                    <Link href="/perfil/cursos" className="btn-primary group">
                       Ver mis cursos
                     </Link>
                   )}
@@ -518,9 +344,7 @@ function CheckoutContent() {
         )}
       </div>
 
-      {/* Custom styles para el fondo */}
       <style jsx>{`
-        /* Background image con animación y blur - mismo estilo que HeroCarrusel */
         .background-image-confirmation {
           background-image: url('/background-texture.png');
           background-size: cover;
@@ -532,7 +356,8 @@ function CheckoutContent() {
         }
 
         @keyframes background-pan-confirmation {
-          0%, 100% {
+          0%,
+          100% {
             background-position: center center;
             transform: scale(1.1);
           }

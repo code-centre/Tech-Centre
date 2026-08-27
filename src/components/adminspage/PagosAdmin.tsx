@@ -192,7 +192,7 @@ export function PagosAdmin() {
 
   const stats = useMemo(() => {
     const paid = invoices.filter((i) => i.status === 'paid');
-    const pending = invoices.filter((i) => i.status === 'pending');
+    const pending = invoices.filter((i) => i.status === 'pending' || i.status === 'pending_review');
     const totalPaid = paid.reduce((s, i) => s + i.amount, 0);
     const totalPending = pending.reduce((s, i) => s + i.amount, 0);
     const totalAmount = totalPaid + totalPending;
@@ -215,7 +215,7 @@ export function PagosAdmin() {
       if (inv.status === 'paid' && inv.paid_at) {
         const key = getPeriodKey(new Date(inv.paid_at), period);
         paidByPeriod.set(key, (paidByPeriod.get(key) ?? 0) + inv.amount);
-      } else if (inv.status === 'pending') {
+      } else if (inv.status === 'pending' || inv.status === 'pending_review') {
         const key = getPeriodKey(new Date(inv.due_date), period);
         pendingByPeriod.set(key, (pendingByPeriod.get(key) ?? 0) + inv.amount);
       }
@@ -257,7 +257,7 @@ export function PagosAdmin() {
   const filteredInvoices = useMemo(() => {
     return invoices.filter((inv) => {
       if (filter === 'paid' && inv.status !== 'paid') return false;
-      if (filter === 'pending' && inv.status !== 'pending') return false;
+      if (filter === 'pending' && inv.status !== 'pending' && inv.status !== 'pending_review') return false;
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         const profile = Array.isArray(inv.enrollment?.profile)

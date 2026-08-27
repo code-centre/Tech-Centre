@@ -28,8 +28,41 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
+    const trimmedPaymentId = paymentId.trim();
+
+    const { data: invoiceRows, error: invoiceError } = await supabase
+      .from('invoices')
+      .select('id, enrollment_id, meta')
+      .contains('meta', { payment_id: trimmedPaymentId });
+
+    if (invoiceError) {
+      return NextResponse.json({ error: 'Error al verificar factura' }, { status: 500 });
+    }
+
+    if (!invoiceRows || invoiceRows.length === 0) {
+      return NextResponse.json({ error: 'Pago no encontrado' }, { status: 404 });
+    }
+
+    const rows = (invoiceRows ?? []) as { id: number; enrollment_id: number; meta: unknown }[];
+    const enrollmentIds = [...new Set(rows.map((row) => row.enrollment_id))];
+    const { data: enrollments, error: enrollmentError } = await supabase
+      .from('enrollments')
+      .select('id, student_id')
+      .in('id', enrollmentIds);
+
+    if (enrollmentError || !enrollments?.length) {
+      return NextResponse.json({ error: 'Inscripción no encontrada' }, { status: 404 });
+    }
+
+    const ownsPayment = (enrollments as { id: number; student_id: string }[]).some(
+      (enrollment) => enrollment.student_id === user.id
+    );
+    if (!ownsPayment) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+    }
+
     const provider = getPaymentProvider();
-    const status = await provider.getTransactionStatus(paymentId.trim());
+    const status = await provider.getTransactionStatus(trimmedPaymentId);
 
     return NextResponse.json({
       status: status.status,

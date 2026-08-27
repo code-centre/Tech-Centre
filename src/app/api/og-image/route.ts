@@ -1,11 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
+import { rateLimit } from '@/lib/rate-limit';
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
 const MAX_KB = 500; // WhatsApp limit ~600KB, we target 500KB to be safe
 
 export async function GET(request: NextRequest) {
+  const clientIp =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'anonymous';
+
+  const limit = rateLimit(`og-image:${clientIp}`, 30, 60_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(limit.retryAfterSec) },
+      }
+    );
+  }
+
   const url = request.nextUrl.searchParams.get('url');
   if (!url) {
     return NextResponse.json({ error: 'Missing url parameter' }, { status: 400 });

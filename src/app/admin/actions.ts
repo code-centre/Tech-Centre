@@ -44,6 +44,40 @@ export async function updateProfileAdmin(input: UpdateProfileInput): Promise<Act
     return { success: false, error: 'Sin permisos para editar perfiles' };
   }
 
+  if (isInstructor && !isAdmin) {
+    const { data: cohortLinks, error: cohortLinksError } = await supabase
+      .from('cohort_instructors')
+      .select('cohort_id')
+      .eq('instructor_id', authUser.id);
+
+    if (cohortLinksError) {
+      return { success: false, error: cohortLinksError.message };
+    }
+
+    const cohortIds = ((cohortLinks ?? []) as { cohort_id: number }[]).map(
+      (row) => row.cohort_id
+    );
+    if (cohortIds.length === 0) {
+      return { success: false, error: 'Sin cohortes asignadas' };
+    }
+
+    const { data: studentEnrollment, error: enrollmentError } = await supabase
+      .from('enrollments')
+      .select('id')
+      .eq('student_id', input.user_id)
+      .in('cohort_id', cohortIds)
+      .limit(1)
+      .maybeSingle();
+
+    if (enrollmentError) {
+      return { success: false, error: enrollmentError.message };
+    }
+
+    if (!studentEnrollment) {
+      return { success: false, error: 'Solo puedes editar estudiantes de tus cohortes' };
+    }
+  }
+
   // Only admins can change the role field
   const updatePayload = {
     first_name: input.first_name.trim(),

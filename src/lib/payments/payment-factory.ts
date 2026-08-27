@@ -15,6 +15,10 @@ let cachedProvider: PaymentProvider | null = null;
  * En servidor usa WOMPI_SECRET_KEY si está disponible (más seguro)
  */
 export function getPaymentProvider(): PaymentProvider {
+  if (typeof window !== 'undefined') {
+    throw new Error('getPaymentProvider() must only be called on the server');
+  }
+
   if (cachedProvider) {
     return cachedProvider;
   }

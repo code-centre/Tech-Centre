@@ -47,7 +47,9 @@ Crea un archivo `.env` en la raíz con:
 | `NEXT_PUBLIC_BASE_URL` | URL base para callbacks (ej: http://localhost:3000) | Sí |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | API Key de Google Maps (mapas) | Opcional |
 | `NEXT_PUBLIC_GOOGLE_PLACES_API_KEY` | API Key de Google Places (reseñas) | Opcional |
-| `WOMPI_SECRET_KEY` o `NEXT_PUBLIC_WOMPI_SECRET_KEY` | Clave secreta de Wompi (pagos) | Sí (checkout) |
+| `WOMPI_SECRET_KEY` | Clave secreta de Wompi (solo servidor) | Sí (checkout) |
+| `WOMPI_EVENTS_SECRET` | Secreto de eventos/webhooks de Wompi | Sí (producción) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role (solo webhook de pagos) | Sí (producción) |
 | `NEXT_PUBLIC_PAYMENT_PROVIDER` | Proveedor de pagos (default: wompi) | Opcional |
 | `NEXT_PUBLIC_MODE_WOMPI` | Modo Wompi: production o test | Opcional |
 

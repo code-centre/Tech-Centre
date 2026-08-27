@@ -38,6 +38,7 @@ export async function middleware(req: NextRequest) {
   const isProtected = PROTECTED_PREFIXES.some((p) => path.startsWith(p));
   const isAdminRoute = path.startsWith("/admin");
   const isInstructorRoute = path.startsWith("/instructor");
+  const isInstructorProfileRoute = path.startsWith("/perfil/instructor");
 
   if (isProtected && !user) {
     const url = req.nextUrl.clone();
@@ -85,6 +86,23 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // Panel instructor en perfil
+  if (isInstructorProfileRoute && user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    const role = (profile as { role?: string } | null)?.role;
+    const canAccessInstructor = role === "admin" || role === "instructor";
+    if (!canAccessInstructor) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/perfil";
+      return NextResponse.redirect(url);
+    }
+  }
+
   // Si ya está logueado y entra a login/registro, redirigir a perfil
   if ((path === "/iniciar-sesion" || path === "/registro") && user) {
     const url = req.nextUrl.clone();
@@ -97,7 +115,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // aplica a todo menos estáticos
     "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)",
   ],
 };

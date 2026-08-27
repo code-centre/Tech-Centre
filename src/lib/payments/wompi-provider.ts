@@ -14,14 +14,10 @@ export class WompiProvider implements PaymentProvider {
   constructor(options?: { secretKey?: string }) {
     const mode = process.env.NEXT_PUBLIC_MODE_WOMPI || 'production';
     this.baseUrl = `https://${mode}.wompi.co/v1`;
-    this.secretKey =
-      options?.secretKey ||
-      process.env.WOMPI_SECRET_KEY ||
-      process.env.NEXT_PUBLIC_WOMPI_SECRET_KEY ||
-      '';
+    this.secretKey = options?.secretKey || process.env.WOMPI_SECRET_KEY || '';
 
     if (!this.secretKey) {
-      console.warn('⚠️ Clave de Wompi no configurada (WOMPI_SECRET_KEY o NEXT_PUBLIC_WOMPI_SECRET_KEY)');
+      console.warn('⚠️ Clave de Wompi no configurada (WOMPI_SECRET_KEY)');
     }
   }
 

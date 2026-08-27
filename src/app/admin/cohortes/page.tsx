@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import CohortesAdmon from '@/components/adminspage/CohortesAdmon';
-// import AdminRoute from '@/components/auth/AdminRoute';
 
 export const metadata: Metadata = {
   title: "Administración de Cohortes",
@@ -13,10 +12,8 @@ export const metadata: Metadata = {
 
 export default function CohortesAdminPage() {
   return (
-    // <AdminRoute>
-      <main className="container mx-auto p-6">
-        <CohortesAdmon />
-      </main>
-    // </AdminRoute>
+    <main className="container mx-auto p-6">
+      <CohortesAdmon />
+    </main>
   );
 }

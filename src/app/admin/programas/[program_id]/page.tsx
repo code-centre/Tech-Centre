@@ -2,6 +2,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { requireRole } from '@/lib/auth/require-role';
 import CohortList from '@/components/adminspage/CohortList';
 import ProgramCoverEditor from '@/components/adminspage/ProgramCoverEditor';
 import ProgramDetails from '@/components/adminspage/ProgramDetails';
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export default async function ProgramPage({ params }: Props) {
+  await requireRole(['admin', 'instructor']);
   const { program_id } = await params;
   const supabase = await createClient();
 

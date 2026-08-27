@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { requireRole } from '@/lib/auth/require-role';
 import { ArrowLeft, Mail, Phone, Calendar } from 'lucide-react';
 import StudentProfileEditor from '@/components/adminspage/StudentProfileEditor';
 import { StudentInvoicesTable } from '@/components/adminspage/StudentInvoicesTable';
@@ -45,6 +46,7 @@ function getRoleLabel(role: string): string {
 }
 
 export default async function StudentDetailPage({ params }: Props) {
+  await requireRole(['admin', 'instructor']);
   const { user_id } = await params;
   const supabase = await createClient();
 

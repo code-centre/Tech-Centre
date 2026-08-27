@@ -120,13 +120,12 @@ export default function PaymentReceiptsManager() {
         .from('activities')
         .getPublicUrl(filePath)
 
-      // Update invoice with receipt URL and paid_at timestamp
+      // Update invoice with receipt URL for admin review
       const { error: updateError } = await supabase
         .from('invoices')
         .update({
           url_recipe: publicUrl,
-          paid_at: new Date().toISOString(),
-          status: 'paid'
+          status: 'pending_review',
         })
         .eq('id', invoiceId)
 
@@ -284,12 +283,21 @@ export default function PaymentReceiptsManager() {
                   {/* Status Badge */}
                   <div className="flex items-center gap-2">
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full ${
-                      invoice.status === 'paid' ? 'badge-paid' : 'badge-pending'
+                      invoice.status === 'paid'
+                        ? 'badge-paid'
+                        : invoice.status === 'pending_review'
+                          ? 'badge-pending'
+                          : 'badge-pending'
                     }`}>
                       {invoice.status === 'paid' ? (
                         <>
                           <CheckCircle className="w-3 h-3" />
                           Pagada
+                        </>
+                      ) : invoice.status === 'pending_review' ? (
+                        <>
+                          <Clock className="w-3 h-3" />
+                          En revisión
                         </>
                       ) : (
                         <>
@@ -333,7 +341,7 @@ export default function PaymentReceiptsManager() {
                       </div>
                     </div>
                   </div>
-                ) : invoice.status !== 'paid' ? (
+                ) : invoice.status !== 'paid' && invoice.status !== 'pending_review' ? (
                   <div className="mt-4 space-y-4">
                     <div>
                       <p className="text-sm font-medium text-text-primary mb-2">Pagar en plataforma</p>
