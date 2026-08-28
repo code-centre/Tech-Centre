@@ -12,6 +12,10 @@ import {
   type Ruta,
 } from "../rutas/data";
 import { COMO_FUNCIONA } from "../rutas/data";
+import { checkoutHref, type OfferingCohort } from "@/lib/cohorts/checkout";
+
+/** Mapa de code de programa (= slug del módulo) -> cohorte abierta. */
+export type OfferingCohortMap = Record<string, OfferingCohort>;
 
 const TONE = {
   mint: {
@@ -32,7 +36,15 @@ const TONE = {
   },
 } as const;
 
-function RutaCard({ ruta, delay }: { ruta: Ruta; delay: number }) {
+function RutaCard({
+  ruta,
+  delay,
+  offering,
+}: {
+  ruta: Ruta;
+  delay: number;
+  offering: OfferingCohortMap;
+}) {
   const reduce = useReducedMotion();
   const tone = TONE[ruta.tone];
   const cumbre = ruta.modules[ruta.modules.length - 1];
@@ -85,48 +97,65 @@ function RutaCard({ ruta, delay }: { ruta: Ruta; delay: number }) {
       <ol className="flex flex-1 flex-col gap-3">
         {ruta.modules.map((mod, i) => {
           const isCumbre = i === ruta.modules.length - 1;
+          // El slug del módulo coincide con el `code` del programa, así que la
+          // cohorte abierta se busca directamente por slug.
+          const cohort = offering[mod.slug];
           return (
             <li key={mod.slug}>
-              <Link
-                href={moduloHref(mod.slug)}
-                className="group/mod flex gap-4 rounded-xl border p-4 transition-all duration-300 hover:-translate-y-0.5 md:p-5"
+              <div
+                className="flex flex-col gap-4 rounded-xl border p-4 transition-all duration-300 md:p-5"
                 style={{
                   borderColor: isCumbre ? tone.border : "var(--line)",
                   background: isCumbre ? tone.soft : "rgba(255,255,255,0.02)",
                 }}
-                aria-label={`Ver el módulo ${i + 1}: ${mod.title}`}
               >
-                <span
-                  className="lv2-display shrink-0 text-xl"
-                  style={{ color: isCumbre ? tone.color : tone.dim }}
-                  aria-hidden="true"
-                >
-                  {i + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="font-bold text-[var(--paper)]">{mod.title}</p>
-                  <p className="lv2-mono mt-1 !normal-case !tracking-normal !text-[var(--mute)]">
-                    {mod.stack}
-                  </p>
-                  <p
-                    className="mt-2 text-sm font-semibold"
-                    style={{ color: tone.color }}
-                  >
-                    {mod.outcome}
-                  </p>
+                <div className="flex gap-4">
                   <span
-                    className="lv2-mono mt-2.5 inline-flex items-center gap-1 !normal-case !tracking-normal opacity-70 transition-opacity group-hover/mod:opacity-100"
+                    className="lv2-display shrink-0 text-xl"
+                    style={{ color: isCumbre ? tone.color : tone.dim }}
+                    aria-hidden="true"
+                  >
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-[var(--paper)]">{mod.title}</p>
+                    <p className="lv2-mono mt-1 !normal-case !tracking-normal !text-[var(--mute)]">
+                      {mod.stack}
+                    </p>
+                    <p
+                      className="mt-2 text-sm font-semibold"
+                      style={{ color: tone.color }}
+                    >
+                      {mod.outcome}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-[var(--line)] pt-3.5">
+                  {cohort ? (
+                    <Link
+                      href={checkoutHref(cohort.cohortId)}
+                      className="lv2-btn px-4 py-2 text-sm"
+                      aria-label={`Inscríbete al módulo ${i + 1}: ${mod.title}`}
+                    >
+                      Inscríbete
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  ) : null}
+                  <Link
+                    href={moduloHref(mod.slug)}
+                    className="group/mod lv2-mono inline-flex items-center gap-1 !normal-case !tracking-normal"
                     style={{ color: tone.color }}
+                    aria-label={`Ver el módulo ${i + 1}: ${mod.title}`}
                   >
                     Ver el módulo
-                  </span>
+                    <ChevronRight
+                      className="h-4 w-4 transition-transform duration-300 group-hover/mod:translate-x-1"
+                      aria-hidden="true"
+                    />
+                  </Link>
                 </div>
-                <ChevronRight
-                  className="mt-1 h-5 w-5 shrink-0 transition-transform duration-300 group-hover/mod:translate-x-1"
-                  style={{ color: tone.color }}
-                  aria-hidden="true"
-                />
-              </Link>
+              </div>
             </li>
           );
         })}
@@ -150,7 +179,11 @@ function RutaCard({ ruta, delay }: { ruta: Ruta; delay: number }) {
 }
 
 /** Las dos rutas, en versión de decisión: qué construyes, con qué, con qué sales. */
-export default function Rutas() {
+export default function Rutas({
+  offering = {},
+}: {
+  offering?: OfferingCohortMap;
+}) {
   const cruce = COMO_FUNCIONA.callouts[1];
 
   return (
@@ -178,7 +211,12 @@ export default function Rutas() {
 
         <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {RUTAS.map((ruta, i) => (
-            <RutaCard key={ruta.slug} ruta={ruta} delay={i * 0.08} />
+            <RutaCard
+              key={ruta.slug}
+              ruta={ruta}
+              delay={i * 0.08}
+              offering={offering}
+            />
           ))}
         </div>
 
