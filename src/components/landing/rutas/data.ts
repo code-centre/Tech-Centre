@@ -310,46 +310,53 @@ export const RUTAS_PRECIOS = {
     "El diagnóstico es gratis y sin compromiso. Solo pagas si el nivel y el ritmo encajan contigo.",
 } as const;
 
-/** Calificador: a quién le sirve esto y a quién todavía no. */
+/** Calificador: a quién le sirve esto y con quién conviene ser transparentes. */
 export const RUTAS_FIT = {
   eyebrow: "Para quién es",
-  title: "Esto funciona si vienes a construir, no a mirar clases",
+  title: {
+    before: "Si quieres ",
+    highlight: "construir de verdad",
+    after: ", aquí tienes tu lugar",
+  },
   intro:
-    "Preferimos decírtelo antes del diagnóstico: el salón es la mitad del método, y no todo el mundo necesita esto ahora.",
+    "Tech Centre es para quienes aprenden haciendo, con mentores cerca y proyectos reales. Te lo contamos antes del diagnóstico para que sepas si encaja contigo, sin sorpresas.",
+  yesLabel: "Te va a encantar si…",
+  noLabel: "Otra opción puede servirte mejor si…",
   yes: [
     {
-      lead: "Nunca has programado",
-      body: "y quieres entrar a tecnología con alguien que te corrija al lado, no con un video en pausa.",
+      lead: "Empiezas desde cero",
+      body: "y quieres entrar a tecnología con alguien que te guíe y corrija al lado, no solo viendo videos.",
     },
     {
       lead: "Ya programas",
-      body: "y quieres el stack que se está pagando hoy: agentes, MCP, evals, machine learning en producción.",
+      body: "y buscas el stack que hoy paga en la industria: agentes, MCP, evals o machine learning en producción.",
     },
     {
-      lead: "Tienes una idea de negocio",
-      body: "y quieres salir del módulo 2 con tu producto desplegado y usuarios de prueba reales.",
+      lead: "Tienes una idea",
+      body: "y sueñas con salir del módulo 2 con tu producto desplegado y usuarios reales probándolo.",
     },
     {
-      lead: "Trabajas",
-      body: "y necesitas 8 horas a la semana que encajen: sábados o entre semana, y práctica guiada en casa.",
+      lead: "Trabajas o estudias",
+      body: "y necesitas un ritmo que encaje: 8 horas a la semana, presencial los sábados o entre semana, más práctica guiada en casa.",
     },
   ],
   no: [
     {
       lead: "un curso 100% virtual y a tu ritmo",
-      body: "Aquí las 4 horas presenciales son el corazón del método.",
+      body: "Aquí las horas presenciales en Casa Tech son parte esencial del método: aprendes en comunidad.",
     },
     {
-      lead: "un título profesional",
-      body: "Son programas de educación informal: te llevas portafolio y constancia, no diploma.",
+      lead: "un título universitario",
+      body: "Ofrecemos educación informal de alta intensidad: portafolio, proyectos y constancia, no diploma profesional.",
     },
     {
-      lead: "que el certificado te consiga el empleo",
-      body: "sin construir nada. Lo que abre puertas aquí es lo que construyes.",
+      lead: "solo un certificado",
+      body: "sin construir proyectos. Aquí lo que te abre puertas es lo que creas con tus propias manos.",
     },
   ],
+  noPrefix: "Prefieres",
   noClosing:
-    "Si estás en esta columna, dilo en el diagnóstico. Te decimos con franqueza si te sirve o no, sin venderte nada.",
+    "¿Tienes dudas? En el diagnóstico gratuito te orientamos con honestidad, sin presión. Queremos que tomes la mejor decisión para ti.",
 } as const;
 
 /** Embudo explícito: qué pasa cuando el visitante hace clic. */

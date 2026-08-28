@@ -19,20 +19,20 @@ export type OfferingCohortMap = Record<string, OfferingCohort>;
 
 const TONE = {
   mint: {
-    color: "var(--mint)",
-    bg: "rgba(63,224,160,0.12)",
-    border: "rgba(63,224,160,0.35)",
-    soft: "rgba(63,224,160,0.05)",
-    softBorder: "rgba(63,224,160,0.28)",
-    dim: "rgba(63,224,160,0.45)",
+    color: "#059669",
+    bg: "rgba(5, 150, 105, 0.1)",
+    border: "rgba(5, 150, 105, 0.35)",
+    soft: "rgba(5, 150, 105, 0.06)",
+    softBorder: "rgba(5, 150, 105, 0.22)",
+    dim: "rgba(5, 150, 105, 0.55)",
   },
   cyan: {
-    color: "var(--cyan)",
-    bg: "rgba(116,186,255,0.12)",
-    border: "rgba(116,186,255,0.35)",
-    soft: "rgba(116,186,255,0.05)",
-    softBorder: "rgba(116,186,255,0.28)",
-    dim: "rgba(116,186,255,0.45)",
+    color: "#0284C7",
+    bg: "rgba(2, 132, 199, 0.1)",
+    border: "rgba(2, 132, 199, 0.35)",
+    soft: "rgba(2, 132, 199, 0.06)",
+    softBorder: "rgba(2, 132, 199, 0.22)",
+    dim: "rgba(2, 132, 199, 0.55)",
   },
 } as const;
 
@@ -106,7 +106,7 @@ function RutaCard({
                 className="flex flex-col gap-4 rounded-xl border p-4 transition-all duration-300 md:p-5"
                 style={{
                   borderColor: isCumbre ? tone.border : "var(--line)",
-                  background: isCumbre ? tone.soft : "rgba(255,255,255,0.02)",
+                  background: isCumbre ? tone.soft : "rgba(15, 23, 42, 0.04)",
                 }}
               >
                 <div className="flex gap-4">
@@ -189,20 +189,20 @@ export default function Rutas({
   return (
     <section
       id="rutas"
-      className="relative overflow-hidden py-24 md:py-28"
+      className="lv2-light-band relative overflow-hidden border-y border-sky-300/50 bg-[#e8eef6] py-24 md:py-28"
       aria-labelledby="rutas-title"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <Reveal>
-          <SparkEyebrow>Las rutas</SparkEyebrow>
+          <SparkEyebrow tone="cyan">Las rutas</SparkEyebrow>
           <h2
             id="rutas-title"
             className="lv2-display mt-5 max-w-3xl text-4xl text-[var(--paper)] sm:text-5xl"
           >
             Dos rutas.{" "}
-            <span className="lv2-mint">Elige por lo que quieres construir.</span>
+            <span className="text-[var(--cyan)]">Elige por lo que quieres construir.</span>
           </h2>
-          <p className="mt-4 max-w-3xl text-lg lv2-soft">
+          <p className="mt-4 max-w-3xl text-lg text-[var(--soft)]">
             Cada ruta son tres módulos independientes de 8 semanas. Puedes tomar
             uno solo, y no tienes que empezar por el primero: el diagnóstico te
             ubica donde estás.
@@ -221,13 +221,13 @@ export default function Rutas({
         </div>
 
         <Reveal delay={0.1}>
-          <aside className="mt-6 flex items-start gap-4 rounded-2xl border border-[rgba(63,224,160,0.28)] bg-[rgba(63,224,160,0.05)] p-6 md:p-7">
-            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[rgba(63,224,160,0.12)] text-[var(--mint)]">
+          <aside className="mt-6 flex items-start gap-5 rounded-2xl border border-slate-900/20 bg-[#0f172a] p-6 shadow-lg md:p-8">
+            <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[rgba(116,186,255,0.16)] text-[#74BAFF]">
               <Shuffle className="h-5 w-5" aria-hidden="true" />
             </span>
             <div>
-              <h3 className="text-lg font-bold text-[var(--paper)]">{cruce.title}</h3>
-              <p className="mt-2 leading-relaxed lv2-soft">{cruce.body}</p>
+              <h3 className="text-lg font-bold text-white">{cruce.title}</h3>
+              <p className="mt-2 leading-relaxed text-slate-300">{cruce.body}</p>
             </div>
           </aside>
         </Reveal>

@@ -2030,6 +2030,69 @@ html:not([data-theme="dark"]) .faq-section [aria-label="Editar"]:hover {
   --soft: #C7D4CE;
 }
 
+/* Banda clara de contraste (Rutas, Inversión, etc.) */
+.landing-v2 .lv2-light-band {
+  position: relative;
+  isolation: isolate;
+  --paper: #0f172a;
+  --soft: #475569;
+  --mute: #64748b;
+  --panel: #ffffff;
+  --line: rgba(15, 23, 42, 0.1);
+  --mint: #059669;
+  --cyan: #0284c7;
+  border-color: rgba(2, 132, 199, 0.28);
+  color: var(--paper);
+}
+
+.landing-v2 .lv2-light-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: #e8eef6;
+  background-image: linear-gradient(
+    180deg,
+    #dfe8f3 0%,
+    #e8eef6 42%,
+    #e2eaf4 100%
+  );
+  pointer-events: none;
+}
+
+.landing-v2 .lv2-light-band > * {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-v2 .lv2-light-band .lv2-card {
+  background: var(--panel);
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.landing-v2 .lv2-light-band .lv2-card:hover {
+  border-color: rgba(2, 132, 199, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(2, 132, 199, 0.12),
+    0 16px 40px -16px rgba(2, 132, 199, 0.2);
+}
+
+.landing-v2 .lv2-light-band .lv2-chip {
+  border-color: rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--soft);
+}
+
+.landing-v2 .lv2-light-band .lv2-mono {
+  color: var(--mute);
+}
+
+.landing-v2 .lv2-light-band .lv2-spark {
+  background: var(--cyan);
+  box-shadow: 0 0 10px rgba(2, 132, 199, 0.45);
+}
+
 .agentes-funnel {
   display: grid;
   grid-template-columns: 1fr;

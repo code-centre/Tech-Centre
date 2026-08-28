@@ -13,27 +13,28 @@ export default function Inversion() {
   return (
     <section
       id="inversion"
-      className="relative py-24 md:py-28"
+      className="lv2-light-band relative overflow-hidden border-y border-sky-300/50 bg-[#e8eef6] py-24 md:py-28"
       aria-labelledby="inversion-title"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <Reveal>
-          <SparkEyebrow>Inversión</SparkEyebrow>
+          <SparkEyebrow tone="cyan">Inversión</SparkEyebrow>
           <h2
             id="inversion-title"
             className="lv2-display mt-5 max-w-3xl text-4xl text-[var(--paper)] sm:text-5xl"
           >
-            Lo que cuesta y <span className="lv2-mint">qué te llevas</span>
+            Lo que cuesta y{" "}
+            <span className="text-[var(--cyan)]">qué te llevas</span>
           </h2>
-          <p className="mt-4 max-w-2xl text-lg lv2-soft">
+          <p className="mt-4 max-w-2xl text-lg text-[var(--soft)]">
             Sin cotizaciones por WhatsApp ni precios escondidos. Este es el valor
             de un módulo de 8 semanas.
           </p>
         </Reveal>
 
         <div className="mt-12 grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-          <Reveal glow className="h-full">
-            <article className="h-full rounded-2xl border border-[rgba(63,224,160,0.4)] bg-[linear-gradient(180deg,rgba(63,224,160,0.07)_0%,var(--panel)_55%)] p-7 md:p-8">
+          <Reveal className="h-full">
+            <article className="h-full rounded-2xl border-2 border-emerald-600/25 bg-white p-7 shadow-md md:p-8">
               <p className="lv2-mono !text-[var(--mint)]">
                 Un módulo · 8 semanas · 64 horas
               </p>
@@ -42,12 +43,12 @@ export default function Inversion() {
                 <span className="lv2-display text-[2.75rem] text-[var(--paper)]">
                   {p.modulo}
                 </span>
-                <span className="text-[15px] lv2-mute">/ módulo</span>
+                <span className="text-[15px] text-[var(--mute)]">/ módulo</span>
               </p>
-              <p className="mt-1.5 lv2-soft">{p.moduloLabel}</p>
+              <p className="mt-1.5 text-[var(--soft)]">{p.moduloLabel}</p>
 
-              <div className="mt-5 flex items-baseline justify-between gap-4 rounded-xl border border-[var(--line)] bg-white/[0.03] px-4 py-3.5">
-                <span className="lv2-soft">{p.moduloAvanzadoLabel}</span>
+              <div className="mt-5 flex items-baseline justify-between gap-4 rounded-xl border border-[var(--line)] bg-slate-50 px-4 py-3.5">
+                <span className="text-[var(--soft)]">{p.moduloAvanzadoLabel}</span>
                 <span className="lv2-display text-2xl text-[var(--paper)]">
                   {p.moduloAvanzado}
                 </span>
@@ -55,17 +56,17 @@ export default function Inversion() {
 
               <dl className="mt-6 flex flex-col gap-3 border-t border-[var(--line)] pt-6">
                 <div className="flex items-baseline justify-between gap-4">
-                  <dt className="lv2-soft">Reserva de cupo</dt>
+                  <dt className="text-[var(--soft)]">Reserva de cupo</dt>
                   <dd className="font-bold text-[var(--paper)]">{p.reserva}</dd>
                 </div>
                 <div className="flex items-baseline justify-between gap-4">
-                  <dt className="lv2-soft">Cuotas sin interés</dt>
+                  <dt className="text-[var(--soft)]">Cuotas sin interés</dt>
                   <dd className="font-bold text-[var(--paper)]">
                     Hasta {p.cuotas}
                   </dd>
                 </div>
                 <div className="flex items-baseline justify-between gap-4">
-                  <dt className="lv2-soft">Egresados de otro módulo</dt>
+                  <dt className="text-[var(--soft)]">Egresados de otro módulo</dt>
                   <dd className="font-bold text-[var(--mint)]">
                     {p.descuentoEgresados} menos · {p.moduloEgresados}
                   </dd>
@@ -97,7 +98,7 @@ export default function Inversion() {
                         className="mt-0.5 h-[18px] w-[18px] shrink-0 text-[var(--mint)]"
                         aria-hidden="true"
                       />
-                      <span className="text-[15px] leading-snug lv2-soft">
+                      <span className="text-[15px] leading-snug text-[var(--soft)]">
                         {item}
                       </span>
                     </li>
@@ -108,21 +109,21 @@ export default function Inversion() {
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Reveal delay={0.12} className="h-full">
-                <article className="h-full rounded-2xl border border-[rgba(63,224,160,0.28)] bg-[rgba(63,224,160,0.05)] p-6">
+                <article className="h-full rounded-2xl border border-emerald-600/20 bg-emerald-50/90 p-6">
                   <h3 className="font-bold text-[var(--paper)]">
                     Si no es tu momento, no hay cobro
                   </h3>
-                  <p className="mt-2 text-[15px] leading-relaxed lv2-soft">
+                  <p className="mt-2 text-[15px] leading-relaxed text-[var(--soft)]">
                     {p.sinRiesgo}
                   </p>
                 </article>
               </Reveal>
               <Reveal delay={0.16} className="h-full">
-                <article className="h-full rounded-2xl border border-[rgba(116,186,255,0.28)] bg-[rgba(116,186,255,0.05)] p-6">
+                <article className="h-full rounded-2xl border border-sky-600/20 bg-sky-50/90 p-6">
                   <h3 className="font-bold text-[var(--paper)]">
                     Becas y convenios abiertos
                   </h3>
-                  <p className="mt-2 text-[15px] leading-relaxed lv2-soft">
+                  <p className="mt-2 text-[15px] leading-relaxed text-[var(--soft)]">
                     {p.becas}
                   </p>
                 </article>
