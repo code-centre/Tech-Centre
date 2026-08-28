@@ -72,7 +72,7 @@ export const RUTAS: Ruta[] = [
         levelLabel: "Nivel inicial · Módulo 1",
         slug: "fundamentos-de-programacion",
         title: "Fundamentos de Programación",
-        stack: "JavaScript · terminal · Git · HTTP · IA asistida",
+        stack: "JavaScript · React · TypeScript · Storybook · Git · IA asistida",
         outcome: "Terminas con tu primera aplicación publicada en internet.",
         requisito:
           "Nada. Este es el punto de entrada: empezamos desde cero, con computador, internet y ganas de aprender.",
@@ -80,6 +80,8 @@ export const RUTAS: Ruta[] = [
           "Programación desde cero: lógica, funciones, datos, resolución de problemas",
           "Las herramientas del oficio: terminal, Git y cómo funciona la web",
           "Desarrollo asistido por IA desde el día uno, con criterio sobre qué delegar y qué entender",
+          "Sistema de diseño: cómo armar tokens, componentes reutilizables y documentarlos en Storybook",
+          "Introducción a React y TypeScript: componentes, props, estado y tipado para construir interfaces web",
         ],
       },
       {

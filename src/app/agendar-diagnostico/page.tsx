@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import PageHero from '@/components/landing/PageHero';
 import Reveal from '@/components/landing/Reveal';
 import DiagnosticoBookingForm from './DiagnosticoBookingForm';
-import { createClient } from '@/lib/supabase/server';
 import {
   getDiagnosticoProgramOptions,
   resolveDiagnosticoDefaultProgram,
@@ -36,8 +35,7 @@ export default async function AgendarDiagnosticoPage({ searchParams }: PageProps
   const programKey = params.programa?.toLowerCase() ?? '';
   const source = params.origen?.trim() || 'agendar-diagnostico';
 
-  const supabase = await createClient();
-  const programOptions = await getDiagnosticoProgramOptions(supabase);
+  const programOptions = await getDiagnosticoProgramOptions();
   const defaultProgram = resolveDiagnosticoDefaultProgram(programKey, programOptions, PROGRAM_BY_QUERY);
 
   return (

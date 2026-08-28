@@ -1,11 +1,28 @@
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createServiceRoleClient } from '@/lib/supabase/service-role';
 
-export const DIAGNOSTICO_ORIENTATION_OPTION = 'No sé qué orientación';
+export const DIAGNOSTICO_ORIENTATION_OPTION = 'No sé, quiero orientación';
+
+function createCatalogClient(): SupabaseClient {
+  try {
+    return createServiceRoleClient();
+  } catch {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) {
+      throw new Error('Missing Supabase credentials for diagnostico catalog');
+    }
+    return createSupabaseClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  }
+}
 
 /** Programas con al menos una cohorte en oferta (`offering = true`). */
-export async function getDiagnosticoProgramOptions(
-  supabase: SupabaseClient,
-): Promise<string[]> {
+export async function getDiagnosticoProgramOptions(): Promise<string[]> {
+  const supabase = createCatalogClient();
+
   const { data, error } = await supabase
     .from('cohorts')
     .select('programs:program_id!inner(name)')

@@ -164,7 +164,7 @@ export default function DiagnosticoBookingForm({
             onChange={(e) => setForm({ ...form, program: e.target.value })}
             className={fieldClass}
           >
-            {programOptions.length > 1 && (
+            {programOptions.some((option) => option !== DIAGNOSTICO_ORIENTATION_OPTION) && (
               <optgroup label="Programas con cohortes activas">
                 {programOptions
                   .filter((option) => option !== DIAGNOSTICO_ORIENTATION_OPTION)

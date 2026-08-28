@@ -47,8 +47,7 @@ async function validateForm(data: DiagnosticoFormData): Promise<{ valid: boolean
     return { valid: false, error: 'El teléfono debe tener al menos 8 dígitos' };
   }
 
-  const supabase = await createClient();
-  const programOptions = await getDiagnosticoProgramOptions(supabase);
+  const programOptions = await getDiagnosticoProgramOptions();
 
   if (!data.program?.trim() || !isAllowedDiagnosticoProgram(data.program, programOptions)) {
     return { valid: false, error: 'Selecciona un programa con cohorte activa u orientación' };
