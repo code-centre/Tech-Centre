@@ -148,7 +148,14 @@ export default function TiptapEditor({
     }
   }, [editor]);
 
-  if (!editor) return null;
+  if (!editor) {
+    return (
+      <div className="tiptap-editor-wrapper flex flex-col gap-4" aria-hidden="true">
+        <div className="h-11 rounded-lg border border-border-color bg-bg-secondary animate-pulse" />
+        <div className="min-h-[120px] rounded-lg border border-border-color bg-bg-secondary animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="tiptap-editor-wrapper flex flex-col gap-4">
