@@ -1,21 +1,14 @@
 'use client';
 
-import { useState, FormEvent, useMemo } from 'react';
+import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { AlertCircle, CalendarDays, CheckCircle, Loader2 } from 'lucide-react';
 import { submitDiagnosticoBooking } from './actions';
 import { GOOGLE_CALENDAR_DIAGNOSTICO_URL } from '@/components/landing/rutas/data';
-
-const PROGRAM_OPTIONS = [
-  'Rutas de aprendizaje (Producto)',
-  'Rutas de aprendizaje (Datos)',
-  'Ingeniería de agentes',
-  'Carrera IA Engineer',
-  'Módulo específico',
-  'Aún no lo sé, quiero orientación',
-] as const;
+import { DIAGNOSTICO_ORIENTATION_OPTION } from '@/lib/diagnostico/program-options';
 
 interface DiagnosticoBookingFormProps {
+  programOptions: string[];
   defaultProgram?: string;
   source?: string;
 }
@@ -29,25 +22,31 @@ interface FormState {
   company: string;
 }
 
+function resolveInitialProgram(programOptions: string[], defaultProgram?: string): string {
+  if (defaultProgram && programOptions.includes(defaultProgram)) {
+    return defaultProgram;
+  }
+
+  return (
+    programOptions.find((option) => option !== DIAGNOSTICO_ORIENTATION_OPTION) ??
+    programOptions[0] ??
+    DIAGNOSTICO_ORIENTATION_OPTION
+  );
+}
+
 export default function DiagnosticoBookingForm({
+  programOptions,
   defaultProgram,
   source = 'agendar-diagnostico',
 }: DiagnosticoBookingFormProps) {
-  const initialProgram = useMemo(() => {
-    if (defaultProgram && PROGRAM_OPTIONS.includes(defaultProgram as (typeof PROGRAM_OPTIONS)[number])) {
-      return defaultProgram;
-    }
-    return PROGRAM_OPTIONS[0];
-  }, [defaultProgram]);
-
-  const [form, setForm] = useState<FormState>({
+  const [form, setForm] = useState<FormState>(() => ({
     name: '',
     email: '',
     phone: '',
-    program: initialProgram,
+    program: resolveInitialProgram(programOptions, defaultProgram),
     message: '',
     company: '',
-  });
+  }));
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -165,11 +164,18 @@ export default function DiagnosticoBookingForm({
             onChange={(e) => setForm({ ...form, program: e.target.value })}
             className={fieldClass}
           >
-            {PROGRAM_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
+            {programOptions.length > 1 && (
+              <optgroup label="Programas con cohortes activas">
+                {programOptions
+                  .filter((option) => option !== DIAGNOSTICO_ORIENTATION_OPTION)
+                  .map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+              </optgroup>
+            )}
+            <option value={DIAGNOSTICO_ORIENTATION_OPTION}>{DIAGNOSTICO_ORIENTATION_OPTION}</option>
           </select>
         </label>
 

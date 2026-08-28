@@ -2,6 +2,11 @@ import type { Metadata } from 'next';
 import PageHero from '@/components/landing/PageHero';
 import Reveal from '@/components/landing/Reveal';
 import DiagnosticoBookingForm from './DiagnosticoBookingForm';
+import { createClient } from '@/lib/supabase/server';
+import {
+  getDiagnosticoProgramOptions,
+  resolveDiagnosticoDefaultProgram,
+} from '@/lib/diagnostico/program-options';
 
 export const metadata: Metadata = {
   title: 'Agendar diagnóstico gratuito',
@@ -29,8 +34,11 @@ interface PageProps {
 export default async function AgendarDiagnosticoPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const programKey = params.programa?.toLowerCase() ?? '';
-  const defaultProgram = PROGRAM_BY_QUERY[programKey];
   const source = params.origen?.trim() || 'agendar-diagnostico';
+
+  const supabase = await createClient();
+  const programOptions = await getDiagnosticoProgramOptions(supabase);
+  const defaultProgram = resolveDiagnosticoDefaultProgram(programKey, programOptions, PROGRAM_BY_QUERY);
 
   return (
     <div className="landing-v2">
@@ -48,7 +56,11 @@ export default async function AgendarDiagnosticoPage({ searchParams }: PageProps
       <section className="px-4 pb-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
           <Reveal>
-            <DiagnosticoBookingForm defaultProgram={defaultProgram} source={source} />
+            <DiagnosticoBookingForm
+              programOptions={programOptions}
+              defaultProgram={defaultProgram}
+              source={source}
+            />
           </Reveal>
         </div>
       </section>

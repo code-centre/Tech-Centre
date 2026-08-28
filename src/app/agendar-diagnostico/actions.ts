@@ -2,6 +2,10 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { sendDiagnosticoBookingNotification } from '@/lib/email/diagnostico-notification';
+import {
+  getDiagnosticoProgramOptions,
+  isAllowedDiagnosticoProgram,
+} from '@/lib/diagnostico/program-options';
 import { headers } from 'next/headers';
 
 export interface DiagnosticoFormData {
@@ -21,16 +25,7 @@ export interface DiagnosticoActionResult {
   emailSent?: boolean;
 }
 
-const PROGRAM_OPTIONS = new Set([
-  'Rutas de aprendizaje (Producto)',
-  'Rutas de aprendizaje (Datos)',
-  'Ingeniería de agentes',
-  'Carrera IA Engineer',
-  'Módulo específico',
-  'Aún no lo sé, quiero orientación',
-]);
-
-function validateForm(data: DiagnosticoFormData): { valid: boolean; error?: string } {
+async function validateForm(data: DiagnosticoFormData): Promise<{ valid: boolean; error?: string }> {
   if (data.company?.trim()) {
     return { valid: false };
   }
@@ -52,8 +47,11 @@ function validateForm(data: DiagnosticoFormData): { valid: boolean; error?: stri
     return { valid: false, error: 'El teléfono debe tener al menos 8 dígitos' };
   }
 
-  if (!data.program?.trim() || !PROGRAM_OPTIONS.has(data.program.trim())) {
-    return { valid: false, error: 'Selecciona un programa o ruta' };
+  const supabase = await createClient();
+  const programOptions = await getDiagnosticoProgramOptions(supabase);
+
+  if (!data.program?.trim() || !isAllowedDiagnosticoProgram(data.program, programOptions)) {
+    return { valid: false, error: 'Selecciona un programa con cohorte activa u orientación' };
   }
 
   return { valid: true };
@@ -63,7 +61,7 @@ export async function submitDiagnosticoBooking(
   formData: DiagnosticoFormData,
 ): Promise<DiagnosticoActionResult> {
   try {
-    const validation = validateForm(formData);
+    const validation = await validateForm(formData);
     if (!validation.valid) {
       if (!validation.error) {
         return { success: true, message: 'Solicitud recibida' };
@@ -131,5 +129,3 @@ export async function submitDiagnosticoBooking(
     };
   }
 }
-
-export { PROGRAM_OPTIONS as DIAGNOSTICO_PROGRAM_OPTIONS };
