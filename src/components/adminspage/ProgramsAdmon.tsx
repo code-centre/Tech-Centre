@@ -535,6 +535,12 @@ export default function ProgramsAdmon() {
                     Programa
                   </th>
                   <th scope="col" className={adminTableHeadCellClass}>
+                    Nivel
+                  </th>
+                  <th scope="col" className={adminTableHeadCellClass}>
+                    Horas
+                  </th>
+                  <th scope="col" className={adminTableHeadCellClass}>
                     Cohortes activas
                   </th>
                   <th scope="col" className={adminTableHeadCellClass}>
@@ -581,6 +587,18 @@ export default function ProgramsAdmon() {
                               )}
                             </div>
                           </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-bg-secondary text-text-primary border border-border-color">
+                            <span
+                              className={`h-2 w-2 shrink-0 rounded-full ${getDifficultyColor(program.difficulty)}`}
+                              aria-hidden="true"
+                            />
+                            {getDifficultyLabel(program.difficulty)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-text-muted">
+                          {program.total_hours ? `${program.total_hours} h` : '—'}
                         </td>
                         <td className="px-4 py-3">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium bg-green-500/20 text-green-400 border border-green-500/30">
