@@ -2,13 +2,24 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const DIAGNOSTICO_ORIENTATION_OPTION = 'No sé qué orientación';
 
-/** Programas con al menos una cohorte en oferta (`offering = true`). */
+/**
+ * Programas con al menos una cohorte en oferta (`offering = true`).
+ *
+ * Lee la misma fuente de verdad que `getOfferingCohortsByCode`
+ * (`src/lib/cohorts/offering.ts`): la tabla `cohorts` filtrada por
+ * `offering = true`, embebiendo el programa relacionado. El recurso embebido se
+ * referencia por su nombre de tabla (`programs(name)`), idéntico al embed
+ * probado de las CTAs de inscripción. El intento anterior embebía con
+ * `programs:program_id!inner(name)`, cuya resolución de relación no devolvía
+ * filas bajo el cliente público, por lo que el select se quedaba solo con la
+ * opción de orientación.
+ */
 export async function getDiagnosticoProgramOptions(
   supabase: SupabaseClient,
 ): Promise<string[]> {
   const { data, error } = await supabase
     .from('cohorts')
-    .select('programs:program_id!inner(name)')
+    .select('programs(name)')
     .eq('offering', true)
     .order('start_date', { ascending: true });
 
