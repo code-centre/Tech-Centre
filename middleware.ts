@@ -43,7 +43,9 @@ export async function middleware(req: NextRequest) {
   if (isProtected && !user) {
     const url = req.nextUrl.clone();
     url.pathname = "/iniciar-sesion";
-    url.searchParams.set("next", path);
+    // Preservar la query original (ej: /checkout?cohortId=21) para no perder
+    // la cohorte al pasar por el login.
+    url.searchParams.set("next", `${path}${req.nextUrl.search}`);
     return NextResponse.redirect(url);
   }
 

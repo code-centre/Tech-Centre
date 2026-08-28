@@ -13,6 +13,11 @@ import DespuesDeLaCumbre from "@/components/landing/sections/DespuesDeLaCumbre";
 import FaqHome from "@/components/landing/sections/FaqHome";
 import Visitanos from "@/components/landing/sections/Visitanos";
 import CtaFinal from "@/components/landing/sections/CtaFinal";
+import { getOfferingCohortsByCode } from "@/lib/cohorts/offering";
+
+// Las cohortes abiertas se leen en vivo; revalidamos cada hora para reflejar
+// cambios sin necesidad de redeploy.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: {
@@ -47,7 +52,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const offeringCohorts = await getOfferingCohortsByCode();
+
   return (
     <div className="landing-v2 home-conversion">
       <LocalBusinessSchema />
@@ -55,7 +62,7 @@ export default function Home() {
       <Hero />
       <PruebaBar />
       <EsParaTi />
-      <Rutas />
+      <Rutas offering={offeringCohorts} />
       <ComoEntras />
       <PruebaSocial />
       <ComoAprendes />

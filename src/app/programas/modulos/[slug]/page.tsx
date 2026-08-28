@@ -15,10 +15,15 @@ import {
   moduloHref,
   precioModulo,
 } from "@/components/landing/rutas/data";
+import { checkoutHref, getOfferingCohortForCode } from "@/lib/cohorts/offering";
 
 export function generateStaticParams() {
   return MODULOS.map(({ modulo }) => ({ slug: modulo.slug }));
 }
+
+// La cohorte abierta se lee en vivo; revalidamos cada hora para reflejar
+// cambios (nuevas cohortes, cierres) sin necesidad de redeploy.
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,
@@ -63,6 +68,10 @@ export default async function ModuloPage({
   if (!found) notFound();
 
   const { modulo, ruta, numero } = found;
+  // El slug del módulo coincide con el `code` del programa en la base de datos,
+  // así que resolvemos su cohorte abierta (Batch_07 / offering=true) para armar
+  // el enlace de inscripción hacia el checkout ya existente.
+  const offering = await getOfferingCohortForCode(slug);
   const { precio, egresados } = precioModulo(modulo);
   const tone = ruta.tone === "cyan" ? "var(--cyan)" : "var(--mint)";
   const toneSoft =
@@ -123,20 +132,46 @@ export default async function ModuloPage({
 
           <div className="mt-8 flex flex-col items-start gap-4">
             <CohorteBadge />
-            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-              <a
-                href={RUTAS_DIAGNOSTICO_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="lv2-btn px-7 py-4 text-lg"
-              >
-                Agenda tu diagnóstico gratuito
-                <ArrowRight className="h-5 w-5" aria-hidden="true" />
-              </a>
-              <p className="lv2-mono !normal-case !tracking-normal !text-[var(--mute)]">
-                20 minutos · sin examen · sin pago
-              </p>
-            </div>
+            {offering ? (
+              <>
+                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+                  <Link
+                    href={checkoutHref(offering.cohortId)}
+                    className="lv2-btn px-7 py-4 text-lg"
+                  >
+                    Inscríbete a este módulo
+                    <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                  </Link>
+                  <a
+                    href={RUTAS_DIAGNOSTICO_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="lv2-btn-secondary px-7 py-4 text-lg"
+                  >
+                    Agenda tu diagnóstico gratuito
+                  </a>
+                </div>
+                <p className="lv2-mono !normal-case !tracking-normal !text-[var(--mute)]">
+                  Reservas tu cupo y completas el pago en el checkout · cuotas sin
+                  interés
+                </p>
+              </>
+            ) : (
+              <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+                <a
+                  href={RUTAS_DIAGNOSTICO_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="lv2-btn px-7 py-4 text-lg"
+                >
+                  Agenda tu diagnóstico gratuito
+                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                </a>
+                <p className="lv2-mono !normal-case !tracking-normal !text-[var(--mute)]">
+                  20 minutos · sin examen · sin pago
+                </p>
+              </div>
+            )}
           </div>
 
           <ul className="mt-10 grid grid-cols-2 gap-5 border-t border-[var(--line)] pt-7 sm:grid-cols-4">
@@ -296,11 +331,11 @@ export default async function ModuloPage({
       </section>
 
       <CtaBand
-        title="Empieza en el módulo"
-        highlight="que te corresponde."
+        title={offering ? "Inscríbete a" : "Empieza en el módulo"}
+        highlight={offering ? "este módulo." : "que te corresponde."}
         subtitle={`Cohorte del ${RUTAS_COHORTE.startDate} · ${RUTAS_COHORTE.seatsTotal} cupos por grupo · presencial en Casa Tech.`}
-        primaryLabel="Agenda tu diagnóstico gratuito"
-        primaryHref={RUTAS_DIAGNOSTICO_URL}
+        primaryLabel={offering ? "Inscríbete a este módulo" : "Agenda tu diagnóstico gratuito"}
+        primaryHref={offering ? checkoutHref(offering.cohortId) : RUTAS_DIAGNOSTICO_URL}
       />
     </div>
   );
