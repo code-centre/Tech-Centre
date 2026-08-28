@@ -4,9 +4,12 @@
  * Regla de copy: nunca usar el guion largo. Usar comas, dos puntos o "·".
  */
 
-/** Agenda de diagnóstico gratuito (Google Calendar Appointment Schedule). */
-export const RUTAS_DIAGNOSTICO_URL =
+/** Google Calendar Appointment Schedule (paso final tras el formulario). */
+export const GOOGLE_CALENDAR_DIAGNOSTICO_URL =
   "https://calendar.app.google/WxyEJwqPhSsE9mpc9";
+
+/** Página interna para capturar datos y notificar al equipo antes del calendario. */
+export const RUTAS_DIAGNOSTICO_URL = "/agendar-diagnostico";
 
 export const RUTAS_LEGAL =
   "Tech Centre · Centro de Tecnología del Caribe opera bajo Fundación Código Abierto y ofrece programas de educación informal conforme al Decreto 1075 de 2015, Artículo 2.6.6.8. Estos programas no conducen a título ni a certificado de aptitud ocupacional.";

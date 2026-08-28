@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useSupabaseClient, useUser } from '@/lib/supabase';
 import { X, Upload, Loader2, CheckCircle, Landmark, Banknote } from 'lucide-react';
 import { toast } from 'sonner';
+import { markInvoicePaidAdmin } from '@/app/admin/pagos/actions';
 
 export interface InvoiceForModal {
   id: number;
@@ -110,28 +111,27 @@ export function MarkAsPaidModal({
         urlRecipe = publicUrl;
       }
 
-      const updatePayload: Record<string, unknown> = {
-        status: 'paid',
-        paid_at: new Date().toISOString(),
-        meta: {
-          ...(invoice.meta || {}),
-          admin_payment_method: method,
-          admin_notes: notes.trim() || undefined,
-        },
+      const paidAt = new Date().toISOString();
+      const meta = {
+        ...(invoice.meta || {}),
+        admin_payment_method: method,
+        admin_notes: notes.trim() || undefined,
       };
 
-      if (urlRecipe) {
-        updatePayload.url_recipe = urlRecipe;
-      }
+      const result = await markInvoicePaidAdmin(invoice.id, {
+        status: 'paid',
+        paid_at: paidAt,
+        meta,
+        url_recipe: urlRecipe,
+      });
 
-      const { error: updateError } = await supabase
-        .from('invoices')
-        .update(updatePayload)
-        .eq('id', invoice.id);
+      if (!result.success) throw new Error(result.error ?? 'Error al marcar como pagada');
 
-      if (updateError) throw updateError;
-
-      toast.success('Factura marcada como pagada');
+      toast.success(
+        result.enrollmentConfirmed
+          ? 'Factura pagada y matrícula confirmada. Se envió correo al estudiante.'
+          : 'Factura marcada como pagada',
+      );
       onSuccess();
       handleClose();
     } catch (err: unknown) {

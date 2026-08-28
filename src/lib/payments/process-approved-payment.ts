@@ -1,6 +1,7 @@
 import { incrementCouponUses } from '@/lib/discounts/coupon-service';
 import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service';
 import { createServiceRoleClient } from '@/lib/supabase/service-role';
+import { handleInvoicePaidForEnrollment } from '@/lib/payments/confirm-enrollment-paid';
 
 interface InvoiceRow {
   id: number;
@@ -92,6 +93,8 @@ export async function processApprovedWompiPayment(params: {
       return { ok: false, message: invoiceUpdateError.message };
     }
 
+    await handleInvoicePaidForEnrollment(supabase, invoice);
+
     const { data: enrollmentData, error: enrollmentError } = await supabase
       .from('enrollments')
       .select('id, student_id, status, agreed_price')
@@ -103,24 +106,6 @@ export async function processApprovedWompiPayment(params: {
     }
 
     const enrollment = enrollmentData as EnrollmentRow;
-
-    if (enrollment.status !== 'enrolled') {
-      const { error: enrollmentUpdateError } = await (supabase as any)
-        .from('enrollments')
-        .update({ status: 'enrolled', updated_at: paidAt })
-        .eq('id', enrollment.id);
-
-      if (enrollmentUpdateError) {
-        console.error('Webhook enrollment update error:', enrollmentUpdateError);
-        return { ok: false, message: enrollmentUpdateError.message };
-      }
-
-      await (supabase as any)
-        .from('profiles')
-        .update({ role: 'student', updated_at: paidAt })
-        .eq('user_id', enrollment.student_id)
-        .eq('role', 'lead');
-    }
 
     const matriculaAdded = Boolean(invoice.meta?.matricula_added);
     const matriculaAmount = Number(invoice.meta?.matricula_amount ?? 0);

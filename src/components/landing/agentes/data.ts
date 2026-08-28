@@ -16,9 +16,8 @@ export const AGENTES_DEMO_WA = whatsappWith(
   "Hola, quiero inscribirme a la clase demo gratuita de ingeniería de agentes.",
 );
 
-/** Agenda de diagnóstico (Google Calendar Appointment Schedule). */
-export const AGENTES_DIAGNOSTICO_URL =
-  "https://calendar.app.google/WxyEJwqPhSsE9mpc9";
+/** Página interna para capturar datos y notificar al equipo antes del calendario. */
+export const AGENTES_DIAGNOSTICO_URL = "/agendar-diagnostico?programa=agentes";
 
 export const AGENTES_LEGAL =
   "Programa de educación informal, con una intensidad de 64 horas. No conduce a título alguno ni a certificado de aptitud ocupacional. Al finalizar se expide constancia de asistencia y aprobación. Decreto 1075 de 2015, artículo 2.6.6.8.";

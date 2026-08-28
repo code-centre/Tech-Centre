@@ -52,6 +52,10 @@ Crea un archivo `.env` en la raíz con:
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role (solo webhook de pagos) | Sí (producción) |
 | `NEXT_PUBLIC_PAYMENT_PROVIDER` | Proveedor de pagos (default: wompi) | Opcional |
 | `NEXT_PUBLIC_MODE_WOMPI` | Modo Wompi: production o test | Opcional |
+| `RESEND_API_KEY` | API key de [Resend](https://resend.com) (notificaciones por correo) | Sí (diagnósticos) |
+| `RESEND_FROM_EMAIL` | Remitente verificado en Resend (ej: `Tech Centre <notificaciones@techcentre.co>`) | Sí (producción) |
+| `DIAGNOSTICO_NOTIFY_EMAIL` | Correo que recibe solicitudes de diagnóstico (default: `anuar@codigoabierto.tech`) | Opcional |
+| `CRON_SECRET` | Secret para autorizar el cron de recordatorios (`Authorization: Bearer …`) | Sí (recordatorios) |
 
 ## Scripts
 

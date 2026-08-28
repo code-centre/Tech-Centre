@@ -315,6 +315,81 @@ export interface Database {
           updated_at?: string;
         };
       };
+      email_templates: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          description: string | null;
+          subject: string;
+          html_body: string;
+          text_body: string | null;
+          sample_variables: Json;
+          is_active: boolean;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          slug: string;
+          name: string;
+          description?: string | null;
+          subject: string;
+          html_body: string;
+          text_body?: string | null;
+          sample_variables?: Json;
+          is_active?: boolean;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          slug?: string;
+          name?: string;
+          description?: string | null;
+          subject?: string;
+          html_body?: string;
+          text_body?: string | null;
+          sample_variables?: Json;
+          is_active?: boolean;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+      };
+      email_send_log: {
+        Row: {
+          id: string;
+          template_slug: string;
+          recipient_email: string;
+          enrollment_id: number | null;
+          cohort_id: number | null;
+          dedupe_key: string;
+          resend_id: string | null;
+          status: string;
+          error: string | null;
+          sent_at: string;
+        };
+        Insert: {
+          template_slug: string;
+          recipient_email: string;
+          enrollment_id?: number | null;
+          cohort_id?: number | null;
+          dedupe_key: string;
+          resend_id?: string | null;
+          status?: string;
+          error?: string | null;
+          sent_at?: string;
+        };
+        Update: {
+          template_slug?: string;
+          recipient_email?: string;
+          enrollment_id?: number | null;
+          cohort_id?: number | null;
+          dedupe_key?: string;
+          resend_id?: string | null;
+          status?: string;
+          error?: string | null;
+          sent_at?: string;
+        };
+      };
     };
   };
 }
