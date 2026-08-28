@@ -19,13 +19,20 @@ function createCatalogClient(): SupabaseClient {
   }
 }
 
-/** Programas con al menos una cohorte en oferta (`offering = true`). */
+/**
+ * Programas con al menos una cohorte en oferta (`offering = true`).
+ *
+ * Lee la misma fuente de verdad que `getOfferingCohortsByCode`
+ * (`src/lib/cohorts/offering.ts`): cohortes con `offering = true` y el programa
+ * embebido como `programs(name)`, igual que las CTAs de inscripción. El embed
+ * `programs:program_id!inner(name)` no devolvía filas bajo el cliente público.
+ */
 export async function getDiagnosticoProgramOptions(): Promise<string[]> {
   const supabase = createCatalogClient();
 
   const { data, error } = await supabase
     .from('cohorts')
-    .select('programs:program_id!inner(name)')
+    .select('programs(name)')
     .eq('offering', true)
     .order('start_date', { ascending: true });
 
