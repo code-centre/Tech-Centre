@@ -83,16 +83,13 @@ export default function Header() {
                 <div className="grid grid-cols-2 gap-x-3">
                   {RUTAS.map((ruta) => (
                     <div key={ruta.slug}>
-                      <Link
-                        href={ruta.detailHref}
-                        className={`block px-3 pb-2 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
-                          ruta.tone === "cyan"
-                            ? "text-[#74BAFF] hover:text-white"
-                            : "text-[#3FE0A0] hover:text-white"
+                      <p
+                        className={`px-3 pb-2 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em] ${
+                          ruta.tone === "cyan" ? "text-[#74BAFF]" : "text-[#3FE0A0]"
                         }`}
                       >
                         {ruta.label}
-                      </Link>
+                      </p>
                       <ul>
                         {ruta.modules.map((modulo, i) => (
                           <li key={modulo.slug}>
@@ -351,15 +348,13 @@ export default function Header() {
                 <div className="pl-4 flex flex-col pb-2">
                   {RUTAS.map((ruta) => (
                     <div key={ruta.slug} className="mt-1">
-                      <Link
-                        href={ruta.detailHref}
-                        className={`block py-2 text-xs font-semibold uppercase tracking-[0.14em] ${
+                      <p
+                        className={`py-2 text-xs font-semibold uppercase tracking-[0.14em] ${
                           ruta.tone === "cyan" ? "text-[#74BAFF]" : "text-[#3FE0A0]"
                         }`}
-                        onClick={() => setIsMenuOpen(false)}
                       >
                         {ruta.label}
-                      </Link>
+                      </p>
                       {ruta.modules.map((modulo, i) => (
                         <Link
                           key={modulo.slug}

@@ -6,6 +6,7 @@ import Reveal from "@/components/landing/Reveal";
 import SparkEyebrow from "@/components/landing/SparkEyebrow";
 import CohorteBadge from "@/components/landing/CohorteBadge";
 import CtaBand from "@/components/landing/CtaBand";
+import { StructuredData } from "@/components/seo/StructuredData";
 import {
   MODULOS,
   RUTAS_COHORTE,
@@ -47,6 +48,14 @@ export async function generateMetadata({
       description,
       url: moduloHref(slug),
       type: "website",
+      images: [
+        {
+          url: "/og-image",
+          width: 1200,
+          height: 630,
+          alt: "Tech Centre - Centro de Tecnología del Caribe",
+        },
+      ],
     },
   };
 }
@@ -80,8 +89,52 @@ export default async function ModuloPage({
     ruta.tone === "cyan" ? "rgba(116,186,255,0.06)" : "rgba(63,224,160,0.06)";
   const otros = ruta.modules.filter((m) => m.slug !== modulo.slug);
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co";
+  const courseSchema = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: modulo.title,
+    description: `${modulo.outcome} Módulo ${numero} de la ${ruta.label} (${ruta.name}). 8 semanas presenciales en Casa Tech, Barranquilla. Stack: ${modulo.stack}.`,
+    url: `${baseUrl}${moduloHref(modulo.slug)}`,
+    courseCode: modulo.slug,
+    inLanguage: "es",
+    provider: {
+      "@type": "EducationalOrganization",
+      name: "Tech Centre",
+      url: baseUrl,
+    },
+    teaches: modulo.bullets,
+    coursePrerequisites: modulo.requisito,
+    timeRequired: "P8W",
+    educationalCredentialAwarded: "Constancia de participación",
+    offers: {
+      "@type": "Offer",
+      price: Number(precio.replace(/\D/g, "")),
+      priceCurrency: "COP",
+      availability: "https://schema.org/InStock",
+      category: "Paid",
+    },
+    hasCourseInstance: {
+      "@type": "CourseInstance",
+      courseMode: "Onsite",
+      courseWorkload: "PT64H",
+      location: {
+        "@type": "Place",
+        name: "Casa Tech",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Cra. 50 #72-126, El Prado",
+          addressLocality: "Barranquilla",
+          addressRegion: "Atlántico",
+          addressCountry: "CO",
+        },
+      },
+    },
+  };
+
   return (
     <div className="landing-v2">
+      <StructuredData data={courseSchema} />
       {/* Hero del módulo */}
       <section className="relative overflow-hidden px-4 pb-16 pt-32 sm:px-6 md:pb-20 md:pt-40 lg:px-8">
         <div
@@ -90,11 +143,11 @@ export default async function ModuloPage({
         />
         <div className="relative z-10 mx-auto max-w-5xl">
           <Link
-            href={ruta.detailHref}
+            href="/#rutas"
             className="lv2-mono inline-flex items-center gap-2 !normal-case !tracking-normal hover:!text-[var(--mint)]"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Volver a la {ruta.label}
+            Volver a las rutas
           </Link>
 
           <div className="mt-6">

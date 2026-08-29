@@ -165,14 +165,6 @@ function RutaCard({
         <p className="lv2-mono !normal-case !tracking-normal !text-[var(--mute)]">
           {RUTAS_MODULOS_NOTE} Entra a cada uno para ver su temario y su precio.
         </p>
-        <Link
-          href={ruta.detailHref}
-          className="inline-flex items-center gap-2 font-semibold"
-          style={{ color: tone.color }}
-        >
-          Ver la ruta completa
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
       </footer>
     </motion.article>
   );

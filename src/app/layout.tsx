@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { OrganizationSchema, EducationalOrganizationSchema } from "@/components/seo/StructuredData";
+import { CONTACT } from "@/components/landing/data";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -66,10 +67,10 @@ export const metadata: Metadata = {
     description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
     images: [
       {
-        url: "/tech-center-logos/TechCentreLogoColor.png",
+        url: "/og-image",
         width: 1200,
         height: 630,
-        alt: "Tech Centre - Centro de Tecnología del Caribe",
+        alt: "Tech Centre - Centro de Tecnología del Caribe. Rutas de tecnología e IA en Barranquilla.",
       },
     ],
   },
@@ -77,7 +78,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Tech Centre - Centro de Tecnología del Caribe | Educación Tech de Vanguardia",
     description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
-    images: ["/tech-center-logos/TechCentreLogoColor.png"],
+    images: ["/og-image"],
   },
   robots: {
     index: true,
@@ -132,13 +133,25 @@ export default async function RootLayout({
         <ThemeProvider>
           <OrganizationSchema
             address={{
+              streetAddress: "Cra. 50 #72-126, El Prado",
               addressLocality: "Barranquilla",
               addressRegion: "Atlántico",
               addressCountry: "CO",
             }}
+            contactPoint={{
+              telephone: CONTACT.phone,
+              contactType: "admissions",
+              email: CONTACT.email,
+            }}
+            sameAs={[
+              CONTACT.social.instagram,
+              CONTACT.social.linkedin,
+              CONTACT.social.facebook,
+            ]}
           />
           <EducationalOrganizationSchema
             address={{
+              streetAddress: "Cra. 50 #72-126, El Prado",
               addressLocality: "Barranquilla",
               addressRegion: "Atlántico",
               addressCountry: "CO",

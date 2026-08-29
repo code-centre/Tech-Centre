@@ -50,8 +50,6 @@ export interface Ruta {
   description: string;
   stackPills: string[];
   tone: RutaTone;
-  /** Página de la ruta con el temario completo. */
-  detailHref: string;
   modules: RutaModule[];
 }
 
@@ -65,7 +63,6 @@ export const RUTAS: Ruta[] = [
       "De cero a construir productos completos y agentes de IA. JavaScript, TypeScript y el stack agéntico moderno.",
     stackPills: ["JavaScript · TypeScript", "React · Node · PostgreSQL", "Claude API · MCP"],
     tone: "mint",
-    detailHref: "/programas/construye",
     modules: [
       {
         level: "Base",
@@ -130,7 +127,6 @@ export const RUTAS: Ruta[] = [
       "De cero a predecir con datos y machine learning en producción. Python, SQL y el stack de datos moderno.",
     stackPills: ["Python · SQL", "pipelines · warehouse", "ML · forecasting · evals"],
     tone: "cyan",
-    detailHref: "/programas/revela",
     modules: [
       {
         level: "Base",

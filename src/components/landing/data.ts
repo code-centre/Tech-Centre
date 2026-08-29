@@ -54,136 +54,6 @@ export const ECOSYSTEM = [
   },
 ] as const;
 
-export type RouteTone = "mint" | "cyan";
-
-export interface ModuleContent {
-  n: number;
-  title: string;
-  topics: string;
-  entry?: boolean;
-}
-
-export interface RouteData {
-  slug: "construye" | "revela";
-  label: string;
-  name: string;
-  tagline: string;
-  subtitle: string;
-  forWhom: string;
-  build: string;
-  stack: string[];
-  profile: string;
-  tone: RouteTone;
-  modules: ModuleContent[];
-}
-
-export const ROUTES: Record<"construye" | "revela", RouteData> = {
-  construye: {
-    slug: "construye",
-    label: "Ruta Web",
-    name: "Construye",
-    tagline: "Construye lo que se ve.",
-    subtitle:
-      "Aprende a construir apps y agentes de IA que la gente usa, de cero a desplegar.",
-    forWhom:
-      "Quieres construir productos con IA user-facing. Vienes del mundo web, o quieres entrar por esa puerta.",
-    build:
-      "Aplicaciones web modernas con agentes de IA embebidos: interfaces que conversan, asisten y deciden, desplegadas y reales.",
-    stack: [
-      "TypeScript",
-      "React",
-      "Next.js",
-      "Vercel AI SDK",
-      "SQL",
-      "Docker",
-      "agentes",
-      "RAG",
-      "evals",
-    ],
-    profile: "AI Product / Full-Stack Engineer",
-    tone: "mint",
-    modules: [
-      {
-        n: 1,
-        title: "Fundamentos",
-        topics:
-          "Pensamiento computacional, terminal, Git, JavaScript e IA como copiloto desde el día 1.",
-      },
-      {
-        n: 2,
-        title: "Desarrollo web",
-        topics:
-          "HTML/CSS, JavaScript a TypeScript, React, Next.js, SQL y bases de datos, APIs, autenticación, Docker, despliegue y CI.",
-      },
-      {
-        n: 3,
-        title: "IA aplicada",
-        topics:
-          "Harness y context engineering, LLMs en la app y streaming UX, structured outputs, function calling, agentes con guardrails, RAG embebido, model routing, evals y observabilidad, prompt injection.",
-        entry: true,
-      },
-      {
-        n: 4,
-        title: "Servidores y despliegue seguro",
-        topics:
-          "Deploy del agente, servicios vs nube vs servidor propio, modelos por API vs locales (Ollama, vLLM), contenedores y CI/CD, seguridad, monitoreo y costos.",
-      },
-    ],
-  },
-  revela: {
-    slug: "revela",
-    label: "Ruta de Datos",
-    name: "Revela",
-    tagline: "Revela el patrón.",
-    subtitle:
-      "Aprende a construir sistemas que razonan sobre datos, de cero a desplegar.",
-    forWhom:
-      "Te atrae entender los datos y construir sistemas que razonan sobre información.",
-    build:
-      "Agentes que razonan sobre datos y bases de conocimiento: pipelines, RAG y sistemas que convierten información en respuestas confiables.",
-    stack: [
-      "Python",
-      "FastAPI",
-      "PostgreSQL",
-      "pandas",
-      "RAG",
-      "pgvector",
-      "Pydantic AI",
-      "LangGraph",
-      "MLflow",
-    ],
-    profile: "AI Application Engineer · datos",
-    tone: "cyan",
-    modules: [
-      {
-        n: 1,
-        title: "Fundamentos",
-        topics:
-          "Pensamiento computacional, terminal, Git, Python e IA como copiloto desde el día 1.",
-      },
-      {
-        n: 2,
-        title: "Ingeniería de datos",
-        topics:
-          "Python, SQL y PostgreSQL, Docker temprano, FastAPI y Pydantic, pipelines (Airflow, dbt, DuckDB/BigQuery), estadística, EDA y Streamlit.",
-      },
-      {
-        n: 3,
-        title: "IA aplicada",
-        topics:
-          "Harness y context engineering, LLMs y RAG primero (chunking, embeddings, hybrid search, reranking), pgvector y Qdrant, agentes con Pydantic AI/LangGraph/MCP, retrieval evals, evals con LLM-as-judge, observabilidad y costo, ML clásico después.",
-        entry: true,
-      },
-      {
-        n: 4,
-        title: "Servidores y despliegue seguro",
-        topics:
-          "Deploy del agente, servicios vs nube vs servidor propio, modelos por API vs locales (Ollama, vLLM), contenedores y CI/CD, seguridad, monitoreo y costos.",
-      },
-    ],
-  },
-};
-
 export const SHARED_MODULES = [
   { n: 1, title: "Fundamentos", detail: "Construye: JavaScript · Revela: Python" },
   { n: 2, title: "Especialidad", detail: "Construye: Desarrollo web · Revela: Ingeniería de datos" },
@@ -208,37 +78,47 @@ export const FAQS: FaqItem[] = [
   {
     category: "Requisitos",
     q: "¿Necesito saber programar para entrar?",
-    a: "No. El Módulo 1 (Fundamentos) empieza desde cero: pensamiento computacional, terminal, Git y programación desde lo más básico. Solo necesitas computador, internet y disposición real de aprender.",
+    a: "No. El módulo 1 empieza desde cero: lógica, terminal, Git y programación desde lo más básico. Solo necesitas computador, internet y ganas reales de aprender.",
   },
   {
     category: "Requisitos",
-    q: "¿Ya tengo experiencia, puedo saltarme lo básico?",
-    a: "Sí. Si ya programas en web o datos, puedes unirte directamente en el Módulo 3 (IA aplicada), tras una breve validación de nivel.",
+    q: "Ya programo, ¿puedo saltarme el módulo 1?",
+    a: "Sí. El diagnóstico gratuito te ubica directo en el módulo 2 o en el módulo 3, sin pagar ni repetir lo que ya sabes.",
   },
   {
     category: "Horarios y modalidad",
     q: "¿Cuánto dura y cuántas horas a la semana?",
-    a: "Cada ruta dura 6 meses, de cero al perfil. Son 18 horas a la semana: 6 horas presenciales en la Casa Tech (Barranquilla) más 12 horas virtuales de práctica y proyecto guiado. Cada ruta se cursa por separado.",
+    a: "Cada módulo dura 8 semanas y te toma 8 horas a la semana: 4 presenciales en Casa Tech, los sábados o entre semana, y 4 de práctica guiada en casa. La ruta completa son tres módulos, unos seis meses en total.",
   },
   {
     category: "Horarios y modalidad",
-    q: "¿Qué ruta debo elegir, Construye o Revela?",
-    a: "Si quieres construir productos con IA que la gente usa todos los días (apps, interfaces), elige Construye (Ruta Web). Si te atrae entender los datos y construir sistemas que razonan sobre información, elige Revela (Ruta de Datos).",
+    q: "¿Puedo tomar un solo módulo?",
+    a: "Sí. Cada módulo es independiente y termina con un proyecto real que puedes mostrar. No tienes que comprometerte con la ruta completa desde el inicio: el diagnóstico te dice dónde empezar.",
+  },
+  {
+    category: "Rutas",
+    q: "¿Qué ruta debo elegir, Producto o Datos?",
+    a: "Si quieres construir productos y agentes de IA que la gente usa (apps, interfaces), elige la ruta Producto: JavaScript, TypeScript y el stack agéntico moderno. Si te atrae entender los datos y predecir con machine learning, elige la ruta Datos: Python, SQL y el stack de datos moderno. Al terminar una ruta puedes cruzar a la otra.",
   },
   {
     category: "Inversión y pagos",
-    q: "¿Cuáles son las formas de pago?",
-    a: "Puedes tomar la ruta completa o una etapa individual. Ofrecemos matrícula más cuotas mensuales, y contamos con becas y convenios. Escríbenos por WhatsApp y te orientamos según tu caso.",
+    q: "¿Cuánto cuesta y cómo puedo pagar?",
+    a: "Los módulos 1 y 2 cuestan $1.400.000 COP y el módulo 3 avanzado $1.600.000 COP. Reservas tu cupo con $100.000 y pagas el resto en hasta tres cuotas sin interés. Si ya hiciste un módulo con nosotros, tienes 10% de descuento.",
+  },
+  {
+    category: "Inversión y pagos",
+    q: "¿Hay becas o convenios?",
+    a: "Sí. Tenemos becas y convenios, como Becas Atlántico. Escríbenos y te contamos cuáles están abiertas para tu caso.",
   },
   {
     category: "Empleabilidad",
-    q: "¿Hay acompañamiento después de certificarme?",
-    a: "Sí. Un mes después de certificarte entras a nuestro programa de empleabilidad: portafolio, skills de industria, cómo venderte y networking con empresas en convenio. No te dejamos en la puerta del certificado.",
+    q: "¿Hay acompañamiento al terminar?",
+    a: "Sí. Te llevas el programa de empleabilidad, los demo days y una comunidad de egresados que se refiere, se contrata y se apoya. No prometemos empleo: lo que abre puertas es el portafolio de proyectos reales que construyes.",
   },
   {
-    category: "Cupos e inscripción",
-    q: "¿Qué voy a tener al terminar?",
-    a: "Un portafolio de productos reales desplegados, certificado de Tech Centre, acceso a la comunidad de egresados y el perfil que la industria busca: Ingeniero de Aplicaciones de IA.",
+    category: "Al terminar",
+    q: "¿Qué me llevo al terminar?",
+    a: "Un proyecto real desplegado y presentado en demo day, constancia de participación de Tech Centre, y acceso a la comunidad de egresados y al ecosistema Costa Digital.",
   },
 ];
 

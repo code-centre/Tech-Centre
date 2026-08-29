@@ -28,6 +28,7 @@ interface OrganizationSchemaProps {
     contactType?: string
     email?: string
   }
+  sameAs?: string[]
 }
 
 export function OrganizationSchema({
@@ -37,6 +38,7 @@ export function OrganizationSchema({
   description = "Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia.",
   address,
   contactPoint,
+  sameAs,
 }: OrganizationSchemaProps) {
   const schema = {
     "@context": "https://schema.org",
@@ -57,6 +59,7 @@ export function OrganizationSchema({
         ...contactPoint,
       },
     }),
+    ...(sameAs && sameAs.length > 0 && { sameAs }),
   }
 
   return <StructuredData data={schema} />
@@ -114,7 +117,14 @@ interface LocalBusinessSchemaProps {
     addressCountry?: string
   }
   telephone?: string
+  email?: string
   priceRange?: string
+  geo?: {
+    latitude: number
+    longitude: number
+  }
+  sameAs?: string[]
+  hasMap?: string
 }
 
 export function LocalBusinessSchema({
@@ -128,7 +138,11 @@ export function LocalBusinessSchema({
     addressCountry: "CO",
   },
   telephone,
+  email,
   priceRange,
+  geo,
+  sameAs,
+  hasMap,
 }: LocalBusinessSchemaProps) {
   const schema = {
     "@context": "https://schema.org",
@@ -142,7 +156,17 @@ export function LocalBusinessSchema({
       ...address,
     },
     ...(telephone && { telephone }),
+    ...(email && { email }),
     ...(priceRange && { priceRange }),
+    ...(geo && {
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: geo.latitude,
+        longitude: geo.longitude,
+      },
+    }),
+    ...(sameAs && sameAs.length > 0 && { sameAs }),
+    ...(hasMap && { hasMap }),
   }
 
   return <StructuredData data={schema} />

@@ -14,7 +14,7 @@ const navLinks = [
   { href: '/blog', label: 'Blog' },
   { href: '/nosotros', label: 'Nosotros' },
   { href: '/empleabilidad', label: 'Empleabilidad' },
-  { href: '/inversion', label: 'Inversión' },
+  { href: '/#inversion', label: 'Inversión' },
   { href: '/faq', label: 'FAQ' },
 ]
 
