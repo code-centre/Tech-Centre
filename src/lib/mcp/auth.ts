@@ -15,6 +15,12 @@ export const MCP_SCOPES = {
   ENROLLMENTS_WRITE: 'enrollments:write',
   LEADS_READ: 'leads:read',
   LEADS_WRITE: 'leads:write',
+  INSTRUCTORS_READ: 'instructors:read',
+  INSTRUCTORS_WRITE: 'instructors:write',
+  SESSIONS_READ: 'sessions:read',
+  SESSIONS_WRITE: 'sessions:write',
+  INSTRUCTOR_PAYMENTS_READ: 'instructor_payments:read',
+  INSTRUCTOR_PAYMENTS_WRITE: 'instructor_payments:write',
   PAYMENTS_READ: 'payments:read',
   PAYMENTS_WRITE: 'payments:write',
 } as const;
@@ -36,6 +42,9 @@ function scopesForRole(role: AppRole): McpScope[] {
         MCP_SCOPES.ROUTES_READ,
         MCP_SCOPES.COHORTS_READ,
         MCP_SCOPES.ENROLLMENTS_READ,
+        MCP_SCOPES.INSTRUCTORS_READ,
+        MCP_SCOPES.SESSIONS_READ,
+        MCP_SCOPES.INSTRUCTOR_PAYMENTS_READ,
         MCP_SCOPES.PAYMENTS_READ,
       ];
     default:

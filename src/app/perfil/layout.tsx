@@ -1,12 +1,14 @@
 'use client'
 import { Sidebar } from '@/components/profile/Sidebar'
-import { CalendarIcon, UserIcon, Receipt, GraduationCap, Wallet } from 'lucide-react'
+import { CalendarIcon, UserIcon, Receipt, GraduationCap, Wallet, Home, SlidersHorizontal } from 'lucide-react'
+import { useProfileBadges } from '@/components/profile/useProfileBadges'
+import type { Section } from '@/components/profile/Sidebar'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import React from 'react'
 import { useUser } from '@/lib/supabase'
 
-const validSections = ['datos-personales', 'cursos', 'facturas', 'instructor', 'honorarios']
+const validSections = ['resumen', 'datos-personales', 'cursos', 'facturas', 'instructor', 'honorarios']
 
 export default function ProfileLayout({
   children,
@@ -18,24 +20,62 @@ export default function ProfileLayout({
   
   // Extraer la sección activa de la URL
   const sectionMatch = pathname?.match(/\/perfil\/([^/]+)/)
-  const sectionParam = sectionMatch ? sectionMatch[1] : 'cursos'
-  const activeSection = validSections.includes(sectionParam) ? sectionParam : 'cursos'
+  const sectionParam = sectionMatch ? sectionMatch[1] : 'resumen'
+  const activeSection = validSections.includes(sectionParam) ? sectionParam : 'resumen'
+  const badges = useProfileBadges(user)
 
-  const baseSections = [
-    { id: 'datos-personales', label: 'Mis datos', icon: UserIcon },
-    { id: 'cursos', label: 'Mis cursos', icon: CalendarIcon },
-    { id: 'facturas', label: 'Facturas', icon: Receipt },
-  ]
-  // Un profesor tiene dos cosas más: sus cohortes y lo que se le paga por
-  // dictarlas. «Honorarios» y no «Mis pagos» a propósito: si además está
-  // matriculado, ya tiene una sección con ese nombre para lo que él debe.
-  const instructorSections = [
-    { id: 'instructor', label: 'Panel instructor', icon: GraduationCap },
-    { id: 'honorarios', label: 'Mis honorarios', icon: Wallet },
-  ]
-  const sections = user && ['admin', 'instructor'].includes(user.role)
-    ? [...baseSections, ...instructorSections]
-    : baseSections
+  // El menú se arma según quién entra: cada perfil ve sólo lo suyo, y lo que
+  // está pendiente se avisa aquí para no tener que entrar a descubrirlo.
+  const role = user?.role ?? 'student'
+  const isStaff = ['admin', 'instructor'].includes(role)
+  const isAdmin = role === 'admin'
+
+  const sections: Section[] = [{ id: 'resumen', label: 'Resumen', icon: Home }]
+
+  if (isAdmin) {
+    sections.push({
+      id: 'admin',
+      label: 'Administración',
+      icon: SlidersHorizontal,
+      href: '/admin',
+    })
+  }
+
+  if (isStaff) {
+    sections.push(
+      {
+        id: 'instructor',
+        label: 'Mis cohortes',
+        icon: GraduationCap,
+        badge: badges.pendingRolls,
+        badgeTone: 'warn',
+      },
+      // «Honorarios» y no «Mis pagos» a propósito: si además está matriculado,
+      // ya tiene una sección con ese nombre para lo que él debe.
+      { id: 'honorarios', label: 'Mis honorarios', icon: Wallet }
+    )
+  }
+
+  if (!isAdmin) {
+    sections.push(
+      { id: 'cursos', label: 'Mis cursos', icon: CalendarIcon },
+      {
+        id: 'facturas',
+        label: 'Mis pagos',
+        icon: Receipt,
+        badge: badges.overdueInvoices,
+        badgeTone: 'alert',
+      }
+    )
+  }
+
+  sections.push({
+    id: 'datos-personales',
+    label: 'Mis datos',
+    icon: UserIcon,
+    badge: badges.missingProfile,
+    badgeTone: 'warn',
+  })
 
   const handleSectionChange = (sectionId: string) => {
     // Esta función se pasa al Sidebar pero no se usa porque los Links manejan la navegación

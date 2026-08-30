@@ -458,6 +458,15 @@ export function formatRegistered(value: string, ageInDays: number): string {
   return formatDate(value);
 }
 
+/**
+ * «$1.234.567».
+ *
+ * A mano y no con `Intl`: el servidor y el navegador no siempre traen los
+ * mismos datos de locale, y la diferencia (un «,00» de más en el servidor)
+ * rompía la hidratación de la pantalla de pagos.
+ */
 export function formatMoney(value: number): string {
-  return `$${Math.round(value).toLocaleString('es-CO')}`;
+  const rounded = Math.round(Math.abs(value));
+  const grouped = String(rounded).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `${value < 0 ? '-' : ''}$${grouped}`;
 }

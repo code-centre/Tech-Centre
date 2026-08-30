@@ -40,6 +40,27 @@ import {
   resolveProgramIdForLead,
   updateLead,
 } from '@/lib/services/leads-service';
+import {
+  assignCohortInstructor,
+  getInstructor,
+  listCohortInstructors,
+  listInstructors,
+  removeCohortInstructor,
+} from '@/lib/services/instructors-service';
+import {
+  createSession,
+  getSession,
+  listSessions,
+  updateSession,
+} from '@/lib/services/sessions-service';
+import {
+  getInstructorPayment,
+  listInstructorPayments,
+  listInstructorRates,
+  recordInstructorPayment,
+  setInstructorRate,
+  updateInstructorPayment,
+} from '@/lib/services/instructor-pay-service';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -275,6 +296,30 @@ const leadFieldSchemas = {
     ),
   notes: leadNotesSchema.describe('JSON notes stored in leads.notes (same shape as public forms).'),
 };
+
+const sessionMaterialSchema = z.object({
+  title: z.string().min(1),
+  url: z.string().min(1),
+  type: z.enum(['github', 'youtube', 'file', 'link']),
+});
+
+const sessionFieldSchemas = {
+  module_id: z.number().int().positive().nullable().optional(),
+  title: z.string().nullable().optional(),
+  starts_at: z.string().optional().describe('ISO datetime for class start.'),
+  ends_at: z.string().optional().describe('ISO datetime for class end.'),
+  room: z.string().nullable().optional(),
+  materials: z.array(sessionMaterialSchema).nullable().optional(),
+};
+
+const instructorPayModeSchema = z
+  .enum(['per_session', 'per_cohort', 'monthly'])
+  .describe('per_session: per class taught. per_cohort: one payment at close. monthly: fixed monthly.');
+
+const cohortInstructorRoleSchema = z
+  .enum(['owner', 'instructor', 'assistant', 'monitor'])
+  .optional()
+  .describe('Role in the cohort team. Defaults to instructor.');
 
 const baseHandler = createMcpHandler(
   (server) => {
@@ -796,6 +841,522 @@ const baseHandler = createMcpHandler(
             actorSub: auth.userId,
             toolName: 'update_lead',
             input: { leadId, program_name, notes, ...input },
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'list_instructors',
+      {
+        title: 'List instructors',
+        description:
+          'List instructor profiles (role instructor or admin) with contact fields and user_id.',
+        inputSchema: z.object({}),
+      },
+      async (_input, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTORS_READ)) {
+          throw new Error('Missing scope instructors:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const instructors = await listInstructors(client);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(instructors, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'get_instructor',
+      {
+        title: 'Get instructor',
+        description:
+          'Get an instructor profile by user_id, including cohort_assignments from cohort_instructors.',
+        inputSchema: z.object({
+          instructorId: z.string().uuid(),
+        }),
+      },
+      async ({ instructorId }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTORS_READ)) {
+          throw new Error('Missing scope instructors:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const instructor = await getInstructor(client, instructorId);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(instructor, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'list_cohort_instructors',
+      {
+        title: 'List cohort instructors',
+        description:
+          'List instructor assignments to cohorts. Filter by cohortId and/or instructorId.',
+        inputSchema: z.object({
+          cohortId: z.number().int().positive().optional(),
+          instructorId: z.string().uuid().optional(),
+        }),
+      },
+      async ({ cohortId, instructorId }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTORS_READ)) {
+          throw new Error('Missing scope instructors:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const rows = await listCohortInstructors(client, { cohortId, instructorId });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(rows, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'assign_cohort_instructor',
+      {
+        title: 'Assign cohort instructor',
+        description:
+          'Assign or update an instructor on a cohort (admin only). Upserts cohort_instructors.',
+        inputSchema: z.object({
+          cohort_id: z.number().int().positive(),
+          instructor_id: z.string().uuid(),
+          role: cohortInstructorRoleSchema,
+        }),
+      },
+      async (input, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTORS_WRITE)) {
+          throw new Error('Missing scope instructors:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const row = await assignCohortInstructor(client, input);
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'assign_cohort_instructor',
+            input,
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(row, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'assign_cohort_instructor',
+            input,
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'remove_cohort_instructor',
+      {
+        title: 'Remove cohort instructor',
+        description: 'Remove an instructor assignment from a cohort (admin only).',
+        inputSchema: z.object({
+          cohortId: z.number().int().positive(),
+          instructorId: z.string().uuid(),
+        }),
+      },
+      async ({ cohortId, instructorId }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTORS_WRITE)) {
+          throw new Error('Missing scope instructors:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const result = await removeCohortInstructor(client, cohortId, instructorId);
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'remove_cohort_instructor',
+            input: { cohortId, instructorId },
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'remove_cohort_instructor',
+            input: { cohortId, instructorId },
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'list_sessions',
+      {
+        title: 'List sessions',
+        description:
+          'List class sessions (clases). Filter by cohortId and optional date range (from/to ISO datetimes).',
+        inputSchema: z.object({
+          cohortId: z.number().int().positive().optional(),
+          from: z.string().optional().describe('Include sessions starting at or after this ISO datetime.'),
+          to: z.string().optional().describe('Include sessions starting at or before this ISO datetime.'),
+        }),
+      },
+      async ({ cohortId, from, to }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.SESSIONS_READ)) {
+          throw new Error('Missing scope sessions:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const sessions = await listSessions(client, { cohortId, from, to });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(sessions, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'get_session',
+      {
+        title: 'Get session',
+        description: 'Get a class session by id with all fields including materials.',
+        inputSchema: z.object({
+          sessionId: z.number().int().positive(),
+        }),
+      },
+      async ({ sessionId }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.SESSIONS_READ)) {
+          throw new Error('Missing scope sessions:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const session = await getSession(client, sessionId);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(session, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'create_session',
+      {
+        title: 'Create session',
+        description:
+          'Schedule a new class session (admin only). Requires cohort_id, starts_at, and ends_at.',
+        inputSchema: z.object({
+          cohort_id: z.number().int().positive(),
+          ...sessionFieldSchemas,
+          starts_at: z.string().describe('ISO datetime for class start.'),
+          ends_at: z.string().describe('ISO datetime for class end.'),
+        }),
+      },
+      async (input, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.SESSIONS_WRITE)) {
+          throw new Error('Missing scope sessions:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const session = await createSession(client, input);
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'create_session',
+            input,
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(session, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'create_session',
+            input,
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'update_session',
+      {
+        title: 'Update session',
+        description:
+          'Update a class session (admin only). Only provided fields change (title, schedule, room, module, materials).',
+        inputSchema: z.object({
+          sessionId: z.number().int().positive(),
+          ...sessionFieldSchemas,
+        }),
+      },
+      async ({ sessionId, ...input }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.SESSIONS_WRITE)) {
+          throw new Error('Missing scope sessions:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const session = await updateSession(client, sessionId, input);
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'update_session',
+            input: { sessionId, ...input },
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(session, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'update_session',
+            input: { sessionId, ...input },
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'list_instructor_rates',
+      {
+        title: 'List instructor rates',
+        description:
+          'List agreed pay rates per instructor and cohort (mode, amount, requires_attendance).',
+        inputSchema: z.object({
+          instructorId: z.string().uuid().optional(),
+          cohortId: z.number().int().positive().optional(),
+        }),
+      },
+      async ({ instructorId, cohortId }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTOR_PAYMENTS_READ)) {
+          throw new Error('Missing scope instructor_payments:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const rates = await listInstructorRates(client, { instructorId, cohortId });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(rates, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'set_instructor_rate',
+      {
+        title: 'Set instructor rate',
+        description:
+          'Set or update how an instructor is paid for a cohort (admin only). Same as admin pagos UI.',
+        inputSchema: z.object({
+          instructor_id: z.string().uuid(),
+          cohort_id: z.number().int().positive(),
+          mode: instructorPayModeSchema,
+          amount: z.number().positive(),
+          requires_attendance: z
+            .boolean()
+            .optional()
+            .default(true)
+            .describe('When true, a class counts for pay only after attendance is recorded.'),
+        }),
+      },
+      async (input, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTOR_PAYMENTS_WRITE)) {
+          throw new Error('Missing scope instructor_payments:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const rate = await setInstructorRate(client, input);
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'set_instructor_rate',
+            input,
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(rate, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'set_instructor_rate',
+            input,
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'list_instructor_payments',
+      {
+        title: 'List instructor payments',
+        description:
+          'List payments made (or pending) to instructors. Filter by instructor, cohort, or status.',
+        inputSchema: z.object({
+          instructorId: z.string().uuid().optional(),
+          cohortId: z.number().int().positive().optional(),
+          status: z.enum(['pending', 'paid']).optional(),
+          limit: z.number().int().positive().max(500).optional(),
+        }),
+      },
+      async ({ instructorId, cohortId, status, limit }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTOR_PAYMENTS_READ)) {
+          throw new Error('Missing scope instructor_payments:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const payments = await listInstructorPayments(client, {
+          instructorId,
+          cohortId,
+          status,
+          limit,
+        });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(payments, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'get_instructor_payment',
+      {
+        title: 'Get instructor payment',
+        description: 'Get a single instructor payment record by id.',
+        inputSchema: z.object({
+          paymentId: z.number().int().positive(),
+        }),
+      },
+      async ({ paymentId }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTOR_PAYMENTS_READ)) {
+          throw new Error('Missing scope instructor_payments:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const payment = await getInstructorPayment(client, paymentId);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(payment, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'record_instructor_payment',
+      {
+        title: 'Record instructor payment',
+        description:
+          'Register or upsert a payment to an instructor for a period (admin only). Defaults to status paid.',
+        inputSchema: z.object({
+          instructor_id: z.string().uuid(),
+          cohort_id: z.number().int().positive(),
+          concept: z.string().min(1),
+          amount: z.number().positive(),
+          period_start: z.string().describe('YYYY-MM-DD start of pay period.'),
+          period_end: z.string().describe('YYYY-MM-DD end of pay period.'),
+          session_count: z.number().int().nonnegative().optional(),
+          status: z.enum(['pending', 'paid']).optional().default('paid'),
+          paid_at: z.string().nullable().optional(),
+          method: z.string().nullable().optional().describe('Payment method, e.g. transfer, cash.'),
+          notes: z.string().nullable().optional(),
+        }),
+      },
+      async (input, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTOR_PAYMENTS_WRITE)) {
+          throw new Error('Missing scope instructor_payments:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const payment = await recordInstructorPayment(client, {
+            ...input,
+            created_by: auth.userId,
+          });
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'record_instructor_payment',
+            input,
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(payment, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'record_instructor_payment',
+            input,
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'update_instructor_payment',
+      {
+        title: 'Update instructor payment',
+        description:
+          'Update an instructor payment (admin only). Change status, amounts, period, or notes.',
+        inputSchema: z.object({
+          paymentId: z.number().int().positive(),
+          concept: z.string().min(1).optional(),
+          amount: z.number().positive().optional(),
+          period_start: z.string().optional(),
+          period_end: z.string().optional(),
+          session_count: z.number().int().nonnegative().optional(),
+          status: z.enum(['pending', 'paid']).optional(),
+          paid_at: z.string().nullable().optional(),
+          method: z.string().nullable().optional(),
+          notes: z.string().nullable().optional(),
+        }),
+      },
+      async ({ paymentId, ...input }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.INSTRUCTOR_PAYMENTS_WRITE)) {
+          throw new Error('Missing scope instructor_payments:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const payment = await updateInstructorPayment(client, paymentId, input);
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'update_instructor_payment',
+            input: { paymentId, ...input },
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(payment, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'update_instructor_payment',
+            input: { paymentId, ...input },
             resultStatus: 'error',
           });
           throw error;

@@ -8,6 +8,7 @@ import {
   Receipt, CreditCard
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { formatMoney } from '@/lib/students'
 import NextImage from 'next/image'
 
 interface Invoice {
@@ -28,7 +29,9 @@ interface Enrollment {
   student_id: string
   status: string
   agreed_price: number
+  cohort?: unknown
 }
+
 
 export default function PaymentReceiptsManager() {
   const { user } = useUser()
@@ -55,7 +58,9 @@ export default function PaymentReceiptsManager() {
       // Fetch user's enrollments
       const { data: enrollmentData, error: enrollmentError } = await supabase
         .from('enrollments')
-        .select('*')
+        .select(
+          'id, student_id, status, agreed_price, cohort:cohorts!cohort_id(id, name, start_date, end_date, program:programs!program_id(id, name))'
+        )
         .eq('student_id', user?.id)
 
       if (enrollmentError) throw enrollmentError
@@ -151,7 +156,7 @@ export default function PaymentReceiptsManager() {
     }
   }
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>, invoiceId: number) => {
+  const handleDrop = (event: React.DragEvent<HTMLElement>, invoiceId: number) => {
     event.preventDefault()
     const file = event.dataTransfer.files[0]
     if (file) {
@@ -159,7 +164,7 @@ export default function PaymentReceiptsManager() {
     }
   }
 
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (event: React.DragEvent<HTMLElement>) => {
     event.preventDefault()
   }
 
@@ -186,20 +191,30 @@ export default function PaymentReceiptsManager() {
     }
   }
 
+  const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+
+  /** «5 sep»: la columna es angosta y el año casi nunca aporta. */
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-CO', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+    if (!dateString) return '—'
+    const parts = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateString)
+    const date = parts
+      ? new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]))
+      : new Date(dateString)
+    if (isNaN(date.getTime())) return '—'
+    return `${date.getDate()} ${MESES[date.getMonth()]}`
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP'
-    }).format(amount)
+  /** Cómo se pagó, si quedó registrado. */
+  const paymentMethodOf = (invoice: Invoice): string => {
+    const meta = invoice.meta as Record<string, unknown> | null
+    const method = meta?.admin_payment_method
+    if (method === 'transfer') return 'transferencia'
+    if (method === 'cash') return 'efectivo'
+    if (meta?.payment_id) return 'tarjeta'
+    if (invoice.url_recipe) return 'transferencia'
+    return ''
   }
+
 
   if (loading) {
     return (
@@ -221,191 +236,294 @@ export default function PaymentReceiptsManager() {
     )
   }
 
+  const unwrap = <T,>(value: T | T[] | null | undefined): T | null =>
+    Array.isArray(value) ? value[0] ?? null : value ?? null
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const isOverdue = (invoice: Invoice) =>
+    invoice.status !== 'paid' &&
+    invoice.status !== 'pending_review' &&
+    Boolean(invoice.due_date) &&
+    new Date(`${invoice.due_date}T23:59:59`) < today
+  const daysLate = (invoice: Invoice) =>
+    Math.floor((today.getTime() - new Date(`${invoice.due_date}T00:00:00`).getTime()) / 86400000)
+
+  const paidInvoices = invoices.filter((invoice) => invoice.status === 'paid')
+  const openInvoices = invoices.filter((invoice) => invoice.status !== 'paid')
+  const overdueInvoices = invoices.filter(isOverdue)
+
+  const paidTotal = paidInvoices.reduce((sum, invoice) => sum + (invoice.amount ?? 0), 0)
+  const openTotal = openInvoices.reduce((sum, invoice) => sum + (invoice.amount ?? 0), 0)
+  const overdueTotal = overdueInvoices.reduce((sum, invoice) => sum + (invoice.amount ?? 0), 0)
+  const worstDays = overdueInvoices.reduce((worst, invoice) => Math.max(worst, daysLate(invoice)), 0)
+
+  // Agrupadas por curso: una cuota suelta no dice nada sin saber de qué es.
+  const groups = enrollments
+    .map((enrollment) => {
+      const cohort = unwrap(enrollment.cohort as never) as
+        | { name?: string; end_date?: string | null; program?: unknown }
+        | null
+      const program = unwrap(cohort?.program as never) as { name?: string } | null
+      const rows = invoices.filter((invoice) => invoice.enrollment_id === enrollment.id)
+
+      return {
+        id: enrollment.id,
+        title: `${program?.name ?? 'Curso'}${cohort?.name ? ` · ${cohort.name}` : ''}`,
+        rows,
+        groupPaid: rows
+          .filter((invoice) => invoice.status === 'paid')
+          .reduce((sum, invoice) => sum + (invoice.amount ?? 0), 0),
+        groupTotal: rows.reduce((sum, invoice) => sum + (invoice.amount ?? 0), 0),
+        finished: cohort?.end_date ? new Date(`${cohort.end_date}T23:59:59`) < today : false,
+      }
+    })
+    .filter((group) => group.rows.length > 0)
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-secondary/10 rounded-lg">
-          <Receipt className="text-secondary" size={24} />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-text-primary">Mis Facturas y Recibos</h2>
-          <p className="text-sm text-text-muted mt-1">
-            {invoices.length > 0 
-              ? `${invoices.length} ${invoices.length === 1 ? 'factura encontrada' : 'facturas encontradas'}`
-              : 'Gestiona tus facturas y sube recibos de pago'
-            }
-          </p>
-        </div>
-      </div>
+    <div className="flex flex-col gap-5">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-[27px] font-bold tracking-tight text-text-primary">Mis pagos</h1>
+        <p className="text-sm text-text-muted">
+          Tus cuotas de cada curso, con su fecha y su comprobante.
+        </p>
+      </header>
 
       {invoices.length === 0 ? (
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden shadow-lg">
-          <div className="px-8 py-16 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary/10 mb-6">
-              <FileText className="w-10 h-10 text-secondary" />
-            </div>
-            <h3 className="text-2xl font-bold text-text-primary mb-3">
-              No tienes facturas pendientes
-            </h3>
-            <p className="text-lg text-text-muted mb-2 max-w-md mx-auto">
-              Aún no tienes facturas asociadas a tus matrículas.
-            </p>
-          </div>
-        </div>
+        <section className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-14 text-center">
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-text-muted/10 text-text-muted">
+            <Receipt size={24} strokeWidth={1.8} />
+          </span>
+          <h2 className="mt-4 text-lg font-semibold text-text-primary">Todavía no tienes cuotas</h2>
+          <p className="mx-auto mt-2 max-w-[400px] text-sm leading-relaxed text-text-muted">
+            Cuando te matricules en un curso, aquí verás lo que va quedando por pagar.
+          </p>
+        </section>
       ) : (
-        <div className="space-y-4">
-          {invoices.map((invoice) => (
-            <div key={invoice.id} className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden shadow-lg">
-              <div className="p-6">
-                {/* Invoice Header */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-text-primary mb-2">{invoice.label}</h3>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="w-4 h-4" />
-                        <span>{formatCurrency(invoice.amount)}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Vence: {formatDate(invoice.due_date)}</span>
-                      </div>
-                      {invoice.paid_at && (
-                        <div className="flex items-center gap-1">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-green-600">Pagado: {formatDate(invoice.paid_at)}</span>
-                        </div>
-                      )}
+        <>
+          {overdueInvoices.length > 0 && (
+            <section
+              className="flex flex-wrap items-center justify-between gap-5 rounded-xl border p-[16px_20px]"
+              style={{
+                borderColor: 'color-mix(in srgb, var(--pay-critico) 35%, transparent)',
+                background: 'color-mix(in srgb, var(--pay-critico) 6%, transparent)',
+              }}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <AlertCircle className="h-4 w-4 shrink-0" style={{ color: 'var(--pay-critico)' }} />
+                <span className="text-sm text-text-primary">
+                  {overdueInvoices.length === 1 ? (
+                    <>
+                      Tienes una cuota vencida hace {worstDays} días:{' '}
+                      <strong className="font-semibold">{overdueInvoices[0].label}</strong>,{' '}
+                      {formatMoney(overdueInvoices[0].amount)}.
+                    </>
+                  ) : (
+                    <>
+                      Tienes {overdueInvoices.length} cuotas vencidas por{' '}
+                      <strong className="font-semibold">{formatMoney(overdueTotal)}</strong>.
+                    </>
+                  )}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handlePayOnPlatform(overdueInvoices[0].id)}
+                disabled={creatingPaymentLinkId === overdueInvoices[0].id}
+                className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg bg-secondary px-[18px] text-sm font-semibold text-[#0E1116] transition-colors hover:bg-secondary/90 disabled:opacity-50"
+              >
+                {creatingPaymentLinkId === overdueInvoices[0].id && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                Pagar ahora
+              </button>
+            </section>
+          )}
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <Stat
+              label="Ya pagaste"
+              value={formatMoney(paidTotal)}
+              note={`${paidInvoices.length} de ${invoices.length} ${invoices.length === 1 ? 'cuota' : 'cuotas'}`}
+            />
+            <Stat
+              label="Te falta"
+              value={formatMoney(openTotal)}
+              note={
+                openInvoices.length === 0
+                  ? 'Estás al día'
+                  : `${openInvoices.length} ${openInvoices.length === 1 ? 'cuota por pagar' : 'cuotas por pagar'}`
+              }
+            />
+            <Stat
+              label="Vencido"
+              value={formatMoney(overdueTotal)}
+              note={
+                overdueInvoices.length === 0
+                  ? 'Nada vencido'
+                  : `${overdueInvoices.length === 1 ? 'Una cuota' : `${overdueInvoices.length} cuotas`}, hace ${worstDays} días`
+              }
+              alert={overdueTotal > 0}
+            />
+          </div>
+
+          {groups.map((group) => (
+            <section
+              key={group.id}
+              className="overflow-hidden rounded-xl border border-border-color bg-[var(--card-background)]"
+            >
+              <div className="flex items-center justify-between gap-4 border-b border-border-color px-5 py-4">
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <h2 className="text-base font-semibold text-text-primary">{group.title}</h2>
+                  <p className="text-[12.5px] text-text-muted">
+                    {formatMoney(group.groupPaid)} pagados de {formatMoney(group.groupTotal)}
+                  </p>
+                </div>
+                <span
+                  className="inline-flex h-6 shrink-0 items-center rounded-full px-2.5 text-xs font-semibold"
+                  style={
+                    group.finished
+                      ? {
+                          background: 'color-mix(in srgb, var(--pay-serie-porcobrar) 14%, transparent)',
+                          color: 'var(--pay-serie-porcobrar)',
+                        }
+                      : {
+                          background: 'color-mix(in srgb, var(--pay-serie-cobrado) 14%, transparent)',
+                          color: 'var(--pay-serie-cobrado)',
+                        }
+                  }
+                >
+                  {group.finished ? 'Terminado' : 'En curso'}
+                </span>
+              </div>
+
+              <div className="hidden grid-cols-[minmax(0,1fr)_116px_122px_230px] items-center gap-3.5 border-b border-border-color bg-bg-secondary px-5 py-[11px] lg:grid">
+                <HeadCell>Concepto</HeadCell>
+                <HeadCell>Vence</HeadCell>
+                <HeadCell right>Monto</HeadCell>
+                <span />
+              </div>
+
+              {group.rows.map((invoice, index) => {
+                const late = isOverdue(invoice)
+                const review = invoice.status === 'pending_review'
+                const isPaid = invoice.status === 'paid'
+
+                return (
+                  <div
+                    key={invoice.id}
+                    className={`grid grid-cols-[minmax(0,1fr)_116px_122px_230px] items-center gap-3.5 px-5 py-[13px] max-lg:flex max-lg:flex-col max-lg:items-start max-lg:gap-2 ${
+                      index < group.rows.length - 1 ? 'border-b border-border-color/50' : ''
+                    }`}
+                    style={
+                      late ? { background: 'color-mix(in srgb, var(--pay-critico) 5%, transparent)' } : undefined
+                    }
+                  >
+                    <div className="flex min-w-0 flex-col gap-0.5">
+                      <span className="text-sm text-text-primary">{invoice.label}</span>
+                      <span className="truncate text-[12.5px] text-text-muted">
+                        {isPaid
+                          ? `Pagada el ${formatDate(invoice.paid_at ?? invoice.due_date)}${
+                              paymentMethodOf(invoice) ? ` · ${paymentMethodOf(invoice)}` : ''
+                            }`
+                          : review
+                            ? 'Subiste el comprobante, lo estamos verificando'
+                            : invoice.url_recipe
+                              ? 'Comprobante enviado'
+                              : 'Todavía sin comprobante'}
+                      </span>
                     </div>
-                  </div>
-                  
-                  {/* Status Badge */}
-                  <div className="flex items-center gap-2">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full ${
-                      invoice.status === 'paid'
-                        ? 'badge-paid'
-                        : invoice.status === 'pending_review'
-                          ? 'badge-pending'
-                          : 'badge-pending'
-                    }`}>
-                      {invoice.status === 'paid' ? (
+
+                    <span
+                      className="text-[13px]"
+                      style={{ color: late ? 'var(--pay-critico)' : 'var(--text-muted)' }}
+                    >
+                      {late
+                        ? `venció hace ${daysLate(invoice)} d`
+                        : isPaid
+                          ? formatDate(invoice.due_date)
+                          : `vence ${formatDate(invoice.due_date)}`}
+                    </span>
+
+                    <span className="text-right text-sm font-semibold text-text-primary">
+                      {formatMoney(invoice.amount)}
+                    </span>
+
+                    <div className="flex justify-end gap-2">
+                      {isPaid ? (
                         <>
-                          <CheckCircle className="w-3 h-3" />
-                          Pagada
+                          <span
+                            className="inline-flex h-6 items-center rounded-full px-2.5 text-xs font-semibold"
+                            style={{
+                              background: 'color-mix(in srgb, var(--pay-serie-cobrado) 14%, transparent)',
+                              color: 'var(--pay-serie-cobrado)',
+                            }}
+                          >
+                            Pagada
+                          </span>
+                          {invoice.url_recipe && (
+                            <button
+                              type="button"
+                              onClick={() => setPreviewImage(invoice.url_recipe)}
+                              className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-secondary hover:underline"
+                            >
+                              <Receipt className="h-[15px] w-[15px]" />
+                              Recibo
+                            </button>
+                          )}
                         </>
-                      ) : invoice.status === 'pending_review' ? (
-                        <>
-                          <Clock className="w-3 h-3" />
+                      ) : review ? (
+                        <span
+                          className="inline-flex h-6 items-center rounded-full px-2.5 text-xs font-semibold"
+                          style={{
+                            background: 'color-mix(in srgb, var(--pay-aviso) 14%, transparent)',
+                            color: 'var(--pay-aviso)',
+                          }}
+                        >
                           En revisión
-                        </>
+                        </span>
                       ) : (
                         <>
-                          <Clock className="w-3 h-3" />
-                          Pendiente
+                          <label
+                            onDrop={(event) => handleDrop(event, invoice.id)}
+                            onDragOver={handleDragOver}
+                            className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border-color bg-bg-secondary px-[11px] text-[12.5px] font-medium text-text-primary transition-colors hover:border-secondary/50"
+                          >
+                            {uploadingInvoiceId === invoice.id ? (
+                              <Loader2 className="h-[15px] w-[15px] animate-spin" />
+                            ) : (
+                              <Upload className="h-[15px] w-[15px]" />
+                            )}
+                            Comprobante
+                            <input
+                              type="file"
+                              accept="image/*,application/pdf"
+                              onChange={(event) => handleFileSelect(event, invoice.id)}
+                              className="hidden"
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => handlePayOnPlatform(invoice.id)}
+                            disabled={creatingPaymentLinkId === invoice.id}
+                            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-secondary px-[13px] text-[12.5px] font-semibold text-[#0E1116] transition-colors hover:bg-secondary/90 disabled:opacity-50"
+                          >
+                            {creatingPaymentLinkId === invoice.id && (
+                              <Loader2 className="h-[15px] w-[15px] animate-spin" />
+                            )}
+                            Pagar
+                          </button>
                         </>
                       )}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Receipt Section */}
-                {invoice.status === 'paid' && invoice.url_recipe ? (
-                  <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                        <div>
-                          <p className="text-green-600 font-medium">Recibo de pago adjunto</p>
-                          <p className="text-green-600/80 text-sm">
-                            Subido el {invoice.paid_at ? formatDate(invoice.paid_at) : 'N/A'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setPreviewImage(invoice.url_recipe)}
-                          className="p-2 text-green-600 hover:text-green-700 hover:bg-green-500/20 rounded-lg transition-colors"
-                          title="Ver recibo"
-                        >
-                          <FileText className="w-5 h-5" />
-                        </button>
-                        <a
-                          href={invoice.url_recipe}
-                          download={`recibo_${invoice.label.replace(/\s+/g, '_')}.jpg`}
-                          className="p-2 text-green-600 hover:text-green-700 hover:bg-green-500/20 rounded-lg transition-colors"
-                          title="Descargar recibo"
-                        >
-                          <Download className="w-5 h-5" />
-                        </a>
-                      </div>
                     </div>
                   </div>
-                ) : invoice.status !== 'paid' && invoice.status !== 'pending_review' ? (
-                  <div className="mt-4 space-y-4">
-                    <div>
-                      <p className="text-sm font-medium text-text-primary mb-2">Pagar en plataforma</p>
-                      <button
-                        type="button"
-                        onClick={() => handlePayOnPlatform(invoice.id)}
-                        disabled={creatingPaymentLinkId === invoice.id}
-                        className="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {creatingPaymentLinkId === invoice.id ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Generando link...
-                          </>
-                        ) : (
-                          <>
-                            <CreditCard className="w-4 h-4" />
-                            Pagar con tarjeta
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    <div className="border-t border-border-color pt-4">
-                      <p className="text-sm font-medium text-text-primary mb-2">Subir comprobante de pago</p>
-                      <div
-                        className="border-2 border-dashed border-border-color rounded-lg p-6 text-center hover:border-secondary/50 transition-colors cursor-pointer"
-                        onDrop={(e) => handleDrop(e, invoice.id)}
-                        onDragOver={handleDragOver}
-                        onClick={() => document.getElementById(`file-input-${invoice.id}`)?.click()}
-                      >
-                        <input
-                          id={`file-input-${invoice.id}`}
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleFileSelect(e, invoice.id)}
-                          className="hidden"
-                        />
-                        
-                        {uploadingInvoiceId === invoice.id ? (
-                          <div className="flex flex-col items-center gap-3">
-                            <Loader2 className="w-8 h-8 animate-spin text-secondary" />
-                            <p className="text-secondary">Subiendo recibo...</p>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-3">
-                            <Upload className="w-8 h-8 text-text-muted" />
-                            <div>
-                              <p className="text-text-primary font-medium">Arrastra una imagen aquí o haz clic para seleccionar</p>
-                              <p className="text-text-muted text-xs mt-2 opacity-70">
-                                Formatos: JPG, PNG, JPEG (Máx. 5MB)
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            </div>
+                )
+              })}
+            </section>
           ))}
-        </div>
+        </>
       )}
+
 
       {/* Image Preview Modal */}
       {previewImage && (
@@ -431,5 +549,50 @@ export default function PaymentReceiptsManager() {
         </div>
       )}
     </div>
+  )
+}
+
+
+function Stat({
+  label,
+  value,
+  note,
+  alert = false,
+}: {
+  label: string
+  value: string
+  note: string
+  alert?: boolean
+}) {
+  return (
+    <div
+      className="flex flex-col gap-2 rounded-xl border bg-[var(--card-background)] p-[18px_20px]"
+      style={{
+        borderColor: alert
+          ? 'color-mix(in srgb, var(--pay-critico) 32%, transparent)'
+          : 'var(--border-color)',
+      }}
+    >
+      <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-text-muted">
+        {label}
+      </span>
+      <span
+        className="text-2xl font-bold text-text-primary"
+        style={alert ? { color: 'var(--pay-critico)' } : undefined}
+      >
+        {value}
+      </span>
+      <span className="text-[12.5px] text-text-muted">{note}</span>
+    </div>
+  )
+}
+
+function HeadCell({ children, right = false }: { children: React.ReactNode; right?: boolean }) {
+  return (
+    <span
+      className={`text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted ${right ? 'text-right' : ''}`}
+    >
+      {children}
+    </span>
   )
 }

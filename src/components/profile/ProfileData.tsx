@@ -2,16 +2,14 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser, useSupabaseClient } from '@/lib/supabase'
-import { 
-  User, Mail, Phone, MapPin, Calendar, IdCard, Briefcase, FileText, 
-  Camera, Linkedin, Twitter, Instagram, Github, Droplets, AlertCircle 
-} from 'lucide-react'
+import { User, Mail, Calendar, Briefcase, Camera, Check, Heart, Receipt } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { toast } from 'sonner'
-import ProfileHeader from './ProfileHeader'
 import EditableField from './EditableField'
-import ProfileAccordion from './ProfileAccordion'
 import IDCardUpload from './IDCardUpload'
+import { completionSummary, type CompletionItem } from '@/lib/profileCompletion'
+import { formatLongDate } from '@/lib/students'
 
 // Campos para cálculo de completitud
 const PROFILE_FIELDS = {
@@ -292,6 +290,16 @@ export default function ProfileData() {
   }
 
   // Validaciones
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut()
+      router.push('/')
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error)
+      toast.error('No se pudo cerrar la sesión')
+    }
+  }
+
   const validateName = (value: string): string | null => {
     if (!value.trim()) return 'El nombre es requerido'
     if (value.trim().length < 2) return 'El nombre debe tener al menos 2 caracteres'
@@ -330,279 +338,403 @@ export default function ProfileData() {
     return null
   }
 
+  const completion = completionSummary(formData)
+  const fullName = `${formData.first_name} ${formData.last_name}`.trim()
+  const roleLabel =
+    user?.role === 'admin' ? 'Admin' : user?.role === 'instructor' ? 'Instructor' : 'Estudiante'
+  const roleColor =
+    user?.role === 'admin'
+      ? 'var(--pay-aviso)'
+      : user?.role === 'instructor'
+        ? 'var(--pay-serie-porcobrar)'
+        : 'var(--pay-serie-cobrado)'
+
   return (
-    <section className="space-y-6">
-      {/* Header con progreso */}
-      <ProfileHeader completionPercentage={completionPercentage} />
+    <section className="flex flex-col gap-5">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-[27px] font-bold tracking-tight text-text-primary">Mis datos</h1>
+        <p className="text-sm text-text-muted">
+          Lo que usamos para contactarte, para facturarte y para tu perfil en la comunidad.
+        </p>
+      </header>
 
-      {/* Profile Card */}
-      <div className="bg-[var(--card-background)] rounded-xl border border-border-color shadow-xl overflow-hidden">
-        {/* Profile Image Section */}
-        <div className="bg-gradient-to-r from-secondary/20 via-bg-secondary to-bg-secondary px-6 pt-8 pb-6 border-b border-border-color">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-            <div className="relative">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border border-border-color shadow-xl">
+      {/* Identidad */}
+      <div className="overflow-hidden rounded-xl border border-border-color bg-[var(--card-background)]">
+        <div className="flex flex-wrap items-center justify-between gap-5 px-6 py-5">
+          <div className="flex min-w-0 items-center gap-4">
+            <span className="relative inline-flex">
+              {formData.profile_image ? (
                 <Image
-                  width={160}
-                  height={160}
-                  src={formData.profile_image || '/man-avatar.png'}
-                  alt={`${formData.first_name} ${formData.last_name}`}
-                  className="w-full h-full object-cover"
+                  width={64}
+                  height={64}
+                  src={formData.profile_image}
+                  alt={fullName || 'Tu foto'}
+                  className="h-16 w-16 rounded-full object-cover"
                 />
-              </div>
-              <label className="absolute -bottom-2 -right-2 p-2.5 bg-[var(--secondary)] hover:opacity-90 rounded-full shadow-md border-2 border-[var(--card-background)] transition-all duration-200 hover:scale-110 cursor-pointer">
-                <Camera className="w-4 h-4 text-white" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
+              ) : (
+                <span
+                  className="inline-flex h-16 w-16 items-center justify-center rounded-full text-[21px] font-semibold"
+                  style={{ background: `color-mix(in srgb, ${roleColor} 13%, transparent)`, color: roleColor }}
+                >
+                  {initialsOf(fullName)}
+                </span>
+              )}
+              <label className="absolute -bottom-1.5 -right-1.5 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-border-color bg-bg-secondary text-text-primary transition-colors hover:border-secondary/50">
+                <Camera className="h-[15px] w-[15px]" />
+                <span className="sr-only">Cambiar foto</span>
+                <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
               </label>
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h3 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">
-                {formData.first_name && formData.last_name 
-                  ? `${formData.first_name} ${formData.last_name}`
-                  : 'Tu nombre'
-                }
-              </h3>
-              {formData.professional_title && (
-                <div className="flex items-center justify-center md:justify-start gap-2 text-secondary">
-                  <Briefcase className="w-5 h-5" />
-                  <p className="text-lg font-medium">{formData.professional_title}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+            </span>
 
-        {/* Form Sections */}
-        <div className="p-6 space-y-6">
-          {/* Sección Contacto - Siempre visible */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-              <Phone className="w-5 h-5 text-secondary" />
-              Contacto
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <EditableField
-                label="Nombre"
-                name="first_name"
-                value={formData.first_name}
-                onSave={handleFieldSave}
-                icon={<User className="w-4 h-4" />}
-                placeholder="Ingresa tu nombre"
-                validate={validateName}
-              />
-              <EditableField
-                label="Apellidos"
-                name="last_name"
-                value={formData.last_name}
-                onSave={handleFieldSave}
-                icon={<User className="w-4 h-4" />}
-                placeholder="Ingresa tus apellidos"
-                validate={validateName}
-              />
-              <EditableField
-                label="WhatsApp"
-                name="phone"
-                value={formData.phone}
-                onSave={handlePhoneSave}
-                type="tel"
-                icon={<Phone className="w-4 h-4" />}
-                placeholder="Ej: 3001234567"
-                validate={validatePhone}
-              />
-              <EditableField
-                label="Email"
-                name="email"
-                value={formData.email}
-                onSave={handleFieldSave}
-                type="email"
-                readonly
-                icon={<Mail className="w-4 h-4" />}
-              />
-              <EditableField
-                label="Tipo de sangre"
-                name="blood_type"
-                value={formData.blood_type}
-                onSave={handleFieldSave}
-                type="select"
-                options={[
-                  { value: '', label: 'Seleccionar...' },
-                  { value: 'A+', label: 'A+' },
-                  { value: 'A-', label: 'A-' },
-                  { value: 'B+', label: 'B+' },
-                  { value: 'B-', label: 'B-' },
-                  { value: 'AB+', label: 'AB+' },
-                  { value: 'AB-', label: 'AB-' },
-                  { value: 'O+', label: 'O+' },
-                  { value: 'O-', label: 'O-' }
-                ]}
-                icon={<Droplets className="w-4 h-4" />}
-              />
-              <EditableField
-                label="Contacto de emergencia (nombre)"
-                name="emergency_contact_name"
-                value={formData.emergency_contact_name}
-                onSave={handleFieldSave}
-                icon={<AlertCircle className="w-4 h-4" />}
-                placeholder="Nombre del contacto de emergencia"
-              />
-              <EditableField
-                label="Contacto de emergencia (teléfono)"
-                name="emergency_contact_phone"
-                value={formData.emergency_contact_phone}
-                onSave={handlePhoneSave}
-                type="tel"
-                icon={<Phone className="w-4 h-4" />}
-                placeholder="Ej: 3001234567"
-              />
-              {city && (
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-text-muted">
-                    <MapPin className="w-4 h-4" />
-                    Ciudad
-                  </label>
-                  <div className="px-4 py-2 text-text-primary bg-bg-secondary rounded-lg border border-border-color min-h-[42px] flex items-center">
-                    {city}
-                  </div>
-                </div>
-              )}
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="text-xl font-bold tracking-tight text-text-primary">
+                  {fullName || 'Tu nombre'}
+                </span>
+                <span
+                  className="inline-flex h-6 items-center rounded-full px-2.5 text-xs font-semibold"
+                  style={{ background: `color-mix(in srgb, ${roleColor} 14%, transparent)`, color: roleColor }}
+                >
+                  {roleLabel}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Chip icon={<Mail className="h-[15px] w-[15px]" />}>{formData.email}</Chip>
+                {user?.created_at && (
+                  <Chip icon={<Calendar className="h-[15px] w-[15px]" />}>
+                    Con nosotros desde {formatLongDate(user.created_at).replace(/^\d+ de /, '')}
+                  </Chip>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Accordion: Facturación y certificado */}
-          <ProfileAccordion
-            title="Facturación y certificado (opcional)"
-            defaultOpen={false}
-            icon={<IdCard className="w-5 h-5" />}
+          <Link
+            href="/recuperar-contrasena"
+            className="inline-flex h-10 shrink-0 items-center rounded-lg border border-border-color bg-bg-secondary px-4 text-sm font-medium text-text-primary transition-colors hover:border-secondary/50"
           >
-            <div className="space-y-6 pt-2">
-              {/* ID Card Upload */}
-              <div className="space-y-4">
-                <h4 className="text-text-primary font-medium flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-secondary" />
-                  Fotos de identificación
-                </h4>
-                <p className="text-text-muted text-sm">
-                  Sube las fotos del frente y reverso de tu documento de identificación para verificar tu cuenta.
-                </p>
-                <IDCardUpload
-                  frontUrl={formData.id_card_front_url}
-                  backUrl={formData.id_card_back_url}
-                  onUpload={handleIDCardUpload}
-                  onDelete={handleIDCardDelete}
-                />
-              </div>
-
-              {/* Traditional Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <EditableField
-                  label="Tipo de documento"
-                  name="id_type"
-                  value={formData.id_type}
-                  onSave={handleFieldSave}
-                  type="select"
-                  options={[
-                    { value: 'CC', label: 'Cédula de Ciudadanía (CC)' },
-                    { value: 'CE', label: 'Cédula de Extranjería (CE)' },
-                    { value: 'TI', label: 'Tarjeta de Identidad (TI)' },
-                    { value: 'PASAPORTE', label: 'Pasaporte' }
-                  ]}
-                  icon={<IdCard className="w-4 h-4" />}
-                />
-                <EditableField
-                  label="Número de documento"
-                  name="id_number"
-                  value={formData.id_number}
-                  onSave={handleFieldSave}
-                  icon={<IdCard className="w-4 h-4" />}
-                  placeholder="Ej: 1234567890"
-                />
-                <EditableField
-                  label="Dirección completa"
-                  name="address"
-                  value={formData.address}
-                  onSave={handleFieldSave}
-                  icon={<MapPin className="w-4 h-4" />}
-                  placeholder="Ej: Calle 123 #45-67, Barranquilla"
-                />
-                <EditableField
-                  label="Fecha de nacimiento"
-                  name="birthdate"
-                  value={formData.birthdate}
-                  onSave={handleFieldSave}
-                  type="date"
-                  icon={<Calendar className="w-4 h-4" />}
-                />
-              </div>
-            </div>
-          </ProfileAccordion>
-
-          {/* Accordion: Perfil profesional */}
-          <ProfileAccordion
-            title="Perfil profesional (opcional)"
-            defaultOpen={false}
-            icon={<Briefcase className="w-5 h-5" />}
-          >
-            <div className="space-y-4 pt-2">
-              <EditableField
-                label="Título profesional"
-                name="professional_title"
-                value={formData.professional_title}
-                onSave={handleFieldSave}
-                icon={<Briefcase className="w-4 h-4" />}
-                placeholder="Ej: Desarrollador Full Stack"
-              />
-              <EditableField
-                label="Biografía"
-                name="bio"
-                value={formData.bio}
-                onSave={handleFieldSave}
-                type="textarea"
-                icon={<FileText className="w-4 h-4" />}
-                placeholder="Cuéntanos sobre ti, tu experiencia y tus intereses..."
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <EditableField
-                  label="LinkedIn"
-                  name="linkedin_url"
-                  value={formData.linkedin_url}
-                  onSave={handleFieldSave}
-                  icon={<Linkedin className="w-4 h-4 text-blue-500" />}
-                  placeholder="https://linkedin.com/in/tu-perfil"
-                />
-                <EditableField
-                  label="GitHub"
-                  name="github_url"
-                  value={formData.github_url}
-                  onSave={handleFieldSave}
-                  icon={<Github className="w-4 h-4 text-gray-300" />}
-                  placeholder="https://github.com/tu-usuario"
-                />
-                <EditableField
-                  label="Twitter / X"
-                  name="twitter_url"
-                  value={formData.twitter_url}
-                  onSave={handleFieldSave}
-                  icon={<Twitter className="w-4 h-4 text-blue-400" />}
-                  placeholder="https://twitter.com/tu-usuario"
-                />
-                <EditableField
-                  label="Instagram"
-                  name="instagram_url"
-                  value={formData.instagram_url}
-                  onSave={handleFieldSave}
-                  icon={<Instagram className="w-4 h-4 text-pink-500" />}
-                  placeholder="https://instagram.com/tu-usuario"
-                />
-              </div>
-            </div>
-          </ProfileAccordion>
+            Cambiar contraseña
+          </Link>
         </div>
+      </div>
+
+      {/* Qué falta y para qué sirve */}
+      {completion.missing > 0 && (
+        <div
+          className="overflow-hidden rounded-xl border bg-[var(--card-background)]"
+          style={{ borderColor: 'color-mix(in srgb, var(--pay-aviso) 28%, transparent)' }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border-color px-5 py-4">
+            <div className="flex flex-col gap-0.5">
+              <h2 className="text-base font-semibold text-text-primary">{completion.headline}</h2>
+              <p className="text-[12.5px] text-text-muted">
+                No es obligatorio, pero cada una desbloquea algo concreto.
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-3">
+              <span className="text-[12.5px] text-text-muted">
+                {completion.done} de {completion.total}
+              </span>
+              <span className="block h-1.5 w-[120px] overflow-hidden rounded-[3px] bg-border-color">
+                <span
+                  className="block h-full rounded-[3px]"
+                  style={{
+                    width: `${(completion.done / completion.total) * 100}%`,
+                    background: 'var(--pay-aviso)',
+                  }}
+                />
+              </span>
+            </div>
+          </div>
+          <div className="px-5 pb-3 pt-1">
+            {completion.items.map((item: CompletionItem) => (
+              <div
+                key={item.id}
+                className="flex items-start gap-[11px] border-b border-border-color/50 py-[11px] last:border-b-0"
+              >
+                <span
+                  className={`mt-px inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${
+                    item.done ? 'bg-[color:var(--pay-serie-cobrado)]' : 'border-[1.5px] border-border-color'
+                  }`}
+                >
+                  {item.done && <Check className="h-3 w-3 text-[#0E1116]" strokeWidth={3.2} />}
+                </span>
+                <span className="flex min-w-0 grow flex-col gap-0.5">
+                  <span
+                    className={`text-[13.5px] ${item.done ? 'text-text-muted line-through' : 'text-text-primary'}`}
+                  >
+                    {item.label}
+                  </span>
+                  <span className="text-[12.5px] text-text-muted">{item.why}</span>
+                </span>
+                {!item.done && (
+                  <a
+                    href={`#${item.anchor}`}
+                    className="inline-flex h-8 shrink-0 items-center rounded-lg border border-border-color bg-bg-secondary px-3 text-[13px] font-medium text-text-primary transition-colors hover:border-secondary/50"
+                  >
+                    Completar
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Datos básicos */}
+      <Card
+        id="datos-basicos"
+        icon={<User className="h-[15px] w-[15px]" />}
+        title="Datos básicos"
+        hint="Con esto te contactamos."
+      >
+        <EditableField
+          label="Nombre"
+          name="first_name"
+          value={formData.first_name}
+          onSave={handleFieldSave}
+          placeholder="Ingresa tu nombre"
+          validate={validateName}
+        />
+        <EditableField
+          label="Apellidos"
+          name="last_name"
+          value={formData.last_name}
+          onSave={handleFieldSave}
+          placeholder="Ingresa tus apellidos"
+          validate={validateName}
+        />
+        <EditableField
+          label="WhatsApp"
+          name="phone"
+          value={formData.phone}
+          onSave={handlePhoneSave}
+          type="tel"
+          placeholder="Ej: 3001234567"
+          validate={validatePhone}
+        />
+        <EditableField
+          label="Correo"
+          name="email"
+          value={formData.email}
+          onSave={handleFieldSave}
+          type="email"
+        />
+      </Card>
+
+      {/* Emergencia */}
+      <Card
+        id="emergencia"
+        icon={<Heart className="h-[15px] w-[15px]" />}
+        title="En caso de emergencia"
+        hint="Solo lo vemos si pasa algo en clase."
+      >
+        <EditableField
+          label="Tipo de sangre"
+          name="blood_type"
+          value={formData.blood_type}
+          onSave={handleFieldSave}
+          type="select"
+          options={[
+            { value: '', label: 'Seleccionar...' },
+            { value: 'A+', label: 'A+' },
+            { value: 'A-', label: 'A-' },
+            { value: 'B+', label: 'B+' },
+            { value: 'B-', label: 'B-' },
+            { value: 'AB+', label: 'AB+' },
+            { value: 'AB-', label: 'AB-' },
+            { value: 'O+', label: 'O+' },
+            { value: 'O-', label: 'O-' },
+          ]}
+        />
+        <EditableField
+          label="A quién llamamos"
+          name="emergency_contact_name"
+          value={formData.emergency_contact_name}
+          onSave={handleFieldSave}
+          placeholder="Nombre del contacto"
+        />
+        <EditableField
+          label="Su teléfono"
+          name="emergency_contact_phone"
+          value={formData.emergency_contact_phone}
+          onSave={handlePhoneSave}
+          type="tel"
+          placeholder="Ej: 3001234567"
+          validate={validatePhone}
+        />
+      </Card>
+
+      {/* Facturación */}
+      <Card
+        id="facturacion"
+        icon={<Receipt className="h-[15px] w-[15px]" />}
+        title="Facturación y certificado"
+        hint="Así sale tu nombre en la factura y en el certificado."
+      >
+        <EditableField
+          label="Tipo de documento"
+          name="id_type"
+          value={formData.id_type}
+          onSave={handleFieldSave}
+          type="select"
+          options={[
+            { value: 'CC', label: 'Cédula de Ciudadanía (CC)' },
+            { value: 'CE', label: 'Cédula de Extranjería (CE)' },
+            { value: 'TI', label: 'Tarjeta de Identidad (TI)' },
+            { value: 'PASAPORTE', label: 'Pasaporte' },
+          ]}
+        />
+        <EditableField
+          label="Número de documento"
+          name="id_number"
+          value={formData.id_number}
+          onSave={handleFieldSave}
+          placeholder="Ej: 1234567890"
+        />
+        <EditableField
+          label="Dirección"
+          name="address"
+          value={formData.address}
+          onSave={handleFieldSave}
+          placeholder="Ej: Calle 123 #45-67, Barranquilla"
+        />
+        <EditableField
+          label="Fecha de nacimiento"
+          name="birthdate"
+          value={formData.birthdate}
+          onSave={handleFieldSave}
+          type="date"
+        />
+        <div className="col-span-full flex flex-col gap-3 pt-4">
+          <span className="text-[13px] font-medium text-text-primary">Fotos del documento</span>
+          <IDCardUpload
+            frontUrl={formData.id_card_front_url}
+            backUrl={formData.id_card_back_url}
+            onUpload={handleIDCardUpload}
+            onDelete={handleIDCardDelete}
+          />
+        </div>
+      </Card>
+
+      {/* Perfil profesional */}
+      <Card
+        id="profesional"
+        icon={<Briefcase className="h-[15px] w-[15px]" />}
+        title="Perfil profesional"
+        hint="Lo que ven tus compañeros y los instructores."
+      >
+        <EditableField
+          label="Título profesional"
+          name="professional_title"
+          value={formData.professional_title}
+          onSave={handleFieldSave}
+          placeholder="Ej: Analista de datos"
+        />
+        <EditableField
+          label="LinkedIn"
+          name="linkedin_url"
+          value={formData.linkedin_url}
+          onSave={handleFieldSave}
+          placeholder="https://linkedin.com/in/…"
+        />
+        <EditableField
+          label="GitHub"
+          name="github_url"
+          value={formData.github_url}
+          onSave={handleFieldSave}
+          placeholder="https://github.com/…"
+        />
+        <EditableField
+          label="Twitter / X"
+          name="twitter_url"
+          value={formData.twitter_url}
+          onSave={handleFieldSave}
+          placeholder="https://x.com/…"
+        />
+        <EditableField
+          label="Instagram"
+          name="instagram_url"
+          value={formData.instagram_url}
+          onSave={handleFieldSave}
+          placeholder="https://instagram.com/…"
+        />
+        <div className="col-span-full">
+          <EditableField
+            label="Biografía"
+            name="bio"
+            value={formData.bio}
+            onSave={handleFieldSave}
+            type="textarea"
+            placeholder="Cuéntanos en dos líneas de dónde vienes y para dónde vas."
+          />
+        </div>
+      </Card>
+
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border-color bg-bg-secondary px-5 py-4">
+        <span className="text-[13px] text-text-muted">
+          Tus documentos y tu foto solo los ve el equipo de Tech Centre.
+        </span>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="inline-flex h-9 shrink-0 items-center rounded-lg border px-4 text-[13.5px] font-medium transition-colors"
+          style={{
+            borderColor: 'color-mix(in srgb, var(--pay-critico) 40%, transparent)',
+            color: 'var(--pay-critico)',
+          }}
+        >
+          Cerrar sesión
+        </button>
       </div>
     </section>
   )
+}
+
+function Card({
+  id,
+  icon,
+  title,
+  hint,
+  children,
+}: {
+  id: string
+  icon: React.ReactNode
+  title: string
+  hint: string
+  children: React.ReactNode
+}) {
+  return (
+    <section
+      id={id}
+      className="overflow-hidden rounded-xl border border-border-color bg-[var(--card-background)] scroll-mt-28"
+    >
+      <div className="flex items-center gap-3 border-b border-border-color px-5 py-4">
+        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-secondary/10 text-secondary">
+          {icon}
+        </span>
+        <div className="flex flex-col gap-0.5">
+          <h2 className="text-base font-semibold text-text-primary">{title}</h2>
+          <p className="text-[12.5px] text-text-muted">{hint}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-x-7 px-5 pb-3.5 pt-1.5 sm:grid-cols-2">{children}</div>
+    </section>
+  )
+}
+
+function Chip({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <span className="inline-flex h-[30px] items-center gap-[7px] rounded-[7px] border border-border-color bg-bg-secondary px-[11px] text-[12.5px] text-text-primary">
+      <span className="text-secondary">{icon}</span>
+      {children}
+    </span>
+  )
+}
+
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '··'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }

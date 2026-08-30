@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Pencil, Check, X, Plus } from 'lucide-react'
+import { Pencil, Check, X, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface EditableFieldProps {
@@ -73,12 +73,12 @@ export default function EditableField({
   // Readonly mode - just display
   if (readonly) {
     return (
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-text-muted">
+      <div className="flex flex-col gap-[3px] border-b border-border-color/50 py-[11px]">
+        <label className="flex items-center gap-1.5 text-xs text-text-muted">
           {icon}
           {label}
         </label>
-        <div className="px-4 py-2 text-text-primary bg-bg-secondary rounded-lg border border-border-color min-h-[42px] flex items-center">
+        <div className="flex items-center text-sm text-text-primary">
           {hasValue ? (
             <span className="flex items-center gap-2">
               {value}
@@ -97,12 +97,12 @@ export default function EditableField({
   // Editing mode
   if (isEditing) {
     return (
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-text-muted">
+      <div className="flex flex-col gap-2 border-b border-border-color/50 py-[11px]">
+        <label className="flex items-center gap-1.5 text-xs text-text-muted">
           {icon}
           {label}
         </label>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {type === 'textarea' ? (
             <textarea
               value={editValue}
@@ -136,7 +136,7 @@ export default function EditableField({
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-secondary hover:bg-blue-600 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#0E1116] bg-secondary hover:bg-secondary/90 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check className="w-4 h-4" />
               {isSaving ? 'Guardando...' : 'Guardar'}
@@ -158,28 +158,43 @@ export default function EditableField({
   // View mode - empty
   if (!hasValue) {
     return (
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-text-muted">
-          {icon}
-          {label}
-        </label>
-        <div className="flex items-center justify-between px-4 py-2 bg-bg-secondary rounded-lg border border-border-color min-h-[42px]">
-          <span className="text-text-muted italic">Aún no agregado</span>
-          <button
-            onClick={handleStartEdit}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-primary bg-bg-secondary hover:bg-bg-primary border border-border-color hover:border-secondary/50 rounded-md transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            Agregar
-          </button>
-        </div>
+      <div className="flex items-center justify-between gap-3 border-b border-border-color/50 py-[11px]">
+        <span className="flex min-w-0 flex-col gap-[3px]">
+          <span className="flex items-center gap-1.5 text-xs text-text-muted">
+            {icon}
+            {label}
+          </span>
+          <span className="text-sm text-text-muted/70">Sin registrar</span>
+        </span>
+        <button
+          type="button"
+          onClick={handleStartEdit}
+          className="shrink-0 text-[12.5px] font-medium text-secondary transition-colors hover:underline"
+        >
+          Añadir
+        </button>
       </div>
     )
   }
 
-  // Helper para mostrar dominio de URLs
+  const MESES = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+  ]
+
+  // Lo que se lee no siempre es lo que se guarda: un select guarda el código y
+  // una fecha guarda el ISO, pero ninguno de los dos se lee bien así.
   const getDisplayValue = (val: string): string => {
     if (!val) return val
+    if (type === 'select' && options) {
+      return options.find((option) => option.value === val)?.label ?? val
+    }
+    if (type === 'date') {
+      const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(val.slice(0, 10))
+      if (parts) {
+        return `${Number(parts[3])} de ${MESES[Number(parts[2]) - 1]} de ${parts[1]}`
+      }
+    }
     // Si parece una URL, mostrar solo el dominio
     if (val.includes('http://') || val.includes('https://') || val.includes('www.')) {
       try {
@@ -197,35 +212,34 @@ export default function EditableField({
   const isUrl = displayValue !== value && (value?.includes('http') || value?.includes('www.'))
 
   return (
-    <div className="space-y-2">
-      <label className="flex items-center gap-2 text-sm font-medium text-text-muted">
-        {icon}
-        {label}
-      </label>
-      <div className="flex items-center justify-between px-4 py-2 bg-bg-secondary rounded-lg border border-border-color min-h-[42px]">
+    <div className="group flex items-center justify-between gap-3 border-b border-border-color/50 py-[11px]">
+      <span className="flex min-w-0 flex-col gap-[3px]">
+        <span className="flex items-center gap-1.5 text-xs text-text-muted">
+          {icon}
+          {label}
+        </span>
         {isUrl ? (
           <a
             href={value?.startsWith('http') ? value : `https://${value}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-secondary hover:text-blue-400 flex items-center gap-2 flex-1 min-w-0"
+            className="inline-flex items-center gap-1.5 truncate text-sm text-secondary hover:underline"
           >
-            <span className="truncate">{displayValue}</span>
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
+            {displayValue}
+            <ExternalLink className="h-3 w-3 shrink-0" />
           </a>
         ) : (
-          <span className="text-text-primary flex-1">{value}</span>
+          <span className="text-sm text-text-primary [overflow-wrap:anywhere]">{displayValue}</span>
         )}
-        <button
-          onClick={handleStartEdit}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted hover:text-secondary bg-bg-secondary hover:bg-bg-primary border border-border-color hover:border-secondary/50 rounded-md transition-colors ml-2"
-        >
-          <Pencil className="w-3.5 h-3.5" />
-          Editar
-        </button>
-      </div>
+      </span>
+      <button
+        type="button"
+        onClick={handleStartEdit}
+        aria-label={`Editar ${label}`}
+        className="shrink-0 text-text-muted/70 transition-colors hover:text-secondary"
+      >
+        <Pencil className="h-[15px] w-[15px]" />
+      </button>
     </div>
   )
 }

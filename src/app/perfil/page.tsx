@@ -13,8 +13,8 @@ export default function ProfilePage() {
       if (!user) {
         router.push('/')
       } else {
-        // Usar push en lugar de replace para mantener el historial
-        router.push('/perfil/datos-personales')
+        // El perfil abre en lo que sigue, no en un formulario.
+        router.push('/perfil/resumen')
       }
     }
   }, [user, loading, router])

@@ -6,8 +6,9 @@ import React, { useEffect } from 'react'
 import { useUser } from '@/lib/supabase'
 import ProfileCursosMatriculados from '@/components/profile/ProfileCursosMatriculados'
 import InstructorPayments from '@/components/profile/InstructorPayments'
+import ProfileSummary from '@/components/profile/ProfileSummary'
 
-const validSections = ['datos-personales', 'cursos', 'facturas', 'honorarios']
+const validSections = ['resumen', 'datos-personales', 'cursos', 'facturas', 'honorarios']
 
 export default function ProfileSectionPage() {
   const { user, loading } = useUser();
@@ -15,7 +16,7 @@ export default function ProfileSectionPage() {
   const router = useRouter()
   
   const sectionParam = params?.section as string
-  const activeSection = validSections.includes(sectionParam) ? sectionParam : 'cursos'
+  const activeSection = validSections.includes(sectionParam) ? sectionParam : 'resumen'
 
   useEffect(() => {
     // Solo redirigir si ya terminó de cargar y no hay usuario
@@ -27,7 +28,7 @@ export default function ProfileSectionPage() {
   useEffect(() => {
     // Si la sección no es válida, redirigir a cursos sin recargar
     if (sectionParam && !validSections.includes(sectionParam)) {
-      router.push('/perfil/cursos')
+      router.push('/perfil/resumen')
     }
   }, [sectionParam, router])
 
@@ -51,7 +52,9 @@ export default function ProfileSectionPage() {
   // Solo renderizar el contenido específico de la sección
   return (
     <>
-      {activeSection === 'datos-personales' ? (
+      {activeSection === 'resumen' ? (
+        <ProfileSummary />
+      ) : activeSection === 'datos-personales' ? (
         <ProfileData />
       ) : activeSection === 'cursos' ? (
         <ProfileCursosMatriculados user={user} />
