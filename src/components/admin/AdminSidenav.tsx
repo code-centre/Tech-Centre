@@ -10,7 +10,7 @@ const allNavItems = [
   { href: '/admin/pagos', label: 'Pagos', icon: FileText, adminOnly: true },
   { href: '/admin/estudiantes', label: 'Estudiantes', icon: Users, adminOnly: true },
   { href: '/admin/programas', label: 'Programas', icon: GraduationCap, adminOnly: true },
-  { href: '/admin/carreras', label: 'Carreras', icon: BrainCircuit, adminOnly: true },
+  { href: '/admin/rutas', label: 'Rutas', icon: BrainCircuit, adminOnly: true },
   { href: '/admin/correos', label: 'Correos', icon: Mail, adminOnly: true },
   { href: '/admin/instructores', label: 'Instructores', icon: UserCog, adminOnly: true },
   { href: '/admin/admins', label: 'Admins', icon: Shield, adminOnly: true },

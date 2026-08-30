@@ -7,6 +7,8 @@ import { decodeJwtClaims, verifySupabaseAccessToken } from '@/lib/mcp/verify-tok
 export const MCP_SCOPES = {
   PROGRAMS_READ: 'programs:read',
   PROGRAMS_WRITE: 'programs:write',
+  ROUTES_READ: 'routes:read',
+  ROUTES_WRITE: 'routes:write',
   COHORTS_READ: 'cohorts:read',
   COHORTS_WRITE: 'cohorts:write',
   ENROLLMENTS_READ: 'enrollments:read',
@@ -29,6 +31,7 @@ function scopesForRole(role: AppRole): McpScope[] {
     case 'instructor':
       return [
         MCP_SCOPES.PROGRAMS_READ,
+        MCP_SCOPES.ROUTES_READ,
         MCP_SCOPES.COHORTS_READ,
         MCP_SCOPES.ENROLLMENTS_READ,
         MCP_SCOPES.PAYMENTS_READ,

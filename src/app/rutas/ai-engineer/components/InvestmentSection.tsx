@@ -3,7 +3,7 @@
 import { ArrowRight, Check } from "lucide-react";
 
 interface InvestmentSectionProps {
-  onEnrollCareer: () => void;
+  onEnrollRoute: () => void;
   onEnrollModule: (moduleName: string) => void;
 }
 
@@ -15,14 +15,14 @@ const modules = [
 ];
 
 const totalIndividual = modules.reduce((sum, m) => sum + m.price, 0);
-const careerPrice = 3600000;
+const routePrice = 3600000;
 
 function fmt(n: number) {
   return "$" + n.toLocaleString("es-CO");
 }
 
 export default function InvestmentSection({
-  onEnrollCareer,
+  onEnrollRoute,
   onEnrollModule,
 }: InvestmentSectionProps) {
   return (
@@ -87,11 +87,11 @@ export default function InvestmentSection({
             </div>
           </div>
 
-          {/* Career bundle */}
+          {/* Route bundle */}
           <div className="relative pt-4">
             <div className="absolute top-0 right-6 z-10">
               <span className="inline-block px-4 py-1.5 bg-[var(--primary)] dark:bg-[var(--secondary)] text-white dark:text-gray-900 text-xs font-bold rounded-full shadow-md">
-                Ahorra {fmt(totalIndividual - careerPrice)}
+                Ahorra {fmt(totalIndividual - routePrice)}
               </span>
             </div>
           <div className="rounded-2xl border-2 border-[var(--primary)] dark:border-[var(--secondary)] bg-[var(--card-background)] overflow-hidden shadow-lg">
@@ -104,7 +104,7 @@ export default function InvestmentSection({
               </p>
               <div className="mt-4 flex items-baseline gap-3">
                 <span className="text-4xl font-extrabold text-text-primary font-mono">
-                  {fmt(careerPrice)}
+                  {fmt(routePrice)}
                 </span>
                 <span className="text-sm text-text-muted line-through">
                   {fmt(totalIndividual)}
@@ -133,7 +133,7 @@ export default function InvestmentSection({
               </ul>
 
               <button
-                onClick={onEnrollCareer}
+                onClick={onEnrollRoute}
                 className="btn-primary w-full inline-flex items-center justify-center gap-2 px-6 py-4 font-semibold rounded-xl cursor-pointer"
               >
                 Inscribirme en la ruta

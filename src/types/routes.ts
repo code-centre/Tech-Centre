@@ -1,10 +1,10 @@
-export interface CareerModule {
+export interface RouteModule {
   title: string
   duration: string
   topics: string[]
 }
 
-export interface CareerOpportunity {
+export interface RouteOpportunity {
   title: string
   salaryRange?: string
   description?: string
@@ -16,13 +16,13 @@ export interface AdmissionStep {
   description: string
 }
 
-export interface CareerMetadata {
+export interface RouteMetadata {
   title: string
   description: string
   keywords: string[]
 }
 
-export interface Career {
+export interface Route {
   id: string
   name: string
   slug: string
@@ -42,28 +42,28 @@ export interface Career {
     title: string
     url?: string
   }>
-  modules: CareerModule[]
+  modules: RouteModule[]
 
   graduate_profile: string[]
-  opportunities: CareerOpportunity[]
+  opportunities: RouteOpportunity[]
 
   admission_process: AdmissionStep[]
 
-  metadata: CareerMetadata
+  metadata: RouteMetadata
 
   is_visible: boolean
   created_at: string
   updated_at: string
 }
 
-export interface CareerCardProps {
-  career: Career
+export interface RouteCardProps {
+  route: Route
 }
 
-export interface CareersSectionProps {
-  careers?: Career[]
+export interface RutasSectionProps {
+  routes?: Route[]
 }
 
-export interface CareerPageProps {
-  career: Career
+export interface RoutePageProps {
+  route: Route
 }

@@ -42,6 +42,21 @@ const nextConfig: NextConfig = {
         destination: '/programas',
         permanent: true,
       },
+      {
+        source: '/carreras/:path*',
+        destination: '/rutas/:path*',
+        permanent: true,
+      },
+      {
+        source: '/programas-academicos/carreras/:slug',
+        destination: '/programas-academicos/rutas/:slug',
+        permanent: true,
+      },
+      {
+        source: '/admin/carreras',
+        destination: '/admin/rutas',
+        permanent: true,
+      },
     ]
   },
 };

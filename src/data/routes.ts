@@ -1,41 +1,41 @@
 import { createClient } from '@/lib/supabase/server'
-import type { Career } from '@/types/careers'
+import type { Route } from '@/types/routes'
 
-export async function getVisibleCareers(): Promise<Career[]> {
+export async function getVisibleRoutes(): Promise<Route[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
-    .from('careers')
+    .from('routes')
     .select('*')
     .eq('is_visible', true)
     .order('created_at', { ascending: true })
 
   if (error) {
-    console.error('Error fetching careers:', error)
+    console.error('Error fetching routes:', error)
     return []
   }
 
-  return (data ?? []) as Career[]
+  return (data ?? []) as Route[]
 }
 
-export async function getAllCareers(): Promise<Career[]> {
+export async function getAllRoutes(): Promise<Route[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
-    .from('careers')
+    .from('routes')
     .select('*')
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching all careers:', error)
+    console.error('Error fetching all routes:', error)
     return []
   }
 
-  return (data ?? []) as Career[]
+  return (data ?? []) as Route[]
 }
 
-export async function getCareerBySlug(slug: string): Promise<Career | null> {
+export async function getRouteBySlug(slug: string): Promise<Route | null> {
   const supabase = await createClient()
   const { data, error } = await supabase
-    .from('careers')
+    .from('routes')
     .select('*')
     .eq('slug', slug)
     .eq('is_visible', true)
@@ -45,13 +45,13 @@ export async function getCareerBySlug(slug: string): Promise<Career | null> {
     return null
   }
 
-  return data as Career
+  return data as Route
 }
 
-export async function getCareerSlugs(): Promise<string[]> {
+export async function getRouteSlugs(): Promise<string[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
-    .from('careers')
+    .from('routes')
     .select('slug')
     .eq('is_visible', true)
 
@@ -59,5 +59,5 @@ export async function getCareerSlugs(): Promise<string[]> {
     return []
   }
 
-  return (data ?? []).map((c: { slug: string }) => c.slug)
+  return (data ?? []).map((r: { slug: string }) => r.slug)
 }

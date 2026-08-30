@@ -1,4 +1,4 @@
-export default function CarrerasLayout({
+export default function RutasLayout({
   children,
 }: {
   children: React.ReactNode;

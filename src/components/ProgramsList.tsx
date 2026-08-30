@@ -8,7 +8,7 @@ import CardLoader from './loaders-skeletons/CardLoader'
 import ProgramCreationModal from './ProgramCreationModal'
 import type { Program, CourseListSupaProps } from '@/types/programs'
 import type { Cohort } from '@/types/cohorts'
-import { CareersSection } from './CareersSection'
+import { RutasSection } from './RutasSection'
 
 // Re-exportar Program para compatibilidad con código existente
 export type { Program }
@@ -230,7 +230,7 @@ export function ProgramsList({
           </div>
         )}
 
-        <CareersSection />
+        <RutasSection />
         {/* Lista de programas */}
         <div id="cursos" className={backgroundColor}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

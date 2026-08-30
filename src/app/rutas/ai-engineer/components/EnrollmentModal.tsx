@@ -2,20 +2,20 @@
 
 import { useState, useEffect, useRef } from "react";
 import { X, Loader2, CheckCircle } from "lucide-react";
-import { createCareerLead } from "../actions";
+import { createRouteLead } from "../actions";
 
 interface EnrollmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedModule?: string | null;
-  careerName: string;
+  routeName: string;
 }
 
 export default function EnrollmentModal({
   isOpen,
   onClose,
   selectedModule,
-  careerName,
+  routeName,
 }: EnrollmentModalProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -46,13 +46,13 @@ export default function EnrollmentModal({
       whatsapp: formData.get("whatsapp") as string,
       intent: selectedModule
         ? "Quiero inscribirme en un módulo individual"
-        : "Quiero inscribirme en la carrera completa",
-      careerName,
+        : "Quiero inscribirme en la ruta completa",
+      routeName,
       moduleName: selectedModule || undefined,
     };
 
     try {
-      const result = await createCareerLead(data);
+      const result = await createRouteLead(data);
       if (result.success) {
         setStatus("success");
       } else {

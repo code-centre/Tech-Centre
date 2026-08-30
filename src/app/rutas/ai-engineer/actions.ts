@@ -3,14 +3,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { headers } from "next/headers";
 
-interface CareerLeadData {
+interface RouteLeadData {
   name: string;
   email: string;
   whatsapp: string;
   intent: string;
   message?: string;
   company?: string;
-  careerName: string;
+  routeName: string;
   moduleName?: string | null;
 }
 
@@ -22,7 +22,7 @@ interface ActionResult {
 
 function mapIntentToStage(intent: string): string {
   const mapping: Record<string, string> = {
-    "Quiero inscribirme en la carrera completa": "apartar",
+    "Quiero inscribirme en la ruta completa": "apartar",
     "Quiero inscribirme en un módulo individual": "apartar",
     "Quiero resolver dudas antes de pagar": "dudas",
     "Quiero conocer opciones de pago": "pagos",
@@ -30,8 +30,8 @@ function mapIntentToStage(intent: string): string {
   return mapping[intent] || "apartar";
 }
 
-export async function createCareerLead(
-  formData: CareerLeadData,
+export async function createRouteLead(
+  formData: RouteLeadData,
 ): Promise<ActionResult> {
   try {
     if (formData.company && formData.company.trim() !== "") {
@@ -66,9 +66,9 @@ export async function createCareerLead(
 
     const notesData = {
       message: formData.message?.trim() || null,
-      careerName: formData.careerName,
+      routeName: formData.routeName,
       moduleName: formData.moduleName || null,
-      source_page: "carreras/ai-engineer",
+      source_page: "rutas/ai-engineer",
       metadata: {
         referrer,
         submittedAt: new Date().toISOString(),
@@ -81,7 +81,7 @@ export async function createCareerLead(
         full_name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         phone: phoneDigits,
-        source: "carrera_ai_engineer",
+        source: "ruta_ai_engineer",
         stage,
         notes: JSON.stringify(notesData),
       } as any)
@@ -89,7 +89,7 @@ export async function createCareerLead(
       .single();
 
     if (error) {
-      console.error("Error inserting career lead:", error);
+      console.error("Error inserting route lead:", error);
       return {
         success: false,
         error:
@@ -102,7 +102,7 @@ export async function createCareerLead(
       message: "¡Tu cupo ha sido apartado exitosamente!",
     };
   } catch (error) {
-    console.error("Unexpected error creating career lead:", error);
+    console.error("Unexpected error creating route lead:", error);
     return {
       success: false,
       error: "Ocurrió un error inesperado. Por favor, intenta de nuevo.",

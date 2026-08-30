@@ -1,30 +1,30 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import CareerCard from './CareerCard'
+import RutaCard from './RutaCard'
 import { BrainCircuit, Loader2 } from 'lucide-react'
 import { useSupabaseClient } from '@/lib/supabase'
-import type { Career } from '@/types/careers'
+import type { Route } from '@/types/routes'
 
-export function CareersSection() {
+export function RutasSection() {
   const supabase = useSupabaseClient()
-  const [careers, setCareers] = useState<Career[]>([])
+  const [routes, setRoutes] = useState<Route[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchCareers() {
+    async function fetchRoutes() {
       const { data, error } = await supabase
-        .from('careers')
+        .from('routes')
         .select('*')
         .eq('is_visible', true)
         .order('created_at', { ascending: true })
 
       if (!error && data) {
-        setCareers(data as Career[])
+        setRoutes(data as Route[])
       }
       setLoading(false)
     }
-    fetchCareers()
+    fetchRoutes()
   }, [supabase])
 
   if (loading) {
@@ -37,7 +37,7 @@ export function CareersSection() {
     )
   }
 
-  if (careers.length === 0) {
+  if (routes.length === 0) {
     return null
   }
 
@@ -61,7 +61,7 @@ export function CareersSection() {
               <BrainCircuit className="w-6 h-6" />
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-text-primary">
-              Carreras Tecnológicas
+              Rutas Tecnológicas
             </h2>
           </div>
           <p className="text-lg text-text-muted max-w-2xl mx-auto">
@@ -70,8 +70,8 @@ export function CareersSection() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {careers.map((career) => (
-            <CareerCard key={career.slug} career={career} />
+          {routes.map((route) => (
+            <RutaCard key={route.slug} route={route} />
           ))}
         </div>
       </div>

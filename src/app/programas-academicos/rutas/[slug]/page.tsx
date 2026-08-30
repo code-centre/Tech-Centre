@@ -16,40 +16,40 @@ import {
   Calendar,
   GraduationCap,
 } from "lucide-react";
-import { getCareerBySlug } from "@/data/careers";
+import { getRouteBySlug } from "@/data/routes";
 
-interface CareerPageProps {
+interface RoutePageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({
   params,
-}: CareerPageProps): Promise<Metadata> {
+}: RoutePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const career = await getCareerBySlug(slug);
+  const route = await getRouteBySlug(slug);
 
-  if (!career) {
+  if (!route) {
     return {
-      title: "Carrera no encontrada - Tech Centre",
-      description: "La carrera que buscas no está disponible.",
+      title: "Ruta no encontrada - Tech Centre",
+      description: "La ruta que buscas no está disponible.",
     };
   }
 
   return {
-    title: career.metadata.title,
-    description: career.metadata.description,
-    keywords: career.metadata.keywords,
+    title: route.metadata.title,
+    description: route.metadata.description,
+    keywords: route.metadata.keywords,
     openGraph: {
-      title: career.metadata.title,
-      description: career.metadata.description,
+      title: route.metadata.title,
+      description: route.metadata.description,
       type: "website",
-      images: career.image
+      images: route.image
         ? [
             {
-              url: career.image,
+              url: route.image,
               width: 1200,
               height: 630,
-              alt: career.name,
+              alt: route.name,
             },
           ]
         : [],
@@ -58,17 +58,17 @@ export async function generateMetadata({
 }
 
 const WHATSAPP_URL =
-  "https://wa.me/573005523872?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20las%20carreras%20de%20Tech%20Centre";
+  "https://wa.me/573005523872?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20las%20rutas%20de%20Tech%20Centre";
 
-export default async function CareerPage({ params }: CareerPageProps) {
+export default async function RoutePage({ params }: RoutePageProps) {
   const { slug } = await params;
-  const career = await getCareerBySlug(slug);
+  const route = await getRouteBySlug(slug);
 
-  if (!career) {
+  if (!route) {
     notFound();
   }
 
-  const whatsappCareerUrl = `${WHATSAPP_URL}&text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20la%20carrera%20${encodeURIComponent(career.name)}`;
+  const whatsappRouteUrl = `${WHATSAPP_URL}&text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20la%20ruta%20${encodeURIComponent(route.name)}`;
 
   return (
     <main className="min-h-screen bg-background">
@@ -92,36 +92,36 @@ export default async function CareerPage({ params }: CareerPageProps) {
                   <BrainCircuit className="w-6 h-6" />
                 </div>
                 <span className="text-secondary font-semibold">
-                  Carrera Tecnológica
+                  Ruta Tecnológica
                 </span>
               </div>
 
               <h1 className="font-highlight text-4xl md:text-6xl font-extrabold text-text-primary mb-6 leading-tight">
-                {career.name}
+                {route.name}
               </h1>
 
               <p className="text-xl text-text-muted mb-8 leading-relaxed">
-                {career.long_description}
+                {route.long_description}
               </p>
 
               <div className="flex flex-wrap gap-4 mb-8">
                 <div className="flex items-center gap-2 text-text-muted">
                   <Clock className="h-5 w-5 text-secondary" />
-                  <span className="font-medium">{career.duration}</span>
+                  <span className="font-medium">{route.duration}</span>
                 </div>
                 <div className="flex items-center gap-2 text-text-muted">
                   <Award className="h-5 w-5 text-secondary" />
-                  <span className="font-medium">{career.level}</span>
+                  <span className="font-medium">{route.level}</span>
                 </div>
                 <div className="flex items-center gap-2 text-text-muted">
                   <Users className="h-5 w-5 text-secondary" />
-                  <span className="font-medium">{career.modality}</span>
+                  <span className="font-medium">{route.modality}</span>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
-                  href={whatsappCareerUrl}
+                  href={whatsappRouteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300"
@@ -140,10 +140,10 @@ export default async function CareerPage({ params }: CareerPageProps) {
 
             <figure className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-[3/2] bg-bg-secondary">
-                {career.hero_image ? (
+                {route.hero_image ? (
                   <Image
-                    src={career.hero_image}
-                    alt={career.name}
+                    src={route.hero_image}
+                    alt={route.name}
                     fill
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 50vw"
@@ -172,13 +172,13 @@ export default async function CareerPage({ params }: CareerPageProps) {
               Programa de Formación
             </h2>
             <p className="text-lg text-text-muted max-w-2xl mx-auto">
-              Un viaje completo por el ecosistema de {career.name}, desde los
+              Un viaje completo por el ecosistema de {route.name}, desde los
               conceptos fundamentales hasta aplicaciones avanzadas.
             </p>
           </header>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {career.learning_points.map(
+            {route.learning_points.map(
               (point: { title: string; url?: string }, index: number) => (
                 <article
                   key={index}
@@ -215,13 +215,13 @@ export default async function CareerPage({ params }: CareerPageProps) {
                 Perfil del Egresado
               </h2>
               <p className="text-text-muted mb-6">
-                Al finalizar la carrera, serás capaz de liderar proyectos de{" "}
-                {career.name} desde la concepción hasta el despliegue en
+                Al finalizar la ruta, serás capaz de liderar proyectos de{" "}
+                {route.name} desde la concepción hasta el despliegue en
                 producción.
               </p>
 
               <ul className="space-y-4">
-                {career.graduate_profile.map(
+                {route.graduate_profile.map(
                   (skill: string, index: number) => (
                     <li key={index} className="flex items-start gap-3">
                       <Target className="h-5 w-5 text-secondary mt-0.5 shrink-0" />
@@ -237,13 +237,13 @@ export default async function CareerPage({ params }: CareerPageProps) {
                 Oportunidades Laborales
               </h2>
               <p className="text-text-muted mb-6">
-                La demanda de especialistas en {career.name} sigue creciendo
+                La demanda de especialistas en {route.name} sigue creciendo
                 exponencialmente. Nuestros egresados se posicionan en roles clave
                 del mercado tecnológico.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                {career.opportunities.map(
+                {route.opportunities.map(
                   (
                     opportunity: { title: string; salaryRange?: string },
                     index: number,
@@ -283,12 +283,12 @@ export default async function CareerPage({ params }: CareerPageProps) {
             Proceso de Admisión
           </h2>
           <p className="text-lg text-text-muted mb-12">
-            Únete a la próxima cohorte de {career.name} y transforma tu carrera
+            Únete a la próxima cohorte de {route.name} y transforma tu ruta
             profesional.
           </p>
 
           <div className="grid md:grid-cols-4 gap-6 mb-12">
-            {career.admission_process.map(
+            {route.admission_process.map(
               (
                 step: { step: string; title: string; description: string },
                 index: number,
@@ -305,7 +305,7 @@ export default async function CareerPage({ params }: CareerPageProps) {
                       {step.description}
                     </p>
                   </article>
-                  {index < career.admission_process.length - 1 && (
+                  {index < route.admission_process.length - 1 && (
                     <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-0.5 bg-border-color -translate-y-1/2" />
                   )}
                 </div>
@@ -315,7 +315,7 @@ export default async function CareerPage({ params }: CareerPageProps) {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href={whatsappCareerUrl}
+              href={whatsappRouteUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300"
@@ -324,7 +324,7 @@ export default async function CareerPage({ params }: CareerPageProps) {
               Agendar entrevista
             </a>
             <a
-              href={whatsappCareerUrl}
+              href={whatsappRouteUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-border-color text-text-primary font-medium rounded-lg hover:border-secondary/50 hover:bg-secondary/10 transition-all duration-300"

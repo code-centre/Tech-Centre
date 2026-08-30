@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Career } from "@/types/careers";
+import type { Route } from "@/types/routes";
 import HeroSection from "./components/HeroSection";
 import ProblemSection from "./components/ProblemSection";
 import StatsBar from "./components/StatsBar";
@@ -18,15 +18,15 @@ import EnrollmentModal from "./components/EnrollmentModal";
 import CommunityGallery from "@/components/CommunityGallery";
 
 interface AIEngineerLandingProps {
-  career: Career;
+  route: Route;
 }
 
-export default function AIEngineerLanding({ career }: AIEngineerLandingProps) {
+export default function AIEngineerLanding({ route }: AIEngineerLandingProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [enrollmentType, setEnrollmentType] = useState<"career" | "module">("career");
+  const [enrollmentType, setEnrollmentType] = useState<"route" | "module">("route");
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
 
-  const openEnrollment = (type: "career" | "module", moduleName?: string) => {
+  const openEnrollment = (type: "route" | "module", moduleName?: string) => {
     setEnrollmentType(type);
     setSelectedModule(moduleName ?? null);
     setIsModalOpen(true);
@@ -34,32 +34,32 @@ export default function AIEngineerLanding({ career }: AIEngineerLandingProps) {
 
   return (
     <div className="min-h-screen bg-background mt-16">
-      <HeroSection onEnroll={() => openEnrollment("career")} />
+      <HeroSection onEnroll={() => openEnrollment("route")} />
       <ProblemSection />
       <StatsBar />
       <SuccessRoutes />
       <CurriculumSection
-        learningPoints={career.learning_points}
-        onEnrollCareer={() => openEnrollment("career")}
+        learningPoints={route.learning_points}
+        onEnrollRoute={() => openEnrollment("route")}
         onEnrollModule={(name) => openEnrollment("module", name)}
       />
       <MethodologySection />
       <IndustryDataSection />
       <SalaryTiers />
       <InvestmentSection
-        onEnrollCareer={() => openEnrollment("career")}
+        onEnrollRoute={() => openEnrollment("route")}
         onEnrollModule={(name) => openEnrollment("module", name)}
       />
       <FAQSection />
       <VisionSection />
       <CommunityGallery />
-      <FinalCTA onEnroll={() => openEnrollment("career")} />
+      <FinalCTA onEnroll={() => openEnrollment("route")} />
 
       <EnrollmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedModule={selectedModule}
-        careerName={career.name}
+        routeName={route.name}
       />
     </div>
   );

@@ -16,7 +16,7 @@ import type { LucideIcon } from "lucide-react";
 
 interface CurriculumSectionProps {
   learningPoints: Array<{ title: string; url?: string }>;
-  onEnrollCareer: () => void;
+  onEnrollRoute: () => void;
   onEnrollModule: (moduleName: string) => void;
 }
 
@@ -282,7 +282,7 @@ function ModuleCard({
 }
 
 export default function CurriculumSection({
-  onEnrollCareer,
+  onEnrollRoute,
   onEnrollModule,
 }: CurriculumSectionProps) {
   const [activeRoute, setActiveRoute] = useState<Route>("web");
@@ -413,7 +413,7 @@ export default function CurriculumSection({
             no con apuntes.
           </p>
           <button
-            onClick={onEnrollCareer}
+            onClick={onEnrollRoute}
             className="btn-primary inline-flex items-center gap-2 px-8 py-4 font-semibold rounded-xl cursor-pointer"
           >
             Inscribirme en la ruta completa

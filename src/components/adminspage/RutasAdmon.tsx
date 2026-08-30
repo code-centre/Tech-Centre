@@ -32,7 +32,7 @@ import {
   adminTableRowClass,
 } from '@/components/admin/admin-table';
 import { useSupabaseClient, useUser } from '@/lib/supabase';
-import type { Career } from '@/types/careers';
+import type { Route } from '@/types/routes';
 
 const BUCKET = 'blog-images';
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -68,7 +68,7 @@ const emptyForm = {
 
 type FormState = typeof emptyForm;
 
-interface CareerLead {
+interface RouteLead {
   id: number;
   full_name: string;
   email: string;
@@ -88,11 +88,11 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export default function CarrerasAdmon() {
+export default function RutasAdmon() {
   const supabase = useSupabaseClient();
   const { user } = useUser();
 
-  const [careers, setCareers] = useState<Career[]>([]);
+  const [routes, setRoutes] = useState<Route[]>([]);
   const [programs, setPrograms] = useState<ProgramOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -102,7 +102,7 @@ export default function CarrerasAdmon() {
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<FormState>({ ...emptyForm });
 
-  const [careerToDelete, setCareerToDelete] = useState<Career | null>(null);
+  const [routeToDelete, setRouteToDelete] = useState<Route | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -110,20 +110,20 @@ export default function CarrerasAdmon() {
 
   const [uploadingImage, setUploadingImage] = useState<'image' | 'hero_image' | null>(null);
 
-  const [leads, setLeads] = useState<CareerLead[]>([]);
+  const [leads, setLeads] = useState<RouteLead[]>([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
 
-  const fetchCareers = useCallback(async () => {
+  const fetchRoutes = useCallback(async () => {
     setLoading(true);
     const { data, error: fetchError } = await supabase
-      .from('careers')
+      .from('routes')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (fetchError) {
-      setError('Error al cargar las carreras');
+      setError('Error al cargar las rutas');
     } else {
-      setCareers((data ?? []) as Career[]);
+      setRoutes((data ?? []) as Route[]);
     }
     setLoading(false);
   }, [supabase]);
@@ -144,42 +144,42 @@ export default function CarrerasAdmon() {
     const { data, error: fetchError } = await supabase
       .from('leads')
       .select('id, full_name, email, phone, source, stage, notes, created_at')
-      .like('source', 'carrera_%')
+      .like('source', 'ruta_%')
       .order('created_at', { ascending: false });
 
     if (!fetchError && data) {
-      setLeads(data as CareerLead[]);
+      setLeads(data as RouteLead[]);
     }
     setLeadsLoading(false);
   }, [supabase]);
 
   useEffect(() => {
-    fetchCareers();
+    fetchRoutes();
     fetchPrograms();
     fetchLeads();
-  }, [fetchCareers, fetchPrograms, fetchLeads]);
+  }, [fetchRoutes, fetchPrograms, fetchLeads]);
 
-  const handleEdit = (career: Career) => {
-    setEditingId(career.id);
+  const handleEdit = (route: Route) => {
+    setEditingId(route.id);
     setIsAdding(false);
     setForm({
-      name: career.name,
-      slug: career.slug,
-      duration: career.duration || '',
-      level: career.level || 'Intermedio',
-      modality: career.modality || 'Presencial',
-      description: career.description || '',
-      long_description: career.long_description || '',
-      image: career.image,
-      hero_image: career.hero_image,
-      target_audience: career.target_audience || '',
-      next_start_date: career.next_start_date || '',
-      learning_points: career.learning_points || [],
-      graduate_profile: career.graduate_profile || [],
-      opportunities: career.opportunities || [],
-      admission_process: career.admission_process || [],
-      metadata: career.metadata || { title: '', description: '', keywords: [] },
-      is_visible: career.is_visible,
+      name: route.name,
+      slug: route.slug,
+      duration: route.duration || '',
+      level: route.level || 'Intermedio',
+      modality: route.modality || 'Presencial',
+      description: route.description || '',
+      long_description: route.long_description || '',
+      image: route.image,
+      hero_image: route.hero_image,
+      target_audience: route.target_audience || '',
+      next_start_date: route.next_start_date || '',
+      learning_points: route.learning_points || [],
+      graduate_profile: route.graduate_profile || [],
+      opportunities: route.opportunities || [],
+      admission_process: route.admission_process || [],
+      metadata: route.metadata || { title: '', description: '', keywords: [] },
+      is_visible: route.is_visible,
     });
     setExpandedForm(true);
   };
@@ -195,7 +195,7 @@ export default function CarrerasAdmon() {
 
   const handleSave = async () => {
     if (!form.name.trim()) {
-      alert('El nombre de la carrera es requerido');
+      alert('El nombre de la ruta es requerido');
       return;
     }
 
@@ -225,23 +225,23 @@ export default function CarrerasAdmon() {
     try {
       if (editingId) {
         const { error: updateError } = await supabase
-          .from('careers')
+          .from('routes')
           .update(payload)
           .eq('id', editingId);
 
         if (updateError) throw updateError;
       } else {
         const { error: insertError } = await supabase
-          .from('careers')
+          .from('routes')
           .insert([payload]);
 
         if (insertError) throw insertError;
       }
 
-      await fetchCareers();
+      await fetchRoutes();
       handleCancel();
     } catch (err: any) {
-      const msg = err?.message || 'Error al guardar la carrera';
+      const msg = err?.message || 'Error al guardar la ruta';
       setError(msg);
       alert(msg);
     } finally {
@@ -249,38 +249,38 @@ export default function CarrerasAdmon() {
     }
   };
 
-  const toggleVisibility = async (career: Career) => {
+  const toggleVisibility = async (route: Route) => {
     const { error: updateError } = await supabase
-      .from('careers')
-      .update({ is_visible: !career.is_visible })
-      .eq('id', career.id);
+      .from('routes')
+      .update({ is_visible: !route.is_visible })
+      .eq('id', route.id);
 
     if (!updateError) {
-      setCareers(
-        careers.map((c) =>
-          c.id === career.id ? { ...c, is_visible: !c.is_visible } : c,
+      setRoutes(
+        routes.map((c) =>
+          c.id === route.id ? { ...c, is_visible: !c.is_visible } : c,
         ),
       );
     }
   };
 
   const confirmDelete = async () => {
-    if (!careerToDelete) return;
+    if (!routeToDelete) return;
     setDeleting(true);
     setDeleteError(null);
 
     try {
       const { error: delError } = await supabase
-        .from('careers')
+        .from('routes')
         .delete()
-        .eq('id', careerToDelete.id);
+        .eq('id', routeToDelete.id);
 
       if (delError) throw delError;
 
-      setCareers(careers.filter((c) => c.id !== careerToDelete.id));
-      setCareerToDelete(null);
+      setRoutes(routes.filter((c) => c.id !== routeToDelete.id));
+      setRouteToDelete(null);
     } catch (err: any) {
-      setDeleteError(err?.message || 'No se pudo eliminar la carrera');
+      setDeleteError(err?.message || 'No se pudo eliminar la ruta');
     } finally {
       setDeleting(false);
     }
@@ -305,8 +305,8 @@ export default function CarrerasAdmon() {
     setUploadingImage(field);
     try {
       const ext = file.name.split('.').pop() || 'jpg';
-      const slug = form.slug || slugify(form.name) || 'career';
-      const path = `career-covers/${slug}/${field}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}.${ext}`;
+      const slug = form.slug || slugify(form.name) || 'route';
+      const path = `route-covers/${slug}/${field}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from(BUCKET)
@@ -465,14 +465,14 @@ export default function CarrerasAdmon() {
     return <AdminPageSkeleton />;
   }
 
-  const visibleCount = careers.filter((c) => c.is_visible).length;
-  const headerSubtitle = `${careers.length} ${careers.length === 1 ? 'carrera' : 'carreras'} · ${visibleCount} visibles · ${leads.length} interesados`;
+  const visibleCount = routes.filter((c) => c.is_visible).length;
+  const headerSubtitle = `${routes.length} ${routes.length === 1 ? 'ruta' : 'rutas'} · ${visibleCount} visibles · ${leads.length} interesados`;
 
   return (
     <div className="space-y-6">
       <AdminPageHeader
         icon={BrainCircuit}
-        title="Carreras"
+        title="Rutas"
         subtitle={headerSubtitle}
         action={
           !isAdding && !editingId ? (
@@ -486,7 +486,7 @@ export default function CarrerasAdmon() {
               className="btn-primary flex items-center gap-2"
             >
               <Plus size={20} />
-              Nueva carrera
+              Nueva ruta
             </button>
           ) : undefined
         }
@@ -656,7 +656,7 @@ export default function CarrerasAdmon() {
                     }
                     className={inputClass}
                     rows={2}
-                    placeholder="Breve descripción de la carrera"
+                    placeholder="Breve descripción de la ruta"
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -1155,11 +1155,11 @@ export default function CarrerasAdmon() {
 
       {/* Table */}
       {!isAdding && !editingId && (
-        careers.length === 0 ? (
+        routes.length === 0 ? (
           <AdminEmptyState
             icon={SearchX}
-            title="No hay carreras registradas"
-            description="Crea tu primera carrera para publicarla en el sitio."
+            title="No hay rutas registradas"
+            description="Crea tu primera ruta para publicarla en el sitio."
             actions={
               <button
                 type="button"
@@ -1171,7 +1171,7 @@ export default function CarrerasAdmon() {
                 className="btn-primary inline-flex items-center gap-2"
               >
                 <Plus size={20} />
-                Nueva carrera
+                Nueva ruta
               </button>
             }
           />
@@ -1202,15 +1202,15 @@ export default function CarrerasAdmon() {
                   </tr>
                 </thead>
                 <tbody>
-                  {careers.map((career) => (
-                    <tr key={career.id} className={adminTableRowClass}>
+                  {routes.map((route) => (
+                    <tr key={route.id} className={adminTableRowClass}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-bg-secondary border border-border-color">
-                            {career.image ? (
+                            {route.image ? (
                               <Image
-                                src={career.image}
-                                alt={career.name}
+                                src={route.image}
+                                alt={route.name}
                                 width={48}
                                 height={48}
                                 className="w-full h-full object-cover"
@@ -1223,39 +1223,39 @@ export default function CarrerasAdmon() {
                           </div>
                           <div>
                             <p className="font-medium text-text-primary">
-                              {career.name}
+                              {route.name}
                             </p>
-                            <p className="text-sm text-text-muted">{career.slug}</p>
+                            <p className="text-sm text-text-muted">{route.slug}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-text-muted text-sm">
-                        {career.duration || '—'}
+                        {route.duration || '—'}
                       </td>
                       <td className="px-4 py-3 text-text-muted text-sm">
-                        {career.level || '—'}
+                        {route.level || '—'}
                       </td>
                       <td className="px-4 py-3">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium bg-secondary/20 text-secondary border border-secondary/30">
                           <BrainCircuit className="w-3.5 h-3.5" />
-                          {career.learning_points?.length || 0}
+                          {route.learning_points?.length || 0}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <button
-                          onClick={() => toggleVisibility(career)}
+                          onClick={() => toggleVisibility(route)}
                           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                            career.is_visible
+                            route.is_visible
                               ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
                               : 'bg-text-muted/20 text-text-muted border border-border-color hover:bg-text-muted/30'
                           }`}
                           title={
-                            career.is_visible
+                            route.is_visible
                               ? 'Clic para ocultar'
                               : 'Clic para mostrar'
                           }
                         >
-                          {career.is_visible ? (
+                          {route.is_visible ? (
                             <>
                               <Eye className="w-3.5 h-3.5" />
                               Visible
@@ -1271,7 +1271,7 @@ export default function CarrerasAdmon() {
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => handleEdit(career)}
+                            onClick={() => handleEdit(route)}
                             className="btn-primary inline-flex items-center gap-2 text-sm px-4 py-2"
                           >
                             <Pencil className="w-4 h-4" />
@@ -1280,7 +1280,7 @@ export default function CarrerasAdmon() {
                           <button
                             onClick={() => {
                               setDeleteError(null);
-                              setCareerToDelete(career);
+                              setRouteToDelete(route);
                             }}
                             className="p-2 bg-red-500/30 text-red-400 border border-red-500/50 hover:bg-red-500/40 rounded-lg transition-all"
                             title="Eliminar"
@@ -1299,12 +1299,12 @@ export default function CarrerasAdmon() {
       )}
 
       {/* Delete confirmation modal */}
-      {careerToDelete && (
+      {routeToDelete && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="delete-career-title"
+          aria-labelledby="delete-route-title"
         >
           <div className="bg-[var(--card-background)] rounded-xl shadow-xl w-full max-w-md border border-border-color">
             <div className="p-6">
@@ -1314,15 +1314,15 @@ export default function CarrerasAdmon() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3
-                    id="delete-career-title"
+                    id="delete-route-title"
                     className="text-lg font-semibold text-text-primary"
                   >
-                    Eliminar carrera
+                    Eliminar ruta
                   </h3>
                   <p className="mt-2 text-text-muted">
                     ¿Estás seguro de que deseas eliminar{' '}
                     <strong className="text-text-primary">
-                      {careerToDelete.name}
+                      {routeToDelete.name}
                     </strong>
                     ? Esta acción no se puede deshacer.
                   </p>
@@ -1339,7 +1339,7 @@ export default function CarrerasAdmon() {
                 type="button"
                 onClick={() => {
                   if (!deleting) {
-                    setCareerToDelete(null);
+                    setRouteToDelete(null);
                     setDeleteError(null);
                   }
                 }}
@@ -1371,12 +1371,12 @@ export default function CarrerasAdmon() {
         </div>
       )}
 
-      {/* Interesados en Carreras */}
+      {/* Interesados en Rutas */}
       <section className="space-y-4">
         <AdminPageHeader
           icon={UserPlus}
-          title="Interesados en carreras"
-          subtitle={`${leads.length} ${leads.length === 1 ? 'registro' : 'registros'} desde las páginas de carreras`}
+          title="Interesados en rutas"
+          subtitle={`${leads.length} ${leads.length === 1 ? 'registro' : 'registros'} desde las páginas de rutas`}
         />
 
         {leadsLoading ? (
@@ -1385,7 +1385,7 @@ export default function CarrerasAdmon() {
           <AdminEmptyState
             icon={UserPlus}
             title="Aún no hay interesados registrados"
-            description="Los leads aparecerán aquí cuando alguien registre interés desde una página de carrera."
+            description="Los leads aparecerán aquí cuando alguien registre interés desde una página de ruta."
           />
         ) : (
           <div className={adminTableClass}>
@@ -1415,7 +1415,7 @@ export default function CarrerasAdmon() {
                 </thead>
                 <tbody>
                   {leads.map((lead) => {
-                    let parsedNotes: { careerName?: string; moduleName?: string } = {};
+                    let parsedNotes: { routeName?: string; moduleName?: string } = {};
                     try {
                       if (lead.notes) parsedNotes = JSON.parse(lead.notes);
                     } catch { /* ignore parse errors */ }
@@ -1452,7 +1452,7 @@ export default function CarrerasAdmon() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="text-sm text-text-primary">
-                            {parsedNotes.careerName || lead.source.replace('carrera_', '').replace(/_/g, ' ')}
+                            {parsedNotes.routeName || lead.source.replace('ruta_', '').replace(/_/g, ' ')}
                           </div>
                           {parsedNotes.moduleName && (
                             <p className="text-xs text-text-muted mt-0.5">

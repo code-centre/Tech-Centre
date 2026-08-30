@@ -27,6 +27,12 @@ import {
   listPrograms,
   updateProgram,
 } from '@/lib/services/programs-service';
+import {
+  createRoute,
+  getRoute,
+  listRoutes,
+  updateRoute,
+} from '@/lib/services/routes-service';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -121,6 +127,62 @@ const programFieldSchemas = {
           topics: z.array(z.string()),
         })
       ),
+    })
+    .optional(),
+};
+
+const routeFieldSchemas = {
+  duration: z.string().optional(),
+  level: z.string().optional(),
+  modality: z.string().optional(),
+  description: z.string().optional(),
+  long_description: z.string().optional(),
+  image: z.string().optional().describe('Public URL of the card cover image.'),
+  hero_image: z.string().optional().describe('Public URL of the hero image.'),
+  target_audience: z.string().optional(),
+  next_start_date: z.string().optional().describe("Free text, e.g. 'Enero 2026'."),
+  is_visible: z.boolean().optional(),
+  learning_points: z
+    .array(
+      z.object({
+        title: z.string().min(1),
+        url: z.string().optional(),
+      })
+    )
+    .optional(),
+  modules: z
+    .array(
+      z.object({
+        title: z.string().min(1),
+        duration: z.string(),
+        topics: z.array(z.string()),
+      })
+    )
+    .optional(),
+  graduate_profile: z.array(z.string()).optional(),
+  opportunities: z
+    .array(
+      z.object({
+        title: z.string().min(1),
+        salaryRange: z.string().optional(),
+        description: z.string().optional(),
+      })
+    )
+    .optional(),
+  admission_process: z
+    .array(
+      z.object({
+        step: z.string(),
+        title: z.string().min(1),
+        description: z.string(),
+      })
+    )
+    .optional(),
+  metadata: z
+    .object({
+      title: z.string(),
+      description: z.string(),
+      keywords: z.array(z.string()),
     })
     .optional(),
 };
@@ -253,6 +315,143 @@ const baseHandler = createMcpHandler(
             actorSub: auth.userId,
             toolName: 'update_program',
             input: { programId, ...input },
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'list_routes',
+      {
+        title: 'List routes',
+        description:
+          'List training routes (id, name, slug, level, modality, is_visible). Optionally filter to visible routes only.',
+        inputSchema: z.object({
+          visibleOnly: z.boolean().optional(),
+        }),
+      },
+      async ({ visibleOnly }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.ROUTES_READ)) {
+          throw new Error('Missing scope routes:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const routes = await listRoutes(client, { visibleOnly: visibleOnly ?? false });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(routes, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'get_route',
+      {
+        title: 'Get route',
+        description:
+          'Get a route by id or slug with every field (learning_points, modules, graduate_profile, opportunities, admission_process, metadata).',
+        inputSchema: z.object({
+          routeId: z.string().uuid().optional(),
+          slug: z.string().optional(),
+        }),
+      },
+      async ({ routeId, slug }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.ROUTES_READ)) {
+          throw new Error('Missing scope routes:read');
+        }
+        if (!routeId && !slug) {
+          throw new Error('Provide routeId or slug');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const route = await getRoute(client, { routeId, slug });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(route, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'create_route',
+      {
+        title: 'Create route',
+        description:
+          'Create a training route (admin only) with any of its fields. name and slug are required; slug must be unique.',
+        inputSchema: z.object({
+          name: z.string().min(1),
+          slug: z.string().min(1),
+          ...routeFieldSchemas,
+        }),
+      },
+      async (input, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.ROUTES_WRITE)) {
+          throw new Error('Missing scope routes:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const route = await createRoute(client, input);
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'create_route',
+            input,
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(route, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'create_route',
+            input,
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'update_route',
+      {
+        title: 'Update route',
+        description:
+          'Update any fields of a route (admin only). Only the provided fields are changed; jsonb fields are replaced whole, so send the complete new value. Use is_visible: false to hide a route.',
+        inputSchema: z.object({
+          routeId: z.string().uuid(),
+          name: z.string().min(1).optional(),
+          slug: z.string().min(1).optional(),
+          ...routeFieldSchemas,
+        }),
+      },
+      async ({ routeId, ...input }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.ROUTES_WRITE)) {
+          throw new Error('Missing scope routes:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const route = await updateRoute(client, routeId, input);
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'update_route',
+            input: { routeId, ...input },
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(route, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'update_route',
+            input: { routeId, ...input },
             resultStatus: 'error',
           });
           throw error;

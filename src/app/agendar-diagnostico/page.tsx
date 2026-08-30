@@ -19,7 +19,7 @@ const PROGRAM_BY_QUERY: Record<string, string> = {
   datos: 'Rutas de aprendizaje (Datos)',
   agentes: 'Ingeniería de agentes',
   'ingenieria-agentes': 'Ingeniería de agentes',
-  'ia-engineer': 'Carrera IA Engineer',
+  'ia-engineer': 'Ruta IA Engineer',
   modulo: 'Módulo específico',
 };
 
