@@ -42,12 +42,12 @@ export default async function DetailCourse({ params, searchParams }: Props) {
   const { slug } = await params
   const { cohortId: cohortIdParam } = await searchParams
   const supabase = await createClient()
-  
+
   let programData: Program | null = null
+  let cohorts: Cohort[] = []
   let firstCohortId: number | null = null
 
   try {
-    // Buscar el programa en Supabase
     const { data: supabaseProgram, error } = await supabase
       .from('programs')
       .select('*')
@@ -56,49 +56,35 @@ export default async function DetailCourse({ params, searchParams }: Props) {
 
     if (supabaseProgram && !error) {
       programData = supabaseProgram as unknown as Program
-      const programId = (supabaseProgram as any).id
 
-      // Si viene cohortId en la URL, verificar que pertenezca al programa
-      if (cohortIdParam) {
-        const cohortIdNum = parseInt(cohortIdParam, 10)
-        if (!isNaN(cohortIdNum)) {
-          const { data: cohortById } = await supabase
-            .from('cohorts')
-            .select('id')
-            .eq('id', cohortIdNum)
-            .eq('program_id', programId)
-            .single()
-          const cohortId = (cohortById as { id?: number } | null)?.id
-          if (cohortId != null) {
-            firstCohortId = cohortId
-          }
-        }
-      }
+      // Una sola consulta de cohortes para toda la página: la tarjeta de
+      // oferta, el selector de modalidad y los datos del programa usan la misma.
+      const { data: cohortRows } = await supabase
+        .from('cohorts')
+        .select('*')
+        .eq('program_id', (supabaseProgram as { id: number }).id)
+        .eq('offering', true)
+        .order('start_date', { ascending: true })
 
-      // Fallback: primera cohorte con offering=true
-      if (firstCohortId === null) {
-        const { data: fallbackCohort } = await supabase
-          .from('cohorts')
-          .select('id')
-          .eq('program_id', programId)
-          .eq('offering', true)
-          .order('start_date', { ascending: true })
-          .limit(1)
-          .single()
-        const fallbackId = (fallbackCohort as { id?: number } | null)?.id
-        if (fallbackId != null) {
-          firstCohortId = fallbackId
-        }
-      }
+      cohorts = (cohortRows as unknown as Cohort[]) || []
+
+      // La cohorte de la URL manda, siempre que sea de este programa.
+      const requestedId = cohortIdParam ? parseInt(cohortIdParam, 10) : NaN
+      const requested = !isNaN(requestedId)
+        ? cohorts.find((cohort) => cohort.id === requestedId)
+        : undefined
+
+      firstCohortId = requested?.id ?? cohorts[0]?.id ?? null
     }
   } catch (error) {
     console.error("Error al cargar el programa:", error)
   }
 
   return (
-    <ProgramDetailClient 
+    <ProgramDetailClient
       initialProgramData={programData}
       initialCohortId={firstCohortId}
+      initialCohorts={cohorts}
       slug={slug}
     />
   )

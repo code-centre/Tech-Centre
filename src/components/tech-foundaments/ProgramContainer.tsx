@@ -1,152 +1,149 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { ProgramHero } from './ProgramHero'
+import ProgramVideo from './ProgramVideo'
 import { ProgramDescription } from './ProgramDescription'
+import ProgramAudienceFit from './ProgramAudienceFit'
+import ProgramFinalProject from './ProgramFinalProject'
 import ProgramBenefits from './ProgramBenefits'
 import ProgramSyllabus from './ProgramSyllabus'
 import { ProgramTeacher } from './ProgramTeacher'
 import ProgramDetails from './ProgramDetails'
+import ProgramPricing from './ProgramPricing'
 import ProgramFAQs from './ProgramFAQs'
+import ProgramFinalCTA from './ProgramFinalCTA'
 import Location from './Location'
-import { useSupabaseClient, useUser } from '@/lib/supabase'
+import { useUser } from '@/lib/supabase'
+import {
+  getAudienceFit,
+  getFinalProject,
+  getIncludes,
+  getPrerequisites,
+  getStack,
+} from '@/lib/programLanding'
 import type { Program } from '@/types/programs'
+import type { Cohort } from '@/types/cohorts'
 
 export interface ProgramProps {
   programData: Program
-  initialCohortId?: number | null
+  /** Cohortes con `offering = true`, ya cargadas por el contenedor de la página. */
+  cohorts?: Cohort[]
+  selectedCohortId?: number | null
   onCohortSelect?: (cohortId: number) => void
+  seatsLeft?: number | null
 }
 
-export default function ProgramContainer({ programData, initialCohortId, onCohortSelect }: ProgramProps) {
-  const supabase = useSupabaseClient()
-  const [cohorts, setCohorts] = useState<any[]>([]);
-  const [selectedCohortId, setSelectedCohortId] = useState<number | null>(initialCohortId ?? null);
-  const [currentProgramData, setCurrentProgramData] = useState<Program>(programData);
+export default function ProgramContainer({
+  programData,
+  cohorts = [],
+  selectedCohortId,
+  onCohortSelect,
+  seatsLeft,
+}: ProgramProps) {
+  const [currentProgramData, setCurrentProgramData] = useState<Program>(programData)
   const { user } = useUser()
 
-  // Función para obtener las cohortes de un programa específico
-  async function getProgramCohorts(programId: number) {
-    try {
-      const { data, error } = await supabase
-        .from('cohorts')
-        .select('*')
-        .eq('program_id', programId)
-        .eq('offering', true)
-        .order('start_date', { ascending: true });
-
-      if (error) {
-        console.error('Error en la consulta:', error);
-        throw error;
-      }
-
-      return data || [];
-    } catch (error) {
-      console.error('Error en getProgramCohorts:', error);
-      return [];
-    }
-  }
-
   useEffect(() => {
-    async function loadCohorts() {
-      try {
-        const programCohorts = await getProgramCohorts(programData.id);
-        setCohorts(programCohorts);
-      } catch (error) {
-        console.error('Error en loadCohorts:', error);
-        setCohorts([]);
-      }
-    };
+    setCurrentProgramData(programData)
+  }, [programData])
 
-    if (programData?.id) {
-      loadCohorts();
-    } else {
-      setCohorts([]);
-    }
-  }, [programData?.id, supabase]);
+  const selectedCohort = cohorts.find((c) => c.id === selectedCohortId) ?? cohorts[0]
 
-  // Sincronizar selectedCohortId con initialCohortId o primera cohorte disponible
-  useEffect(() => {
-    if (cohorts.length === 0) return;
-    if (initialCohortId != null && cohorts.some((c) => c.id === initialCohortId)) {
-      setSelectedCohortId(initialCohortId);
-    } else if (!cohorts.some((c) => c.id === selectedCohortId)) {
-      setSelectedCohortId(cohorts[0].id);
-    }
-  }, [initialCohortId, cohorts, selectedCohortId]);
-
-  const handleCohortSelect = (cohortId: number) => {
-    setSelectedCohortId(cohortId);
-    onCohortSelect?.(cohortId);
-  };
-
-  // Actualizar programData cuando cambie desde el componente hijo
-  useEffect(() => {
-    setCurrentProgramData(programData);
-  }, [programData]);
+  // Los campos jsonb pueden venir a medio llenar; cada sección se oculta sola.
+  const stack = useMemo(() => getStack(currentProgramData), [currentProgramData])
+  const audienceFit = useMemo(() => getAudienceFit(currentProgramData), [currentProgramData])
+  const prerequisites = useMemo(() => getPrerequisites(currentProgramData), [currentProgramData])
+  const finalProject = useMemo(() => getFinalProject(currentProgramData), [currentProgramData])
+  const includes = useMemo(() => getIncludes(currentProgramData), [currentProgramData])
 
   const handleSyllabusUpdate = (updatedSyllabus: { modules: any[] }) => {
-    setCurrentProgramData({
-      ...currentProgramData,
-      syllabus: updatedSyllabus
-    });
-  };
+    setCurrentProgramData({ ...currentProgramData, syllabus: updatedSyllabus })
+  }
 
   const handleDescriptionUpdate = (updatedDescription: string) => {
-    setCurrentProgramData({
-      ...currentProgramData,
-      description: updatedDescription
-    });
-  };
+    setCurrentProgramData({ ...currentProgramData, description: updatedDescription })
+  }
 
   const handleFAQsUpdate = (updatedFAQs: any[]) => {
-    setCurrentProgramData({
-      ...currentProgramData,
-      faqs: updatedFAQs
-    });
-  };
+    setCurrentProgramData({ ...currentProgramData, faqs: updatedFAQs })
+  }
 
   const handleDetailsUpdate = (updatedDetails: Partial<Program>) => {
-    setCurrentProgramData({
-      ...currentProgramData,
-      ...updatedDetails
-    });
-  };
+    setCurrentProgramData({ ...currentProgramData, ...updatedDetails })
+  }
 
   return (
-    <main className="max-w-7xl flex flex-col gap-8 text-white">
+    <main className="max-w-7xl flex flex-col gap-16 md:gap-20">
       <ProgramHero
-        heroImage={currentProgramData?.image || ''} 
-        video={currentProgramData?.video || ''}
+        programData={currentProgramData}
+        cohortId={selectedCohort?.id ?? selectedCohortId}
+        stack={stack}
+        modality={selectedCohort?.modality}
       />
-      <ProgramDetails 
-        programData={currentProgramData} 
-        cohorts={cohorts} 
+
+      {currentProgramData.video && (
+        <ProgramVideo
+          video={currentProgramData.video}
+          poster={currentProgramData.image}
+          programName={currentProgramData.name}
+        />
+      )}
+
+      <ProgramDetails
+        programData={currentProgramData}
+        cohorts={cohorts}
         user={user}
         selectedCohortId={selectedCohortId}
-        onCohortSelect={handleCohortSelect}
+        onCohortSelect={onCohortSelect}
         onDetailsUpdate={handleDetailsUpdate}
       />
-      <ProgramDescription 
+
+      <ProgramDescription
         programData={currentProgramData?.description || ''}
         programId={currentProgramData.id}
         onDescriptionUpdate={handleDescriptionUpdate}
       />
-      <ProgramBenefits />
-      <ProgramSyllabus 
-        syllabusData={currentProgramData?.syllabus || {modules: []}} 
+
+      <ProgramAudienceFit
+        audienceFit={audienceFit}
+        prerequisites={prerequisites}
+        programCode={currentProgramData.code || currentProgramData.slug}
+      />
+
+      <ProgramFinalProject finalProject={finalProject} />
+
+      <ProgramSyllabus
+        syllabusData={currentProgramData?.syllabus || { modules: [] }}
         programId={currentProgramData.id}
         onSyllabusUpdate={handleSyllabusUpdate}
       />
-      {(selectedCohortId ?? cohorts[0]?.id) && (
-        <ProgramTeacher cohortId={selectedCohortId ?? cohorts[0].id} />
+
+      <ProgramBenefits />
+
+      {(selectedCohort?.id ?? cohorts[0]?.id) && (
+        <ProgramTeacher cohortId={selectedCohort?.id ?? cohorts[0].id} />
       )}
-      <ProgramFAQs 
+
+      <ProgramPricing
+        programData={currentProgramData}
+        cohortId={selectedCohort?.id ?? selectedCohortId}
+        maximumPayments={selectedCohort?.maximum_payments}
+        includes={includes}
+      />
+
+      <ProgramFAQs
         shortCourse={currentProgramData?.faqs || []}
         programId={currentProgramData.id}
         onFAQsUpdate={handleFAQsUpdate}
       />
-      <Location/>
-      {/* <TicketsSupa programData={programData} cohort={cohorts[0]} paymentPlans={paymentPlans}/> */}
+
+      <Location />
+
+      <ProgramFinalCTA
+        programData={currentProgramData}
+        cohortId={selectedCohort?.id ?? selectedCohortId}
+        seatsLeft={seatsLeft}
+      />
     </main>
   )
 }

@@ -39,6 +39,36 @@ export interface SyllabusData {
  * Interface principal para programas académicos desde Supabase
  * Esta es la versión más completa y actualizada
  */
+// ============================================================================
+// Contenido de la página de programa (columnas jsonb)
+// ============================================================================
+
+/** Sección "¿Es para ti?" — programs.audience_fit */
+export interface AudienceFit {
+  yes: string[];
+  not_yet: string[];
+}
+
+/** Prerrequisito — programs.prerequisites[] */
+export interface Prerequisite {
+  name: string;
+  detail?: string;
+}
+
+/** Ítem del proyecto final: criterio de entrega o ejemplo de dominio */
+export interface FinalProjectItem {
+  title: string;
+  description?: string;
+}
+
+/** Proyecto final — programs.final_project */
+export interface FinalProject {
+  title?: string;
+  summary?: string;
+  requirements?: FinalProjectItem[];
+  examples?: FinalProjectItem[];
+}
+
 export interface Program {
   id: number;
   start_date: string;
@@ -60,6 +90,11 @@ export interface Program {
   slug?: string;
   syllabus?: SyllabusData;
   audience?: string; // Descripción de para quién es el programa
+  audience_fit?: AudienceFit | null; // Sección "¿Es para ti?"
+  prerequisites?: Prerequisite[] | null;
+  final_project?: FinalProject | null;
+  stack?: string[] | null; // Tecnologías que se manejan
+  includes?: string[] | null; // Qué incluye la inversión
   [key: string]: any; // Para propiedades adicionales dinámicas
 }
 

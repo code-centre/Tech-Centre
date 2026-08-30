@@ -113,23 +113,21 @@ export function ProgramTeacher({ cohortId }: Props) {
   return (
     <>
       <section 
-        className="max-w-full bg-(--card-diplomado-bg) rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border [border-color:var(--card-diplomado-border)] dark:border-border-color"
+        className="max-w-full bg-(--card-diplomado-bg) rounded-2xl shadow-xl overflow-hidden border [border-color:var(--card-diplomado-border)] dark:border-border-color"
         aria-labelledby="program-teacher-heading"
       >
         <article className="p-6 md:p-8 flex flex-col gap-6">
           {/* Header */}
           <header className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <GraduationCap 
-                className="card-text-primary" 
-                size={32} 
-                aria-hidden="true"
-              />
-              <h2 
+            <div className="flex flex-col gap-3 max-w-2xl">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">
+                Quién te va a enseñar
+              </span>
+              <h2
                 id="program-teacher-heading"
-                className="text-xl md:text-2xl font-bold card-text-primary text-balance"
+                className="font-highlight text-3xl md:text-4xl font-extrabold tracking-tight card-text-primary text-balance"
               >
-                Profesor del Programa
+                Alguien que hace esto hoy, en producción.
               </h2>
             </div>
             {isAdmin && instructor && (

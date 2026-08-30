@@ -8,6 +8,7 @@ import ProgramCoverEditor from '@/components/adminspage/ProgramCoverEditor';
 import ProgramDetails from '@/components/adminspage/ProgramDetails';
 import ProgramHeader from '@/components/adminspage/ProgramHeader';
 import ProgramModulesList from '@/components/adminspage/ProgramModulesList';
+import ProgramLandingEditor from '@/components/adminspage/ProgramLandingEditor';
 import type { Program } from '@/types/programs';
 import type { ProgramModule } from '@/types/supabase';
 
@@ -69,6 +70,7 @@ export default async function ProgramPage({ params }: Props) {
         syllabus={typedProgram.syllabus}
       />
       <ProgramDetails program={typedProgram} />
+      <ProgramLandingEditor program={typedProgram} />
     </div>
   );
 }

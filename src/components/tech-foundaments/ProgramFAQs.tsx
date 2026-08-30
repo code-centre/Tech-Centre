@@ -201,8 +201,15 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
 
   return (
     <section className="faq-section">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold card-text-primary">Preguntas Frecuentes</h2>
+      <div className="flex flex-wrap justify-between items-end gap-4 mb-8">
+        <div className="flex flex-col gap-3 max-w-2xl">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">
+            Preguntas frecuentes
+          </span>
+          <h2 className="font-highlight text-3xl md:text-4xl font-extrabold tracking-tight card-text-primary text-balance">
+            Lo que casi todos preguntan.
+          </h2>
+        </div>
         {isAdmin && editingFAQIndex === null && (
           <button
             onClick={handleAddFAQ}
@@ -224,7 +231,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
       {editedFAQs.length === 0 && !isAdmin ? (
         <p className="card-text-primary italic">No hay preguntas frecuentes disponibles.</p>
       ) : (
-        <div className="space-y-5">
+        <div className="flex flex-col gap-2">
           {editedFAQs.map((item, i) => (
             <div key={`faq-${i}-${item.pregunta?.substring(0, 10) || i}`} className="animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
               {editingFAQIndex === i ? (
@@ -267,10 +274,10 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
                   )}
                 </div>
               ) : (
-                <details className="group border-b border-border-color dark:border-gray-700 pb-4">
-                  <summary className="flex justify-between items-center font-medium cursor-pointer list-none py-2">
-                    <h3 className="text-xl card-text-primary font-semibold pr-8">
-                      {i + 1}. {item.pregunta}
+                <details className="group rounded-2xl bg-(--card-diplomado-bg) border border-gray-300 dark:border-border-color open:border-secondary/50 transition-colors duration-300">
+                  <summary className="flex justify-between items-center gap-4 font-medium cursor-pointer list-none px-5 sm:px-6 py-4">
+                    <h3 className="text-base sm:text-lg card-text-primary font-semibold">
+                      {item.pregunta}
                     </h3>
                     <div className="flex gap-2 items-center">
                       <span className="card-text-primary transform group-open:rotate-180 transition-transform duration-300">
@@ -281,7 +288,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
                       )}
                     </div>
                   </summary>
-                  <div className="mt-4 prose-content card-text-primary leading-relaxed pl-1">
+                  <div className="px-5 sm:px-6 pb-5 prose-content card-text-muted leading-relaxed">
                     {item.respuesta ? (
                       item.respuesta.trim().startsWith('<')
                         ? HTMLReactParser(item.respuesta)

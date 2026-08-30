@@ -5,10 +5,10 @@ import LocationModalEditing from './LocationModalEditing';
 
 export default function Location() {
     return (
-        <div className="max-w-full bg-bgCard rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border border-zinc-800/30 p-6">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2 card-text-primary">
-                    <MapPin className="card-text-primary" size={24} />
+        <div className="max-w-full bg-(--card-diplomado-bg) rounded-2xl shadow-xl overflow-hidden border [border-color:var(--card-diplomado-border)] dark:border-border-color p-6 md:p-8">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="font-highlight text-2xl md:text-3xl font-extrabold tracking-tight flex items-center gap-2.5 card-text-primary">
+                    <MapPin className="text-secondary" size={26} />
                         Sede de Tech Centre
                 </h2>
                 {/* {isAdmin && (

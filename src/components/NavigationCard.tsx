@@ -1,119 +1,208 @@
-"use client";
-import { formatPrice } from "../../utils/formatCurrency";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useSupabaseClient } from "@/lib/supabase";
-import type { Program } from "@/types/programs";
+'use client'
+
+import Link from 'next/link'
+import { ArrowRight, CalendarDays, Clock3, MapPin } from 'lucide-react'
+import type { Program } from '@/types/programs'
+import type { Cohort } from '@/types/cohorts'
+import ProgramCTAButtons from './tech-foundaments/ProgramCTAButtons'
+import ProgramPriceBlock from './tech-foundaments/ProgramPriceBlock'
+import { formatDate } from '@/utils/formatDate'
+import { formatPrice } from '../../utils/formatCurrency'
 
 interface NavigationCardProps {
-  programData?: Program;
-  cohortId?: number | null;
+  programData?: Program
+  cohorts?: Cohort[]
+  cohortId?: number | null
+  onCohortSelect?: (cohortId: number) => void
+  /** Cupos restantes de la cohorte seleccionada; null cuando no hay cupo máximo. */
+  seatsLeft?: number | null
+  /** En móvil la tarjeta se reduce a precio + botones dentro de la barra fija. */
+  compact?: boolean
 }
 
-interface Cohort {
-  maximum_payments: number;
-}
-
-export default function NavigationCard({ programData, cohortId }: NavigationCardProps) {
-  const supabase = useSupabaseClient()
-  const router = useRouter();
-  const [cohort, setCohort] = useState<Cohort | null>(null);
-
-  useEffect(() => {
-    if (!cohortId) return;
-
-    const fetchCohort = async () => {
-      try {
-        const { data: cohortData, error } = await supabase
-          .from('cohorts')
-          .select('maximum_payments')
-          .eq('id', cohortId)
-          .single();
-
-        if (error) throw error;
-        setCohort(cohortData as Cohort);
-      } catch (error) {
-        console.error('Error al obtener cohorte:', error);
-        setCohort(null);
-      }
-    };
-
-    fetchCohort();
-  }, [cohortId, supabase]);
-
-  const handleBuyClick = () => {
-    if (cohortId) {
-      router.push(`/checkout?cohortId=${cohortId}`);
-    }
+/** Días y horas de la cohorte, soportando las dos formas que hay guardadas. */
+function getSchedule(cohort?: Cohort) {
+  const schedule = (cohort as unknown as { schedule?: Record<string, unknown> })?.schedule
+  if (!schedule) return { days: [] as string[], hours: [] as string[] }
+  const clases = schedule.clases as { dias?: string[]; horas?: string[] } | undefined
+  const days = (schedule.days as string[]) ?? clases?.dias ?? []
+  const hours = (schedule.hours as string[]) ?? clases?.horas ?? []
+  return {
+    days: Array.isArray(days) ? days : [],
+    hours: Array.isArray(hours) ? hours : [],
   }
+}
 
-  const handlePreEnrollClick = () => {
-    router.push(`/programas-academicos/${programData?.code || programData?.slug}/apartar-cupo`);
+export default function NavigationCard({
+  programData,
+  cohorts = [],
+  cohortId,
+  onCohortSelect,
+  seatsLeft,
+  compact = false,
+}: NavigationCardProps) {
+  const selectedCohort = cohorts.find((c) => c.id === cohortId) ?? cohorts[0]
+  const { days, hours } = getSchedule(selectedCohort)
+  const hasSeats = typeof seatsLeft === 'number' && seatsLeft > 0
+  const programCode = programData?.code || programData?.slug
+
+  // Barra fija de móvil: una sola fila, así que el diagnóstico queda como
+  // botón de icono y el precio pierde el selector de cuotas.
+  if (compact) {
+    const price = programData?.discount || programData?.default_price || 0
+    const enrollHref = (selectedCohort?.id ?? cohortId)
+      ? `/checkout?cohortId=${selectedCohort?.id ?? cohortId}`
+      : `/programas-academicos/${programCode ?? ''}/apartar-cupo`
+    const diagnosticHref = programCode
+      ? `/agendar-diagnostico?programa=${encodeURIComponent(programCode)}&origen=${encodeURIComponent(`programa-${programCode}-barra`)}`
+      : '/agendar-diagnostico'
+
+    return (
+      <div className="flex items-center gap-3">
+        {price > 0 && (
+          <div className="flex flex-col shrink-0 leading-tight">
+            <span className="text-[11px] card-text-muted">
+              {programData?.discount ? 'En oferta' : 'Precio'}
+            </span>
+            <span className="text-lg font-bold tracking-tight card-text-primary">
+              {formatPrice(price, programData?.currency || 'COP')}
+            </span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2 grow justify-end">
+          <Link
+            href={diagnosticHref}
+            aria-label="Agendar diagnóstico"
+            title="Agendar diagnóstico"
+            className="inline-flex items-center justify-center px-3.5 py-3 rounded-xl border-2 border-secondary/50 card-text-primary hover:border-secondary hover:bg-secondary/10 transition-all duration-300"
+          >
+            <CalendarDays className="w-[19px] h-[19px]" aria-hidden="true" />
+          </Link>
+          <Link
+            href={enrollHref}
+            className="inline-flex items-center justify-center gap-1.5 px-5 py-3 rounded-xl bg-secondary text-[#0E1116] text-[15px] font-bold shadow-lg shadow-secondary/25 active:scale-[0.99] transition-all duration-300"
+          >
+            Inscribirme
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <section className="sticky top-4 lg:sticky lg:top-4 w-full lg:max-w-sm h-fit bg-(--card-diplomado-bg) rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl border [border-color:var(--card-diplomado-border)] dark:border-border-color">
-      <article className="p-4 sm:p-6 md:p-8 flex flex-col gap-4 sm:gap-6">
-        <div className="text-center">
-          <div className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-full bg-secondary/10 dark:bg-secondary/20 text-secondary border border-secondary/30 dark:border-secondary/40 text-xs font-medium mb-4">
-            <div className="w-2 h-2 bg-secondary rounded-full mr-2 animate-pulse"></div>
-            Inscripciones abiertas
-          </div> 
-          
-          <h3 className="hidden sm:block text-xl md:text-2xl mb-2 font-bold card-text-primary">{programData?.name}</h3>
-          <h4 className="hidden sm:block text-base font-semibold card-text-muted mb-4 line-clamp-2 leading-snug">
-            {programData?.subtitle}
-          </h4>
-         
-          {programData?.discount ? (
-            <div className="hidden sm:flex text-xl font-bold card-text-primary flex-col items-center justify-center mb-1">
-              <span className="text-sm font-medium card-text-muted mb-1">¡Precio en oferta!</span>
-              <span className="text-secondary text-2xl">{formatPrice(programData.discount)}</span>
-            </div>
-          ) : (
-            <div className="hidden sm:flex text-xl font-bold card-text-primary flex-col items-center justify-center mb-1">
-              <span className="text-sm font-medium card-text-muted mb-1">Precio</span>
-              <span className="text-secondary text-2xl">{formatPrice(programData?.default_price || 0, programData?.currency || "COP")}</span>
-            </div>
-          )}
-
-          {cohort && cohort.maximum_payments >= 2 && programData && (() => {
-            const basePrice = programData.discount || programData.default_price || 0;
-            const installmentPrice = Math.round(basePrice / cohort.maximum_payments);
-            return (
-              <div className="hidden sm:block text-sm card-text-muted mt-2">
-                Hasta {cohort.maximum_payments} cuotas de {formatPrice(installmentPrice, programData.currency || "COP")}
-              </div>
-            );
-          })()}
-
-          <div className="flex flex-col gap-3 sm:mt-6">
-            <button
-              onClick={handleBuyClick}
-              className="btn-primary w-full group cursor-pointer"
-            >
-              <span>Inscribirme</span>
-              <svg className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
-
-            <button
-              onClick={handlePreEnrollClick}
-              className="group w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-transparent card-text-primary font-semibold rounded-xl border-2 border-secondary/50 dark:border-secondary/40 hover:bg-secondary/10 dark:hover:bg-secondary/20 hover:border-secondary dark:hover:border-secondary/60 transition-all duration-300 cursor-pointer">
-              <svg className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span>Apartar mi cupo</span>
-            </button>
-            <p className="hidden sm:block text-xs card-text-muted text-center mt-1">
-              Sin compromiso · Te contactamos para resolver dudas
-            </p>
+    <section className="w-full lg:max-w-sm h-fit rounded-2xl overflow-hidden bg-(--card-diplomado-bg) border [border-color:var(--card-diplomado-border)] dark:border-border-color shadow-xl">
+      <div className="flex flex-col gap-5 p-5 sm:p-6">
+        {hasSeats ? (
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-secondary/10 dark:bg-secondary/15 border border-secondary/30">
+            <span className="w-2 h-2 rounded-full bg-secondary animate-pulse shrink-0" aria-hidden="true" />
+            <span className="text-[13px] font-semibold text-secondary">
+              {seatsLeft === 1 ? 'Queda 1 cupo en esta cohorte' : `Quedan ${seatsLeft} cupos en esta cohorte`}
+            </span>
           </div>
+        ) : (
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-secondary/10 dark:bg-secondary/15 border border-secondary/30">
+            <span className="w-2 h-2 rounded-full bg-secondary animate-pulse shrink-0" aria-hidden="true" />
+            <span className="text-[13px] font-semibold text-secondary">Inscripciones abiertas</span>
+          </div>
+        )}
 
+        {/* Selector de modalidad: solo cuando hay de dónde escoger */}
+        {cohorts.length > 1 && (
+          <div className="flex flex-col gap-2.5">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.1em] card-text-muted">
+              Elige tu modalidad
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              {cohorts.map((cohort) => {
+                const isSelected = cohort.id === selectedCohort?.id
+                const { days: cohortDays } = getSchedule(cohort)
+                return (
+                  <button
+                    key={cohort.id}
+                    type="button"
+                    onClick={() => onCohortSelect?.(cohort.id)}
+                    aria-pressed={isSelected}
+                    className={`flex flex-col gap-0.5 items-start text-left px-3.5 py-3 rounded-xl border transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? 'bg-secondary/10 dark:bg-secondary/15 border-secondary text-secondary'
+                        : 'bg-bg-secondary dark:bg-bg-primary/60 border-gray-300 dark:border-border-color card-text-muted hover:border-secondary/50'
+                    }`}
+                  >
+                    <span className="text-sm font-semibold">{cohort.modality || cohort.name}</span>
+                    {cohortDays.length > 0 && (
+                      <span className="text-xs opacity-75">{cohortDays.join(' · ')}</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Datos de la cohorte seleccionada */}
+        {selectedCohort && (
+          <dl className="flex flex-col gap-2.5 px-4 py-3.5 rounded-xl bg-bg-secondary dark:bg-bg-primary/60 border border-gray-300 dark:border-border-color">
+            {selectedCohort.start_date && (
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <dt className="flex items-center gap-2 card-text-muted">
+                  <CalendarDays className="w-4 h-4" aria-hidden="true" />
+                  Inicio
+                </dt>
+                <dd className="font-semibold card-text-primary text-right">
+                  {formatDate(selectedCohort.start_date)}
+                </dd>
+              </div>
+            )}
+            {days.length > 0 && (
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <dt className="flex items-center gap-2 card-text-muted">
+                  <Clock3 className="w-4 h-4" aria-hidden="true" />
+                  Horario
+                </dt>
+                <dd className="font-semibold card-text-primary text-right">
+                  {days.join(', ')}
+                  {hours.length > 0 && (
+                    <span className="block text-xs font-normal card-text-muted">{hours.join(' - ')}</span>
+                  )}
+                </dd>
+              </div>
+            )}
+            {selectedCohort.modality && (
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <dt className="flex items-center gap-2 card-text-muted">
+                  <MapPin className="w-4 h-4" aria-hidden="true" />
+                  Modalidad
+                </dt>
+                <dd className="font-semibold card-text-primary text-right">{selectedCohort.modality}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+
+        <div className="pt-1 border-t border-gray-300 dark:border-border-color">
+          <div className="pt-4">
+            <ProgramPriceBlock
+              defaultPrice={programData?.default_price}
+              discount={programData?.discount}
+              currency={programData?.currency || 'COP'}
+              maximumPayments={selectedCohort?.maximum_payments}
+            />
+          </div>
         </div>
-      </article>
+
+        <ProgramCTAButtons
+          cohortId={selectedCohort?.id ?? cohortId}
+          programCode={programCode}
+          source={`programa-${programCode}-tarjeta`}
+        />
+
+        <p className="text-xs card-text-muted text-center leading-relaxed">
+          El diagnóstico son 20 minutos, gratis y sin compromiso: revisamos tu nivel y te decimos si
+          este programa es para ti.
+        </p>
+      </div>
     </section>
-  );
+  )
 }
