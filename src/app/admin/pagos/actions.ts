@@ -169,3 +169,104 @@ export async function createInvoiceAdmin(payload: {
 
   return { success: true, invoiceId };
 }
+
+/* -------------------------------------------------------------------------- */
+/* Pagos a profesores                                                          */
+/* -------------------------------------------------------------------------- */
+
+async function requireAdmin() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { supabase, user: null, error: 'No autenticado' as const };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('user_id', user.id)
+    .single();
+
+  if ((profile as { role?: string } | null)?.role !== 'admin') {
+    return { supabase, user: null, error: 'Sin permisos' as const };
+  }
+
+  return { supabase, user, error: null };
+}
+
+/** Acuerda (o cambia) cómo se le paga a un profesor en una cohorte. */
+export async function setInstructorRate(payload: {
+  instructorId: string;
+  cohortId: number;
+  mode: 'per_session' | 'per_cohort' | 'monthly';
+  amount: number;
+  requiresAttendance: boolean;
+}): Promise<{ success: boolean; error?: string }> {
+  const { supabase, error: authError } = await requireAdmin();
+  if (authError) return { success: false, error: authError };
+
+  if (!Number.isFinite(payload.amount) || payload.amount <= 0) {
+    return { success: false, error: 'El monto debe ser mayor que cero' };
+  }
+
+  const { error } = await supabase.from('instructor_rates').upsert(
+    {
+      instructor_id: payload.instructorId,
+      cohort_id: payload.cohortId,
+      mode: payload.mode,
+      amount: payload.amount,
+      requires_attendance: payload.requiresAttendance,
+    } as never,
+    { onConflict: 'instructor_id,cohort_id' }
+  );
+
+  if (error) return { success: false, error: error.message || 'No se pudo guardar la tarifa' };
+  return { success: true };
+}
+
+/**
+ * Deja registrado un pago a un profesor y lo marca como hecho.
+ *
+ * El periodo es la llave: hay un único pago por profesor, cohorte y periodo,
+ * así que volver a marcar el mismo mes no lo duplica.
+ */
+export async function payInstructor(payload: {
+  instructorId: string;
+  cohortId: number;
+  concept: string;
+  amount: number;
+  periodStart: string;
+  periodEnd: string;
+  sessionCount: number;
+  method?: string;
+  notes?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const { supabase, user, error: authError } = await requireAdmin();
+  if (authError || !user) return { success: false, error: authError ?? 'Sin permisos' };
+
+  if (!Number.isFinite(payload.amount) || payload.amount <= 0) {
+    return { success: false, error: 'El monto debe ser mayor que cero' };
+  }
+  if (!payload.periodStart || !payload.periodEnd) {
+    return { success: false, error: 'Falta el periodo que cubre el pago' };
+  }
+
+  const { error } = await supabase.from('instructor_payments').upsert(
+    {
+      instructor_id: payload.instructorId,
+      cohort_id: payload.cohortId,
+      concept: payload.concept,
+      amount: payload.amount,
+      period_start: payload.periodStart,
+      period_end: payload.periodEnd,
+      session_count: payload.sessionCount,
+      status: 'paid',
+      paid_at: new Date().toISOString(),
+      method: payload.method ?? null,
+      notes: payload.notes ?? null,
+      created_by: user.id,
+    } as never,
+    { onConflict: 'instructor_id,cohort_id,period_start,period_end' }
+  );
+
+  if (error) return { success: false, error: error.message || 'No se pudo registrar el pago' };
+  return { success: true };
+}

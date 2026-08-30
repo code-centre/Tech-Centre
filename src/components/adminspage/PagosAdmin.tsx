@@ -3,6 +3,7 @@
 import { useSupabaseClient, useUser } from '@/lib/supabase';
 import { useState, useEffect, useMemo } from 'react';
 import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import InstructorPayouts from './InstructorPayouts';
 import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 import {
   FileText,
@@ -173,6 +174,9 @@ export function PagosAdmin() {
   const [dueFrom, setDueFrom] = useState('');
   const [dueTo, setDueTo] = useState('');
   const [creating, setCreating] = useState(false);
+  // Las dos caras del dinero: lo que entra de los estudiantes y lo que sale a
+  // los profesores. Comparten encabezado porque son la misma pregunta.
+  const [side, setSide] = useState<'cobrar' | 'pagar'>('cobrar');
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [markingInvoice, setMarkingInvoice] = useState<InvoiceRow | null>(null);
@@ -433,7 +437,11 @@ export function PagosAdmin() {
       <AdminPageHeader
         icon={FileText}
         title="Pagos"
-        subtitle={`${invoices.length} facturas · ${money(overview.receivable)} por cobrar · ${money(overview.overdue)} vencido`}
+        subtitle={
+          side === 'cobrar'
+            ? `${invoices.length} facturas · ${money(overview.receivable)} por cobrar · ${money(overview.overdue)} vencido`
+            : 'Lo que se le debe a cada profesor por las clases que ya dictó'
+        }
         action={
           <div className="flex items-center gap-2.5">
             <button
@@ -444,14 +452,50 @@ export function PagosAdmin() {
               <Download className="w-4 h-4" />
               Exportar CSV
             </button>
-            <button type="button" onClick={() => setCreating(true)} className="btn-primary flex items-center gap-2">
-              <Plus size={20} />
-              Registrar pago
-            </button>
+            {side === 'cobrar' && (
+              <button type="button" onClick={() => setCreating(true)} className="btn-primary flex items-center gap-2">
+                <Plus size={20} />
+                Registrar pago
+              </button>
+            )}
           </div>
         }
       />
 
+      {/* Las dos caras del dinero */}
+      <div
+        className="flex w-fit items-center gap-1 rounded-[10px] border border-border-color bg-[var(--card-background)] p-1"
+        role="tablist"
+        aria-label="Qué lado de los pagos"
+      >
+        {([
+          { value: 'cobrar' as const, label: 'Por cobrar a estudiantes' },
+          { value: 'pagar' as const, label: 'Por pagar a profesores' },
+        ]).map((tab) => {
+          const isActive = side === tab.value;
+          return (
+            <button
+              key={tab.value}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setSide(tab.value)}
+              className={`inline-flex h-9 shrink-0 items-center rounded-lg border px-3.5 text-sm font-medium transition-colors ${
+                isActive
+                  ? 'border-secondary/30 bg-secondary/10 text-text-secondary'
+                  : 'border-transparent text-text-muted hover:text-text-primary'
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {side === 'pagar' && <InstructorPayouts />}
+
+      {side === 'cobrar' && (
+      <>
       {/* Cifras */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {kpis.map((kpi) => (
@@ -974,6 +1018,8 @@ export function PagosAdmin() {
           })
         )}
       </div>
+      </>
+      )}
 
       <NewInvoiceModal
         open={creating}

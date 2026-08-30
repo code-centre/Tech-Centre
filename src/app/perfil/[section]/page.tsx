@@ -5,8 +5,9 @@ import { useRouter, useParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { useUser } from '@/lib/supabase'
 import ProfileCursosMatriculados from '@/components/profile/ProfileCursosMatriculados'
+import InstructorPayments from '@/components/profile/InstructorPayments'
 
-const validSections = ['datos-personales', 'cursos', 'facturas']
+const validSections = ['datos-personales', 'cursos', 'facturas', 'honorarios']
 
 export default function ProfileSectionPage() {
   const { user, loading } = useUser();
@@ -56,6 +57,12 @@ export default function ProfileSectionPage() {
         <ProfileCursosMatriculados user={user} />
       ) : activeSection === 'facturas' ? (
         <PaymentReceiptsManager />
+      ) : activeSection === 'honorarios' ? (
+        ['admin', 'instructor'].includes(user.role) ? (
+          <InstructorPayments />
+        ) : (
+          <p className="text-secondary">No tienes acceso a esta sección</p>
+        )
       ) : (
         <p className="text-secondary">No tienes acceso a esta sección</p>
       )}

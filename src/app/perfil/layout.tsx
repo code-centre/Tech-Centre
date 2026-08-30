@@ -1,12 +1,12 @@
 'use client'
 import { Sidebar } from '@/components/profile/Sidebar'
-import { CalendarIcon, UserIcon, Receipt, GraduationCap } from 'lucide-react'
+import { CalendarIcon, UserIcon, Receipt, GraduationCap, Wallet } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import React from 'react'
 import { useUser } from '@/lib/supabase'
 
-const validSections = ['datos-personales', 'cursos', 'facturas', 'instructor']
+const validSections = ['datos-personales', 'cursos', 'facturas', 'instructor', 'honorarios']
 
 export default function ProfileLayout({
   children,
@@ -26,9 +26,15 @@ export default function ProfileLayout({
     { id: 'cursos', label: 'Mis cursos', icon: CalendarIcon },
     { id: 'facturas', label: 'Facturas', icon: Receipt },
   ]
-  const instructorSection = { id: 'instructor', label: 'Panel instructor', icon: GraduationCap }
+  // Un profesor tiene dos cosas más: sus cohortes y lo que se le paga por
+  // dictarlas. «Honorarios» y no «Mis pagos» a propósito: si además está
+  // matriculado, ya tiene una sección con ese nombre para lo que él debe.
+  const instructorSections = [
+    { id: 'instructor', label: 'Panel instructor', icon: GraduationCap },
+    { id: 'honorarios', label: 'Mis honorarios', icon: Wallet },
+  ]
   const sections = user && ['admin', 'instructor'].includes(user.role)
-    ? [...baseSections, instructorSection]
+    ? [...baseSections, ...instructorSections]
     : baseSections
 
   const handleSectionChange = (sectionId: string) => {
