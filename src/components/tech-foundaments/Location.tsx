@@ -5,10 +5,13 @@ import LocationModalEditing from './LocationModalEditing';
 
 export default function Location() {
     return (
-        <div className="max-w-full bg-(--card-diplomado-bg) rounded-2xl shadow-xl overflow-hidden border [border-color:var(--card-diplomado-border)] dark:border-border-color p-6 md:p-8">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="font-highlight text-2xl md:text-3xl font-extrabold tracking-tight flex items-center gap-2.5 card-text-primary">
-                    <MapPin className="text-secondary" size={26} />
+        <section className="flex flex-col gap-7">
+            <div className="flex flex-col gap-3 max-w-2xl">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">
+                    Dónde se dicta
+                </span>
+                <h2 className="font-highlight text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-2.5 card-text-primary">
+                    <MapPin className="text-secondary" size={28} />
                         Sede de Tech Centre
                 </h2>
                 {/* {isAdmin && (
@@ -21,22 +24,24 @@ export default function Location() {
                 )} */}
             </div>
             
-            <div className="space-y-6">
-                <iframe
-                    src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(
-                        "Cra 50 #72-126"
-                    )}`}
-                    height={400}
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    className="w-full rounded-md"
-                ></iframe>
-                
-                <div className="mb-4">
-                    <h3 className="font-bold text-xl pb-2 card-text-primary">Código Abierto</h3>
-                    <p className="leading-relaxed card-text-primary">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-5 items-stretch">
+                <div className="overflow-hidden rounded-2xl border border-gray-300 dark:border-border-color min-h-[320px]">
+                    <iframe
+                        src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(
+                            "Cra 50 #72-126"
+                        )}`}
+                        style={{ border: 0 }}
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        className="w-full h-full min-h-[320px]"
+                    ></iframe>
+                </div>
+
+                <div className="flex flex-col gap-3 p-6 md:p-7 rounded-2xl bg-(--card-diplomado-bg) border border-gray-300 dark:border-border-color">
+                    <span className="text-sm font-semibold card-text-primary">Cra 50 #72-126, El Prado</span>
+                    <h3 className="font-bold text-xl card-text-primary">Código Abierto</h3>
+                    <p className="text-[15px] leading-relaxed card-text-muted">
                         La Sede de Código Abierto es el epicentro tecnológico de la Costa, impulsando la innovación y colaboración en torno a la tecnología. A través de talleres, eventos y proyectos disruptivos, promueve la cultura de código abierto y fortalece el ecosistema digital de la región.
                     </p>
                 </div>
@@ -57,6 +62,6 @@ export default function Location() {
                     onSaveLocation={handleSaveLocation}
                 />
             )} */}
-        </div>
+        </section>
     )
 }

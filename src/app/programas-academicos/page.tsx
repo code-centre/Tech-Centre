@@ -17,7 +17,7 @@ const WHATSAPP_URL = 'https://wa.me/573005523872?text=Hola%2C%20quiero%20informa
 
 export default function ProgramasAcademicos() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen max-w-7xl mx-auto">
       
       <ProgramsList 
         fetchPrograms={true}

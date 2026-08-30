@@ -21,7 +21,12 @@ import {
   getPaymentSummary,
   markInvoicePaid,
 } from '@/lib/services/invoices-service';
-import { createProgram, listPrograms } from '@/lib/services/programs-service';
+import {
+  createProgram,
+  getProgram,
+  listPrograms,
+  updateProgram,
+} from '@/lib/services/programs-service';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -29,6 +34,96 @@ export const maxDuration = 60;
 function getAuth(ctx: { http?: { authInfo?: AuthInfo } }): McpAuthInfo | undefined {
   return ctx.http?.authInfo as McpAuthInfo | undefined;
 }
+
+const finalProjectItemSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+});
+
+/**
+ * Todos los campos editables de `programs`, compartidos por create_program y
+ * update_program. Los jsonb usan la misma forma que renderiza la página
+ * pública (ver src/lib/programLanding.ts).
+ */
+const programFieldSchemas = {
+  subtitle: z.string().optional(),
+  description: z.string().optional(),
+  kind: z
+    .string()
+    .optional()
+    .describe("Program type, e.g. 'diplomado', 'curso especializado', 'curso corto'."),
+  difficulty: z
+    .enum(['beginner', 'intermediate', 'advanced', 'Principiante', 'Intermedio', 'Avanzado'])
+    .optional(),
+  total_hours: z.number().int().nonnegative().optional(),
+  default_price: z.number().nonnegative().optional(),
+  discount: z
+    .number()
+    .nonnegative()
+    .optional()
+    .describe('Sale price. 0 means no active sale.'),
+  currency: z.enum(['COP', 'USD', 'EUR']).optional(),
+  duration: z.string().optional().describe("Free text, e.g. '8 semanas'."),
+  schedule: z
+    .string()
+    .optional()
+    .describe("Free text, e.g. 'Lunes a miércoles, 7 a 9 p. m.'."),
+  start_date: z.string().optional().describe('YYYY-MM-DD.'),
+  video: z.string().optional().describe('YouTube or Vimeo URL for the presentation video.'),
+  image: z.string().optional().describe('Public URL of the cover image.'),
+  audience: z.string().optional().describe('One-line target audience shown in the hero.'),
+  slug: z.string().optional().describe('Alternative slug for URLs (code is used by default).'),
+  stack: z
+    .array(z.string())
+    .optional()
+    .describe('Technologies taught, shown as tags in the header.'),
+  includes: z
+    .array(z.string())
+    .optional()
+    .describe("What the investment includes, shown next to the price."),
+  audience_fit: z
+    .object({
+      yes: z.array(z.string()),
+      not_yet: z.array(z.string()),
+    })
+    .optional()
+    .describe('"¿Es para ti?" section: reasons to join (yes) and to wait (not_yet).'),
+  prerequisites: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        detail: z.string().optional(),
+      })
+    )
+    .optional(),
+  final_project: z
+    .object({
+      title: z.string().optional(),
+      summary: z.string().optional(),
+      requirements: z.array(finalProjectItemSchema).optional(),
+      examples: z.array(finalProjectItemSchema).optional(),
+    })
+    .optional(),
+  faqs: z
+    .array(
+      z.object({
+        question: z.string().min(1),
+        answer: z.string().min(1),
+      })
+    )
+    .optional(),
+  syllabus: z
+    .object({
+      modules: z.array(
+        z.object({
+          id: z.number().int(),
+          title: z.string().min(1),
+          topics: z.array(z.string()),
+        })
+      ),
+    })
+    .optional(),
+};
 
 const baseHandler = createMcpHandler(
   (server) => {
@@ -58,21 +153,38 @@ const baseHandler = createMcpHandler(
     );
 
     server.registerTool(
+      'get_program',
+      {
+        title: 'Get program',
+        description:
+          'Get a program by id with every field, including the landing-page content (stack, includes, audience_fit, prerequisites, final_project, faqs, syllabus).',
+        inputSchema: z.object({
+          programId: z.number().int().positive(),
+        }),
+      },
+      async ({ programId }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.PROGRAMS_READ)) {
+          throw new Error('Missing scope programs:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const program = await getProgram(client, programId);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(program, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
       'create_program',
       {
         title: 'Create program',
         description:
-          'Create an academic program (admin only). The code is generated automatically from the name.',
+          'Create an academic program (admin only) with any of its fields, including the landing-page content. The code is generated automatically from the name.',
         inputSchema: z.object({
           name: z.string().min(1),
-          subtitle: z.string().optional(),
-          description: z.string().optional(),
-          kind: z
-            .enum(['diplomado', 'curso especializado', 'curso corto'])
-            .optional(),
-          difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
-          total_hours: z.number().int().nonnegative().optional(),
-          default_price: z.number().nonnegative().optional(),
+          ...programFieldSchemas,
         }),
       },
       async (input, ctx) => {
@@ -98,6 +210,49 @@ const baseHandler = createMcpHandler(
             actorSub: auth.userId,
             toolName: 'create_program',
             input,
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'update_program',
+      {
+        title: 'Update program',
+        description:
+          'Update any fields of a program (admin only). Only the provided fields are changed; jsonb fields (stack, includes, audience_fit, prerequisites, final_project, faqs, syllabus) are replaced whole, so send the complete new value.',
+        inputSchema: z.object({
+          programId: z.number().int().positive(),
+          name: z.string().min(1).optional(),
+          code: z.string().min(1).optional(),
+          ...programFieldSchemas,
+        }),
+      },
+      async ({ programId, ...input }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.PROGRAMS_WRITE)) {
+          throw new Error('Missing scope programs:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        try {
+          const program = await updateProgram(client, programId, input);
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'update_program',
+            input: { programId, ...input },
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(program, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'update_program',
+            input: { programId, ...input },
             resultStatus: 'error',
           });
           throw error;

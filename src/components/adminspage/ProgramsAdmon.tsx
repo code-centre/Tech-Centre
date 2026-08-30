@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Plus, Trash2, X, XCircle, GraduationCap, Users, Loader2, Calendar, Save, SearchX } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Plus, Trash2, GraduationCap, Search, SearchX, Check, AlertCircle } from 'lucide-react';
 import AdminPageHeader from '@/components/admin/AdminPageHeader';
 import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 import AdminEmptyState from '@/components/admin/AdminEmptyState';
@@ -12,519 +14,217 @@ import {
   adminTableRowClass,
 } from '@/components/admin/admin-table';
 import { useSupabaseClient, useUser } from '@/lib/supabase';
-import Link from 'next/link';
-import Image from 'next/image';
+import { getProgramReadiness } from '@/lib/programReadiness';
+import { formatPrice } from '../../../utils/formatCurrency';
+import ProgramCreateDialog from './ProgramCreateDialog';
+import ProgramDeleteDialog from './ProgramDeleteDialog';
+import type { Program } from '@/types/programs';
 
-type Program = {
+interface CohortRow {
   id: number;
-  name: string;
-  syllabus?: any;
-  code: string;
-  difficulty: string;
-  kind: string;
-  total_hours: number;
-  default_price: number;
-  created_at: string;
-  updated_at: string;
-  audience?: string;
-  image?: string;
-  description?: string;
-  schedule?: string;
-  cohorts?: Array<{
-    id: number;
-    name: string;
-    start_date: string;
-    end_date: string;
-    modality: string;
-    campus: string;
-  }>;
-};
+  end_date: string | null;
+  offering: boolean | null;
+}
+
+type ProgramWithCohorts = Program & { cohorts?: CohortRow[] };
+
+type Filtro = 'todos' | 'completos' | 'incompletos';
+
+const FILTROS: { id: Filtro; label: string }[] = [
+  { id: 'todos', label: 'Todos' },
+  { id: 'completos', label: 'Completos' },
+  { id: 'incompletos', label: 'Incompletos' },
+];
+
+function difficultyDot(difficulty?: string): string {
+  const d = (difficulty || '').toLowerCase();
+  if (d.includes('principiante') || d.includes('básico') || d.includes('beginner')) return 'bg-emerald-400';
+  if (d.includes('intermedio') || d.includes('intermediate')) return 'bg-amber-400';
+  if (d.includes('avanzado') || d.includes('advanced')) return 'bg-red-400';
+  return 'bg-blue-400';
+}
 
 export default function ProgramsAdmon() {
-  const supabase = useSupabaseClient()
-  const [programs, setPrograms] = useState<Program[]>([]);
+  const supabase = useSupabaseClient();
+  const { user } = useUser();
+
+  const [programs, setPrograms] = useState<ProgramWithCohorts[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [currentProgram, setCurrentProgram] = useState({
-    name: '',
-    code: '',
-    kind: 'curso',
-    difficulty: 'Principiante',
-    total_hours: 0,
-    default_price: 0,
-    audience: '',
-  });
-  const [isAdding, setIsAdding] = useState(false);
-  const [viewingSyllabus, setViewingSyllabus] = useState<{isOpen: boolean, content: any}>({isOpen: false, content: null});
-  const [programToDelete, setProgramToDelete] = useState<Program | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  const openSyllabusModal = (syllabus: any) => {
-    setViewingSyllabus({
-      isOpen: true,
-      content: syllabus
-    });
-  };
-
-  const closeSyllabusModal = () => {
-    setViewingSyllabus({isOpen: false, content: null});
-  };
-
-  // Función para cargar los programas con sus cohortes
-  const fetchPrograms = async () => {
-    try {
-      setLoading(true);
-      const { data: programsData, error: programsError } = await supabase
-        .from('programs')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (programsError) throw programsError;
-      
-      // Obtener cohortes para cada programa
-      const programsWithCohorts = await Promise.all(
-        (programsData || []).map(async (program: any) => {
-          const { data: cohortsData } = await supabase
-            .from('cohorts')
-            .select('id, name, start_date, end_date, modality, campus')
-            .eq('program_id', program.id);
-          
-          return {
-            ...program,
-            cohorts: cohortsData || []
-          };
-        })
-      );
-
-      setPrograms(programsWithCohorts);
-    } catch (err) {
-      console.error('Error al cargar los programas:', err);
-      setError('Error al cargar los programas');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [query, setQuery] = useState('');
+  const [filtro, setFiltro] = useState<Filtro>('todos');
+  const [creating, setCreating] = useState(false);
+  const [toDelete, setToDelete] = useState<Program | null>(null);
 
   useEffect(() => {
+    async function fetchPrograms() {
+      try {
+        setLoading(true);
+        const { data: programsData, error: programsError } = await supabase
+          .from('programs')
+          .select('*')
+          .order('updated_at', { ascending: false });
+
+        if (programsError) throw programsError;
+
+        const rows = (programsData as unknown as Program[]) || [];
+        const withCohorts = await Promise.all(
+          rows.map(async (program) => {
+            const { data: cohorts } = await supabase
+              .from('cohorts')
+              .select('id, end_date, offering')
+              .eq('program_id', program.id);
+            return { ...program, cohorts: (cohorts as unknown as CohortRow[]) || [] };
+          })
+        );
+
+        setPrograms(withCohorts);
+      } catch (err) {
+        console.error('Error al cargar los programas:', err);
+        setError('Error al cargar los programas');
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchPrograms();
-  }, []);
+  }, [supabase]);
 
-  // Estadísticas
-  const stats = {
-    total: programs.length,
-    withCohorts: programs.filter(p => p.cohorts && p.cohorts.length > 0).length,
-  };
+  // La completitud de la página se calcula una vez y sirve para la columna,
+  // para los contadores de los filtros y para el resumen del encabezado.
+  const enriched = useMemo(
+    () =>
+      programs.map((program) => {
+        const cohorts = program.cohorts || [];
+        const readiness = getProgramReadiness(program, {
+          offeringCohorts: cohorts.filter((c) => c.offering).length,
+        });
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return {
+          program,
+          readiness,
+          active: cohorts.filter((c) => c.end_date && new Date(c.end_date) >= today).length,
+          past: cohorts.filter((c) => !c.end_date || new Date(c.end_date) < today).length,
+        };
+      }),
+    [programs]
+  );
 
-  const filteredPrograms = programs;
+  const complete = enriched.filter((row) => row.readiness.missing.length === 0).length;
 
-  const handleEdit = (program: Program) => {
-    setEditingId(program.id);
-    setCurrentProgram({
-      name: program.name,
-      code: program.code,
-      kind: program.kind || 'curso',
-      difficulty: (program.difficulty as string) || 'Principiante',
-      total_hours: program.total_hours ?? 0,
-      default_price: program.default_price ?? 0,
-      audience: program.audience || '',
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return enriched.filter((row) => {
+      const isComplete = row.readiness.missing.length === 0;
+      if (filtro === 'completos' && !isComplete) return false;
+      if (filtro === 'incompletos' && isComplete) return false;
+      if (!q) return true;
+      return `${row.program.name} ${row.program.code ?? ''}`.toLowerCase().includes(q);
     });
-    setIsAdding(false);
-  };
-
-  const handleSave = async () => {
-    if (currentProgram.name.trim() === '') {
-      alert('El nombre del programa es requerido');
-      return;
-    }
-
-    setSaving(true);
-    setError(null);
-    
-    try {
-      const baseData = {
-        name: currentProgram.name.trim(),
-        code: currentProgram.code.trim(),
-        kind: currentProgram.kind ?? null,
-        difficulty: currentProgram.difficulty ?? null,
-        total_hours: currentProgram.total_hours ?? null,
-        default_price: currentProgram.default_price ?? null,
-        audience: currentProgram.audience?.trim() || null,
-      };
-      
-      if (editingId) {
-        // Actualizar programa existente
-        const { data: updatedProgram, error: updateError } = await supabase
-          .from('programs')
-          .update({ ...baseData, updated_at: new Date().toISOString() })
-          .eq('id', editingId)
-          .select()
-          .single();
-
-        if (updateError) {
-          throw new Error(updateError.message || 'Error al actualizar el programa');
-        }
-        
-        // Recargar cohortes
-        const { data: cohortsData, error: cohortsError } = await supabase
-          .from('cohorts')
-          .select('id, name, start_date, end_date, modality, campus')
-          .eq('program_id', editingId);
-        
-        if (cohortsError) {
-          console.warn('Error al cargar cohortes:', cohortsError);
-        }
-        
-        setPrograms(programs.map(p => 
-          p.id === updatedProgram.id ? { ...updatedProgram, cohorts: cohortsData || [] } : p
-        ));
-        
-        setEditingId(null);
-        alert('Programa actualizado exitosamente');
-      } else {
-        // Crear nuevo programa
-        const { data: newProgram, error: insertError } = await supabase
-          .from('programs')
-          .insert([
-            {
-              ...baseData,
-              syllabus: {},
-              image: null,
-              description: null,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            }
-          ])
-          .select()
-          .single();
-
-        if (insertError) {
-          throw new Error(insertError.message || 'Error al crear el programa');
-        }
-        
-        setPrograms([{ ...newProgram, cohorts: [] }, ...programs]);
-        setIsAdding(false);
-        alert('Programa creado exitosamente');
-      }
-      
-      // Resetear formulario solo si todo fue exitoso
-      setCurrentProgram({
-        name: '',
-        code: '',
-        kind: 'curso',
-        difficulty: 'Principiante',
-        total_hours: 0,
-        default_price: 0,
-        audience: '',
-      });
-      
-    } catch (err: any) {
-      console.error('Error al guardar el programa:', err);
-      const errorMessage = err?.message || 'Ocurrió un error al guardar el programa. Por favor, inténtalo de nuevo.';
-      setError(errorMessage);
-      alert(errorMessage);
-    } finally {
-      // Asegurar que siempre se resetee el estado de guardado
-      setSaving(false);
-    }
-  };
-
-  const openDeleteModal = (program: Program) => {
-    setDeleteError(null);
-    setProgramToDelete(program);
-  };
-
-  const closeDeleteModal = () => {
-    if (!deleting) {
-      setProgramToDelete(null);
-      setDeleteError(null);
-    }
-  };
-
-  const confirmDelete = async () => {
-    if (!programToDelete) return;
-    setDeleting(true);
-    setDeleteError(null);
-    try {
-      const { data: cohortsData, error: cohortsSelectError } = await supabase
-        .from('cohorts')
-        .select('id')
-        .eq('program_id', programToDelete.id);
-
-      if (cohortsSelectError) throw cohortsSelectError;
-
-      const cohortIds = (cohortsData || []).map((c) => c.id);
-
-      if (cohortIds.length > 0) {
-        const { data: enrollments, error: enrollmentsSelectError } = await supabase
-          .from('enrollments')
-          .select('id')
-          .in('cohort_id', cohortIds);
-
-        if (enrollmentsSelectError) throw enrollmentsSelectError;
-
-        const enrollmentIds = (enrollments || []).map((e) => e.id);
-
-        if (enrollmentIds.length > 0) {
-          const { error: invoicesError } = await supabase
-            .from('invoices')
-            .delete()
-            .in('enrollment_id', enrollmentIds);
-
-          if (invoicesError) throw invoicesError;
-        }
-
-        const { error: enrollmentsError } = await supabase
-          .from('enrollments')
-          .delete()
-          .in('cohort_id', cohortIds);
-
-        if (enrollmentsError) throw enrollmentsError;
-      }
-
-      const { error: cohortsError } = await supabase
-        .from('cohorts')
-        .delete()
-        .eq('program_id', programToDelete.id);
-
-      if (cohortsError) throw cohortsError;
-
-      const { error } = await supabase
-        .from('programs')
-        .delete()
-        .eq('id', programToDelete.id);
-
-      if (error) throw error;
-
-      setPrograms(programs.filter((p) => p.id !== programToDelete.id));
-      closeDeleteModal();
-    } catch (err) {
-      console.error('Error al eliminar:', err);
-      const msg =
-        err instanceof Error
-          ? err.message
-          : 'No se pudo eliminar el programa. Verifica que no tenga datos asociados.';
-      setDeleteError(msg);
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setEditingId(null);
-    setIsAdding(false);
-    setSaving(false);
-    setError(null);
-    setCurrentProgram({
-      name: '',
-      code: '',
-      kind: 'curso',
-      difficulty: 'Principiante',
-      total_hours: 0,
-      default_price: 0,
-      audience: '',
-    });
-  };
-
-  const getDifficultyColor = (difficulty: string) => {
-    const d = (difficulty || '').toLowerCase();
-    if (d.includes('principiante') || d.includes('básico') || d.includes('beginner')) return 'bg-emerald-500';
-    if (d.includes('intermedio') || d.includes('intermediate')) return 'bg-amber-500';
-    if (d.includes('avanzado') || d.includes('advanced')) return 'bg-red-500';
-    return 'bg-blue-500';
-  };
-
-  const getDifficultyLabel = (difficulty: string) => {
-    return difficulty || '—';
-  };
-
-  const { user } = useUser();
+  }, [enriched, query, filtro]);
 
   if (!user || user?.role !== 'admin') {
     return <div className="p-8 text-center text-text-primary">No tienes permisos para ver esta sección</div>;
   }
 
-  if (loading && !isAdding && !editingId) {
+  if (loading) {
     return <AdminPageSkeleton />;
   }
 
-  const headerSubtitle = `${stats.total} ${stats.total === 1 ? 'programa' : 'programas'} · ${stats.withCohorts} con cohortes`;
+  const counts: Record<Filtro, number> = {
+    todos: enriched.length,
+    completos: complete,
+    incompletos: enriched.length - complete,
+  };
 
   return (
     <div className="space-y-6">
       <AdminPageHeader
         icon={GraduationCap}
         title="Programas"
-        subtitle={headerSubtitle}
+        subtitle={`${enriched.length} ${enriched.length === 1 ? 'programa' : 'programas'} · ${complete} con la página completa`}
         action={
-          !isAdding && !editingId ? (
-            <button
-              type="button"
-              onClick={() => setIsAdding(true)}
-              className="btn-primary flex items-center gap-2"
-            >
-              <Plus size={20} />
-              Nuevo programa
-            </button>
-          ) : undefined
+          <button type="button" onClick={() => setCreating(true)} className="btn-primary flex items-center gap-2">
+            <Plus size={20} />
+            Nuevo programa
+          </button>
         }
       />
 
-      {error && !isAdding && !editingId && <AdminErrorBanner message={error} />}
+      {error && <AdminErrorBanner message={error} />}
 
-      {/* Formulario para agregar/editar */}
-      {(isAdding || editingId) && (
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color p-6 shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-text-primary">
-              {editingId ? 'Editar Programa' : 'Nuevo Programa'}
-            </h3>
-            <button
-              onClick={handleCancel}
-              disabled={saving}
-              className="text-text-muted hover:text-text-primary transition-colors disabled:opacity-50"
-              title="Cancelar"
-              aria-label="Cancelar"
-            >
-              <X size={24} />
-            </button>
+      {enriched.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative grow min-w-[280px] max-w-[420px]">
+            <Search
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"
+              aria-hidden
+            />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar por nombre o código…"
+              aria-label="Buscar programas"
+              className="w-full pl-10 pr-3.5 py-2.5 rounded-lg bg-bg-secondary border border-border-color text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-all"
+            />
           </div>
-          
-          {error && (
-            <div className="mb-4 p-4 bg-red-900/20 border border-red-800/50 rounded-lg">
-              <p className="text-red-400 text-sm">{error}</p>
-            </div>
-          )}
-          
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            handleSave();
-          }} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">Nombre *</label>
-              <input
-                type="text"
-                value={currentProgram.name}
-                onChange={(e) => setCurrentProgram({...currentProgram, name: e.target.value})}
-                className="w-full p-3 bg-bg-secondary border border-border-color rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary"
-                placeholder="Nombre del programa"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">Código</label>
-              <input
-                type="text"
-                value={currentProgram.code}
-                onChange={(e) => setCurrentProgram({...currentProgram, code: e.target.value})}
-                className="w-full p-3 bg-bg-secondary border border-border-color rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary"
-                placeholder="Código del programa"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">Tipo</label>
-              <select
-                value={currentProgram.kind}
-                onChange={(e) => setCurrentProgram({...currentProgram, kind: e.target.value})}
-                className="w-full p-3 bg-bg-secondary border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-secondary"
-              >
-                <option value="diplomado">Diplomado</option>
-                <option value="curso">Curso</option>
-                <option value="certificación">Certificación</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">Dificultad</label>
-              <select
-                value={currentProgram.difficulty}
-                onChange={(e) => setCurrentProgram({...currentProgram, difficulty: e.target.value})}
-                className="w-full p-3 bg-bg-secondary border border-border-color rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-secondary"
-              >
-                <option value="Principiante">Principiante</option>
-                <option value="Intermedio">Intermedio</option>
-                <option value="Avanzado">Avanzado</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">Horas totales</label>
-              <input
-                type="number"
-                min="0"
-                value={currentProgram.total_hours}
-                onChange={(e) => setCurrentProgram({...currentProgram, total_hours: parseInt(e.target.value) || 0})}
-                className="w-full p-3 bg-bg-secondary border border-border-color rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary"
-                placeholder="Horas del programa"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">Precio por defecto (COP)</label>
-              <input
-                type="number"
-                min="0"
-                value={currentProgram.default_price}
-                onChange={(e) => setCurrentProgram({...currentProgram, default_price: parseInt(e.target.value) || 0})}
-                className="w-full p-3 bg-bg-secondary border border-border-color rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary"
-                placeholder="Precio por defecto"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-text-primary mb-2">Público objetivo</label>
-              <input
-                type="text"
-                value={currentProgram.audience}
-                onChange={(e) => setCurrentProgram({...currentProgram, audience: e.target.value})}
-                className="w-full p-3 bg-bg-secondary border border-border-color rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary"
-                placeholder="Para quién es este programa"
-              />
-            </div>
-            <div className="md:col-span-2 flex justify-end gap-3 mt-4">
-                        <button
-                            type="button"
-                            onClick={handleCancel}
-                className="px-6 py-3 bg-bg-secondary text-text-primary font-medium rounded-lg border border-border-color hover:bg-bg-secondary/80 hover:border-secondary/50 transition-all duration-200"
-                disabled={saving}
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                disabled={saving}
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="animate-spin" size={20} />
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <Save size={20} />
-                    {editingId ? 'Actualizar' : 'Guardar'}
-                  </>
-                )}
-              </button>
-                    </div>
-                </form>
-            </div>
+
+          <div className="flex gap-1 p-1 rounded-[10px] bg-bg-secondary border border-border-color">
+            {FILTROS.map((item) => {
+              const isActive = filtro === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setFiltro(item.id)}
+                  aria-pressed={isActive}
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-[7px] text-[13.5px] transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[var(--card-background)] border border-border-color text-text-primary font-semibold'
+                      : 'border border-transparent text-text-muted font-medium hover:text-text-primary'
+                  }`}
+                >
+                  {item.label}
+                  <span
+                    className={`px-1.5 py-px rounded-full text-[11.5px] font-semibold ${
+                      isActive ? 'bg-secondary/15 text-secondary' : 'bg-[var(--card-background)] text-text-muted'
+                    }`}
+                  >
+                    {counts[item.id]}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <span className="ml-auto text-[13px] text-text-muted">
+            {visible.length === enriched.length
+              ? `Mostrando los ${enriched.length}`
+              : `Mostrando ${visible.length} de ${enriched.length}`}
+          </span>
+        </div>
       )}
 
-      {/* Lista de programas */}
-      {error && (isAdding || editingId) ? (
-        <AdminErrorBanner message={error} />
-      ) : filteredPrograms.length === 0 ? (
+      {enriched.length === 0 ? (
         <AdminEmptyState
           icon={SearchX}
           title="No hay programas registrados"
           description="Crea tu primer programa académico para abrir cohortes."
           actions={
-            <button type="button" onClick={() => setIsAdding(true)} className="btn-primary">
+            <button type="button" onClick={() => setCreating(true)} className="btn-primary">
               <Plus className="h-4 w-4" />
               Nuevo programa
             </button>
           }
         />
+      ) : visible.length === 0 ? (
+        <div className="flex flex-col items-center gap-2.5 py-14 rounded-xl bg-[var(--card-background)] border border-border-color">
+          <SearchX className="w-7 h-7 text-text-muted" aria-hidden />
+          <span className="text-[14.5px] font-medium text-text-primary">Ningún programa coincide</span>
+          <span className="text-[13px] text-text-muted">Prueba con otro término o quita el filtro.</span>
+        </div>
       ) : (
         <div className={adminTableClass}>
           <div className="overflow-x-auto">
@@ -535,16 +235,19 @@ export default function ProgramsAdmon() {
                     Programa
                   </th>
                   <th scope="col" className={adminTableHeadCellClass}>
+                    Estado de la página
+                  </th>
+                  <th scope="col" className={adminTableHeadCellClass}>
                     Nivel
                   </th>
                   <th scope="col" className={adminTableHeadCellClass}>
                     Horas
                   </th>
                   <th scope="col" className={adminTableHeadCellClass}>
-                    Cohortes activas
+                    Cohortes
                   </th>
-                  <th scope="col" className={adminTableHeadCellClass}>
-                    Cohortes pasadas
+                  <th scope="col" className={`${adminTableHeadCellClass} text-right`}>
+                    Precio
                   </th>
                   <th scope="col" className={`${adminTableHeadCellClass} text-right`}>
                     Acciones
@@ -552,185 +255,119 @@ export default function ProgramsAdmon() {
                 </tr>
               </thead>
               <tbody>
-                {filteredPrograms.map((program) => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const activeCohorts = (program.cohorts || []).filter(
-                      (c) => c.end_date && new Date(c.end_date) >= today
-                    );
-                    const pastCohorts = (program.cohorts || []).filter(
-                      (c) => !c.end_date || new Date(c.end_date) < today
-                    );
-                    return (
-                      <tr key={program.id} className={adminTableRowClass}>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-bg-secondary border border-border-color">
-                              {program.image ? (
-                                <Image
-                                  src={program.image}
-                                  alt={program.name}
-                                  width={48}
-                                  height={48}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <GraduationCap className="w-6 h-6 text-text-muted" />
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <p className="font-medium text-text-primary">{program.name}</p>
-                              {program.code && (
-                                <p className="text-sm text-text-muted">{program.code}</p>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-bg-secondary text-text-primary border border-border-color">
-                            <span
-                              className={`h-2 w-2 shrink-0 rounded-full ${getDifficultyColor(program.difficulty)}`}
-                              aria-hidden="true"
-                            />
-                            {getDifficultyLabel(program.difficulty)}
+                {visible.map(({ program, readiness, active, past }) => {
+                  const isComplete = readiness.missing.length === 0;
+                  return (
+                    <tr key={program.id} className={adminTableRowClass}>
+                      <td className="px-4 py-3">
+                        <Link href={`/admin/programas/${program.id}`} className="flex items-center gap-3 group">
+                          <span className="shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-bg-secondary border border-border-color flex items-center justify-center">
+                            {program.image ? (
+                              <Image
+                                src={program.image}
+                                alt=""
+                                width={40}
+                                height={40}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <GraduationCap className="w-5 h-5 text-text-muted" aria-hidden />
+                            )}
                           </span>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-text-muted">
-                          {program.total_hours ? `${program.total_hours} h` : '—'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium bg-green-500/20 text-green-400 border border-green-500/30">
-                            <Users className="w-4 h-4" />
-                            {activeCohorts.length}
+                          <span className="flex flex-col min-w-0">
+                            <span className="font-medium text-text-primary group-hover:text-secondary transition-colors">
+                              {program.name}
+                            </span>
+                            {program.code && (
+                              <span className="font-mono text-xs text-text-muted truncate">{program.code}</span>
+                            )}
                           </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium bg-text-muted/20 text-text-muted border border-border-color">
-                            <Calendar className="w-4 h-4" />
-                            {pastCohorts.length}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Link
-                              href={`/admin/programas/${program.id}`}
-                              className="btn-primary inline-flex items-center gap-2 text-sm px-4 py-2"
-                            >
-                              Ver detalles
-                            </Link>
-                            <button
-                              onClick={() => openDeleteModal(program)}
-                              className="p-2 bg-red-500/30 text-red-400 border border-red-500/50 hover:bg-red-500/40 rounded-lg transition-all"
-                              title="Eliminar"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+                        </Link>
+                      </td>
 
-      {/* Modal de confirmación para eliminar */}
-      {programToDelete && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-modal-title"
-        >
-          <div className="bg-[var(--card-background)] rounded-xl shadow-xl w-full max-w-md border border-border-color">
-            <div className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="shrink-0 w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
-                  <Trash2 className="w-6 h-6 text-red-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 id="delete-modal-title" className="text-lg font-semibold text-text-primary">
-                    Eliminar programa
-                  </h3>
-                  <p className="mt-2 text-text-muted">
-                    ¿Estás seguro de que deseas eliminar <strong className="text-text-primary">{programToDelete.name}</strong>? Esta acción no se puede deshacer y se eliminarán todas las cohortes, inscripciones y facturas asociadas.
-                  </p>
-                  {deleteError && (
-                    <p className="mt-3 text-sm text-red-500 bg-red-500/10 p-3 rounded-lg">
-                      {deleteError}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 px-6 pb-6">
-              <button
-                type="button"
-                onClick={closeDeleteModal}
-                disabled={deleting}
-                className="px-4 py-2 rounded-lg border border-border-color bg-bg-secondary text-text-primary hover:bg-bg-primary font-medium text-sm disabled:opacity-50"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={confirmDelete}
-                disabled={deleting}
-                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {deleting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Eliminando...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="w-4 h-4" />
-                    Eliminar
-                  </>
-                )}
-              </button>
-            </div>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                            isComplete
+                              ? 'bg-secondary/10 border border-secondary/30 text-secondary'
+                              : 'bg-amber-400/10 border border-amber-400/30 text-amber-400'
+                          }`}
+                          title={isComplete ? undefined : readiness.missing.map((m) => m.missingLabel).join(' · ')}
+                        >
+                          {isComplete ? (
+                            <Check className="w-3.5 h-3.5" aria-hidden />
+                          ) : (
+                            <AlertCircle className="w-3.5 h-3.5" aria-hidden />
+                          )}
+                          {isComplete ? 'Completa' : `Faltan ${readiness.missing.length}`}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-bg-secondary text-text-primary border border-border-color">
+                          <span
+                            className={`h-2 w-2 shrink-0 rounded-full ${difficultyDot(String(program.difficulty))}`}
+                            aria-hidden
+                          />
+                          {String(program.difficulty || '—')}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-3 text-sm text-text-muted">
+                        {program.total_hours ? `${program.total_hours} h` : '—'}
+                      </td>
+
+                      <td className="px-4 py-3 text-sm">
+                        <span className={active > 0 ? 'text-text-primary' : 'text-text-muted'}>
+                          {active} {active === 1 ? 'abierta' : 'abiertas'}
+                        </span>
+                        <span className="text-text-muted"> · {past} pasadas</span>
+                      </td>
+
+                      <td className="px-4 py-3 text-right text-sm tabular-nums text-text-muted">
+                        {program.default_price
+                          ? formatPrice(program.default_price, program.currency || 'COP')
+                          : '—'}
+                      </td>
+
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/admin/programas/${program.id}`}
+                            className="btn-primary inline-flex items-center gap-2 text-sm px-4 py-2"
+                          >
+                            Configurar
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => setToDelete(program)}
+                            className="p-2 bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30 rounded-lg transition-all"
+                            title={`Eliminar ${program.name}`}
+                            aria-label={`Eliminar ${program.name}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
 
-      {/* Modal para ver el syllabus */}
-      {viewingSyllabus.isOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--card-background)] rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col border border-border-color">
-            <div className="flex justify-between items-center border-b border-border-color px-6 py-4">
-              <h3 className="text-lg font-bold text-text-primary">Contenido del Syllabus</h3>
-              <button
-                onClick={closeSyllabusModal}
-                className="text-text-muted hover:text-text-primary transition-colors"
-                title="Cerrar"
-                aria-label="Cerrar"
-              >
-                <XCircle className="h-6 w-6" />
-              </button>
-            </div>
-            <div className="p-6 overflow-auto grow">
-              <pre className="bg-bg-secondary p-4 rounded-lg text-sm overflow-auto max-h-[60vh] text-text-primary">
-                {JSON.stringify(viewingSyllabus.content, null, 2)}
-              </pre>
-            </div>
-            <div className="bg-bg-secondary px-6 py-4 flex justify-end rounded-b-xl">
-              <button
-                type="button"
-                onClick={closeSyllabusModal}
-                className="btn-primary"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ProgramCreateDialog open={creating} onClose={() => setCreating(false)} />
+
+      <ProgramDeleteDialog
+        program={toDelete}
+        onClose={() => setToDelete(null)}
+        onDeleted={(programId) => {
+          setPrograms((prev) => prev.filter((p) => p.id !== programId));
+          setToDelete(null);
+        }}
+      />
     </div>
   );
 }

@@ -18,10 +18,20 @@ export default function ProgramPricing({ programData, cohortId, maximumPayments,
 
   return (
     <section
-      className="relative overflow-hidden rounded-2xl border [border-color:var(--card-diplomado-border)] dark:border-border-color bg-(--card-diplomado-bg) shadow-xl"
+      className="relative overflow-hidden rounded-3xl border [border-color:var(--card-diplomado-border)] dark:border-border-color bg-(--card-diplomado-bg) shadow-xl"
       aria-labelledby="program-pricing-heading"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 lg:gap-10 p-6 sm:p-8 lg:p-10">
+      {/* Panel de marca, como el encabezado: es el bloque que cierra la venta,
+          no una tarjeta más de la lista. */}
+      <div
+        className="absolute inset-0 opacity-90 dark:opacity-100"
+        style={{
+          backgroundImage:
+            'linear-gradient(148deg, color-mix(in oklab, var(--brand-teal) 38%, transparent) 0%, color-mix(in oklab, var(--brand-teal) 10%, transparent) 38%, transparent 66%)',
+        }}
+        aria-hidden="true"
+      />
+      <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 lg:gap-10 p-6 sm:p-8 lg:p-12">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
             <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">

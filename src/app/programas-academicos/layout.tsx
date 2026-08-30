@@ -3,9 +3,8 @@ export default function ProgramasAcademicosLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16">
-      {children}
-    </main>
-  );
+  // Solo aparta el espacio de la barra fija. El ancho máximo lo pone cada
+  // página: el detalle de programa necesita que su encabezado vaya a sangre,
+  // y un contenedor aquí se lo impedía.
+  return <main className="mt-16">{children}</main>;
 }

@@ -176,41 +176,26 @@ export default function ProgramDetailClient({
             timeRequired={programData.duration || undefined}
             url={`${baseUrl}/programas-academicos/${programData.code || programData.slug}`}
           />
-          <main className="flex flex-col lg:flex-row gap-8 lg:gap-10 pb-28 lg:pb-16 px-4 sm:px-6 lg:px-8">
-            <div className="flex-1 min-w-0">
-              <ProgramContainer
-                programData={programData}
-                cohorts={cohorts}
-                selectedCohortId={selectedCohortId}
-                onCohortSelect={setSelectedCohortId}
-                seatsLeft={seatsLeft}
-              />
-            </div>
+          <div className="pb-28 lg:pb-20">
+            <ProgramContainer
+              programData={programData}
+              cohorts={cohorts}
+              selectedCohortId={selectedCohortId}
+              onCohortSelect={setSelectedCohortId}
+              seatsLeft={seatsLeft}
+            />
+          </div>
 
-            {/* Escritorio: tarjeta de oferta pegada */}
-            <aside className="w-full lg:w-[360px] shrink-0 hidden lg:block">
-              <div className="sticky top-24">
-                <NavigationCard
-                  programData={programData}
-                  cohorts={cohorts}
-                  cohortId={selectedCohortId}
-                  onCohortSelect={setSelectedCohortId}
-                  seatsLeft={seatsLeft}
-                />
-              </div>
-            </aside>
-
-            {/* Móvil: barra fija con precio y las dos acciones */}
-            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 pt-3 pb-5 bg-[var(--bg-primary)]/95 backdrop-blur-sm border-t border-gray-300 dark:border-border-color shadow-[0_-12px_30px_-18px_rgba(0,0,0,0.6)]">
-              <NavigationCard
-                programData={programData}
-                cohorts={cohorts}
-                cohortId={selectedCohortId}
-                seatsLeft={seatsLeft}
-                compact
-              />
-            </div>
-          </main>
+          {/* Móvil: barra fija con precio y las dos acciones */}
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 pt-3 pb-5 bg-[var(--bg-primary)]/95 backdrop-blur-sm border-t border-gray-300 dark:border-border-color shadow-[0_-12px_30px_-18px_rgba(0,0,0,0.6)]">
+            <NavigationCard
+              programData={programData}
+              cohorts={cohorts}
+              cohortId={selectedCohortId}
+              seatsLeft={seatsLeft}
+              compact
+            />
+          </div>
         </>
        )}
 

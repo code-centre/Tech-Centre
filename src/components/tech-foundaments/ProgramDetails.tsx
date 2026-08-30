@@ -107,7 +107,7 @@ export default function ProgramDetails({ programData, cohorts, user, selectedCoh
   const hasMultipleCohorts = cohorts.length > 1
 
   return (
-    <section className="bg-(--card-diplomado-bg) backdrop-blur-sm p-6 md:p-8 rounded-2xl border [border-color:var(--card-diplomado-border)] dark:border-border-color shadow-lg">
+    <section className="flex flex-col">
       <div className="flex justify-between items-center">
         {isAdmin && !isEditing && (
           <ButtonToEdit startEditing={handleStartEdit} />
@@ -123,8 +123,8 @@ export default function ProgramDetails({ programData, cohorts, user, selectedCoh
       <div className={hasMultipleCohorts ? 'flex flex-col gap-4 md:gap-6' : ''}>
         <div className={hasMultipleCohorts ? 'grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6'}>
           {/* Inicio de clases - Solo lectura (viene de cohorte) */}
-          <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-xl border border-gray-300 dark:border-border-color hover:border-gray-500 dark:hover:border-secondary/50 hover:shadow-md transition-all duration-300">
-          <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-gradient-to-br dark:from-secondary/20 dark:to-secondary/10 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
+          <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-2xl bg-(--card-diplomado-bg) border border-gray-300 dark:border-border-color hover:border-secondary/50 hover:shadow-md transition-all duration-300">
+          <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-secondary/15 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
             <GraduationCap className="w-7 h-7 md:w-8 md:h-8 text-gray-700 dark:text-secondary" />
           </div>
           <span className="text-xs md:text-sm font-semibold card-text-muted mb-2 uppercase tracking-wide">Inicio de clases</span>
@@ -138,8 +138,8 @@ export default function ProgramDetails({ programData, cohorts, user, selectedCoh
         </div>
 
         {/* Duración - Editable */}
-        <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-xl border border-gray-300 dark:border-border-color hover:border-gray-500 dark:hover:border-secondary/50 hover:shadow-md transition-all duration-300">
-          <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-gradient-to-br dark:from-secondary/20 dark:to-secondary/10 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
+        <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-2xl bg-(--card-diplomado-bg) border border-gray-300 dark:border-border-color hover:border-secondary/50 hover:shadow-md transition-all duration-300">
+          <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-secondary/15 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
             <CalendarClock className="w-7 h-7 md:w-8 md:h-8 text-gray-700 dark:text-secondary" />
           </div>
           <span className="text-xs md:text-sm font-semibold card-text-muted mb-2 uppercase tracking-wide">Duración</span>
@@ -157,8 +157,8 @@ export default function ProgramDetails({ programData, cohorts, user, selectedCoh
         </div>
 
         {/* Dificultad - Editable */}
-        <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-xl border border-gray-300 dark:border-border-color hover:border-gray-500 dark:hover:border-secondary/50 hover:shadow-md transition-all duration-300">
-          <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-gradient-to-br dark:from-secondary/20 dark:to-secondary/10 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
+        <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-2xl bg-(--card-diplomado-bg) border border-gray-300 dark:border-border-color hover:border-secondary/50 hover:shadow-md transition-all duration-300">
+          <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-secondary/15 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
             <Network className="w-7 h-7 md:w-8 md:h-8 text-gray-700 dark:text-secondary" />
           </div>
           <span className="text-xs md:text-sm font-semibold card-text-muted mb-2 uppercase tracking-wide">Dificultad</span>
@@ -181,8 +181,8 @@ export default function ProgramDetails({ programData, cohorts, user, selectedCoh
 
         {/* Horario - Solo en grid cuando hay 1 cohorte (4 columnas) */}
         {!hasMultipleCohorts && (
-          <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-xl border border-gray-300 dark:border-border-color hover:border-gray-500 dark:hover:border-secondary/50 hover:shadow-md transition-all duration-300">
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-gradient-to-br dark:from-secondary/20 dark:to-secondary/10 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
+          <div className="group flex flex-col items-center text-center p-5 md:p-6 rounded-2xl bg-(--card-diplomado-bg) border border-gray-300 dark:border-border-color hover:border-secondary/50 hover:shadow-md transition-all duration-300">
+            <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-secondary/15 rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
               <MapPin className="w-7 h-7 md:w-8 md:h-8 text-gray-700 dark:text-secondary" />
             </div>
             <span className="text-xs md:text-sm font-semibold card-text-muted mb-2 uppercase tracking-wide">Horario</span>
@@ -207,9 +207,9 @@ export default function ProgramDetails({ programData, cohorts, user, selectedCoh
 
         {/* Segunda fila: Horario completo - solo cuando hay múltiples cohortes */}
         {hasMultipleCohorts && (
-          <div className="group flex flex-col p-5 md:p-6 rounded-xl border border-gray-300 dark:border-border-color hover:border-gray-500 dark:hover:border-secondary/50 hover:shadow-md transition-all duration-300 w-full">
+          <div className="group flex flex-col p-5 md:p-6 rounded-2xl bg-(--card-diplomado-bg) border border-gray-300 dark:border-border-color hover:border-secondary/50 hover:shadow-md transition-all duration-300 w-full">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-gradient-to-br dark:from-secondary/20 dark:to-secondary/10 rounded-xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-100 dark:bg-secondary/15 rounded-xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-300 border border-gray-200 dark:border-transparent">
                 <MapPin className="w-7 h-7 md:w-8 md:h-8 text-gray-700 dark:text-secondary" />
               </div>
               <span className="text-xs md:text-sm font-semibold card-text-muted uppercase tracking-wide">Horario</span>

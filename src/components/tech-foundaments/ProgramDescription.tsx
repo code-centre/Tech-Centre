@@ -76,9 +76,16 @@ export function ProgramDescription({ programData, programId, onDescriptionUpdate
   };
 
   return (
-    <article className="backdrop-blur-sm p-6 md:p-8 rounded-2xl dark:border-border-color">
-      <header className="flex justify-between items-center mb-6">
-        <h2 className="text-xl md:text-2xl font-bold card-text-primary">Descripción del programa</h2>
+    <article className="flex flex-col">
+      <header className="flex justify-between items-start gap-4 mb-6">
+        <div className="flex flex-col gap-3 max-w-2xl">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">
+            De qué se trata
+          </span>
+          <h2 className="font-highlight text-3xl md:text-4xl font-extrabold tracking-tight card-text-primary text-balance">
+            Descripción del programa
+          </h2>
+        </div>
         {isAdmin && !isEditing && (
           <ButtonToEdit startEditing={handleStartEdit} />
         )}

@@ -62,6 +62,8 @@ export default function ProgramLandingEditor({ program }: Props) {
     const fit = getAudienceFit(program);
     const project = getFinalProject(program);
     return {
+      video: program.video || '',
+      audience: program.audience || '',
       stack: getStack(program).join('\n'),
       includes: getIncludes(program).join('\n'),
       fitYes: (fit?.yes ?? []).join('\n'),
@@ -104,6 +106,8 @@ export default function ProgramLandingEditor({ program }: Props) {
       const { error: updateError } = await supabase
         .from('programs')
         .update({
+          video: form.video.trim() || null,
+          audience: form.audience.trim() || null,
           stack: parseLines(form.stack),
           includes: parseLines(form.includes),
           audience_fit: {
@@ -199,6 +203,30 @@ export default function ProgramLandingEditor({ program }: Props) {
       {isEditing ? (
         <div className="p-4 flex flex-col gap-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium text-text-primary">Video de presentación</span>
+              <span className="text-xs text-text-muted">URL de YouTube o Vimeo. Vacío = la sección de video no aparece.</span>
+              <input
+                type="url"
+                value={form.video}
+                onChange={(e) => handleChange('video', e.target.value)}
+                className={FIELD_CLASS}
+                placeholder="https://youtu.be/…"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium text-text-primary">Público objetivo</span>
+              <span className="text-xs text-text-muted">Una línea. Sale bajo el subtítulo, en el encabezado.</span>
+              <input
+                type="text"
+                value={form.audience}
+                onChange={(e) => handleChange('audience', e.target.value)}
+                className={FIELD_CLASS}
+                placeholder="Para quién es este programa"
+              />
+            </label>
+
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-text-primary">Stack de tecnologías</span>
               <span className="text-xs text-text-muted">Una por línea. Salen como etiquetas en el encabezado.</span>
@@ -316,6 +344,10 @@ export default function ProgramLandingEditor({ program }: Props) {
         </div>
       ) : (
         <dl className="p-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div>
+            <dt className="text-xs uppercase tracking-wide text-text-muted">Video</dt>
+            <dd className="text-sm text-text-primary mt-1 truncate">{program.video || 'Sin llenar'}</dd>
+          </div>
           <div>
             <dt className="text-xs uppercase tracking-wide text-text-muted">Stack</dt>
             <dd className="text-sm text-text-primary mt-1">

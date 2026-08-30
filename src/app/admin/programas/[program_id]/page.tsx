@@ -5,9 +5,10 @@ import { createClient } from '@/lib/supabase/server';
 import { requireRole } from '@/lib/auth/require-role';
 import CohortList from '@/components/adminspage/CohortList';
 import ProgramCoverEditor from '@/components/adminspage/ProgramCoverEditor';
-import ProgramDetails from '@/components/adminspage/ProgramDetails';
-import ProgramHeader from '@/components/adminspage/ProgramHeader';
 import ProgramModulesList from '@/components/adminspage/ProgramModulesList';
+import ProgramWorkbench from '@/components/adminspage/ProgramWorkbench';
+import ProgramInfoForm from '@/components/adminspage/ProgramInfoForm';
+import ProgramDescriptionEditor from '@/components/adminspage/ProgramDescriptionEditor';
 import ProgramLandingEditor from '@/components/adminspage/ProgramLandingEditor';
 import type { Program } from '@/types/programs';
 import type { ProgramModule } from '@/types/supabase';
@@ -59,18 +60,33 @@ export default async function ProgramPage({ params }: Props) {
       .order('order_index', { ascending: true }),
   ]);
 
+  const cohortRows = cohorts || [];
+  const offeringCohorts = cohortRows.filter((c: { offering?: boolean }) => c.offering).length;
+
+  // Cada pestaña es un slot: el armazón decide cuál se muestra y marca con un
+  // punto las que tienen algo pendiente.
   return (
-    <div className="space-y-8">
-      <ProgramHeader program={typedProgram} />
-      <ProgramCoverEditor program={typedProgram} />
-      <CohortList cohorts={cohorts || []} programId={program_id} />
-      <ProgramModulesList
-        programId={program_id}
-        modules={(modules as ProgramModule[]) || []}
-        syllabus={typedProgram.syllabus}
-      />
-      <ProgramDetails program={typedProgram} />
-      <ProgramLandingEditor program={typedProgram} />
-    </div>
+    <ProgramWorkbench
+      program={typedProgram}
+      offeringCohorts={offeringCohorts}
+      panels={{
+        info: <ProgramInfoForm program={typedProgram} />,
+        contenido: (
+          <>
+            <ProgramCoverEditor program={typedProgram} />
+            <ProgramDescriptionEditor program={typedProgram} />
+          </>
+        ),
+        publica: <ProgramLandingEditor program={typedProgram} />,
+        temario: (
+          <ProgramModulesList
+            programId={program_id}
+            modules={(modules as ProgramModule[]) || []}
+            syllabus={typedProgram.syllabus}
+          />
+        ),
+        cohortes: <CohortList cohorts={cohortRows} programId={program_id} />,
+      }}
+    />
   );
 }

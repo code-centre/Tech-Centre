@@ -112,13 +112,13 @@ export function ProgramTeacher({ cohortId }: Props) {
 
   return (
     <>
-      <section 
-        className="max-w-full bg-(--card-diplomado-bg) rounded-2xl shadow-xl overflow-hidden border [border-color:var(--card-diplomado-border)] dark:border-border-color"
+      <section
+        className="max-w-full flex flex-col"
         aria-labelledby="program-teacher-heading"
       >
-        <article className="p-6 md:p-8 flex flex-col gap-6">
+        <article className="flex flex-col gap-7">
           {/* Header */}
-          <header className="flex justify-between items-center">
+          <header className="flex justify-between items-start gap-4">
             <div className="flex flex-col gap-3 max-w-2xl">
               <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">
                 Quién te va a enseñar
@@ -151,7 +151,7 @@ export function ProgramTeacher({ cohortId }: Props) {
               </div>
             </div>
           ) : instructor ? (
-            <div className="space-y-6">
+            <div className="space-y-6 p-6 md:p-8 rounded-2xl bg-(--card-diplomado-bg) border border-gray-300 dark:border-border-color">
               {/* Profile Header */}
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 {/* Avatar */}

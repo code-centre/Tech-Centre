@@ -13,6 +13,7 @@ import ProgramPricing from './ProgramPricing'
 import ProgramFAQs from './ProgramFAQs'
 import ProgramFinalCTA from './ProgramFinalCTA'
 import Location from './Location'
+import NavigationCard from '../NavigationCard'
 import { useUser } from '@/lib/supabase'
 import {
   getAudienceFit,
@@ -73,14 +74,27 @@ export default function ProgramContainer({
   }
 
   return (
-    <main className="max-w-7xl flex flex-col gap-16 md:gap-20">
+    <main className="w-full flex flex-col gap-20 md:gap-28">
+      {/* La tarjeta de oferta vive dentro del encabezado: si ocupa una columna
+          propia en toda la página, el resto del contenido queda en una franja
+          angosta con la mitad derecha vacía. */}
       <ProgramHero
         programData={currentProgramData}
         cohortId={selectedCohort?.id ?? selectedCohortId}
         stack={stack}
         modality={selectedCohort?.modality}
+        aside={
+          <NavigationCard
+            programData={currentProgramData}
+            cohorts={cohorts}
+            cohortId={selectedCohortId}
+            onCohortSelect={onCohortSelect}
+            seatsLeft={seatsLeft}
+          />
+        }
       />
 
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-20 md:gap-28">
       {currentProgramData.video && (
         <ProgramVideo
           video={currentProgramData.video}
@@ -144,6 +158,7 @@ export default function ProgramContainer({
         cohortId={selectedCohort?.id ?? selectedCohortId}
         seatsLeft={seatsLeft}
       />
+      </div>
     </main>
   )
 }
