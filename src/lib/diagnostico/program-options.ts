@@ -86,3 +86,25 @@ export function resolveDiagnosticoDefaultProgram(
 
   return options.find((option) => option !== DIAGNOSTICO_ORIENTATION_OPTION) ?? options[0];
 }
+
+/** Busca el id de `programs` por nombre exacto (valor del select del diagnóstico). */
+export async function resolveProgramIdByName(programName: string): Promise<number | null> {
+  const name = programName.trim();
+  if (!name || name === DIAGNOSTICO_ORIENTATION_OPTION) {
+    return null;
+  }
+
+  const supabase = createCatalogClient();
+  const { data, error } = await supabase
+    .from('programs')
+    .select('id')
+    .eq('name', name)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[diagnostico] Error resolviendo program_id:', error);
+    return null;
+  }
+
+  return data?.id ?? null;
+}

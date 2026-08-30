@@ -104,6 +104,16 @@
   --color-blueApp: #0F3D4C;
   --color-grayApp: #DBDBDB;
   --color-darkBlue: #1F6AE1;
+
+  /* Cartera y gráfica de /admin/pagos. Un paso por tema: estos pasan 3:1
+     sobre blanco; los del modo oscuro no. Ambos juegos están validados
+     contra su propia superficie. */
+  --pay-serie-cobrado: #0E8A57;
+  --pay-serie-porcobrar: #2F62B8;
+  --pay-neutro: #5C6B76;
+  --pay-aviso: #B57E1E;
+  --pay-serio: #B85C22;
+  --pay-critico: #C4433B;
 }
 
 /* Dark theme — graphite base with emerald accents (brand primary mode) */
@@ -148,6 +158,14 @@
   --color-blueApp: #0F3D4C;
   --color-grayApp: #4B5563;
   --color-darkBlue: #1F6AE1;
+
+  /* Pagos: pasos para la superficie oscura del admin. */
+  --pay-serie-cobrado: #12A86A;
+  --pay-serie-porcobrar: #3F7BD8;
+  --pay-neutro: #8FA6B2;
+  --pay-aviso: #E0A84F;
+  --pay-serio: #E07A3F;
+  --pay-critico: #E0574F;
 }
 
 @theme inline {

@@ -1,11 +1,12 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
 import { sendDiagnosticoBookingNotification } from '@/lib/email/diagnostico-notification';
 import {
   getDiagnosticoProgramOptions,
   isAllowedDiagnosticoProgram,
+  resolveProgramIdByName,
 } from '@/lib/diagnostico/program-options';
+import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { headers } from 'next/headers';
 
 export interface DiagnosticoFormData {
@@ -23,6 +24,16 @@ export interface DiagnosticoActionResult {
   message?: string;
   error?: string;
   emailSent?: boolean;
+}
+
+function buildDiagnosticoSource(origen: string): string {
+  const sanitized =
+    origen
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'agendar-diagnostico';
+  return `diagnostico_${sanitized}`;
 }
 
 async function validateForm(data: DiagnosticoFormData): Promise<{ valid: boolean; error?: string }> {
@@ -72,6 +83,7 @@ export async function submitDiagnosticoBooking(
     const referrer = headersList.get('referer');
     const submittedAt = new Date().toISOString();
     const phoneDigits = formData.phone.replace(/\D/g, '');
+    const origen = formData.source?.trim() || 'agendar-diagnostico';
 
     const payload = {
       name: formData.name.trim(),
@@ -79,12 +91,13 @@ export async function submitDiagnosticoBooking(
       phone: phoneDigits,
       program: formData.program.trim(),
       message: formData.message?.trim() || null,
-      source: formData.source?.trim() || 'agendar-diagnostico',
+      source: origen,
       referrer,
       submittedAt,
     };
 
-    const supabase = await createClient();
+    const interestedProgramId = await resolveProgramIdByName(payload.program);
+
     const notesData = {
       program: payload.program,
       message: payload.message,
@@ -96,17 +109,29 @@ export async function submitDiagnosticoBooking(
       },
     };
 
-    const { error: leadError } = await supabase.from('leads').insert({
-      full_name: payload.name,
-      email: payload.email,
-      phone: payload.phone,
-      source: 'diagnostico_booking',
-      stage: 'diagnostico',
-      notes: JSON.stringify(notesData),
-    } as never);
+    const supabase = createServiceRoleClient();
+    const leadSource = buildDiagnosticoSource(origen);
 
-    if (leadError) {
+    const { data: lead, error: leadError } = await supabase
+      .from('leads')
+      .insert({
+        full_name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        interested_program_id: interestedProgramId,
+        source: leadSource,
+        stage: 'diagnostico',
+        notes: JSON.stringify(notesData),
+      } as never)
+      .select('id')
+      .single();
+
+    if (leadError || !lead) {
       console.error('[diagnostico] Error guardando lead:', leadError);
+      return {
+        success: false,
+        error: 'No pudimos registrar tu solicitud. Intenta de nuevo o escríbenos por WhatsApp.',
+      };
     }
 
     const emailResult = await sendDiagnosticoBookingNotification(payload);
