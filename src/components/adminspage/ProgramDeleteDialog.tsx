@@ -136,9 +136,8 @@ export default function ProgramDeleteDialog({ program, onClose, onDeleted }: Pro
       onDeleted(program.id);
     } catch (err) {
       console.error('Error al eliminar:', err);
-      setError(
-        err instanceof Error ? err.message : 'No se pudo eliminar. Verifica que no tenga datos asociados.'
-      );
+      const detalle = (err as { message?: string } | null)?.message;
+      setError(detalle || 'No se pudo eliminar. Verifica que no tenga datos asociados.');
     } finally {
       setDeleting(false);
     }

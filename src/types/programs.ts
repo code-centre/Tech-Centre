@@ -71,7 +71,6 @@ export interface FinalProject {
 
 export interface Program {
   id: number;
-  start_date: string;
   code: string;
   name: string;
   kind?: string;
@@ -85,9 +84,11 @@ export interface Program {
   video: string;
   subtitle: string;
   duration: string;
-  schedule?: string;
   faqs: any[];
+  /** No existe como columna: se lee solo como respaldo de `code` en enlaces viejos. */
   slug?: string;
+  discount?: number;
+  currency?: string;
   syllabus?: SyllabusData;
   audience?: string; // Descripción de para quién es el programa
   audience_fit?: AudienceFit | null; // Sección "¿Es para ti?"

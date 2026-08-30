@@ -21,14 +21,6 @@ const DIFFICULTY_OPTIONS = ['Principiante', 'Intermedio', 'Avanzado'];
 const FIELD =
   'w-full px-3.5 py-2.5 rounded-lg bg-bg-secondary border border-border-color text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-all';
 
-/** `start_date` puede venir como fecha o timestamp; el input pide YYYY-MM-DD. */
-function toDateInput(value?: string | null): string {
-  if (!value) return '';
-  const parsed = new Date(value);
-  if (isNaN(parsed.getTime())) return '';
-  return parsed.toISOString().slice(0, 10);
-}
-
 function Group({
   title,
   hint,
@@ -76,14 +68,11 @@ export default function ProgramInfoForm({ program }: Props) {
   const build = () => ({
     name: program.name || '',
     code: program.code || '',
-    slug: program.slug || '',
     subtitle: program.subtitle || '',
     kind: program.kind || '',
     difficulty: String(program.difficulty || ''),
     total_hours: program.total_hours ?? 0,
     duration: program.duration || '',
-    schedule: program.schedule || '',
-    start_date: toDateInput(program.start_date),
     default_price: program.default_price ?? 0,
     discount: program.discount ?? 0,
     currency: program.currency || 'COP',
@@ -108,14 +97,11 @@ export default function ProgramInfoForm({ program }: Props) {
         .update({
           name: form.name.trim(),
           code: form.code.trim(),
-          slug: form.slug.trim() || null,
           subtitle: form.subtitle.trim() || null,
           kind: form.kind || null,
           difficulty: form.difficulty || null,
           total_hours: Number(form.total_hours) || null,
           duration: form.duration.trim() || null,
-          schedule: form.schedule.trim() || null,
-          start_date: form.start_date || null,
           default_price: Number(form.default_price) || null,
           discount: Number(form.discount) || null,
           currency: form.currency || null,
@@ -128,7 +114,10 @@ export default function ProgramInfoForm({ program }: Props) {
       router.refresh();
     } catch (err) {
       console.error('Error al guardar el programa:', err);
-      setError('No se pudo guardar. Intenta de nuevo.');
+      // El mensaje de Postgres dice exactamente qué falló (una columna que no
+      // existe, por ejemplo). Esconderlo alarga el diagnóstico.
+      const detalle = (err as { message?: string } | null)?.message;
+      setError(detalle || 'No se pudo guardar. Intenta de nuevo.');
     } finally {
       setSaving(false);
     }
@@ -185,12 +174,9 @@ export default function ProgramInfoForm({ program }: Props) {
             className={FIELD}
           />
         </Field>
-        <Field label="Slug" wide hint="Opcional. Solo si necesitas una URL distinta al código.">
-          <input type="text" value={form.slug} onChange={(e) => set('slug', e.target.value)} className={FIELD} />
-        </Field>
       </Group>
 
-      <Group title="Logística" hint="Duración y horario del programa. Las fechas de cada grupo van en Cohortes.">
+      <Group title="Logística" hint="El horario y las fechas de cada grupo se definen en Cohortes.">
         <Field label="Horas totales">
           <input
             type="number"
@@ -206,23 +192,6 @@ export default function ProgramInfoForm({ program }: Props) {
             value={form.duration}
             onChange={(e) => set('duration', e.target.value)}
             placeholder="Ej: 8 semanas"
-            className={FIELD}
-          />
-        </Field>
-        <Field label="Horario">
-          <input
-            type="text"
-            value={form.schedule}
-            onChange={(e) => set('schedule', e.target.value)}
-            placeholder="Ej: Lunes a miércoles, 7 a 9 p. m."
-            className={FIELD}
-          />
-        </Field>
-        <Field label="Fecha de inicio del programa">
-          <input
-            type="date"
-            value={form.start_date}
-            onChange={(e) => set('start_date', e.target.value)}
             className={FIELD}
           />
         </Field>

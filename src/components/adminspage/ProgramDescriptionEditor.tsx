@@ -40,7 +40,10 @@ export default function ProgramDescriptionEditor({ program }: Props) {
       router.refresh();
     } catch (err) {
       console.error('Error al guardar la descripción:', err);
-      setError('No se pudo guardar. Intenta de nuevo.');
+      // El mensaje de Postgres dice exactamente qué falló (una columna que no
+      // existe, por ejemplo). Esconderlo alarga el diagnóstico.
+      const detalle = (err as { message?: string } | null)?.message;
+      setError(detalle || 'No se pudo guardar. Intenta de nuevo.');
     } finally {
       setIsSaving(false);
     }
