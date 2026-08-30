@@ -38,12 +38,13 @@ export interface CohortSummary extends CohortFieldsInput {
   id: number;
   name: string | null;
   program_id: string | null;
-  created_at?: string | null;
-  updated_at?: string | null;
 }
 
+// The live `cohorts` table has no `created_at`/`updated_at` columns, so they
+// are intentionally excluded from the selected columns (they would otherwise
+// fail with a schema-cache error).
 const COHORT_LIST_COLUMNS =
-  'id, name, slug, offering, start_date, end_date, program_id, modality, campus, capacity, maximum_payments, schedule, created_at, updated_at';
+  'id, name, slug, offering, start_date, end_date, program_id, modality, campus, capacity, maximum_payments, schedule';
 
 const TEXT_FIELDS = ['slug', 'modality', 'campus'] as const;
 const DATE_FIELDS = ['start_date', 'end_date'] as const;
@@ -141,8 +142,9 @@ export async function getCohort(client: ServiceClient, cohortId: number) {
 
 export async function createCohort(client: ServiceClient, input: CreateCohortInput) {
   const { instructor_id, ...fields } = input;
-  const now = new Date().toISOString();
 
+  // The live `cohorts` table has no `created_at`/`updated_at` columns, so they
+  // are intentionally omitted from the insert payload.
   const { data, error } = await (client as any)
     .from('cohorts')
     .insert({
@@ -152,8 +154,6 @@ export async function createCohort(client: ServiceClient, input: CreateCohortInp
       ...buildCohortRecord(fields),
       name: input.name.trim(),
       program_id: input.program_id,
-      created_at: now,
-      updated_at: now,
     })
     .select('*')
     .single();
@@ -192,8 +192,8 @@ export async function updateCohort(
   let data = null;
 
   if (Object.keys(record).length > 0) {
-    record.updated_at = new Date().toISOString();
-
+    // The live `cohorts` table has no `updated_at` column, so we do not set it
+    // here; writing it fails with a schema-cache error.
     const { data: updated, error } = await (client as any)
       .from('cohorts')
       .update(record)
