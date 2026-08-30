@@ -16,9 +16,12 @@ import {
   MessageSquare,
   FileCheck2,
   Loader2,
+  Plus,
+  CalendarRange,
 } from 'lucide-react';
 import { MarkAsPaidModal } from './MarkAsPaidModal';
 import { markInvoicePaidAdmin } from '@/app/admin/pagos/actions';
+import NewInvoiceModal from './NewInvoiceModal';
 import {
   buildOverview,
   buildPeriodSeries,
@@ -136,6 +139,10 @@ function studentEmail(inv: InvoiceRow): string {
   return unwrap(inv.enrollment?.profile)?.email ?? '—';
 }
 
+function cohortName(inv: InvoiceRow): string {
+  return inv.enrollment?.cohort?.name ?? '';
+}
+
 function programName(inv: InvoiceRow): string {
   return unwrap(inv.enrollment?.cohort?.program)?.name ?? 'Sin programa';
 }
@@ -162,6 +169,10 @@ export function PagosAdmin() {
   const [period, setPeriod] = useState<PeriodType>('month');
   const [searchTerm, setSearchTerm] = useState('');
   const [programFilter, setProgramFilter] = useState('all');
+  const [cohortFilter, setCohortFilter] = useState('all');
+  const [dueFrom, setDueFrom] = useState('');
+  const [dueTo, setDueTo] = useState('');
+  const [creating, setCreating] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [markingInvoice, setMarkingInvoice] = useState<InvoiceRow | null>(null);
@@ -218,6 +229,18 @@ export function PagosAdmin() {
     return Array.from(names).sort();
   }, [invoices]);
 
+  // Las cohortes se acotan al programa elegido: un listado con todas mezcla
+  // nombres repetidos entre programas.
+  const cohorts = useMemo(() => {
+    const names = new Set<string>();
+    invoices.forEach((inv) => {
+      if (programFilter !== 'all' && programName(inv) !== programFilter) return;
+      const name = cohortName(inv);
+      if (name) names.add(name);
+    });
+    return Array.from(names).sort();
+  }, [invoices, programFilter]);
+
   const reviewQueue = useMemo(
     () => invoices.filter((inv) => inv.status === 'pending_review').slice(0, 3),
     [invoices]
@@ -239,12 +262,18 @@ export function PagosAdmin() {
     return invoices.filter((inv) => {
       if (filter !== 'all' && derivedStatus(inv) !== filter) return false;
       if (programFilter !== 'all' && programName(inv) !== programFilter) return false;
+      if (cohortFilter !== 'all' && cohortName(inv) !== cohortFilter) return false;
+      // El rango va sobre el vencimiento: es la fecha con la que se cobra.
+      if (dueFrom && inv.due_date < dueFrom) return false;
+      if (dueTo && inv.due_date > dueTo) return false;
       if (!term) return true;
-      return `${studentName(inv)} ${studentEmail(inv)} ${inv.label ?? ''} ${programName(inv)}`
+      return `${studentName(inv)} ${studentEmail(inv)} ${inv.label ?? ''} ${programName(inv)} ${cohortName(inv)}`
         .toLowerCase()
         .includes(term);
     });
-  }, [invoices, filter, programFilter, searchTerm]);
+  }, [invoices, filter, programFilter, cohortFilter, dueFrom, dueTo, searchTerm]);
+
+  const hasDateRange = Boolean(dueFrom || dueTo);
 
   const selectedAmount = useMemo(
     () => invoices.filter((inv) => selectedIds.has(inv.id)).reduce((total, inv) => total + inv.amount, 0),
@@ -255,6 +284,10 @@ export function PagosAdmin() {
     const peak = series.reduce((max, point) => Math.max(max, point.collected, point.receivable), 0);
     return Math.max(Math.ceil(peak / 2_000_000) * 2_000_000, 2_000_000);
   }, [series]);
+
+  useEffect(() => {
+    if (cohortFilter !== 'all' && !cohorts.includes(cohortFilter)) setCohortFilter('all');
+  }, [cohorts, cohortFilter]);
 
   const toggleRow = (id: number) => {
     setSelectedIds((prev) => {
@@ -327,6 +360,32 @@ export function PagosAdmin() {
     }
   };
 
+  /** Exporta lo que está viendo, no toda la tabla: el filtro es la consulta. */
+  const handleExportCsv = () => {
+    const header = ['Estudiante', 'Correo', 'Programa', 'Cohorte', 'Concepto', 'Monto', 'Vence', 'Estado', 'Pagada el'];
+    const escape = (value: string) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+    const rows = visible.map((inv) =>
+      [
+        studentName(inv),
+        studentEmail(inv),
+        programName(inv),
+        cohortName(inv),
+        inv.label ?? '',
+        String(inv.amount ?? 0),
+        inv.due_date ?? '',
+        STATUS_STYLE[derivedStatus(inv)].label,
+        inv.paid_at ? inv.paid_at.slice(0, 10) : '',
+      ].map(escape).join(',')
+    );
+    const csv = [header.map(escape).join(','), ...rows].join('\n');
+    const url = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `pagos-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (!user || user?.role !== 'admin') {
     return <div className="p-8 text-center text-text-primary">No tienes permisos para ver esta sección</div>;
   }
@@ -376,13 +435,20 @@ export function PagosAdmin() {
         title="Pagos"
         subtitle={`${invoices.length} facturas · ${money(overview.receivable)} por cobrar · ${money(overview.overdue)} vencido`}
         action={
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-bg-secondary border border-border-color text-sm font-medium text-text-primary hover:border-secondary/50 transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            Exportar CSV
-          </button>
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-bg-secondary border border-border-color text-sm font-medium text-text-primary hover:border-secondary/50 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Exportar CSV
+            </button>
+            <button type="button" onClick={() => setCreating(true)} className="btn-primary flex items-center gap-2">
+              <Plus size={20} />
+              Registrar pago
+            </button>
+          </div>
         }
       />
 
@@ -694,6 +760,58 @@ export function PagosAdmin() {
           ))}
         </select>
 
+        <select
+          value={cohortFilter}
+          onChange={(e) => setCohortFilter(e.target.value)}
+          aria-label="Filtrar por cohorte"
+          disabled={cohorts.length === 0}
+          className="px-3.5 py-2.5 rounded-lg bg-bg-secondary border border-border-color text-[13.5px] text-text-primary focus:outline-none focus:ring-2 focus:ring-secondary disabled:opacity-50 transition-all"
+        >
+          <option value="all">Todas las cohortes</option>
+          {cohorts.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+
+        <div
+          className={`flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-lg bg-bg-secondary border transition-colors ${
+            hasDateRange ? 'border-secondary/50' : 'border-border-color'
+          }`}
+        >
+          <CalendarRange className="w-4 h-4 shrink-0 text-text-muted" aria-hidden />
+          <span className="text-[12.5px] text-text-muted">Vence</span>
+          <input
+            type="date"
+            value={dueFrom}
+            onChange={(e) => setDueFrom(e.target.value)}
+            aria-label="Vence desde"
+            className="bg-transparent text-[13px] text-text-primary focus:outline-none"
+          />
+          <span className="text-text-muted">–</span>
+          <input
+            type="date"
+            value={dueTo}
+            onChange={(e) => setDueTo(e.target.value)}
+            aria-label="Vence hasta"
+            className="bg-transparent text-[13px] text-text-primary focus:outline-none"
+          />
+          {hasDateRange && (
+            <button
+              type="button"
+              onClick={() => {
+                setDueFrom('');
+                setDueTo('');
+              }}
+              aria-label="Quitar el rango de fechas"
+              className="flex items-center justify-center w-6 h-6 rounded-md text-text-muted hover:text-text-primary transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
         <span className="ml-auto text-[13px] tabular-nums text-text-muted">
           {visible.length === invoices.length
             ? `Las ${invoices.length} facturas`
@@ -856,6 +974,12 @@ export function PagosAdmin() {
           })
         )}
       </div>
+
+      <NewInvoiceModal
+        open={creating}
+        onClose={() => setCreating(false)}
+        onCreated={() => setRefreshTrigger((t) => t + 1)}
+      />
 
       <MarkAsPaidModal
         invoice={markingInvoice}
