@@ -70,9 +70,6 @@ export default function InstructorGrades({
     const key = `${enrollmentId}-${moduleId}`;
     setSaving({ key });
 
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/76e8aa53-8cf3-4d20-8146-9e4e760dacdd',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e3f384'},body:JSON.stringify({sessionId:'e3f384',location:'InstructorGrades.tsx:saveGrade:entry',message:'saveGrade called',data:{enrollmentId,moduleId,value:numValue,userId:user?.id??null},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
 
     try {
       const payload = {
@@ -101,9 +98,6 @@ export default function InstructorGrades({
           })
           .eq('id', existing.id);
         error = result.error;
-        // #region agent log
-        if(error)fetch('http://127.0.0.1:7243/ingest/76e8aa53-8cf3-4d20-8146-9e4e760dacdd',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e3f384'},body:JSON.stringify({sessionId:'e3f384',location:'InstructorGrades.tsx:saveGrade:updateError',message:'Update failed',data:{op,existingId:existing.id,errMsg:(error as {message?:string})?.message,errDetails:(error as {details?:string})?.details,errCode:(error as {code?:string})?.code,errHint:(error as {hint?:string})?.hint},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
       } else {
         op = 'insert';
         const result = await supabase.from('grades').insert({
@@ -113,24 +107,15 @@ export default function InstructorGrades({
           notes: payload.notes,
         });
         error = result.error;
-        // #region agent log
-        if(error)fetch('http://127.0.0.1:7243/ingest/76e8aa53-8cf3-4d20-8146-9e4e760dacdd',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e3f384'},body:JSON.stringify({sessionId:'e3f384',location:'InstructorGrades.tsx:saveGrade:insertError',message:'Insert failed',data:{op,payload,errMsg:(error as {message?:string})?.message,errDetails:(error as {details?:string})?.details,errCode:(error as {code?:string})?.code,errHint:(error as {hint?:string})?.hint},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
       }
 
       if (error) {
         console.error('Error saving grade:', (error as { message?: string })?.message ?? error);
         return;
       }
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/76e8aa53-8cf3-4d20-8146-9e4e760dacdd',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e3f384'},body:JSON.stringify({sessionId:'e3f384',location:'InstructorGrades.tsx:saveGrade:success',message:'Grade saved',data:{op},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
       onDataChange();
     } catch (err) {
       const errObj = err as Error;
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/76e8aa53-8cf3-4d20-8146-9e4e760dacdd',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e3f384'},body:JSON.stringify({sessionId:'e3f384',location:'InstructorGrades.tsx:saveGrade:catch',message:'Exception',data:{errMsg:errObj?.message,errStack:errObj?.stack},timestamp:Date.now(),hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
       console.error('Error saving grade:', errObj?.message ?? err);
     } finally {
       setSaving(null);

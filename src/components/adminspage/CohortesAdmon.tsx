@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, X, Save, Loader2, Search, SearchX, CalendarDays, CalendarPlus, Clock, PlusCircle, Trash2, Pencil, ChevronRight, ChevronDown } from 'lucide-react';
+import { AlertTriangle, Plus, X, Save, Loader2, Search, CalendarDays, CalendarPlus, Clock, PlusCircle, Trash2, Pencil, ChevronRight, ChevronDown } from 'lucide-react';
 import { useSupabaseClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import {
@@ -54,6 +54,7 @@ const PAGE_SIZE = 15;
 
 type StatusFilterType = 'activos' | 'all' | 'por_iniciar' | 'en_curso' | 'terminada';
 
+
 export default function CohortesAdmon() {
   const supabase = useSupabaseClient();
   const router = useRouter();
@@ -84,6 +85,8 @@ export default function CohortesAdmon() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [togglingOffering, setTogglingOffering] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [sessionsByCohort, setSessionsByCohort] = useState<Record<string, { total: number; done: number }>>({});
+  const [instructorsByCohort, setInstructorsByCohort] = useState<Record<string, string[]>>({});
 
   const handleToggleOffering = async (cohortId: string, currentStatus: boolean) => {
     try {
@@ -165,6 +168,40 @@ export default function CohortesAdmon() {
         enrollments_count: countByCohort[c.id] ?? 0,
       }));
       setCohorts(cohortsWithCount);
+
+      // Clases programadas y dictadas, e instructor asignado: sin esto la lista
+      // no puede decir cuál cohorte está sin preparar.
+      const [sessionsRes, instructorsRes] = await Promise.all([
+        supabase.from('sessions').select('cohort_id, starts_at, ends_at'),
+        supabase
+          .from('cohort_instructors')
+          .select('cohort_id, profile:profiles!instructor_id(first_name, last_name)'),
+      ]);
+
+      const now = Date.now();
+      const sessionMap: Record<string, { total: number; done: number }> = {};
+      for (const row of (sessionsRes.data ?? []) as { cohort_id: number; starts_at: string; ends_at: string }[]) {
+        const key = String(row.cohort_id);
+        const entry = sessionMap[key] ?? { total: 0, done: 0 };
+        entry.total += 1;
+        const end = new Date(row.ends_at || row.starts_at).getTime();
+        if (!isNaN(end) && end < now) entry.done += 1;
+        sessionMap[key] = entry;
+      }
+      setSessionsByCohort(sessionMap);
+
+      const instructorMap: Record<string, string[]> = {};
+      for (const row of (instructorsRes.data ?? []) as Record<string, unknown>[]) {
+        const raw = row.profile;
+        const profile = (Array.isArray(raw) ? raw[0] : raw) as
+          | { first_name?: string; last_name?: string }
+          | null;
+        const name = `${profile?.first_name ?? ''} ${profile?.last_name ?? ''}`.trim();
+        if (!name) continue;
+        const key = String(row.cohort_id);
+        instructorMap[key] = [...(instructorMap[key] ?? []), name];
+      }
+      setInstructorsByCohort(instructorMap);
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('Error al cargar los datos');
@@ -525,6 +562,40 @@ export default function CohortesAdmon() {
     );
   }
 
+  const cupoStats = scopedCohorts.reduce(
+    (acc, cohort) => {
+      const status = getCohortStatus(cohort.start_date, cohort.end_date);
+      if (status === 'terminada') return acc;
+      const { enrolled, capacity } = getOccupancy(cohort);
+      if (capacity) acc.free += Math.max(0, capacity - enrolled);
+      acc.capacity += capacity ?? 0;
+      return acc;
+    },
+    { free: 0, capacity: 0 }
+  );
+
+  /** Una cohorte pide atención si nadie la dicta, no tiene clases o va vacía. */
+  const needsAttention = scopedCohorts.filter((cohort) => {
+    const status = getCohortStatus(cohort.start_date, cohort.end_date);
+    if (status === 'terminada') return false;
+    const sessions = sessionsByCohort[String(cohort.id)];
+    const { pct } = getOccupancy(cohort);
+    return (
+      (instructorsByCohort[String(cohort.id)] ?? []).length === 0 ||
+      !sessions ||
+      sessions.total === 0 ||
+      (pct !== null && pct < 30)
+    );
+  });
+
+  const nextToOpen = scopedCohorts
+    .filter((cohort) => getCohortStatus(cohort.start_date, cohort.end_date) === 'por_iniciar')
+    .sort((a, b) => (a.start_date ?? '').localeCompare(b.start_date ?? ''))[0];
+
+  const activeStudents = cohorts
+    .filter((c) => getCohortStatus(c.start_date, c.end_date) === 'en_curso')
+    .reduce((sum, c) => sum + (c.enrollments_count ?? 0), 0);
+
   return (
     <div className="space-y-6">
       {/* Encabezado */}
@@ -534,23 +605,54 @@ export default function CohortesAdmon() {
             <CalendarDays size={24} aria-hidden="true" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-text-primary sm:text-[27px]">
-              Cohortes
-            </h1>
+            <h1 className="text-2xl font-bold tracking-tight text-text-primary sm:text-[27px]">Cohortes</h1>
             <p className="mt-1 text-sm text-text-muted">
-              {cohorts.length} {cohorts.length === 1 ? 'cohorte' : 'cohortes'} · {enCursoTotal} en curso ·{' '}
-              {totalEnrolled} {totalEnrolled === 1 ? 'estudiante matriculado' : 'estudiantes matriculados'}
+              {cohorts.length} {cohorts.length === 1 ? 'cohorte' : 'cohortes'} · {statusCounts.en_curso} en curso ·{' '}
+              {statusCounts.por_iniciar} por iniciar · {cupoStats.free} cupos libres
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => openModal()}
-          className="btn-primary shrink-0"
-        >
+        <button type="button" onClick={() => openModal()} className="btn-primary shrink-0">
           <Plus className="h-4 w-4" />
           Nueva cohorte
         </button>
+      </div>
+
+      {error && (
+        <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">{error}</p>
+      )}
+
+      {/* Cifras */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Kpi
+          dot="var(--pay-serie-cobrado)"
+          label="En curso"
+          value={String(statusCounts.en_curso)}
+          note={`${activeStudents} ${activeStudents === 1 ? 'estudiante activo' : 'estudiantes activos'} hoy`}
+        />
+        <Kpi
+          dot="var(--pay-serie-porcobrar)"
+          label="Por iniciar"
+          value={String(statusCounts.por_iniciar)}
+          note={
+            nextToOpen
+              ? `La próxima abre el ${formatDateCompact(nextToOpen.start_date)}`
+              : 'Ninguna programada'
+          }
+        />
+        <Kpi
+          dot="var(--pay-neutro)"
+          label="Cupos libres"
+          value={String(cupoStats.free)}
+          note={`De ${cupoStats.capacity} en cohortes abiertas`}
+        />
+        <Kpi
+          dot="var(--pay-critico)"
+          label="Necesitan atención"
+          value={String(needsAttention.length)}
+          note="Sin instructor, sin clases o con pocos inscritos"
+          alert={needsAttention.length > 0}
+        />
       </div>
 
       {/* Tabs de estatus + filtros */}
@@ -593,518 +695,165 @@ export default function CohortesAdmon() {
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
             <input
               type="text"
-              placeholder="Buscar por nombre, sede o programa"
+              placeholder="Buscar cohorte"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-9 w-full rounded-lg border border-border-color bg-bg-secondary pl-9 pr-3 text-sm text-text-primary placeholder-text-muted focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary sm:w-[268px]"
+              className="h-9 w-full rounded-lg border border-border-color bg-bg-secondary pl-9 pr-3 text-sm text-text-primary placeholder-text-muted focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary sm:w-[220px]"
             />
           </div>
-          <div className="relative">
-            <select
-              value={selectedProgram}
-              onChange={(e) => setSelectedProgram(e.target.value)}
-              className="h-9 w-full appearance-none rounded-lg border border-border-color bg-transparent pl-3 pr-9 text-sm font-medium text-text-primary focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary sm:w-auto"
-              aria-label="Filtrar por programa"
-            >
-              <option value="all">Todos los programas</option>
-              {programs.map((program) => (
-                <option key={program.id} value={program.id}>
-                  {program.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-          </div>
+          <select
+            value={selectedProgram}
+            onChange={(e) => setSelectedProgram(e.target.value)}
+            aria-label="Filtrar por programa"
+            className="h-9 rounded-lg border border-border-color bg-bg-secondary px-3 text-sm text-text-muted focus:border-secondary focus:outline-none"
+          >
+            <option value="all">Programa</option>
+            {programs.map((program) => (
+              <option key={program.id} value={String(program.id)}>
+                {program.name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-600 dark:text-red-400">
-          {error}
+      {/* Tabla */}
+      {filteredCohorts.length === 0 ? (
+        <section className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-11 text-center">
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-text-muted/10 text-text-muted">
+            <CalendarDays size={24} strokeWidth={1.8} aria-hidden="true" />
+          </span>
+          <h2 className="mt-4 text-lg font-semibold text-text-primary">No hay cohortes que mostrar</h2>
+          <p className="mx-auto mt-2 max-w-[400px] text-sm leading-relaxed text-text-muted">
+            Prueba con otro término o cambia los filtros.
+          </p>
+        </section>
+      ) : (
+        <div className="overflow-hidden rounded-xl border border-border-color bg-[var(--card-background)]">
+          <div className="hidden grid grid-cols-[minmax(0,1.6fr)_104px_176px_140px_100px_minmax(0,1fr)_20px] gap-3.5 items-center border-b border-border-color bg-bg-secondary px-4 py-3 lg:grid">
+            <HeadCell>Cohorte</HeadCell>
+            <HeadCell>Estado</HeadCell>
+            <HeadCell>Cuándo</HeadCell>
+            <HeadCell>Ocupación</HeadCell>
+            <HeadCell>Clases</HeadCell>
+            <HeadCell>Instructor</HeadCell>
+            <span />
+          </div>
+
+          {pageCohorts.map((cohort) => {
+            const status = getCohortStatus(cohort.start_date, cohort.end_date);
+            const badge = getStatusLabelAndClass(status);
+            const { enrolled, capacity, pct } = getOccupancy(cohort);
+            const sessions = sessionsByCohort[String(cohort.id)];
+            const teachers = instructorsByCohort[String(cohort.id)] ?? [];
+            const occupancyColor =
+              pct === null
+                ? 'var(--pay-neutro)'
+                : pct >= 80
+                  ? 'var(--pay-serie-cobrado)'
+                  : pct >= 45
+                    ? 'var(--pay-aviso)'
+                    : 'var(--pay-critico)';
+
+            return (
+              <Link
+                key={cohort.id}
+                href={`/admin/cohortes/${cohort.id}`}
+                className="grid grid-cols-[minmax(0,1.6fr)_104px_176px_140px_100px_minmax(0,1fr)_20px] gap-3.5 items-center border-b border-border-color/50 px-4 py-3 transition-colors last:border-b-0 hover:bg-bg-secondary/40 max-lg:flex max-lg:flex-col max-lg:items-start max-lg:gap-2"
+              >
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-[14.5px] font-semibold text-text-primary">{cohort.name}</span>
+                  <span className="truncate text-[12.5px] text-text-muted">{programNameOf(cohort)}</span>
+                </span>
+
+                <span
+                  className={`inline-flex h-6 w-fit shrink-0 items-center rounded-full px-2.5 text-xs font-semibold ${badge.className}`}
+                >
+                  {badge.label}
+                </span>
+
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-[13px] text-text-primary">
+                    {dateRange(cohort.start_date, cohort.end_date)}
+                  </span>
+                  <span className="truncate text-[12.5px] text-text-muted">
+                    {scheduleLabel(cohort.schedule) || paceLabel(cohort)}
+                  </span>
+                </span>
+
+                <span className="flex flex-col gap-[5px]">
+                  <span className="text-[12.5px] text-text-primary">
+                    {capacity ? `${enrolled} de ${capacity} cupos` : `${enrolled} matriculados`}
+                  </span>
+                  <span className="block h-[5px] overflow-hidden rounded-[2px] bg-border-color">
+                    <span
+                      className="block h-full rounded-[2px]"
+                      style={{ width: `${pct ?? 0}%`, background: occupancyColor }}
+                    />
+                  </span>
+                </span>
+
+                <span
+                  className="text-[13px]"
+                  style={{
+                    color:
+                      status !== 'terminada' && (!sessions || sessions.total === 0)
+                        ? 'var(--pay-aviso)'
+                        : 'var(--text-muted)',
+                  }}
+                >
+                  {sessions ? `${sessions.done} de ${sessions.total}` : '0 clases'}
+                </span>
+
+                {teachers.length > 0 ? (
+                  <span className="truncate text-[13px] text-text-primary">{teachers.join(', ')}</span>
+                ) : (
+                  <span
+                    className="inline-flex items-center gap-1.5 text-[13px] font-semibold"
+                    style={{ color: 'var(--pay-critico)' }}
+                  >
+                    <AlertTriangle className="h-[15px] w-[15px]" />
+                    Sin asignar
+                  </span>
+                )}
+
+                <ChevronRight className="h-[18px] w-[18px] text-text-muted" aria-hidden="true" />
+              </Link>
+            );
+          })}
+
+          <div className="flex items-center justify-between gap-4 border-t border-border-color bg-bg-secondary px-4 py-3.5">
+            <span className="text-[13px] text-text-muted">
+              Mostrando {(safePage - 1) * PAGE_SIZE + 1}–
+              {Math.min(safePage * PAGE_SIZE, filteredCohorts.length)} de {filteredCohorts.length} cohortes
+            </span>
+            {totalPages > 1 && (
+              <span className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setPage((n) => Math.max(1, n - 1))}
+                  disabled={safePage === 1}
+                  className="inline-flex h-8 items-center rounded-lg border border-border-color bg-[var(--card-background)] px-3 text-[13px] text-text-muted disabled:opacity-40"
+                >
+                  Anterior
+                </button>
+                <span className="text-[13px] text-text-muted">
+                  {safePage} / {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPage((n) => Math.min(totalPages, n + 1))}
+                  disabled={safePage === totalPages}
+                  className="inline-flex h-8 items-center rounded-lg border border-border-color bg-[var(--card-background)] px-3 text-[13px] text-text-primary disabled:opacity-40"
+                >
+                  Siguiente
+                </button>
+              </span>
+            )}
+          </div>
         </div>
       )}
 
-      {filteredCohorts.length === 0 ? (
-        cohorts.length === 0 ? (
-          /* Primera vez: nunca se ha creado una cohorte */
-          <div className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-14 text-center shadow-lg">
-            <span className="inline-flex h-14 w-14 items-center justify-center rounded-[14px] bg-secondary/10 text-text-secondary">
-              <CalendarPlus size={28} strokeWidth={1.8} aria-hidden="true" />
-            </span>
-            <h2 className="mt-5 text-xl font-semibold text-text-primary">
-              Crea tu primera cohorte
-            </h2>
-            <p className="mx-auto mt-2.5 max-w-[420px] text-[14.5px] leading-relaxed text-text-muted">
-              Una cohorte agrupa a los estudiantes de un programa en unas fechas y un horario.
-              Al publicarla aparece en el sitio como cupo disponible.
-            </p>
-            <button
-              type="button"
-              onClick={() => openModal()}
-              className="btn-primary mt-6"
-            >
-              <Plus className="h-4 w-4" />
-              Nueva cohorte
-            </button>
-          </div>
-        ) : statusFilter === 'activos' && !searchTerm ? (
-          <div className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-14 text-center shadow-lg">
-            <span className="inline-flex h-14 w-14 items-center justify-center rounded-[14px] bg-secondary/10 text-text-secondary">
-              <CalendarPlus size={28} strokeWidth={1.8} aria-hidden="true" />
-            </span>
-            <h2 className="mt-5 text-xl font-semibold text-text-primary">
-              No hay ninguna cohorte activa
-            </h2>
-            <p className="mx-auto mt-2.5 max-w-[420px] text-[14.5px] leading-relaxed text-text-muted">
-              {selectedProgram === 'all'
-                ? 'Aquí aparecen las cohortes en curso y por iniciar. Crea una nueva para abrir cupos en el sitio.'
-                : 'No hay cohortes en curso o por iniciar para el programa seleccionado. Puedes crear una nueva cohorte para este programa.'}
-            </p>
-            <div className="mt-6 flex flex-wrap justify-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => openModal()}
-                className="btn-primary inline-flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Nueva cohorte
-              </button>
-              {selectedProgram !== 'all' && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedProgram('all')}
-                  className="inline-flex h-11 items-center rounded-lg border border-border-color px-4 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
-                >
-                  Ver todos los programas
-                </button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-11 text-center shadow-lg">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-text-muted/10 text-text-muted">
-              <SearchX size={24} strokeWidth={1.8} aria-hidden="true" />
-            </span>
-            <h2 className="mt-4.5 text-lg font-semibold text-text-primary">
-              {searchTerm
-                ? `Ningún resultado para “${searchTerm}”`
-                : statusFilter === 'en_curso'
-                  ? 'No hay cohortes en curso'
-                  : statusFilter === 'por_iniciar'
-                    ? 'No hay cohortes por iniciar'
-                    : statusFilter === 'terminada'
-                      ? 'No hay cohortes terminadas'
-                      : 'Ninguna cohorte con estos filtros'}
-            </h2>
-            <p className="mx-auto mt-2 max-w-[400px] text-sm leading-relaxed text-text-muted">
-              Prueba con otro término o cambia los filtros para ver más cohortes.
-            </p>
-            <div className="mt-5 flex flex-wrap justify-center gap-2.5">
-              {searchTerm && (
-                <button
-                  type="button"
-                  onClick={() => setSearchTerm('')}
-                  className="inline-flex h-9 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
-                >
-                  Limpiar búsqueda
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('activos');
-                  setSelectedProgram('all');
-                }}
-                className="inline-flex h-9 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
-              >
-                Ver cohortes activas
-              </button>
-            </div>
-          </div>
-        )
-      ) : (
-        <>
-          {/* Tabla, de lg hacia arriba */}
-          <div className="hidden overflow-hidden rounded-xl border border-border-color bg-[var(--card-background)] shadow-lg lg:block">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border-color bg-bg-secondary">
-                  <th className="w-[25%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
-                    Cohorte
-                  </th>
-                  <th className="w-[17%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
-                    Programa
-                  </th>
-                  <th className="w-[21%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
-                    Calendario
-                  </th>
-                  <th className="w-[14%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
-                    Ocupación
-                  </th>
-                  <th className="w-[11%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
-                    Estatus
-                  </th>
-                  <th className="w-[7%] px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
-                    Visible
-                  </th>
-                  <th className="w-[5%] px-4 py-3 text-right">
-                    <span className="sr-only">Acciones</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {pageCohorts.map((cohort) => {
-                  const status =
-                    cohort.start_date && cohort.end_date
-                      ? getCohortStatus(cohort.start_date, cohort.end_date)
-                      : null;
-                  const terminada = status === 'terminada';
-                  const { enrolled, capacity, pct, tone } = getOccupancy(cohort);
-                  const schedule = scheduleLabel(cohort.schedule);
-                  const pace = paceLabel(cohort);
-                  return (
-                    <tr
-                      key={cohort.id}
-                      className="border-b border-border-color/50 transition-colors last:border-b-0 hover:bg-bg-secondary/40"
-                    >
-                      <td className="px-4 py-3.5">
-                        <Link href={`/admin/cohortes/${cohort.id}`} className="group block">
-                          <span
-                            className={`block text-[15px] font-semibold ${
-                              terminada
-                                ? 'text-text-primary'
-                                : 'text-text-secondary group-hover:underline'
-                            }`}
-                          >
-                            {cohort.name}
-                          </span>
-                          <span className="mt-0.5 block text-xs text-text-muted">
-                            {cohort.campus}
-                          </span>
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        {programNameOf(cohort) ? (
-                          <span
-                            className={`inline-flex rounded-md border border-border-color bg-bg-secondary px-2.5 py-1 text-xs ${
-                              terminada ? 'text-text-muted' : 'text-text-primary'
-                            }`}
-                          >
-                            {programNameOf(cohort)}
-                          </span>
-                        ) : (
-                          <span className="text-text-muted">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span
-                          className={`block text-[13.5px] ${
-                            terminada ? 'text-text-muted' : 'text-text-primary'
-                          }`}
-                        >
-                          {cohort.start_date && cohort.end_date
-                            ? formatDateRange(cohort.start_date, cohort.end_date)
-                            : formatDateCompact(cohort.start_date || cohort.end_date || '') || '—'}
-                        </span>
-                        {(schedule || pace) && (
-                          <span className="mt-0.5 block text-xs text-text-muted">
-                            {[schedule, pace].filter(Boolean).join(' · ')}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="flex items-baseline gap-1.5">
-                          <span
-                            className={`text-[15px] font-semibold ${
-                              terminada ? 'text-text-muted' : 'text-text-primary'
-                            }`}
-                          >
-                            {enrolled}
-                          </span>
-                          <span className="text-xs text-text-muted">
-                            {capacity ? `de ${capacity}` : 'sin límite'}
-                          </span>
-                        </span>
-                        {pct !== null && (
-                          <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-text-muted/20">
-                            <span
-                              className={`block h-full rounded-full ${tone} ${terminada ? 'opacity-50' : ''}`}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        {status && (() => {
-                          const { label, className } = getStatusLabelAndClass(status);
-                          return (
-                            <span
-                              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${className}`}
-                            >
-                              {status === 'en_curso' && (
-                                <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
-                              )}
-                              {label}
-                            </span>
-                          );
-                        })()}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <button
-                          type="button"
-                          role="switch"
-                          aria-checked={cohort.offering ?? false}
-                          onClick={() => handleToggleOffering(cohort.id, cohort.offering ?? false)}
-                          disabled={togglingOffering === cohort.id}
-                          title={cohort.offering ? 'Visible en el sitio' : 'Oculta en el sitio'}
-                          aria-label={cohort.offering ? 'Ocultar en el sitio' : 'Mostrar en el sitio'}
-                          className={`relative inline-flex h-[22px] w-[38px] items-center rounded-full border transition-colors disabled:opacity-50 ${
-                            cohort.offering
-                              ? 'border-secondary/50 bg-secondary/25'
-                              : 'border-text-muted/45 bg-text-muted/30'
-                          }`}
-                        >
-                          {togglingOffering === cohort.id ? (
-                            <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin text-text-muted" />
-                          ) : (
-                            <span
-                              className={`absolute top-[2px] h-4 w-4 rounded-full shadow-sm transition-all ${
-                                cohort.offering
-                                  ? 'right-[2px] bg-[var(--text-secondary)]'
-                                  : 'left-[2px] bg-text-primary/80'
-                              }`}
-                            />
-                          )}
-                        </button>
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        <span className="inline-flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => openModal(cohort)}
-                            className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-lg border border-border-color text-text-muted transition-colors hover:text-text-primary"
-                            title="Editar cohorte"
-                            aria-label={`Editar ${cohort.name}`}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          <Link
-                            href={`/admin/cohortes/${cohort.id}`}
-                            className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-lg text-text-muted transition-colors hover:text-text-primary"
-                            title="Ver alumnos"
-                            aria-label={`Ver alumnos de ${cohort.name}`}
-                          >
-                            <ChevronRight className="h-[17px] w-[17px]" />
-                          </Link>
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-
-            <div className="flex items-center justify-between gap-4 border-t border-border-color bg-bg-secondary px-4 py-3.5">
-              <p className="text-xs text-text-muted">
-                {filteredCohorts.length === cohorts.length
-                  ? `${filteredCohorts.length} ${filteredCohorts.length === 1 ? 'cohorte' : 'cohortes'}`
-                  : `${filteredCohorts.length} de ${cohorts.length} cohortes`}
-              </p>
-              {totalPages > 1 && (
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setPage((n) => Math.max(1, n - 1))}
-                    disabled={safePage === 1}
-                    className="inline-flex h-8 items-center rounded-lg border border-border-color px-3 text-xs font-medium text-text-primary transition-colors hover:bg-[var(--card-background)] disabled:opacity-40"
-                  >
-                    Anterior
-                  </button>
-                  <span className="px-1 text-xs text-text-muted">
-                    {safePage} / {totalPages}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setPage((n) => Math.min(totalPages, n + 1))}
-                    disabled={safePage === totalPages}
-                    className="inline-flex h-8 items-center rounded-lg border border-border-color px-3 text-xs font-medium text-text-primary transition-colors hover:bg-[var(--card-background)] disabled:opacity-40"
-                  >
-                    Siguiente
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Tarjetas, por debajo de lg */}
-          <ul className="flex flex-col gap-3 lg:hidden">
-            {pageCohorts.map((cohort) => {
-              const status =
-                cohort.start_date && cohort.end_date
-                  ? getCohortStatus(cohort.start_date, cohort.end_date)
-                  : null;
-              const terminada = status === 'terminada';
-              const { enrolled, capacity, pct, tone } = getOccupancy(cohort);
-              const schedule = scheduleLabel(cohort.schedule);
-              const pace = paceLabel(cohort);
-              return (
-                <li
-                  key={cohort.id}
-                  className="rounded-xl border border-border-color bg-[var(--card-background)] p-4 shadow-lg"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <Link href={`/admin/cohortes/${cohort.id}`} className="min-w-0">
-                      <span
-                        className={`block text-base font-semibold ${
-                          terminada ? 'text-text-primary' : 'text-text-secondary'
-                        }`}
-                      >
-                        {cohort.name}
-                      </span>
-                      <span className="mt-0.5 block text-xs text-text-muted">{cohort.campus}</span>
-                    </Link>
-                    {status && (() => {
-                      const { label, className } = getStatusLabelAndClass(status);
-                      return (
-                        <span
-                          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${className}`}
-                        >
-                          {status === 'en_curso' && (
-                            <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
-                          )}
-                          {label}
-                        </span>
-                      );
-                    })()}
-                  </div>
-
-                  {programNameOf(cohort) && (
-                    <p className="mt-3.5">
-                      <span className="inline-flex rounded-md border border-border-color bg-bg-secondary px-2.5 py-1 text-xs text-text-primary">
-                        {programNameOf(cohort)}
-                      </span>
-                    </p>
-                  )}
-
-                  <div className="mt-3.5 flex flex-col gap-2 border-t border-border-color/50 pt-3.5">
-                    <p className="flex items-center gap-2.5 text-[13.5px] text-text-primary">
-                      <CalendarDays className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
-                      {cohort.start_date && cohort.end_date
-                        ? formatDateRange(cohort.start_date, cohort.end_date)
-                        : '—'}
-                    </p>
-                    {(schedule || pace) && (
-                      <p className="flex items-center gap-2.5 text-[13px] text-text-muted">
-                        <Clock className="h-4 w-4 shrink-0" aria-hidden="true" />
-                        {[schedule, pace].filter(Boolean).join(' · ')}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="mt-3.5">
-                    <div className="flex items-baseline justify-between gap-2.5">
-                      <span className="text-xs text-text-muted">Ocupación</span>
-                      <span className="text-[13.5px] text-text-primary">
-                        <strong className="font-semibold">{enrolled}</strong>{' '}
-                        <span className="text-text-muted">
-                          {capacity ? `de ${capacity}` : 'sin límite'}
-                        </span>
-                      </span>
-                    </div>
-                    {pct !== null && (
-                      <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-text-muted/20">
-                        <span
-                          className={`block h-full rounded-full ${tone} ${terminada ? 'opacity-50' : ''}`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between gap-3 border-t border-border-color/50 pt-3.5">
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={cohort.offering ?? false}
-                      onClick={() => handleToggleOffering(cohort.id, cohort.offering ?? false)}
-                      disabled={togglingOffering === cohort.id}
-                      className="flex items-center gap-2.5 disabled:opacity-50"
-                      aria-label={cohort.offering ? 'Ocultar en el sitio' : 'Mostrar en el sitio'}
-                    >
-                      <span
-                        className={`relative inline-flex h-[22px] w-[38px] shrink-0 items-center rounded-full border transition-colors ${
-                          cohort.offering
-                            ? 'border-secondary/50 bg-secondary/25'
-                            : 'border-text-muted/45 bg-text-muted/30'
-                        }`}
-                      >
-                        {togglingOffering === cohort.id ? (
-                          <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin text-text-muted" />
-                        ) : (
-                          <span
-                            className={`absolute top-[2px] h-4 w-4 rounded-full shadow-sm transition-all ${
-                              cohort.offering
-                                ? 'right-[2px] bg-[var(--text-secondary)]'
-                                : 'left-[2px] bg-text-primary/80'
-                            }`}
-                          />
-                        )}
-                      </span>
-                      <span className="text-xs text-text-muted">
-                        {cohort.offering ? 'Visible' : 'Oculta'}
-                      </span>
-                    </button>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openModal(cohort)}
-                        className="inline-flex h-11 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary"
-                      >
-                        Editar
-                      </button>
-                      <Link
-                        href={`/admin/cohortes/${cohort.id}`}
-                        className="inline-flex h-11 items-center gap-1 rounded-lg border border-secondary/30 px-3.5 text-sm font-medium text-text-secondary transition-colors hover:bg-secondary/10"
-                      >
-                        Alumnos
-                        <ChevronRight className="h-[15px] w-[15px]" />
-                      </Link>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-
-            {totalPages > 1 && (
-              <li className="flex items-center justify-between gap-3 rounded-xl border border-border-color bg-[var(--card-background)] px-4 py-3">
-                <span className="text-xs text-text-muted">
-                  {safePage} / {totalPages}
-                </span>
-                <span className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPage((n) => Math.max(1, n - 1))}
-                    disabled={safePage === 1}
-                    className="inline-flex h-11 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary disabled:opacity-40"
-                  >
-                    Anterior
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPage((n) => Math.min(totalPages, n + 1))}
-                    disabled={safePage === totalPages}
-                    className="inline-flex h-11 items-center rounded-lg border border-border-color px-3.5 text-sm font-medium text-text-primary disabled:opacity-40"
-                  >
-                    Siguiente
-                  </button>
-                </span>
-              </li>
-            )}
-          </ul>
-        </>
-      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -1359,5 +1108,56 @@ export default function CohortesAdmon() {
         </div>
       )}
     </div>
+  );
+}
+
+/** «4 ago – 26 sep 2026»: el año se repite sólo si cambia. */
+function dateRange(start: string, end: string): string {
+  const from = formatDateCompact(start);
+  const to = formatDateCompact(end);
+  if (!from || !to) return from || to;
+  return from.slice(-4) === to.slice(-4) ? `${from.slice(0, -5)} – ${to}` : `${from} – ${to}`;
+}
+
+function tint(color: string, percent: number): string {
+  return `color-mix(in srgb, ${color} ${percent}%, transparent)`;
+}
+
+function Kpi({
+  dot,
+  label,
+  value,
+  note,
+  alert = false,
+}: {
+  dot: string;
+  label: string;
+  value: string;
+  note: string;
+  alert?: boolean;
+}) {
+  return (
+    <div
+      className="flex flex-col gap-2 rounded-xl border bg-[var(--card-background)] p-5"
+      style={{ borderColor: alert ? tint('var(--pay-critico)', 32) : 'var(--border-color)' }}
+    >
+      <div className="flex items-center gap-2">
+        <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: dot }} aria-hidden="true" />
+        <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-text-muted">{label}</span>
+      </div>
+      <span
+        className="text-[26px] font-bold tracking-tight tabular-nums"
+        style={{ color: alert ? 'var(--pay-critico)' : 'var(--text-primary)' }}
+      >
+        {value}
+      </span>
+      <span className="text-[13px] leading-snug text-text-muted">{note}</span>
+    </div>
+  );
+}
+
+function HeadCell({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">{children}</span>
   );
 }

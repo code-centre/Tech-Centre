@@ -1,497 +1,394 @@
 'use client';
 
-import { GraduationCap, Clock, BookOpen, Calendar, Sparkles, ArrowRight, Loader2, TrendingUp, CheckCircle2, Circle, Info, User, MessageCircle, Home, ChevronDown, ChevronUp } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
 import { useSupabaseClient } from '@/lib/supabase';
-import { formatDate } from '../../../utils/formatDate';
-import InstructorPanel from './InstructorPanel';
+import { Clock, Loader2, MapPin, SearchX } from 'lucide-react';
+import type { AttendanceStatus, Grade, Session, User } from '@/types/supabase';
+import {
+  averageGrade,
+  cohortStatus,
+  countsAsPresent,
+  daysUntil,
+  findNextSession,
+  formatGrade,
+  isSessionDone,
+  placeLine,
+  scheduleLine,
+  sessionDayLong,
+  type CohortLite,
+  type CohortStatus,
+} from '@/lib/cohorts';
+import { formatLongDate } from '@/lib/students';
 
-interface ProfileCursosMatriculadosProps {
-  user: any;
+interface Props {
+  user: User;
 }
 
-interface EnrolledCourse {
-  id: string;
-  cohort_id: string;
-  student_id: string;
-  status: string;
-  agreed_price: number;
-  cohorts: {
-    id: string;
-    program_id: string;
-    name: string;
-    modality: string;
-    start_date: string | null;
-    end_date: string | null;
-    schedule: {
-      days: string[];
-      hours: string[];
-    } | null;
-    programs: {
-      id: string;
-      name: string;
-      total_hours: number;
-      difficulty: string;
-      image: string;
-      code: string;
-      slug: string | null;
-    } | null;
-  } | null;
+interface Course {
+  enrollmentId: number | null;
+  cohort: CohortLite;
+  status: CohortStatus;
+  sessions: Session[];
+  doneCount: number;
+  nextSession: Session | null;
+  attendancePercent: number | null;
+  average: number | null;
 }
 
-type CourseStatus = 'upcoming' | 'in-progress' | 'completed';
+const STATUS_COLOR: Record<CohortStatus, string> = {
+  active: 'var(--pay-serie-cobrado)',
+  upcoming: 'var(--pay-aviso)',
+  finished: 'var(--pay-serie-porcobrar)',
+};
 
-function getCourseStatus(startDate: string | null, endDate: string | null): CourseStatus {
-  if (!startDate) return 'upcoming';
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const start = new Date(startDate);
-  start.setHours(0, 0, 0, 0);
-
-  if (endDate) {
-    const end = new Date(endDate);
-    end.setHours(0, 0, 0, 0);
-
-    if (end < today) return 'completed';
-    if (start <= today && end >= today) return 'in-progress';
-  } else {
-    if (start <= today) return 'in-progress';
-  }
-
-  return 'upcoming';
+function tint(color: string, percent: number): string {
+  return `color-mix(in srgb, ${color} ${percent}%, transparent)`;
 }
 
-function formatSchedule(schedule: { days: string[]; hours: string[] } | null): string {
-  if (!schedule || !schedule.days || !schedule.hours || schedule.days.length === 0) {
-    return 'No disponible';
-  }
-
-  const days = schedule.days.join(' y ');
-  const hours = schedule.hours.length > 0 ? schedule.hours[0] : '';
-
-  return `${days}${hours ? `, ${hours}` : ''}`;
+function one<T>(value: T | T[] | null | undefined): T | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
 }
 
-function CourseCard({ course, isAdminView = false }: { course: EnrolledCourse; isAdminView?: boolean }) {
-  const [showDetails, setShowDetails] = useState(false);
-  const program = course.cohorts?.programs;
-  const difficulty = program?.difficulty || 'BÁSICO';
-  const startDate = course.cohorts?.start_date ? formatDate(course.cohorts.start_date) : null;
-  const endDate = course.cohorts?.end_date ? formatDate(course.cohorts.end_date) : null;
-  const courseStatus = getCourseStatus(course.cohorts?.start_date || null, course.cohorts?.end_date || null);
-  const scheduleText = formatSchedule(course.cohorts?.schedule || null);
-
-  const linkHref = isAdminView ? `/admin/cohortes/${course.cohort_id}` : `/perfil/cursos/${course.cohort_id}`;
-
-  return (
-    <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden shadow-lg">
-      <div className="flex flex-col md:flex-row">
-        {/* Image + main content */}
-        <Link href={linkHref} className="group flex-1 flex flex-col md:flex-row min-w-0">
-          <div className="relative w-full md:w-64 h-40 md:h-auto flex-shrink-0 overflow-hidden">
-            {program?.image ? (
-              <Image
-                src={program.image}
-                alt={program.name || 'Curso'}
-                width={400}
-                height={200}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-secondary/20 to-blue-600/20 flex items-center justify-center">
-                <GraduationCap className="w-16 h-16 text-secondary/50" />
-              </div>
-            )}
-            <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-              <div
-                className={`${
-                  difficulty === 'BÁSICO'
-                    ? 'bg-emerald-500/90'
-                    : difficulty === 'INTERMEDIO'
-                      ? 'bg-amber-500/90'
-                      : difficulty === 'AVANZADO'
-                        ? 'bg-red-500/90'
-                        : 'bg-secondary/90'
-                } text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1`}
-              >
-                <TrendingUp className="h-3 w-3" />
-                {difficulty}
-              </div>
-              <div
-                className={`${
-                  courseStatus === 'upcoming'
-                    ? 'bg-amber-500/90'
-                    : courseStatus === 'in-progress'
-                      ? 'bg-green-500/90'
-                      : 'bg-blue-500/90'
-                } text-white text-xs font-bold px-2.5 py-1 rounded-full`}
-              >
-                {courseStatus === 'upcoming' ? 'Inicio próximo' : courseStatus === 'in-progress' ? 'En curso' : 'Finalizado'}
-              </div>
-            </div>
-          </div>
-          <div className="p-6 flex-1 flex flex-col min-w-0">
-            <h3 className="text-xl font-bold text-text-primary mb-1 group-hover:text-secondary transition-colors line-clamp-2">
-              {program?.name || 'Curso sin nombre'}
-            </h3>
-            {course.cohorts?.name && (
-              <p className="text-sm text-text-muted mb-4">{course.cohorts.name}</p>
-            )}
-            <div className="flex flex-wrap gap-4 text-sm">
-              {(startDate || endDate) && (
-                <div className="flex items-center gap-2 text-text-muted">
-                  <Calendar className="w-4 h-4 text-secondary flex-shrink-0" />
-                  <span>{startDate && endDate ? `${startDate} - ${endDate}` : startDate || endDate}</span>
-                </div>
-              )}
-              {course.cohorts?.modality && (
-                <div className="flex items-center gap-2 text-text-muted">
-                  <Home className="w-4 h-4 text-secondary flex-shrink-0" />
-                  <span>{course.cohorts.modality}</span>
-                </div>
-              )}
-              {scheduleText !== 'No disponible' && (
-                <div className="flex items-center gap-2 text-text-muted">
-                  <Clock className="w-4 h-4 text-secondary flex-shrink-0" />
-                  <span>{scheduleText}</span>
-                </div>
-              )}
-              {program?.total_hours && (
-                <div className="flex items-center gap-2 text-text-muted">
-                  <BookOpen className="w-4 h-4 text-secondary flex-shrink-0" />
-                  <span>{program.total_hours} horas</span>
-                </div>
-              )}
-            </div>
-            <div className="mt-4 flex items-center gap-2 text-secondary text-sm font-medium group-hover:gap-3 transition-all">
-              <span>Ver programa</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </div>
-        </Link>
-      </div>
-
-      {/* Collapsible section: admin gets "Gestionar cohorte", students get "¿Qué sigue ahora?" */}
-      <div className="border-t border-border-color">
-        <button
-          onClick={() => setShowDetails(!showDetails)}
-          className="w-full px-6 py-4 flex items-center justify-between text-left text-sm font-medium text-text-muted hover:text-text-primary hover:bg-bg-secondary/50 transition-colors"
-        >
-          <span className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-secondary" />
-            {isAdminView ? 'Gestionar cohorte' : '¿Qué sigue ahora?'}
-          </span>
-          {showDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </button>
-        {showDetails && (
-          <div className="px-6 pb-6 pt-2 space-y-4 bg-bg-secondary/30">
-            {isAdminView ? (
-              <div className="flex flex-wrap gap-2 pt-2">
-                <Link
-                  href={linkHref}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-colors"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  Ir al panel de administración
-                </Link>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-sm text-text-primary">Inscripción confirmada</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Circle className="w-5 h-5 text-text-muted flex-shrink-0" />
-                    <span className="text-sm text-text-muted">Acceso a la comunidad</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Circle className="w-5 h-5 text-text-muted flex-shrink-0" />
-                    <span className="text-sm text-text-muted">Material de bienvenida</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Circle className="w-5 h-5 text-text-muted flex-shrink-0" />
-                    <span className="text-sm text-text-muted">Calendario de clases</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
-                  <div className="flex items-start gap-3">
-                    <Info className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-text-primary leading-relaxed">
-                      El seguimiento de clases y materiales estará disponible cuando inicie el programa.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <Link
-                    href={linkHref}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-bg-secondary hover:bg-bg-primary rounded-lg transition-colors border border-border-color"
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    Ver detalles del programa
-                  </Link>
-                  <Link
-                    href="/perfil/datos-personales"
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-bg-secondary hover:bg-bg-primary rounded-lg transition-colors border border-border-color"
-                  >
-                    <User className="w-4 h-4" />
-                    Actualizar mis datos
-                  </Link>
-                  <a
-                    href="https://wa.me/573005523872?text=Hola%2C%20necesito%20soporte%20con%20mi%20curso"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary bg-bg-secondary hover:bg-bg-primary rounded-lg transition-colors border border-border-color"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Contactar soporte
-                  </a>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default function ProfileCursosMatriculados({ user }: ProfileCursosMatriculadosProps) {
+export default function ProfileCursosMatriculados({ user }: Props) {
   const supabase = useSupabaseClient();
-  const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
-  const [isInstructorInCohort, setIsInstructorInCohort] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
-  const isAdmin = user?.role === 'admin';
+  const now = useMemo(() => new Date(), []);
+
+  const fetchData = useCallback(async () => {
+    if (!user?.id) return;
+    setLoading(true);
+    setError('');
+
+    try {
+      const { data: enrollmentsData, error: enrollmentsError } = await supabase
+        .from('enrollments')
+        .select(
+          'id, cohort_id, cohort:cohorts!cohort_id(id, name, slug, start_date, end_date, modality, campus, capacity, schedule, program:programs!program_id(id, name, total_hours))'
+        )
+        .eq('student_id', user.id);
+
+      if (enrollmentsError) throw enrollmentsError;
+
+      const enrollments: { id: number; cohort: CohortLite }[] = [];
+      for (const row of (enrollmentsData ?? []) as Record<string, unknown>[]) {
+        const cohortRaw = one(row.cohort as never) as Record<string, unknown> | null;
+        if (!cohortRaw) continue;
+        enrollments.push({
+          id: row.id as number,
+          cohort: {
+            ...(cohortRaw as unknown as CohortLite),
+            program: one(cohortRaw.program as never) as CohortLite['program'],
+          },
+        });
+      }
+
+      const cohortIds = enrollments.map((row) => row.cohort.id);
+      const enrollmentIds = enrollments.map((row) => row.id);
+
+      const [sessionsRes, attendanceRes, gradesRes] = await Promise.all([
+        cohortIds.length > 0
+          ? supabase.from('sessions').select('*').in('cohort_id', cohortIds).order('starts_at')
+          : Promise.resolve({ data: [] }),
+        enrollmentIds.length > 0
+          ? supabase
+              .from('attendance')
+              .select('enrollment_id, session_id, status')
+              .in('enrollment_id', enrollmentIds)
+          : Promise.resolve({ data: [] }),
+        enrollmentIds.length > 0
+          ? supabase.from('grades').select('*').in('enrollment_id', enrollmentIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      const allSessions = (sessionsRes.data ?? []) as Session[];
+      const attendanceRows = (attendanceRes.data ?? []) as {
+        enrollment_id: number;
+        session_id: number;
+        status: AttendanceStatus;
+      }[];
+      const gradeRows = (gradesRes.data ?? []) as Grade[];
+
+      const built: Course[] = enrollments.map(({ id, cohort }) => {
+        const sessions = allSessions.filter((session) => session.cohort_id === cohort.id);
+        const done = sessions.filter((session) => isSessionDone(session, now));
+        const mine = attendanceRows.filter((row) => row.enrollment_id === id);
+        const tracked = mine.filter((row) => done.some((session) => session.id === row.session_id));
+        const present = tracked.filter((row) => countsAsPresent(row.status)).length;
+        const grades = gradeRows.filter((row) => row.enrollment_id === id).map((row) => row.value);
+
+        return {
+          enrollmentId: id,
+          cohort,
+          status: cohortStatus(cohort, now),
+          sessions,
+          doneCount: done.length,
+          nextSession: findNextSession(sessions, now),
+          attendancePercent: tracked.length > 0 ? Math.round((present / tracked.length) * 100) : null,
+          average: averageGrade(grades),
+        };
+      });
+
+      built.sort((a, b) => (b.cohort.start_date ?? '').localeCompare(a.cohort.start_date ?? ''));
+      setCourses(built);
+    } catch (err) {
+      console.error('Error al cargar los cursos:', err);
+      setError('No pudimos cargar tus cursos. Inténtalo de nuevo.');
+    } finally {
+      setLoading(false);
+    }
+  }, [supabase, user?.id, now]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!user?.id) return;
-      try {
-        setLoading(true);
-        if (isAdmin) {
-          const today = new Date().toISOString().split('T')[0];
-          const [cohortsRes, instructorCohortsRes] = await Promise.all([
-            supabase
-              .from('cohorts')
-              .select(
-                `
-                *,
-                schedule,
-                programs:program_id (*)
-              `
-              )
-              .gte('end_date', today)
-              .order('start_date', { ascending: true }),
-            supabase
-              .from('cohort_instructors')
-              .select(
-                `
-                cohort:cohorts (
-                  *,
-                  schedule,
-                  programs:program_id (*)
-                )
-              `
-              )
-              .eq('instructor_id', user.id),
-          ]);
-
-          if (cohortsRes.error) throw cohortsRes.error;
-
-          const toCourse = (row: any, prefix: string): EnrolledCourse => {
-            const cohort = row;
-            const programs = cohort?.programs
-              ? Array.isArray(cohort.programs)
-                ? cohort.programs[0]
-                : cohort.programs
-              : null;
-            return {
-              id: `${prefix}-${cohort.id}`,
-              cohort_id: String(cohort.id),
-              student_id: '',
-              status: '',
-              agreed_price: 0,
-              cohorts: cohort
-                ? { ...cohort, programs, schedule: cohort.schedule || null }
-                : null,
-            };
-          };
-
-          const activeCourses = (cohortsRes.data || []).map((row: any) => toCourse(row, 'admin'));
-          const seenIds = new Set(activeCourses.map((c) => c.cohort_id));
-
-          const instructorRaw = (instructorCohortsRes.data || []) as Array<{ cohort: any }>;
-          const instructorCourses: EnrolledCourse[] = instructorRaw
-            .map((r) => {
-              const c = r.cohort;
-              const cohort = Array.isArray(c) ? c[0] : c;
-              return cohort ? toCourse(cohort, 'instructor') : null;
-            })
-            .filter((c): c is EnrolledCourse => !!c && !seenIds.has(c.cohort_id));
-
-          const merged = [...activeCourses, ...instructorCourses].sort(
-            (a, b) =>
-              new Date(a.cohorts?.start_date || 0).getTime() -
-              new Date(b.cohorts?.start_date || 0).getTime()
-          );
-
-          setEnrolledCourses(merged);
-          setIsInstructorInCohort(instructorRaw.length > 0);
-        } else {
-          const [enrollmentsRes, cohortInstructorsRes] = await Promise.all([
-            supabase
-              .from('enrollments')
-              .select(
-                `
-              *,
-              cohorts (
-              *,
-              schedule,
-              programs (*)
-            )
-          `
-              )
-              .eq('student_id', user.id),
-            supabase
-              .from('cohort_instructors')
-              .select('instructor_id')
-              .eq('instructor_id', user.id)
-              .limit(1),
-          ]);
-
-          if (enrollmentsRes.error) throw enrollmentsRes.error;
-
-          const transformedEnrollments = (enrollmentsRes.data || []).map((enrollment: any) => {
-            const cohort = Array.isArray(enrollment.cohorts) ? enrollment.cohorts[0] : enrollment.cohorts;
-            const programs = cohort?.programs ? (Array.isArray(cohort.programs) ? cohort.programs[0] : cohort.programs) : null;
-
-            return {
-              ...enrollment,
-              cohorts: cohort ? { ...cohort, programs, schedule: cohort.schedule || null } : null,
-            };
-          });
-
-          setEnrolledCourses(transformedEnrollments);
-          setIsInstructorInCohort((cohortInstructorsRes.data?.length ?? 0) > 0);
-        }
-      } catch (err) {
-        console.error('Error fetching enrollments:', err);
-        setError('Error al cargar los cursos. Por favor, inténtalo de nuevo.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, [user?.id, isAdmin, supabase]);
+  }, [fetchData]);
+
+  const active = courses.filter((course) => course.status === 'active');
+  const upcoming = courses.filter((course) => course.status === 'upcoming');
+  const finished = courses.filter((course) => course.status === 'finished');
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-secondary/10 rounded-lg">
-            <GraduationCap className="text-secondary" size={24} />
-          </div>
-          <h2 className="text-2xl font-bold text-text-primary">Mis Cursos Matriculados</h2>
-        </div>
-        <div className="flex items-center justify-center py-20">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-secondary" />
-            <p className="text-text-muted text-sm">Cargando tus cursos...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-secondary/10 rounded-lg">
-            <GraduationCap className="text-secondary" size={24} />
-          </div>
-          <h2 className="text-2xl font-bold text-text-primary">Mis Cursos Matriculados</h2>
-        </div>
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-center">
-          <p className="text-red-500">{error}</p>
-        </div>
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-secondary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {isInstructorInCohort && (
-        <InstructorPanel />
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-[27px] font-bold tracking-tight text-text-primary">Mis cursos</h1>
+        <p className="text-sm text-text-muted">{summaryLine(active.length, upcoming.length, finished.length)}</p>
+      </header>
+
+      {error && (
+        <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">{error}</p>
       )}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-secondary/10 rounded-lg">
-            <GraduationCap className="text-secondary" size={24} />
+
+      {courses.length === 0 && !error && (
+        <section className="rounded-xl border border-border-color bg-[var(--card-background)] px-10 py-11 text-center">
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-text-muted/10 text-text-muted">
+            <SearchX size={24} strokeWidth={1.8} />
+          </span>
+          <h2 className="mt-4 text-lg font-semibold text-text-primary">Todavía no tienes cursos</h2>
+          <p className="mx-auto mt-2 max-w-[400px] text-sm leading-relaxed text-text-muted">
+            Cuando te matricules en un programa, aparecerá aquí con su horario y su material.
+          </p>
+          <Link href="/programas" className="btn-primary mt-5 inline-flex items-center gap-2">
+            Ver los programas
+          </Link>
+        </section>
+      )}
+
+      {active.length > 0 && (
+        <Group label="En curso">
+          {active.map((course) => (
+            <ActiveCourseCard key={course.cohort.id} course={course} now={now} />
+          ))}
+        </Group>
+      )}
+
+      {upcoming.length > 0 && (
+        <Group label="Por empezar">
+          {upcoming.map((course) => (
+            <CompactCourseCard key={course.cohort.id} course={course} now={now} />
+          ))}
+        </Group>
+      )}
+
+      {finished.length > 0 && (
+        <Group label="Terminados">
+          {finished.map((course) => (
+            <CompactCourseCard key={course.cohort.id} course={course} now={now} />
+          ))}
+        </Group>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+
+function Group({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <section className="flex flex-col gap-3">
+      <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-text-muted">{label}</span>
+      {children}
+    </section>
+  );
+}
+
+function ActiveCourseCard({ course, now }: { course: Course; now: Date }) {
+  const { cohort } = course;
+  const schedule = scheduleLine(cohort.schedule);
+  const place = placeLine(cohort.modality, course.nextSession?.room ?? cohort.campus);
+  const percent = course.sessions.length > 0 ? (course.doneCount / course.sessions.length) * 100 : 0;
+
+  return (
+    <article
+      className="overflow-hidden rounded-xl border bg-[var(--card-background)]"
+      style={{ borderColor: tint('var(--secondary)', 28) }}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-6 px-6 py-[22px]">
+        <div className="flex min-w-0 flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="text-xl font-bold tracking-tight text-text-primary">
+              {cohort.program?.name ?? 'Curso'}
+            </span>
+            <span className="text-sm text-text-muted">{cohort.name}</span>
+            <Pill color={STATUS_COLOR.active}>En curso</Pill>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-text-primary">
-              {isAdmin ? 'Cursos activos' : 'Mis Cursos Matriculados'}
-            </h2>
-            <p className="text-sm text-text-muted mt-1">
-              {enrolledCourses.length > 0
-                ? isAdmin
-                  ? `${enrolledCourses.length} ${enrolledCourses.length === 1 ? 'curso activo' : 'cursos activos'}`
-                  : `${enrolledCourses.length} ${enrolledCourses.length === 1 ? 'curso matriculado' : 'cursos matriculados'}`
-                : isAdmin
-                  ? 'No hay cursos activos en este momento'
-                  : 'Gestiona tus cursos y avanza en tu aprendizaje'}
-            </p>
+          <div className="flex flex-wrap gap-2">
+            {schedule && <Fact icon={<Clock className="h-[15px] w-[15px]" />}>{schedule}</Fact>}
+            {place && <Fact icon={<MapPin className="h-[15px] w-[15px]" />}>{place}</Fact>}
+          </div>
+          {course.nextSession && (
+            <div
+              className="flex w-fit items-center gap-2.5 rounded-[9px] border px-3.5 py-2.5"
+              style={{ borderColor: tint('var(--secondary)', 20), background: tint('var(--secondary)', 8) }}
+            >
+              <Clock className="h-[15px] w-[15px] shrink-0 text-secondary" />
+              <span className="text-[13.5px] text-text-primary">
+                Próxima clase:{' '}
+                <strong className="font-semibold">{course.nextSession.title || 'Clase'}</strong> ·{' '}
+                {sessionDayLong(course.nextSession.starts_at).toLowerCase()}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex shrink-0 flex-col items-end gap-3.5">
+          <Link
+            href={`/perfil/cursos/${cohort.id}`}
+            className="inline-flex h-[42px] items-center gap-2 rounded-lg bg-secondary px-[18px] text-sm font-semibold text-[#0E1116] transition-colors hover:bg-secondary/90"
+          >
+            Entrar al curso
+          </Link>
+          <div className="flex gap-6">
+            {course.attendancePercent != null && (
+              <MiniStat value={`${course.attendancePercent}%`} label="tu asistencia" />
+            )}
+            {course.average != null && <MiniStat value={formatGrade(course.average)} label="tus notas" />}
           </div>
         </div>
       </div>
 
-      {enrolledCourses.length === 0 ? (
-        <div className="bg-[var(--card-background)] rounded-xl border border-border-color overflow-hidden shadow-lg">
-          <div className="px-8 py-16 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary/10 mb-6">
-              <Sparkles className="w-10 h-10 text-secondary" />
-            </div>
-            <h3 className="text-2xl font-bold text-text-primary mb-3">
-              {isAdmin ? 'No hay cursos activos' : '¡Comienza tu viaje de aprendizaje!'}
-            </h3>
-            <p className="text-lg text-text-muted mb-2 max-w-md mx-auto">
-              {isAdmin
-                ? 'No hay cohortes con fechas vigentes en este momento.'
-                : 'Aún no te has matriculado en ningún curso, pero eso está a punto de cambiar.'}
-            </p>
-            {!isAdmin && (
-              <>
-                <p className="text-base text-text-muted opacity-80 mb-8 max-w-md mx-auto">
-                  Explora nuestra oferta académica y encuentra el programa perfecto para impulsar tu carrera profesional.
-                </p>
-                <Link
-                  href="/programas-academicos"
-                  className="btn-primary inline-flex items-center gap-2 px-8 py-4"
-                >
-                  <BookOpen className="w-5 h-5" />
-                  <span>Explorar Cursos Disponibles</span>
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {enrolledCourses.map((course) => (
-            <CourseCard key={course.id} course={course} isAdminView={isAdmin} />
-          ))}
+      {course.sessions.length > 0 && (
+        <div className="flex items-center gap-3.5 border-t border-border-color bg-bg-secondary px-6 py-3.5">
+          <span className="w-28 shrink-0 text-[12.5px] text-text-muted">
+            {course.doneCount} de {course.sessions.length} clases
+          </span>
+          <span className="h-1.5 grow overflow-hidden rounded-[3px] bg-border-color">
+            <span className="block h-full rounded-[3px] bg-secondary" style={{ width: `${percent}%` }} />
+          </span>
+          {cohort.end_date && (
+            <span className="shrink-0 text-[12.5px] text-text-muted">
+              Termina el {formatLongDate(cohort.end_date).replace(/ de \d{4}$/, '')}
+            </span>
+          )}
         </div>
       )}
+    </article>
+  );
+}
+
+function CompactCourseCard({ course, now }: { course: Course; now: Date }) {
+  const { cohort, status } = course;
+  const days = daysUntil(cohort.start_date, now);
+  const schedule = scheduleLine(cohort.schedule);
+
+  const detail =
+    status === 'upcoming'
+      ? [
+          [cohort.start_date, cohort.end_date]
+            .filter(Boolean)
+            .map((d) => formatLongDate(d).replace(/ de \d{4}$/, ''))
+            .join(' – '),
+          schedule,
+          cohort.modality,
+        ]
+          .filter(Boolean)
+          .join(' · ')
+      : [
+          [cohort.start_date, cohort.end_date]
+            .filter(Boolean)
+            .map((d) => formatLongDate(d).replace(/ de \d{4}$/, ''))
+            .join(' – '),
+          course.average != null ? `nota final ${formatGrade(course.average)}` : null,
+          course.attendancePercent != null ? `asistencia ${course.attendancePercent}%` : null,
+        ]
+          .filter(Boolean)
+          .join(' · ');
+
+  return (
+    <article className="overflow-hidden rounded-xl border border-border-color bg-[var(--card-background)]">
+      <div className="flex flex-wrap items-center justify-between gap-5 px-6 py-[18px]">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="text-[17px] font-semibold text-text-primary">
+              {cohort.program?.name ?? 'Curso'}
+            </span>
+            <span className="text-[13.5px] text-text-muted">{cohort.name}</span>
+            <Pill color={STATUS_COLOR[status]}>
+              {status === 'upcoming'
+                ? days != null && days > 0
+                  ? `Empieza en ${days} ${days === 1 ? 'día' : 'días'}`
+                  : 'Por iniciar'
+                : 'Terminado'}
+            </Pill>
+          </div>
+          <span className="text-[13px] text-text-muted">{detail}</span>
+        </div>
+        <Link
+          href={`/perfil/cursos/${cohort.id}`}
+          className="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-border-color bg-bg-secondary px-4 text-sm font-medium text-text-primary transition-colors hover:border-secondary/50"
+        >
+          {status === 'upcoming' ? 'Ver el temario' : 'Ver el material'}
+        </Link>
+      </div>
+    </article>
+  );
+}
+
+function MiniStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="flex flex-col items-end gap-0.5">
+      <span className="text-[17px] font-bold text-text-primary">{value}</span>
+      <span className="text-xs text-text-muted">{label}</span>
     </div>
   );
+}
+
+function Pill({ color, children }: { color: string; children: React.ReactNode }) {
+  return (
+    <span
+      className="inline-flex h-6 w-fit shrink-0 items-center whitespace-nowrap rounded-full px-2.5 text-xs font-semibold"
+      style={{ background: tint(color, 14), color }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function Fact({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <span className="inline-flex h-[30px] items-center gap-[7px] rounded-[7px] border border-border-color bg-bg-secondary px-[11px] text-[12.5px] text-text-primary">
+      <span className="text-secondary">{icon}</span>
+      {children}
+    </span>
+  );
+}
+
+function summaryLine(active: number, upcoming: number, finished: number): string {
+  const parts: string[] = [];
+  if (active > 0) parts.push(`${active} ${active === 1 ? 'curso en marcha' : 'cursos en marcha'}`);
+  if (upcoming > 0) parts.push(`${upcoming} por empezar`);
+  if (finished > 0) parts.push(`${finished} ${finished === 1 ? 'terminado' : 'terminados'}`);
+  if (parts.length === 0) return 'Aquí verás los cursos en los que estés matriculado.';
+  return `${parts.join(', ')}.`;
 }
