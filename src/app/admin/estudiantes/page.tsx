@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
-import { StudentsList } from '@/components/adminspage/StudentsList';
-import DiagnosticoLeadsSection from '@/components/adminspage/DiagnosticoLeadsSection';
+import EstudiantesAdmin from '@/components/adminspage/EstudiantesAdmin';
 
 export const metadata: Metadata = {
-  title: 'Administración de Usuarios',
-  description: 'Panel de administración para gestionar estudiantes, leads y exalumnos.',
+  title: 'Administración de Estudiantes',
+  description: 'Panel de administración para gestionar estudiantes, exalumnos y leads.',
   robots: {
     index: false,
     follow: false,
@@ -12,14 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function EstudiantesPage() {
-  return (
-    <div className="container mx-auto space-y-8">
-      <StudentsList
-        roleFilter={['student', 'lead']}
-        title="Estudiantes"
-        subtitle="Gestiona estudiantes y leads"
-      />
-      <DiagnosticoLeadsSection />
-    </div>
-  );
+  return <EstudiantesAdmin />;
 }

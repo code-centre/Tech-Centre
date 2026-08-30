@@ -1,53 +1,57 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { requireRole } from '@/lib/auth/require-role';
-import { ArrowLeft, Mail, Phone, Calendar } from 'lucide-react';
-import StudentProfileEditor from '@/components/adminspage/StudentProfileEditor';
-import { StudentInvoicesTable } from '@/components/adminspage/StudentInvoicesTable';
-import { LeadStudentToggle } from '@/components/adminspage/LeadStudentToggle';
+import StudentDetail, {
+  type DetailEnrollment,
+  type DetailInvoice,
+  type DetailLead,
+  type DetailProfile,
+} from '@/components/adminspage/StudentDetail';
+import { formatLeadOrigin, parseLeadNotes } from '@/lib/students';
 
 export const metadata: Metadata = {
-  title: 'Detalles del Estudiante',
+  title: 'Ficha del estudiante',
+  robots: { index: false, follow: false },
 };
 
 interface Props {
   params: Promise<{ user_id: string }>;
+  searchParams: Promise<{ matricular?: string }>;
 }
 
-function getRoleBadgeClass(role: string): string {
-  switch (role) {
-    case 'student':
-      return 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30';
-    case 'instructor':
-      return 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30';
-    case 'admin':
-      return 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30';
-    case 'lead':
-      return 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30';
-    default:
-      return 'bg-bg-secondary text-text-muted border border-border-color';
-  }
+const STAGE_INTENT: Record<string, string> = {
+  diagnostico: 'Pidió un diagnóstico',
+  apartar: 'Quiso apartar cupo',
+  dudas: 'Escribió con dudas',
+  pagos: 'Preguntó por formas de pago',
+};
+
+/** PostgREST devuelve las relaciones como objeto o como arreglo. */
+function one<T>(value: T | T[] | null | undefined): T | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
 }
 
-function getRoleLabel(role: string): string {
-  switch (role) {
-    case 'student':
-      return 'Estudiante';
-    case 'instructor':
-      return 'Instructor';
-    case 'admin':
-      return 'Admin';
-    case 'lead':
-      return 'Lead';
-    default:
-      return role;
-  }
+interface RawEnrollment {
+  id: number;
+  agreed_price: number | null;
+  cohort:
+    | {
+        id: number;
+        name: string | null;
+        start_date: string | null;
+        end_date: string | null;
+        modality: string | null;
+        program: { name: string } | { name: string }[] | null;
+      }
+    | null;
 }
 
-export default async function StudentDetailPage({ params }: Props) {
+export default async function StudentDetailPage({ params, searchParams }: Props) {
   await requireRole(['admin', 'instructor']);
   const { user_id } = await params;
+  const { matricular } = await searchParams;
   const supabase = await createClient();
 
   const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -56,255 +60,152 @@ export default async function StudentDetailPage({ params }: Props) {
     : null;
   const canEditRole = (callerProfile as { role?: string } | null)?.role === 'admin';
 
-  const { data: profile } = await supabase
+  const { data: profileData } = await supabase
     .from('profiles')
     .select('*')
     .eq('user_id', user_id)
     .single();
 
-  if (!profile) {
+  if (!profileData) {
     return (
-      <div className="text-center py-16">
-        <h1 className="text-2xl font-bold text-text-primary mb-2">Usuario no encontrado</h1>
-        <p className="text-text-muted mb-4">
-          El usuario que buscas no existe o fue eliminado.
-        </p>
+      <div className="py-16 text-center">
+        <h1 className="mb-2 text-2xl font-bold text-text-primary">Usuario no encontrado</h1>
+        <p className="mb-4 text-text-muted">El usuario que buscas no existe o fue eliminado.</p>
         <Link href="/admin/estudiantes" className="btn-primary inline-flex items-center gap-2">
-          Volver a usuarios
+          Volver a estudiantes
         </Link>
       </div>
     );
   }
 
-  const { data: enrollments } = await supabase
+  const profile = profileData as DetailProfile & { id_type: string | null };
+
+  const { data: enrollmentsData } = await supabase
     .from('enrollments')
     .select(
-      `
-      id,
-      status,
-      agreed_price,
-      created_at,
-      cohort:cohorts(
-        id,
-        name,
-        start_date,
-        end_date,
-        modality,
-        program:programs(id, name, code)
-      )
-    `
+      'id, agreed_price, created_at, cohort:cohorts(id, name, start_date, end_date, modality, program:programs(name))'
     )
     .eq('student_id', user_id)
     .order('created_at', { ascending: false });
 
-  const enrollmentIds = (enrollments || []).map((e: { id: number }) => e.id);
-  let invoices: Array<{
-    id: number;
-    enrollment_id: number;
-    label: string;
-    amount: number;
-    due_date: string;
-    status: string;
-    paid_at: string | null;
-    url_recipe: string | null;
-    meta?: Record<string, unknown> | null;
-  }> = [];
+  const rawEnrollments = (enrollmentsData ?? []) as unknown as RawEnrollment[];
+  const enrollmentIds = rawEnrollments.map((e) => e.id);
+  const cohortIds = rawEnrollments.map((e) => e.cohort?.id).filter((id): id is number => id != null);
 
-  if (enrollmentIds.length > 0) {
-    const { data: invoicesData } = await supabase
-      .from('invoices')
-      .select('id, enrollment_id, label, amount, due_date, status, paid_at, url_recipe, meta')
-      .in('enrollment_id', enrollmentIds)
-      .order('due_date', { ascending: true });
-    invoices = invoicesData || [];
+  // Facturas, sesiones ya dictadas y asistencia: lo que hace falta para
+  // responder «cómo va» sin abrir otras pantallas.
+  const [invoicesRes, sessionsRes, attendanceRes] = await Promise.all([
+    enrollmentIds.length > 0
+      ? supabase
+          .from('invoices')
+          .select('id, enrollment_id, label, amount, due_date, status, paid_at, url_recipe, meta')
+          .in('enrollment_id', enrollmentIds)
+          .order('due_date', { ascending: true })
+      : Promise.resolve({ data: [] }),
+    cohortIds.length > 0
+      ? supabase.from('sessions').select('id, cohort_id, starts_at').in('cohort_id', cohortIds)
+      : Promise.resolve({ data: [] }),
+    enrollmentIds.length > 0
+      ? supabase
+          .from('attendance')
+          .select('session_id, enrollment_id, status')
+          .in('enrollment_id', enrollmentIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const now = Date.now();
+  const sessions = (sessionsRes.data ?? []) as { id: number; cohort_id: number; starts_at: string }[];
+  const heldByCohort = new Map<number, Set<number>>();
+  for (const session of sessions) {
+    // Solo cuentan las sesiones que ya ocurrieron: las futuras no son faltas.
+    if (session.starts_at && new Date(session.starts_at).getTime() > now) continue;
+    const set = heldByCohort.get(session.cohort_id) ?? new Set<number>();
+    set.add(session.id);
+    heldByCohort.set(session.cohort_id, set);
   }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const attendanceRows = (attendanceRes.data ?? []) as {
+    session_id: number;
+    enrollment_id: number;
+    status: string;
+  }[];
+  const presentByEnrollment = new Map<number, Set<number>>();
+  for (const row of attendanceRows) {
+    if (row.status !== 'present' && row.status !== 'excused') continue;
+    const set = presentByEnrollment.get(row.enrollment_id) ?? new Set<number>();
+    set.add(row.session_id);
+    presentByEnrollment.set(row.enrollment_id, set);
+  }
 
-  const typedProfile = profile as {
-    user_id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone?: string;
-    role: string;
-    professional_title?: string;
-    linkedin_url?: string;
-    created_at: string;
-  };
+  const enrollments: DetailEnrollment[] = rawEnrollments.map((raw) => {
+    const cohort = raw.cohort;
+    const program = one(cohort?.program ?? null);
+    const held = cohort?.id ? heldByCohort.get(cohort.id) ?? new Set<number>() : new Set<number>();
+    const present = presentByEnrollment.get(raw.id) ?? new Set<number>();
+
+    return {
+      id: raw.id,
+      agreedPrice: raw.agreed_price,
+      cohortId: cohort?.id ?? 0,
+      cohortName: cohort?.name ?? 'Sin cohorte',
+      programName: program?.name ?? 'Sin programa',
+      startDate: cohort?.start_date ?? null,
+      endDate: cohort?.end_date ?? null,
+      modality: cohort?.modality ?? null,
+      attendance:
+        held.size > 0
+          ? {
+              total: held.size,
+              present: Array.from(present).filter((id) => held.has(id)).length,
+            }
+          : null,
+    };
+  });
+
+  const enrollmentById = new Map(enrollments.map((e) => [e.id, e]));
+
+  const invoices: DetailInvoice[] = ((invoicesRes.data ?? []) as DetailInvoice[]).map((invoice) => {
+    const enrollment = enrollmentById.get(invoice.enrollment_id);
+    return {
+      ...invoice,
+      programName: enrollment?.programName ?? 'Sin programa',
+      cohortName: enrollment?.cohortName ?? 'Sin cohorte',
+    };
+  });
+
+  // Si esta persona llegó por un formulario, su registro sigue en `leads` y
+  // explica de dónde salió.
+  let lead: DetailLead | null = null;
+  if (profile.email) {
+    const { data: leadData } = await supabase
+      .from('leads')
+      .select('full_name, source, stage, notes, created_at')
+      .eq('email', profile.email)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (leadData) {
+      const row = leadData as { source: string; stage: string | null; notes: string | null; created_at: string };
+      const notes = parseLeadNotes(row.notes);
+      lead = {
+        createdAt: row.created_at,
+        origin: formatLeadOrigin(row.source, notes),
+        message: notes.message ?? null,
+        interest: notes.program ?? null,
+        intent: row.stage ? STAGE_INTENT[row.stage] ?? null : null,
+      };
+    }
+  }
 
   return (
-    <div className="space-y-8">
-      {/* Header card */}
-      <article
-        className="bg-[var(--card-background)] rounded-lg shadow-lg border border-border-color overflow-hidden"
-        aria-labelledby="student-header-title"
-      >
-        <div className="p-6">
-          <Link
-            href={
-              typedProfile.role === 'instructor'
-                ? '/admin/instructores'
-                : typedProfile.role === 'admin'
-                  ? '/admin/admins'
-                  : '/admin/estudiantes'
-            }
-            className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-secondary transition-colors mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver a{' '}
-            {typedProfile.role === 'instructor'
-              ? 'instructores'
-              : typedProfile.role === 'admin'
-                ? 'admins'
-                : 'estudiantes'}
-          </Link>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 id="student-header-title" className="text-2xl font-bold text-text-primary">
-                {typedProfile.first_name} {typedProfile.last_name}
-              </h1>
-              <div className="flex flex-wrap gap-4 mt-2 text-sm text-text-muted">
-                <span className="flex items-center gap-1.5">
-                  <Mail className="w-4 h-4 text-secondary" />
-                  {typedProfile.email}
-                </span>
-                {typedProfile.phone && (
-                  <span className="flex items-center gap-1.5">
-                    <Phone className="w-4 h-4 text-secondary" />
-                    {typedProfile.phone}
-                  </span>
-                )}
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-secondary" />
-                  Registro: {new Date(typedProfile.created_at).toLocaleDateString('es-CO')}
-                </span>
-              </div>
-            </div>
-            <span
-              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getRoleBadgeClass(
-                typedProfile.role
-              )}`}
-            >
-              {getRoleLabel(typedProfile.role)}
-            </span>
-          </div>
-        </div>
-      </article>
-
-      {/* Enrollments section */}
-      <section
-        className="bg-[var(--card-background)] rounded-lg shadow border border-border-color overflow-hidden"
-        aria-labelledby="enrollments-heading"
-      >
-        <div className="p-4 border-b border-border-color">
-          <h2 id="enrollments-heading" className="text-xl font-semibold text-text-primary">
-            Cursos inscritos
-          </h2>
-        </div>
-        <div className="p-4">
-          {!enrollments || enrollments.length === 0 ? (
-            <p className="text-text-muted py-8 text-center">
-              No hay inscripciones registradas.
-            </p>
-          ) : (
-            <ul className="space-y-3">
-              {(enrollments as Array<{
-                id: number;
-                status: string;
-                agreed_price: number;
-                created_at: string;
-                cohort: {
-                  id: string;
-                  name: string;
-                  start_date: string;
-                  end_date: string;
-                  modality?: string;
-                  program: { id: number; name: string; code?: string } | null;
-                } | null;
-              }>).map((enrollment) => {
-                const cohort = enrollment.cohort;
-                const programRaw = cohort?.program;
-                const program = Array.isArray(programRaw) ? programRaw[0] : programRaw;
-                const endDate = cohort?.end_date ? new Date(cohort.end_date) : null;
-                endDate?.setHours(0, 0, 0, 0);
-                const isActive = endDate ? endDate >= today : false;
-                return (
-                  <li
-                    key={enrollment.id}
-                    className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg border-2 ${
-                      isActive
-                        ? 'bg-green-500/10 border-green-500/50'
-                        : 'bg-amber-500/5 border-amber-700/30'
-                    }`}
-                  >
-                    <div>
-                      <p className="font-medium text-text-primary">
-                        {program?.name || 'Programa'}
-                      </p>
-                      <p className="text-sm text-text-muted">
-                        Cohorte: {cohort?.name || '—'} •{' '}
-                        {cohort?.start_date && cohort?.end_date
-                          ? `${new Date(cohort.start_date).toLocaleDateString('es-CO')} – ${new Date(cohort.end_date).toLocaleDateString('es-CO')}`
-                          : '—'}
-                        {cohort?.modality && ` • ${cohort.modality}`}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`inline-flex px-2.5 py-1 rounded-md text-xs font-semibold ${
-                          isActive
-                            ? 'bg-green-500 text-white'
-                            : 'bg-amber-600/90 text-white'
-                        }`}
-                      >
-                        {isActive ? 'Activa' : 'Pasada'}
-                      </span>
-                      <span className="text-sm text-text-muted">
-                        ${enrollment.agreed_price?.toLocaleString() || '—'}
-                      </span>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      </section>
-
-      {/* Lead / Student toggle - solo para leads y estudiantes */}
-      <LeadStudentToggle
-        user_id={typedProfile.user_id}
-        currentRole={typedProfile.role}
-        profile={{
-          first_name: typedProfile.first_name,
-          last_name: typedProfile.last_name,
-          email: typedProfile.email,
-          phone: typedProfile.phone,
-          professional_title: typedProfile.professional_title,
-          linkedin_url: typedProfile.linkedin_url,
-        }}
-        canEdit={canEditRole}
-      />
-
-      {/* Invoices section */}
-      <section
-        className="bg-[var(--card-background)] rounded-lg shadow border border-border-color overflow-hidden"
-        aria-labelledby="invoices-heading"
-      >
-        <div className="p-4 border-b border-border-color">
-          <h2 id="invoices-heading" className="text-xl font-semibold text-text-primary">
-            Historial de pagos
-          </h2>
-        </div>
-        <div className="p-4 overflow-x-auto">
-          <StudentInvoicesTable invoices={invoices} />
-        </div>
-      </section>
-
-      {/* Profile editor */}
-      <StudentProfileEditor profile={typedProfile} canEditRole={canEditRole} />
-    </div>
+    <StudentDetail
+      profile={profile}
+      enrollments={enrollments}
+      invoices={invoices}
+      lead={lead}
+      canEditRole={canEditRole}
+      openEnroll={matricular === '1'}
+    />
   );
 }

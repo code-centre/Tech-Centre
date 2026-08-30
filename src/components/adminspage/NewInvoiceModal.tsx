@@ -9,6 +9,8 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onCreated: () => void;
+  /** Acota el buscador a las matrículas de una sola persona. */
+  studentId?: string;
 }
 
 interface EnrollmentOption {
@@ -45,7 +47,7 @@ function today(): string {
  * para lo acordado por fuera: una cuota extra, un pago en efectivo, una
  * corrección.
  */
-export default function NewInvoiceModal({ open, onClose, onCreated }: Props) {
+export default function NewInvoiceModal({ open, onClose, onCreated, studentId }: Props) {
   const supabase = useSupabaseClient();
 
   const [enrollments, setEnrollments] = useState<EnrollmentOption[]>([]);
@@ -68,13 +70,18 @@ export default function NewInvoiceModal({ open, onClose, onCreated }: Props) {
     const load = async () => {
       setLoadingList(true);
       try {
-        const { data, error: listError } = await supabase
+        // Desde la ficha de una persona solo tienen sentido sus matrículas.
+        let request = supabase
           .from('enrollments')
           .select(
             `id, profile:profiles(first_name, last_name, email), cohort:cohorts(name, program:programs(name))`
           )
           .order('id', { ascending: false })
           .limit(400);
+
+        if (studentId) request = request.eq('student_id', studentId);
+
+        const { data, error: listError } = await request;
 
         if (listError) throw listError;
 
@@ -91,7 +98,9 @@ export default function NewInvoiceModal({ open, onClose, onCreated }: Props) {
           };
         });
 
-        if (!cancelled) setEnrollments(options);
+        if (cancelled) return;
+        setEnrollments(options);
+        if (studentId && options.length === 1) setSelected(options[0]);
       } catch (err) {
         console.error('Error al cargar matrículas:', err);
         if (!cancelled) setError('No se pudieron cargar las matrículas.');
@@ -104,7 +113,7 @@ export default function NewInvoiceModal({ open, onClose, onCreated }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [open, supabase]);
+  }, [open, supabase, studentId]);
 
   const matches = useMemo(() => {
     const term = query.trim().toLowerCase();

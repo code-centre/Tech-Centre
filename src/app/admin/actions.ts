@@ -11,6 +11,11 @@ export interface UpdateProfileInput {
   role: string;
   professional_title: string | null;
   linkedin_url: string | null;
+  /** Datos de identidad; solo se tocan si vienen en la llamada. */
+  birthdate?: string | null;
+  address?: string | null;
+  id_type?: string | null;
+  id_number?: string | null;
 }
 
 export interface ActionResult {
@@ -88,6 +93,10 @@ export async function updateProfileAdmin(input: UpdateProfileInput): Promise<Act
     linkedin_url: input.linkedin_url?.trim() || null,
     updated_at: new Date().toISOString(),
     ...(isAdmin && { role: input.role }),
+    ...(input.birthdate !== undefined && { birthdate: input.birthdate || null }),
+    ...(input.address !== undefined && { address: input.address?.trim() || null }),
+    ...(input.id_type !== undefined && { id_type: input.id_type || null }),
+    ...(input.id_number !== undefined && { id_number: input.id_number?.trim() || null }),
   };
 
   const { error } = await (supabase as any)
