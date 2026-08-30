@@ -6,6 +6,7 @@ import { ArrowDown, Trash2, Plus } from 'lucide-react'
 import ButtonToEdit from '../ButtonToEdit'
 import TiptapEditor from '../TiptapEditor'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
+import { normalizeFaqs } from '@/lib/programFaqs'
 
 interface FaqItem {
   id?: number;
@@ -33,17 +34,14 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
   // Normalizar los datos de entrada (no sobrescribir si estamos editando para evitar pérdida de contenido)
   useEffect(() => {
     if (editingFAQIndex !== null) return
-    if (Array.isArray(shortCourse)) {
-      setFaqs(shortCourse)
-      setEditedFAQs(shortCourse)
-    } else if (shortCourse && typeof shortCourse === 'object' && 'faqs' in shortCourse) {
-      const faqsArray = Array.isArray(shortCourse.faqs) ? shortCourse.faqs : []
-      setFaqs(faqsArray)
-      setEditedFAQs(faqsArray)
-    } else {
-      setFaqs([])
-      setEditedFAQs([])
-    }
+    // Hay programas guardados con {question, answer} y otros con
+    // {pregunta, respuesta}: el normalizador lee ambos.
+    const normalized = normalizeFaqs(shortCourse).map((faq) => ({
+      pregunta: faq.question,
+      respuesta: faq.answer,
+    }))
+    setFaqs(normalized)
+    setEditedFAQs(normalized)
   }, [shortCourse, editingFAQIndex])
 
   const handleQuestionChange = (index: number, newQuestion: string) => {
@@ -102,7 +100,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
         const { error: updateError } = await supabase
           .from('programs')
           .update({
-            faqs: cleanedFAQs,
+            faqs: cleanedFAQs.map((faq) => ({ question: faq.pregunta, answer: faq.respuesta })),
             updated_at: new Date().toISOString()
           })
           .eq('id', programId)
@@ -148,7 +146,7 @@ export default function ProgramFAQs({ shortCourse = [], programId, onFAQsUpdate 
       const { error: updateError } = await (supabase as any)
         .from('programs')
         .update({
-          faqs: cleanedFAQs,
+          faqs: cleanedFAQs.map((faq) => ({ question: faq.pregunta, answer: faq.respuesta })),
           updated_at: new Date().toISOString()
         })
         .eq('id', programId)

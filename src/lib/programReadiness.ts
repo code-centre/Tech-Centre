@@ -8,6 +8,7 @@
  */
 
 import { getStack } from '@/lib/programLanding';
+import { normalizeFaqs } from '@/lib/programFaqs';
 import type { Program } from '@/types/programs';
 
 /** Las pestañas del detalle del programa. */
@@ -89,6 +90,13 @@ export function getProgramReadiness(program: Program, options: Options = {}): Re
       label: 'Descripción',
       missingLabel: 'Sin descripción',
       ok: description.length > 0,
+      tab: 'contenido',
+    },
+    {
+      id: 'faqs',
+      label: 'Preguntas frecuentes',
+      missingLabel: 'Sin preguntas frecuentes',
+      ok: normalizeFaqs(program.faqs).length > 0,
       tab: 'contenido',
     },
     {

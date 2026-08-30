@@ -9,6 +9,7 @@ import ProgramModulesList from '@/components/adminspage/ProgramModulesList';
 import ProgramWorkbench from '@/components/adminspage/ProgramWorkbench';
 import ProgramInfoForm from '@/components/adminspage/ProgramInfoForm';
 import ProgramDescriptionEditor from '@/components/adminspage/ProgramDescriptionEditor';
+import ProgramFaqsEditor from '@/components/adminspage/ProgramFaqsEditor';
 import ProgramLandingEditor from '@/components/adminspage/ProgramLandingEditor';
 import type { Program } from '@/types/programs';
 import type { ProgramModule } from '@/types/supabase';
@@ -75,6 +76,7 @@ export default async function ProgramPage({ params }: Props) {
           <>
             <ProgramCoverEditor program={typedProgram} />
             <ProgramDescriptionEditor program={typedProgram} />
+            <ProgramFaqsEditor program={typedProgram} />
           </>
         ),
         publica: <ProgramLandingEditor program={typedProgram} />,
