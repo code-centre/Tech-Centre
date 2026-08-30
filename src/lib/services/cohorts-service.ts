@@ -3,14 +3,106 @@ import type { Database } from '@/types/supabase';
 
 export type ServiceClient = SupabaseClient<Database>;
 
-export interface CohortSummary {
+export interface CohortSchedule {
+  days: string[];
+  hours: string[];
+}
+
+/** Campos editables de `cohorts`, alineados con el admin. */
+export interface CohortFieldsInput {
+  slug?: string | null;
+  offering?: boolean;
+  start_date?: string | null;
+  end_date?: string | null;
+  modality?: string | null;
+  campus?: string | null;
+  capacity?: number | null;
+  maximum_payments?: number | null;
+  schedule?: CohortSchedule | null;
+}
+
+export interface CreateCohortInput extends CohortFieldsInput {
+  name: string;
+  program_id: string;
+  /** UUID del instructor principal; null explícito = sin instructor. */
+  instructor_id?: string | null;
+}
+
+export interface UpdateCohortInput extends CohortFieldsInput {
+  name?: string;
+  program_id?: string;
+  instructor_id?: string | null;
+}
+
+export interface CohortSummary extends CohortFieldsInput {
   id: number;
   name: string | null;
-  slug: string | null;
-  offering: boolean | null;
-  start_date: string | null;
-  end_date: string | null;
   program_id: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+const COHORT_LIST_COLUMNS =
+  'id, name, slug, offering, start_date, end_date, program_id, modality, campus, capacity, maximum_payments, schedule, created_at, updated_at';
+
+const TEXT_FIELDS = ['slug', 'modality', 'campus'] as const;
+const DATE_FIELDS = ['start_date', 'end_date'] as const;
+const NUMBER_FIELDS = ['capacity', 'maximum_payments'] as const;
+
+function buildCohortRecord(input: CohortFieldsInput): Record<string, unknown> {
+  const record: Record<string, unknown> = {};
+
+  for (const field of TEXT_FIELDS) {
+    const value = input[field];
+    if (value === undefined) continue;
+    record[field] = typeof value === 'string' ? value.trim() || null : value;
+  }
+
+  for (const field of DATE_FIELDS) {
+    if (input[field] !== undefined) record[field] = input[field] || null;
+  }
+
+  for (const field of NUMBER_FIELDS) {
+    if (input[field] !== undefined) record[field] = input[field];
+  }
+
+  if (input.offering !== undefined) record.offering = input.offering;
+  if (input.schedule !== undefined) record.schedule = input.schedule;
+
+  return record;
+}
+
+async function syncCohortInstructor(
+  client: ServiceClient,
+  cohortId: number,
+  instructorId: string | null | undefined
+) {
+  if (instructorId === undefined) return;
+
+  await (client as any).from('cohort_instructors').delete().eq('cohort_id', cohortId);
+
+  if (instructorId) {
+    const { error } = await (client as any).from('cohort_instructors').insert({
+      cohort_id: cohortId,
+      instructor_id: instructorId,
+      role: 'instructor',
+    });
+    if (error) throw new Error(error.message);
+  }
+}
+
+async function getCohortInstructorId(
+  client: ServiceClient,
+  cohortId: number
+): Promise<string | null> {
+  const { data, error } = await (client as any)
+    .from('cohort_instructors')
+    .select('instructor_id')
+    .eq('cohort_id', cohortId)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return (data?.instructor_id as string | undefined) ?? null;
 }
 
 export async function listCohorts(
@@ -19,12 +111,9 @@ export async function listCohorts(
 ): Promise<CohortSummary[]> {
   let query = (client as any)
     .from('cohorts')
-    .select('id, name, slug, offering, start_date, end_date, program_id')
+    .select(COHORT_LIST_COLUMNS)
     .order('start_date', { ascending: true });
 
-  // The live `cohorts` table has no `status` column, so "active" is derived
-  // from real columns: it is currently being offered, or today falls within
-  // the cohort's start/end date range.
   if (options?.activeOnly) {
     const today = new Date().toISOString().slice(0, 10);
     query = query.or(
@@ -45,62 +134,87 @@ export async function getCohort(client: ServiceClient, cohortId: number) {
     .single();
 
   if (error) throw new Error(error.message);
-  return data;
-}
 
-export interface CreateCohortInput {
-  name: string;
-  program_id: string;
-  slug?: string | null;
-  offering?: boolean;
-  start_date?: string | null;
-  end_date?: string | null;
-  modality?: string | null;
-  campus?: string | null;
-  capacity?: number | null;
+  const instructor_id = await getCohortInstructorId(client, cohortId);
+  return { ...(data as Record<string, unknown>), instructor_id };
 }
 
 export async function createCohort(client: ServiceClient, input: CreateCohortInput) {
-  // The live `cohorts` table has no `status` column, so it is intentionally
-  // omitted from the insert payload.
+  const { instructor_id, ...fields } = input;
+  const now = new Date().toISOString();
+
   const { data, error } = await (client as any)
     .from('cohorts')
     .insert({
-      name: input.name,
+      offering: false,
+      maximum_payments: 1,
+      schedule: { days: [], hours: [] },
+      ...buildCohortRecord(fields),
+      name: input.name.trim(),
       program_id: input.program_id,
-      slug: input.slug ?? null,
-      offering: input.offering ?? false,
-      start_date: input.start_date ?? null,
-      end_date: input.end_date ?? null,
-      modality: input.modality ?? null,
-      campus: input.campus ?? null,
-      capacity: input.capacity ?? null,
+      created_at: now,
+      updated_at: now,
     })
     .select('*')
     .single();
 
   if (error) throw new Error(error.message);
-  return data;
+
+  await syncCohortInstructor(client, data.id as number, instructor_id ?? null);
+
+  const resolvedInstructorId = await getCohortInstructorId(client, data.id as number);
+  return { ...data, instructor_id: resolvedInstructorId };
 }
 
 export async function updateCohort(
   client: ServiceClient,
   cohortId: number,
-  input: Partial<CreateCohortInput>
+  input: UpdateCohortInput
 ) {
-  // Strip any fields that do not exist on the live `cohorts` table (e.g.
-  // `status`) so updates align with the real schema.
-  const { status: _status, ...allowed } = input as Partial<CreateCohortInput> & {
-    status?: unknown;
-  };
+  const { instructor_id, name, program_id, ...fields } = input;
 
-  const { data, error } = await (client as any)
-    .from('cohorts')
-    .update(allowed)
-    .eq('id', cohortId)
-    .select('*')
-    .single();
+  const record = buildCohortRecord(fields);
 
-  if (error) throw new Error(error.message);
-  return data;
+  if (name !== undefined) {
+    const trimmed = name.trim();
+    if (!trimmed) throw new Error('name cannot be empty');
+    record.name = trimmed;
+  }
+  if (program_id !== undefined) {
+    if (!program_id.trim()) throw new Error('program_id cannot be empty');
+    record.program_id = program_id;
+  }
+
+  if (Object.keys(record).length === 0 && instructor_id === undefined) {
+    throw new Error('No fields to update');
+  }
+
+  let data = null;
+
+  if (Object.keys(record).length > 0) {
+    record.updated_at = new Date().toISOString();
+
+    const { data: updated, error } = await (client as any)
+      .from('cohorts')
+      .update(record)
+      .eq('id', cohortId)
+      .select('*')
+      .single();
+
+    if (error) throw new Error(error.message);
+    data = updated;
+  } else {
+    const { data: existing, error } = await client
+      .from('cohorts')
+      .select('*')
+      .eq('id', cohortId)
+      .single();
+    if (error) throw new Error(error.message);
+    data = existing;
+  }
+
+  await syncCohortInstructor(client, cohortId, instructor_id);
+
+  const resolvedInstructorId = await getCohortInstructorId(client, cohortId);
+  return { ...data, instructor_id: resolvedInstructorId };
 }

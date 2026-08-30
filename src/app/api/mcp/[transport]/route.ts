@@ -187,6 +187,47 @@ const routeFieldSchemas = {
     .optional(),
 };
 
+const cohortFieldSchemas = {
+  slug: z.string().optional().describe('Unique human-readable identifier for URLs.'),
+  offering: z
+    .boolean()
+    .optional()
+    .describe('When true, the cohort is visible on the public site.'),
+  start_date: z.string().optional().describe('YYYY-MM-DD.'),
+  end_date: z.string().optional().describe('YYYY-MM-DD.'),
+  modality: z
+    .string()
+    .optional()
+    .describe("e.g. 'presencial', 'virtual', 'híbrido'."),
+  campus: z.string().optional().describe('Campus or location label.'),
+  capacity: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe('Maximum seats (cupos). 0 means no limit enforced in admin.'),
+  maximum_payments: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('Number of payment installments (cuotas) allowed for this cohort.'),
+  schedule: z
+    .object({
+      days: z.array(z.string()).describe("Weekdays, e.g. ['Lunes', 'Miércoles']."),
+      hours: z.array(z.string()).describe("Time ranges, e.g. ['7:00 p.m. a 9:00 p.m.']."),
+    })
+    .optional()
+    .describe('Class schedule shown on the cohort page.'),
+  instructor_id: z
+    .string()
+    .uuid()
+    .optional()
+    .describe(
+      'Primary instructor UUID. On update, omit to leave unchanged; pass null to remove.'
+    ),
+};
+
 const baseHandler = createMcpHandler(
   (server) => {
     server.registerTool(
@@ -464,7 +505,7 @@ const baseHandler = createMcpHandler(
       {
         title: 'List cohorts',
         description:
-          'List cohorts. By default returns all cohorts; set activeOnly to true to return only currently active cohorts (being offered or within their start/end date range).',
+          'List cohorts with all editable fields (capacity, maximum_payments/cuotas, schedule, modality, campus, offering, etc.). Set activeOnly to filter currently active cohorts.',
         inputSchema: z.object({
           activeOnly: z.boolean().optional(),
         }),
@@ -487,7 +528,8 @@ const baseHandler = createMcpHandler(
       'get_cohort',
       {
         title: 'Get cohort',
-        description: 'Get a cohort by id.',
+        description:
+          'Get a cohort by id with every field, including capacity, maximum_payments (cuotas), schedule, and instructor_id.',
         inputSchema: z.object({
           cohortId: z.number().int().positive(),
         }),
@@ -558,17 +600,12 @@ const baseHandler = createMcpHandler(
       'create_cohort',
       {
         title: 'Create cohort',
-        description: 'Create a cohort (admin only).',
+        description:
+          'Create a cohort (admin only) with all editable fields: capacity, maximum_payments (cuotas), schedule, instructor, etc.',
         inputSchema: z.object({
           name: z.string().min(1),
           program_id: z.string().min(1),
-          slug: z.string().optional(),
-          offering: z.boolean().optional(),
-          start_date: z.string().optional(),
-          end_date: z.string().optional(),
-          modality: z.string().optional(),
-          campus: z.string().optional(),
-          capacity: z.number().int().positive().optional(),
+          ...cohortFieldSchemas,
         }),
       },
       async (input, ctx) => {
@@ -605,18 +642,19 @@ const baseHandler = createMcpHandler(
       'update_cohort',
       {
         title: 'Update cohort',
-        description: 'Update a cohort (admin only).',
+        description:
+          'Update a cohort (admin only). Only provided fields change. Supports capacity, maximum_payments (cuotas), schedule, offering, and instructor_id (null removes instructor).',
         inputSchema: z.object({
           cohortId: z.number().int().positive(),
-          name: z.string().optional(),
-          program_id: z.string().optional(),
-          slug: z.string().optional(),
-          offering: z.boolean().optional(),
-          start_date: z.string().optional(),
-          end_date: z.string().optional(),
-          modality: z.string().optional(),
-          campus: z.string().optional(),
-          capacity: z.number().int().positive().optional(),
+          name: z.string().min(1).optional(),
+          program_id: z.string().min(1).optional(),
+          ...cohortFieldSchemas,
+          instructor_id: z
+            .string()
+            .uuid()
+            .nullable()
+            .optional()
+            .describe('Pass null to remove the assigned instructor.'),
         }),
       },
       async ({ cohortId, ...input }, ctx) => {
