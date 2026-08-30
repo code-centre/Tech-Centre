@@ -1307,6 +1307,18 @@ html:not([data-theme="dark"]) .faq-section [aria-label="Editar"]:hover {
 }
 
 /* =========================================================================
+   HUB DE RUTAS · /programas
+   Mismo sistema landing-v2, pero con Hanken de cuerpo y Space Mono en los
+   datos técnicos. A diferencia de agentes-advanced, aquí lv2-display sigue
+   siendo Parabole.
+   ========================================================================= */
+.landing-v2.rutas-hub {
+  --font-body: var(--font-hanken), "Space Grotesk", system-ui, sans-serif;
+  --mono: var(--font-space-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--font-body);
+}
+
+/* =========================================================================
    PROGRAMA AVANZADO · Ingeniería de agentes
    Acento ámbar exclusivo. Tipografía Hanken + Space Mono vía next/font.
    ========================================================================= */

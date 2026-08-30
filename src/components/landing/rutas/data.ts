@@ -32,7 +32,7 @@ export type RutaLevel = "Base" | "Ascenso" | "Cumbre";
 export interface RutaModule {
   level: RutaLevel;
   levelLabel: string;
-  /** Identificador de la página del módulo: /programas/modulos/<slug> */
+  /** Coincide con `programs.code`: identifica al programa en la base y en la URL. */
   slug: string;
   title: string;
   stack: string;
@@ -425,7 +425,8 @@ export const RUTAS_RESENAS_DESTACADAS: string[] = [
 ];
 
 /* ==========================================================================
-   Módulos como páginas propias: /programas/modulos/<slug>
+   Módulos aplanados. Ya no tienen página propia: se usan para armar los
+   listados y los archivos llms.txt.
    ========================================================================== */
 
 export interface ModuloPagina {
@@ -440,12 +441,13 @@ export const MODULOS: ModuloPagina[] = RUTAS.flatMap((ruta) =>
   ruta.modules.map((modulo, i) => ({ modulo, ruta, numero: i + 1 })),
 );
 
-export function getModulo(slug: string): ModuloPagina | undefined {
-  return MODULOS.find((m) => m.modulo.slug === slug);
-}
-
+/**
+ * Las páginas propias de módulo (/programas/modulos/<slug>) se eliminaron: el
+ * slug del módulo es el mismo `code` del programa, así que el destino real es
+ * su página de programa. next.config.ts redirige las URLs viejas aquí.
+ */
 export function moduloHref(slug: string): string {
-  return `/programas/modulos/${slug}`;
+  return `/programas-academicos/${slug}`;
 }
 
 /** Precio del módulo: el nivel avanzado vale más. */

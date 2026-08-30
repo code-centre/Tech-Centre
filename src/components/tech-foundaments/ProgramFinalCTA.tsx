@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import type { Program } from '@/types/programs'
 import ProgramCTAButtons from './ProgramCTAButtons'
 
@@ -18,6 +19,18 @@ export default function ProgramFinalCTA({ programData, cohortId, seatsLeft }: Pr
       className="relative overflow-hidden rounded-2xl border border-secondary/40 bg-(--card-diplomado-bg) shadow-xl"
       aria-labelledby="program-final-cta-heading"
     >
+      {/* Cierra con una foto de la sede: es la misma promesa de la página. */}
+      <Image
+        src="/community/manos-teclado.webp"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover opacity-45"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-[var(--bg-primary)]/88 to-[var(--bg-primary)]/96"
+        aria-hidden="true"
+      />
       <div
         className="absolute inset-0 opacity-40 [background-image:linear-gradient(var(--border-color)_1px,transparent_1px),linear-gradient(90deg,var(--border-color)_1px,transparent_1px)] [background-size:48px_48px]"
         aria-hidden="true"

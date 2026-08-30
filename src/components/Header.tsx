@@ -6,9 +6,36 @@ import { ChevronDown, Menu, X, User as UserIcon, LogOut, Users, FileText, Gradua
 import { useRouter } from 'next/navigation'
 import { useUser, useSupabaseClient } from '@/lib/supabase'
 import { ThemeToggle } from "./ThemeToggle"
-import { RUTAS, moduloHref } from "./landing/rutas/data"
+import { RUTAS } from "./landing/rutas/data"
+import type { NavProgram, ProgramsNav } from "@/data/programsNav"
 
-export default function Header() {
+/**
+ * Si la consulta del menú falla o todavía no hay cohortes abiertas, se usa el
+ * mapa estático de rutas para no dejar el menú vacío.
+ */
+const NAV_RESPALDO: ProgramsNav = {
+  routes: RUTAS.map((ruta) => ({
+    slug: ruta.slug,
+    name: ruta.label,
+    programs: ruta.modules.map((modulo) => ({
+      code: modulo.slug,
+      name: modulo.title,
+      subtitle: modulo.stack,
+      hours: null,
+    })),
+  })),
+  loose: [],
+}
+
+/** El acento alterna entre las rutas, como en el hub. */
+const TONO_RUTA = ["#3FE0A0", "#74BAFF"]
+
+function programaHref(programa: NavProgram): string {
+  return `/programas-academicos/${programa.code}`
+}
+
+export default function Header({ nav }: { nav?: ProgramsNav }) {
+  const menu = nav && nav.routes.length > 0 ? nav : NAV_RESPALDO
   const { user, loading: loadingUser } = useUser()
   const supabase = useSupabaseClient()
   const router = useRouter()
@@ -81,27 +108,27 @@ export default function Header() {
               </Link>
               <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 mt-2 w-[38rem] bg-[#0D1A16] rounded-xl shadow-xl border border-[#1f3a30] p-3 transition-all duration-200 z-50">
                 <div className="grid grid-cols-2 gap-x-3">
-                  {RUTAS.map((ruta) => (
+                  {menu.routes.map((ruta, indiceRuta) => (
                     <div key={ruta.slug}>
                       <p
-                        className={`px-3 pb-2 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em] ${
-                          ruta.tone === "cyan" ? "text-[#74BAFF]" : "text-[#3FE0A0]"
-                        }`}
+                        className="px-3 pb-2 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em]"
+                        style={{ color: TONO_RUTA[indiceRuta % TONO_RUTA.length] }}
                       >
-                        {ruta.label}
+                        {ruta.name}
                       </p>
                       <ul>
-                        {ruta.modules.map((modulo, i) => (
-                          <li key={modulo.slug}>
+                        {ruta.programs.map((programa, i) => (
+                          <li key={programa.code}>
                             <Link
-                              href={moduloHref(modulo.slug)}
+                              href={programaHref(programa)}
                               className="block rounded-lg px-3 py-2 text-white transition-colors hover:bg-[#10241E] hover:text-[#3FE0A0]"
                             >
                               <span className="block text-sm font-semibold leading-snug">
-                                {modulo.title}
+                                {programa.name}
                               </span>
                               <span className="block text-xs text-white/50">
-                                Módulo {i + 1} · {modulo.stack}
+                                Módulo {i + 1}
+                                {programa.subtitle ? ` · ${programa.subtitle}` : ""}
                               </span>
                             </Link>
                           </li>
@@ -110,6 +137,31 @@ export default function Header() {
                     </div>
                   ))}
                 </div>
+
+                {menu.loose.length > 0 && (
+                  <div className="mt-2 border-t border-[#1f3a30] pt-2">
+                    <p className="px-3 pb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/45">
+                      Cursos sueltos
+                    </p>
+                    <ul className="grid grid-cols-2 gap-x-3">
+                      {menu.loose.map((programa) => (
+                        <li key={programa.code}>
+                          <Link
+                            href={programaHref(programa)}
+                            className="block rounded-lg px-3 py-2 text-white transition-colors hover:bg-[#10241E] hover:text-[#3FE0A0]"
+                          >
+                            <span className="block text-sm font-semibold leading-snug">
+                              {programa.name}
+                            </span>
+                            {programa.hours ? (
+                              <span className="block text-xs text-white/50">{programa.hours} horas</span>
+                            ) : null}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -346,28 +398,45 @@ export default function Header() {
               </button>
               {mobileDropdown === 'programas' && (
                 <div className="pl-4 flex flex-col pb-2">
-                  {RUTAS.map((ruta) => (
+                  {menu.routes.map((ruta, indiceRuta) => (
                     <div key={ruta.slug} className="mt-1">
                       <p
-                        className={`py-2 text-xs font-semibold uppercase tracking-[0.14em] ${
-                          ruta.tone === "cyan" ? "text-[#74BAFF]" : "text-[#3FE0A0]"
-                        }`}
+                        className="py-2 text-xs font-semibold uppercase tracking-[0.14em]"
+                        style={{ color: TONO_RUTA[indiceRuta % TONO_RUTA.length] }}
                       >
-                        {ruta.label}
+                        {ruta.name}
                       </p>
-                      {ruta.modules.map((modulo, i) => (
+                      {ruta.programs.map((programa, i) => (
                         <Link
-                          key={modulo.slug}
-                          href={moduloHref(modulo.slug)}
+                          key={programa.code}
+                          href={programaHref(programa)}
                           className="block py-2 pl-3 text-sm text-white/90 hover:text-[#3FE0A0]"
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          <span className="block">{modulo.title}</span>
+                          <span className="block">{programa.name}</span>
                           <span className="block text-xs text-white/45">Módulo {i + 1}</span>
                         </Link>
                       ))}
                     </div>
                   ))}
+
+                  {menu.loose.length > 0 && (
+                    <div className="mt-1">
+                      <p className="py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/45">
+                        Cursos sueltos
+                      </p>
+                      {menu.loose.map((programa) => (
+                        <Link
+                          key={programa.code}
+                          href={programaHref(programa)}
+                          className="block py-2 pl-3 text-sm text-white/90 hover:text-[#3FE0A0]"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {programa.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

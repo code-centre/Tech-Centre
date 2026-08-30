@@ -1,6 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 import { Sparkles, Check } from 'lucide-react'
 import type { Program } from '@/types/programs'
 import ProgramCTAButtons from './ProgramCTAButtons'
@@ -14,6 +15,9 @@ interface Props {
   /** Tarjeta de oferta. Va dentro del encabezado, no en una columna aparte. */
   aside?: ReactNode
 }
+
+/** Si el programa no tiene portada, la sede hace de fondo. */
+const FALLBACK_PHOTO = '/community/sesion-presencial.webp'
 
 const KIND_LABEL: Record<string, string> = {
   curso: 'Curso',
@@ -47,19 +51,20 @@ export function ProgramHero({ programData, cohortId, stack = [], modality, aside
         }}
         aria-hidden="true"
       />
-      {programData.image && (
-        <>
-          <div
-            className="absolute inset-y-0 right-0 w-full lg:w-3/5 bg-cover bg-center bg-no-repeat opacity-45"
-            style={{ backgroundImage: `url(${programData.image})` }}
-            aria-hidden="true"
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-[var(--bg-primary)] via-[var(--bg-primary)]/80 to-transparent"
-            aria-hidden="true"
-          />
-        </>
-      )}
+      {/* La foto va a sangre bajo un velo, como en el hub de rutas: el texto
+          se lee sobre el lado oscuro y la imagen respira en el otro. */}
+      <Image
+        src={programData.image || FALLBACK_PHOTO}
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center opacity-60"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-[var(--bg-primary)]/85 via-[var(--bg-primary)]/92 to-[var(--bg-primary)] lg:bg-gradient-to-r lg:from-[var(--bg-primary)] lg:via-[var(--bg-primary)]/88 lg:to-[var(--bg-primary)]/35"
+        aria-hidden="true"
+      />
       <div
         className="absolute inset-0 opacity-[0.35] [background-image:linear-gradient(var(--border-color)_1px,transparent_1px),linear-gradient(90deg,var(--border-color)_1px,transparent_1px)] [background-size:64px_64px]"
         aria-hidden="true"

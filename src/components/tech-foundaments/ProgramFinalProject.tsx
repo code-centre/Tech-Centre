@@ -24,8 +24,8 @@ export default function ProgramFinalProject({ finalProject }: Props) {
           className="font-highlight text-3xl md:text-4xl font-extrabold tracking-tight card-text-primary text-balance"
         >
           {finalProject.title
-            ? <>No sales con un certificado. Sales con <span className="text-secondary">{finalProject.title}</span>.</>
-            : 'No sales con un certificado. Sales con un proyecto.'}
+            ? <>Sales con <span className="text-secondary">{finalProject.title}</span>.</>
+            : 'Sales con un proyecto que puedes mostrar.'}
         </h2>
         {finalProject.summary && (
           <p className="text-lg card-text-muted text-pretty">{finalProject.summary}</p>

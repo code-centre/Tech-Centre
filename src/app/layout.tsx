@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 import Header from "@/components/Header";
+import { getProgramsNav } from "@/data/programsNav";
 import { Footer } from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -103,6 +104,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // El menú de programas sale de la base y va cacheado una hora.
+  const programsNav = await getProgramsNav();
+
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
@@ -159,7 +163,7 @@ export default async function RootLayout({
           />
 
           <AuthProvider>
-            <Header />
+            <Header nav={programsNav} />
             <main>
               {children}
             </main>

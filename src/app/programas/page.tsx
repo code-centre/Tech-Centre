@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, Space_Mono } from "next/font/google";
-import AgentesCourseSchema from "@/components/landing/agentes/AgentesCourseSchema";
-import AgentesPage from "@/components/landing/agentes/AgentesPage";
-import { AGENTES_META, AGENTES_PATH } from "@/components/landing/agentes/data";
+import ProgramasHub from "@/components/programas/ProgramasHub";
+import { getProgramsHub } from "@/data/programsHub";
 
 const hanken = Hanken_Grotesk({
   subsets: ["latin"],
@@ -17,40 +16,33 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
+const TITLE = "Programas y rutas de formación | Tech Centre";
+const DESCRIPTION =
+  "Dos rutas de seis meses y cursos cortos, presenciales en Casa Tech, Barranquilla. Aquí solo aparece lo que tiene cohorte abierta.";
+
 export const metadata: Metadata = {
-  title: { absolute: AGENTES_META.title },
-  description: AGENTES_META.description,
-  alternates: { canonical: AGENTES_PATH },
+  title: { absolute: TITLE },
+  description: DESCRIPTION,
+  alternates: { canonical: "/programas" },
   openGraph: {
-    title: AGENTES_META.title,
-    description: AGENTES_META.description,
-    url: AGENTES_PATH,
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/programas",
     type: "website",
-    images: [
-      {
-        url: AGENTES_META.ogImage,
-        width: 1200,
-        height: 630,
-        alt: "Programa avanzado de ingeniería de agentes de IA",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: AGENTES_META.title,
-    description: AGENTES_META.description,
-    images: [AGENTES_META.ogImage],
   },
 };
 
-/** Hub de programas: por ahora el programa avanzado es el protagonista. */
-export default function ProgramasPage() {
+// La oferta cambia cuando se abren o cierran cohortes: se revalida cada hora
+// para reflejarlo sin necesidad de redesplegar.
+export const revalidate = 3600;
+
+/** Hub de programas: las rutas visibles y los cursos que no pertenecen a ninguna. */
+export default async function ProgramasPage() {
+  const hub = await getProgramsHub();
+
   return (
-    <>
-      <AgentesCourseSchema />
-      <div className={`${hanken.variable} ${spaceMono.variable}`}>
-        <AgentesPage />
-      </div>
-    </>
+    <div className={`${hanken.variable} ${spaceMono.variable}`}>
+      <ProgramasHub hub={hub} />
+    </div>
   );
 }
