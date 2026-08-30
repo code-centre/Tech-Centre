@@ -13,6 +13,8 @@ export const MCP_SCOPES = {
   COHORTS_WRITE: 'cohorts:write',
   ENROLLMENTS_READ: 'enrollments:read',
   ENROLLMENTS_WRITE: 'enrollments:write',
+  LEADS_READ: 'leads:read',
+  LEADS_WRITE: 'leads:write',
   PAYMENTS_READ: 'payments:read',
   PAYMENTS_WRITE: 'payments:write',
 } as const;

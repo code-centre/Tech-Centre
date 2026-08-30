@@ -33,6 +33,13 @@ import {
   listRoutes,
   updateRoute,
 } from '@/lib/services/routes-service';
+import {
+  createLead,
+  getLead,
+  listLeads,
+  resolveProgramIdForLead,
+  updateLead,
+} from '@/lib/services/leads-service';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -226,6 +233,47 @@ const cohortFieldSchemas = {
     .describe(
       'Primary instructor UUID. On update, omit to leave unchanged; pass null to remove.'
     ),
+};
+
+const leadNotesSchema = z
+  .object({
+    program: z.string().optional().describe('Program name of interest (free text).'),
+    message: z.string().optional(),
+    source: z.string().optional().describe('Human-readable origin, e.g. URL campaign label.'),
+    moduleName: z.string().optional(),
+    routeName: z.string().optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+  })
+  .optional();
+
+const leadStageSchema = z
+  .enum(['diagnostico', 'apartar', 'dudas', 'pagos', 'confirmar'])
+  .optional()
+  .describe(
+    'Lead intent: diagnostico (requested diagnostic), apartar (hold a seat), dudas (questions), pagos (payment options), confirmar (confirm fit).'
+  );
+
+const leadFieldSchemas = {
+  phone: z.string().nullable().optional().describe('Phone/WhatsApp digits.'),
+  stage: leadStageSchema,
+  source: z
+    .string()
+    .optional()
+    .describe("Origin tag, e.g. 'admin_manual', 'diagnostico_programa-ft-hero', 'apartar_cupo_page'."),
+  interested_program_id: z
+    .number()
+    .int()
+    .positive()
+    .nullable()
+    .optional()
+    .describe('FK to programs.id when the interest maps to a catalog program.'),
+  program_name: z
+    .string()
+    .optional()
+    .describe(
+      'Convenience: resolves interested_program_id by exact programs.name and sets notes.program.'
+    ),
+  notes: leadNotesSchema.describe('JSON notes stored in leads.notes (same shape as public forms).'),
 };
 
 const baseHandler = createMcpHandler(
@@ -569,6 +617,189 @@ const baseHandler = createMcpHandler(
         return {
           content: [{ type: 'text', text: JSON.stringify(enrollments, null, 2) }],
         };
+      }
+    );
+
+    server.registerTool(
+      'list_leads',
+      {
+        title: 'List leads',
+        description:
+          'List admission leads (people who filled a form or were registered manually). Filter by source, sourcePrefix (e.g. "diagnostico"), stage, email, or interested program.',
+        inputSchema: z.object({
+          source: z.string().optional().describe('Exact match on leads.source.'),
+          sourcePrefix: z
+            .string()
+            .optional()
+            .describe('Prefix match, e.g. "diagnostico" matches diagnostico_* sources.'),
+          stage: leadStageSchema,
+          email: z.string().optional(),
+          interestedProgramId: z.number().int().positive().optional(),
+          limit: z.number().int().positive().max(500).optional(),
+        }),
+      },
+      async ({ source, sourcePrefix, stage, email, interestedProgramId, limit }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.LEADS_READ)) {
+          throw new Error('Missing scope leads:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const leads = await listLeads(client, {
+          source,
+          sourcePrefix,
+          stage,
+          email,
+          interestedProgramId,
+          limit,
+        });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(leads, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'get_lead',
+      {
+        title: 'Get lead',
+        description:
+          'Get a lead by id with all fields, including notes JSON and interested_program_id.',
+        inputSchema: z.object({
+          leadId: z.number().int().positive(),
+        }),
+      },
+      async ({ leadId }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.LEADS_READ)) {
+          throw new Error('Missing scope leads:read');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const lead = await getLead(client, leadId);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(lead, null, 2) }],
+        };
+      }
+    );
+
+    server.registerTool(
+      'create_lead',
+      {
+        title: 'Create lead',
+        description:
+          'Register a lead manually (admin only), same table as public forms. Use stage to capture intent; notes.program or program_name for interest.',
+        inputSchema: z.object({
+          full_name: z.string().min(1),
+          email: z.string().min(1),
+          ...leadFieldSchemas,
+          source: z.string().optional().default('mcp_manual'),
+          stage: leadStageSchema.default('dudas'),
+        }),
+      },
+      async (input, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.LEADS_WRITE)) {
+          throw new Error('Missing scope leads:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+        const { program_name, notes, ...rest } = input;
+
+        let interested_program_id = rest.interested_program_id;
+        let mergedNotes = notes ?? {};
+
+        if (program_name) {
+          const programId = await resolveProgramIdForLead(client, program_name);
+          if (programId) interested_program_id = programId;
+          mergedNotes = { ...mergedNotes, program: program_name };
+        }
+
+        try {
+          const lead = await createLead(client, {
+            full_name: rest.full_name,
+            email: rest.email,
+            phone: rest.phone,
+            source: rest.source,
+            stage: rest.stage,
+            interested_program_id: interested_program_id ?? null,
+            notes: Object.keys(mergedNotes).length > 0 ? mergedNotes : undefined,
+          });
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'create_lead',
+            input,
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(lead, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'create_lead',
+            input,
+            resultStatus: 'error',
+          });
+          throw error;
+        }
+      }
+    );
+
+    server.registerTool(
+      'update_lead',
+      {
+        title: 'Update lead',
+        description:
+          'Update a lead (admin only). Change stage as the person progresses, edit contact info, or refresh notes/program interest.',
+        inputSchema: z.object({
+          leadId: z.number().int().positive(),
+          full_name: z.string().min(1).optional(),
+          email: z.string().min(1).optional(),
+          ...leadFieldSchemas,
+        }),
+      },
+      async ({ leadId, program_name, notes, ...input }, ctx) => {
+        const auth = getAuth(ctx);
+        if (!auth || !hasScope(auth, MCP_SCOPES.LEADS_WRITE)) {
+          throw new Error('Missing scope leads:write');
+        }
+
+        const client = createSupabaseClientForToken(auth.token);
+
+        let interested_program_id = input.interested_program_id;
+        let mergedNotes = notes;
+
+        if (program_name) {
+          const programId = await resolveProgramIdForLead(client, program_name);
+          interested_program_id = programId ?? null;
+          mergedNotes = { ...(mergedNotes ?? {}), program: program_name };
+        }
+
+        try {
+          const lead = await updateLead(client, leadId, {
+            ...input,
+            interested_program_id,
+            notes: mergedNotes,
+          });
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'update_lead',
+            input: { leadId, program_name, notes, ...input },
+            resultStatus: 'success',
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(lead, null, 2) }],
+          };
+        } catch (error) {
+          await logMcpAudit(client, {
+            actorSub: auth.userId,
+            toolName: 'update_lead',
+            input: { leadId, program_name, notes, ...input },
+            resultStatus: 'error',
+          });
+          throw error;
+        }
       }
     );
 
