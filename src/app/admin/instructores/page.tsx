@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { StudentsList } from '@/components/adminspage/StudentsList';
 
 export const metadata: Metadata = {
-  title: 'Administración de Instructores',
-  description: 'Panel de administración para gestionar instructores.',
+  title: 'Administración de Profesores',
+  description: 'Panel de administración para gestionar profesores e instructores.',
   robots: {
     index: false,
     follow: false,
@@ -15,8 +15,8 @@ export default function InstructoresPage() {
     <div className="container mx-auto">
       <StudentsList
         roleFilter={['instructor']}
-        title="Instructores"
-        subtitle="Gestiona instructores"
+        title="Profesores"
+        subtitle="Usuarios con rol de instructor"
       />
     </div>
   );

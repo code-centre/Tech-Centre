@@ -110,3 +110,54 @@ export async function updateProfileAdmin(input: UpdateProfileInput): Promise<Act
 
   return { success: true };
 }
+
+/** Promueve un usuario existente a instructor. Solo admins. */
+export async function promoteToInstructor(userId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+  if (!authUser) {
+    return { success: false, error: 'No autenticado' };
+  }
+
+  const { data: callerProfile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('user_id', authUser.id)
+    .single();
+
+  if ((callerProfile as { role?: string } | null)?.role !== 'admin') {
+    return { success: false, error: 'Sin permisos para asignar instructores' };
+  }
+
+  const { data: target, error: targetError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('user_id', userId)
+    .single();
+
+  if (targetError || !target) {
+    return { success: false, error: 'Usuario no encontrado' };
+  }
+
+  const targetRole = (target as { role?: string }).role;
+  if (targetRole === 'instructor') {
+    return { success: false, error: 'Este usuario ya es instructor' };
+  }
+  if (targetRole === 'admin') {
+    return { success: false, error: 'No se puede cambiar el rol de un administrador' };
+  }
+
+  const { error } = await (supabase as any)
+    .from('profiles')
+    .update({ role: 'instructor', updated_at: new Date().toISOString() })
+    .eq('user_id', userId);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}

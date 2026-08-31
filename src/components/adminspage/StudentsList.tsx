@@ -23,6 +23,7 @@ import AdminFilterTabs from '@/components/admin/AdminFilterTabs';
 import AdminSearchInput from '@/components/admin/AdminSearchInput';
 import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 import AdminEmptyState from '@/components/admin/AdminEmptyState';
+import AddInstructorModal from '@/components/adminspage/AddInstructorModal';
 import {
   adminTableShellClass,
   adminTableHeadCellClass,
@@ -125,6 +126,8 @@ export function StudentsList({
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [expellingId, setExpellingId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
+  const [addingInstructor, setAddingInstructor] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const enrollmentIdMap = useMemo(() => {
     if (!enrollments?.length) return new Map<string, number>();
@@ -190,7 +193,7 @@ export function StudentsList({
     };
 
     fetchData();
-  }, [supabase, roleFilter, enrollments]);
+  }, [supabase, roleFilter, enrollments, refreshKey]);
 
   useEffect(() => {
     setPage(1);
@@ -249,13 +252,8 @@ export function StudentsList({
 
   const roleFilteredProfiles = useMemo(() => {
     if (!roleFilter || roleFilter.length === 0) return profiles;
-    if (isInstructorView) {
-      return profiles.filter(
-        (p) => (instructorCohortCount.get(p.user_id) ?? 0) > 0
-      );
-    }
     return profiles.filter((p) => roleFilter.includes(p.role));
-  }, [profiles, roleFilter, isInstructorView, instructorCohortCount]);
+  }, [profiles, roleFilter]);
 
   const stats = useMemo(() => {
     const leads = roleFilteredProfiles.filter((p) => p.role === 'lead').length;
@@ -413,6 +411,18 @@ export function StudentsList({
         icon={Users}
         title={title}
         subtitle={headerSubtitle}
+        action={
+          isInstructorView ? (
+            <button
+              type="button"
+              onClick={() => setAddingInstructor(true)}
+              className="btn-primary inline-flex items-center gap-2"
+            >
+              <UserPlus className="h-5 w-5" aria-hidden="true" />
+              Añadir profesor
+            </button>
+          ) : undefined
+        }
       />
 
       {!isCohortContext && (
@@ -767,6 +777,12 @@ export function StudentsList({
           </div>
         </div>
       )}
+
+      <AddInstructorModal
+        open={addingInstructor}
+        onClose={() => setAddingInstructor(false)}
+        onAdded={() => setRefreshKey((key) => key + 1)}
+      />
     </div>
   );
 }
