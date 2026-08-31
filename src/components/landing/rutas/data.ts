@@ -56,8 +56,8 @@ export interface Ruta {
 export const RUTAS: Ruta[] = [
   {
     slug: "producto",
-    label: "Ruta Producto",
-    name: "Productos y agentes de IA",
+    label: "Ruta AI Developer",
+    name: "AI Developer",
     headline: "Aprende a construir productos y agentes de IA",
     description:
       "De cero a construir productos completos y agentes de IA. JavaScript, TypeScript y el stack agéntico moderno.",
@@ -228,7 +228,7 @@ export const COMO_FUNCIONA = {
     },
     {
       title: "Las rutas se cruzan",
-      body: "La ruta Producto termina construyendo agentes de IA, la ruta Datos termina midiendo y prediciendo lo que los agentes no pueden. Al terminar tu ruta puedes cruzar a la otra.",
+      body: "La ruta AI Developer termina construyendo agentes de IA, la ruta Datos termina midiendo y prediciendo lo que los agentes no pueden. Al terminar tu ruta puedes cruzar a la otra.",
     },
   ],
 } as const;

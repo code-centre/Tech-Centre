@@ -91,7 +91,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.5 }}
           >
             Tech Centre es el Centro de Tecnología del Caribe. Dos rutas
-            presenciales: Producto, para construir aplicaciones y agentes de IA,
+            presenciales: AI Developer, para construir aplicaciones y agentes de IA,
             y Datos, para predecir con Python y machine learning. Grupos de
             máximo 12 personas, con code review cara a cara.
           </motion.p>

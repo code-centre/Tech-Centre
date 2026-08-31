@@ -27,7 +27,7 @@ export const metadata: Metadata = {
       "Rutas de aprendizaje en tecnología e IA · Tech Centre · Barranquilla",
   },
   description:
-    "Dos rutas para entrar a la industria tech: Producto (JavaScript, TypeScript y agentes de IA) y Datos (Python, SQL y machine learning). Tres módulos de 8 semanas que puedes tomar de forma independiente, presencial en Casa Tech, Barranquilla. Diagnóstico gratuito.",
+    "Dos rutas para entrar a la industria tech: AI Developer (JavaScript, TypeScript y agentes de IA) y Datos (Python, SQL y machine learning). Tres módulos de 8 semanas que puedes tomar de forma independiente, presencial en Casa Tech, Barranquilla. Diagnóstico gratuito.",
   keywords: [
     "aprender a programar Barranquilla",
     "curso de programación desde cero",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Dos rutas para entrar a la industria tech · Tech Centre Barranquilla",
     description:
-      "Ruta Producto: productos y agentes de IA. Ruta Datos: datos y machine learning. Tres módulos de 8 semanas, máximo 12 personas, presencial en Casa Tech. Empieza con un diagnóstico gratuito.",
+      "Ruta AI Developer: aplicaciones y agentes de IA. Ruta Datos: datos y machine learning. Tres módulos de 8 semanas, máximo 12 personas, presencial en Casa Tech. Empieza con un diagnóstico gratuito.",
     type: "website",
     images: [
       {
