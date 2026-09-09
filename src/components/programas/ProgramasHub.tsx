@@ -139,7 +139,7 @@ export default function ProgramasHub({ hub }: Props) {
   return (
     <div className="landing-v2 rutas-hub">
       {/* ============ ENCABEZADO ============ */}
-      <section className="relative flex min-h-[420px] items-end overflow-hidden lg:min-h-[560px]">
+      <section className="relative flex min-h-[420px] items-start overflow-hidden pt-16 lg:min-h-[560px] lg:items-end lg:pt-0">
         <Image
           src={HERO_PHOTO}
           alt=""
@@ -157,7 +157,7 @@ export default function ProgramasHub({ hub }: Props) {
           aria-hidden
         />
 
-        <div className="relative mx-auto grid w-full max-w-[1440px] grid-cols-1 items-end gap-10 px-5 pb-8 pt-14 sm:px-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-14 lg:px-24 lg:pb-13 lg:pt-22">
+        <div className="relative mx-auto grid w-full max-w-[1440px] grid-cols-1 items-end gap-10 px-5 pb-8 pt-6 sm:px-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-14 lg:px-24 lg:pb-13 lg:pt-22">
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
               <span className="lv2-spark" aria-hidden />
