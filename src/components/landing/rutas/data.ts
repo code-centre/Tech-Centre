@@ -289,6 +289,9 @@ export const RUTAS_PRECIOS = {
   moduloAvanzadoLabel: "Módulo 3 · nivel avanzado",
   reserva: "$100.000",
   cuotas: 3,
+  descuentoContado: "10%",
+  moduloContado: "$1.260.000",
+  moduloAvanzadoContado: "$1.440.000",
   descuentoEgresados: "10%",
   moduloEgresados: "$1.260.000",
   moduloAvanzadoEgresados: "$1.440.000",
@@ -398,7 +401,7 @@ export const RUTAS_FAQS_HOME: { q: string; a: string }[] = [
   },
   {
     q: "¿Puedo pagar a cuotas o hay becas?",
-    a: "Sí a las dos. Reservas tu cupo y pagas el resto en hasta tres cuotas sin interés. Si ya hiciste un módulo con nosotros, tienes 10% de descuento. También tenemos becas y convenios, como Becas Atlántico.",
+    a: "Sí a las dos. Reservas tu cupo y pagas el resto en hasta tres cuotas sin interés, o de contado con 10% de descuento. Si ya hiciste un módulo con nosotros, tienes otro 10% de descuento como egresado. También tenemos becas y convenios, como Becas Atlántico.",
   },
   {
     q: "¿Esto me garantiza un empleo?",

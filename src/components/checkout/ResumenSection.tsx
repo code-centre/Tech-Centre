@@ -71,14 +71,29 @@ function PaymentTotal({
         {/* Desglose cuando hay método de pago o cuando hay matrícula */}
         {shouldShowBreakdown && (
           <div className="space-y-2 pt-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-text-muted">
-                Programa{priceCalculation?.paymentMethodDiscount && priceCalculation.paymentMethodDiscount > 0 ? ' (con descuento)' : ''}
-              </span>
-              <span className="text-text-primary font-medium">
-                ${Math.round(programAmount).toLocaleString()} COP
-              </span>
-            </div>
+            {priceCalculation?.paymentMethodDiscount && priceCalculation.paymentMethodDiscount > 0 ? (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">Programa</span>
+                  <span className="text-text-primary font-medium">
+                    ${Math.round(priceCalculation.subtotal).toLocaleString()} COP
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-emerald-400">Descuento pago de contado (10%)</span>
+                  <span className="font-medium text-emerald-400">
+                    -${Math.round(priceCalculation.paymentMethodDiscount).toLocaleString()} COP
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between text-sm">
+                <span className="text-text-muted">Programa</span>
+                <span className="text-text-primary font-medium">
+                  ${Math.round(programAmount).toLocaleString()} COP
+                </span>
+              </div>
+            )}
             {matriculaAdded && matriculaAmount > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-text-muted">Matrícula anual Tech Centre</span>
@@ -284,7 +299,6 @@ export default function ResumenSection({
         installments: paymentMethod === 'installments' ? selectedInstallments : undefined,
         couponDiscount: discount,
         quantity,
-        skipPaymentMethodDiscount: paymentMethod === 'full', // No aplicar 10% cuando solo hay 1 cuota (pago de contado)
       })
     : null
 

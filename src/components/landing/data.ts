@@ -103,7 +103,7 @@ export const FAQS: FaqItem[] = [
   {
     category: "Inversión y pagos",
     q: "¿Cuánto cuesta y cómo puedo pagar?",
-    a: "Los módulos 1 y 2 cuestan $1.400.000 COP y el módulo 3 avanzado $1.600.000 COP. Reservas tu cupo con $100.000 y pagas el resto en hasta tres cuotas sin interés. Si ya hiciste un módulo con nosotros, tienes 10% de descuento.",
+    a: "Los módulos 1 y 2 cuestan $1.400.000 COP y el módulo 3 avanzado $1.600.000 COP. Reservas tu cupo con $100.000 y pagas el resto en hasta tres cuotas sin interés, o de contado con 10% de descuento. Si ya hiciste un módulo con nosotros, tienes otro 10% como egresado.",
   },
   {
     category: "Inversión y pagos",

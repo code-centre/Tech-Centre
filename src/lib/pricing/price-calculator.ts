@@ -1,6 +1,6 @@
 /**
- * Calculadora centralizada de precios para checkout
- * El 10% de descuento no aplica cuando solo hay pago en una cuota (pago de contado)
+ * Calculadora centralizada de precios para checkout.
+ * Pago de contado: 10% de descuento sobre el subtotal del programa.
  */
 
 export interface PriceCalculationParams {
@@ -9,7 +9,7 @@ export interface PriceCalculationParams {
   installments?: number; // Número de cuotas (solo si paymentMethod === 'installments')
   couponDiscount?: number; // Descuento del cupón (monto fijo)
   quantity?: number; // Cantidad (por defecto 1)
-  /** Si true, no se aplica el 10% de descuento (ej. cuando solo hay pago en una cuota) */
+  /** Si true, no se aplica el 10% de descuento por pago de contado. */
   skipPaymentMethodDiscount?: boolean;
 }
 

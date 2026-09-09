@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { formatPrice } from '../../../utils/formatCurrency'
+import { calculatePrice } from '@/lib/pricing/price-calculator'
 
 interface Props {
   defaultPrice?: number | null
@@ -26,9 +27,14 @@ export default function ProgramPriceBlock({
 }: Props) {
   const [mode, setMode] = useState<'once' | 'installments'>('once')
 
+  const listPrice = defaultPrice || discount || 0
   const basePrice = discount || defaultPrice || 0
   const hasInstallments = Boolean(maximumPayments && maximumPayments >= 2)
   const showInstallments = hasInstallments && mode === 'installments'
+  const contadoPrice = calculatePrice({
+    basePrice,
+    paymentMethod: 'full',
+  })
 
   if (!basePrice) return null
 
@@ -83,18 +89,19 @@ export default function ProgramPriceBlock({
         ) : (
           <>
             <span className="text-[13px] card-text-muted">
-              {discount ? '¡Precio en oferta!' : 'Precio del programa'}
+              Pago de contado · 10% de descuento
             </span>
             <span className={`${amountClass} font-bold tracking-tight card-text-primary leading-tight`}>
+              {formatPrice(contadoPrice.total, currency)}
+            </span>
+            <span className="text-[13px] card-text-muted line-through">
               {formatPrice(basePrice, currency)}
             </span>
-            {discount && defaultPrice && discount < defaultPrice ? (
+            {listPrice !== basePrice && defaultPrice && discount && discount < defaultPrice ? (
               <span className="text-[13px] card-text-muted line-through">
                 {formatPrice(defaultPrice, currency)}
               </span>
-            ) : (
-              <span className="text-[13px] card-text-muted">Un solo pago, todo incluido</span>
-            )}
+            ) : null}
           </>
         )}
       </div>

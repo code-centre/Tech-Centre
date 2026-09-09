@@ -66,6 +66,12 @@ export default function Inversion() {
                   </dd>
                 </div>
                 <div className="flex items-baseline justify-between gap-4">
+                  <dt className="text-[var(--soft)]">Pago de contado</dt>
+                  <dd className="font-bold text-[var(--mint)]">
+                    {p.descuentoContado} dto. · {p.moduloContado}
+                  </dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-4">
                   <dt className="text-[var(--soft)]">Egresados de otro módulo</dt>
                   <dd className="font-bold text-[var(--mint)]">
                     {p.descuentoEgresados} menos · {p.moduloEgresados}
