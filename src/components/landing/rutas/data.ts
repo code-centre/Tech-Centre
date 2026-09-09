@@ -271,7 +271,7 @@ export const RUTAS_CTA_FINAL = {
 /** Cohorte vigente. Actualizar al abrir la siguiente. */
 export const RUTAS_COHORTE = {
   /** Fecha de inicio en texto, como se muestra al usuario. */
-  startDate: "28 de septiembre",
+  startDate: "3 de octubre",
   /** Cupos por grupo. */
   seatsTotal: 12,
   /**

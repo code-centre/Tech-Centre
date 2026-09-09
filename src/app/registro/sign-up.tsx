@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { createSignupProfile } from "@/app/registro/actions";
 import { AlertCircle, CheckCircle2, Loader2, Mail, Eye, EyeOff } from "lucide-react";
 
 interface FormData {
@@ -144,32 +145,19 @@ export default function SignUp() {
       if (signUpError) throw signUpError;
 
       if (authData?.user) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        const profileData = {
-          user_id: authData.user.id,
+        const profileResult = await createSignupProfile({
+          userId: authData.user.id,
           email: formData.email.trim().toLowerCase(),
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          phone: "",
-          id_type: "CC" as const,
-          id_number: "",
-          birthdate: "1990-01-01",
-          address: null,
-          role: "lead" as const,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+        });
 
-        const { error: profileError } = await (supabase as any)
-          .from("profiles")
-          .insert([profileData]);
-
-        if (profileError) {
-          if (profileError.code === "23505") {
-            throw new Error("Ya existe un perfil con estos datos. Por favor, inicia sesión.");
-          }
-          throw new Error("Error al guardar el perfil. Por favor, contacta al soporte.");
+        if (!profileResult.success) {
+          throw new Error(
+            profileResult.error?.includes('perfil')
+              ? profileResult.error
+              : 'Error al guardar el perfil. Por favor, contacta al soporte.'
+          );
         }
 
         setIsRegistered(true);
