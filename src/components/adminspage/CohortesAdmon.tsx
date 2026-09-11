@@ -732,7 +732,7 @@ export default function CohortesAdmon() {
           <div className="hidden grid grid-cols-[minmax(0,1.6fr)_104px_120px_176px_140px_100px_minmax(0,1fr)_20px] gap-3.5 items-center border-b border-border-color bg-bg-secondary px-4 py-3 lg:grid">
             <HeadCell>Cohorte</HeadCell>
             <HeadCell>Estado</HeadCell>
-            <HeadCell>Sitio</HeadCell>
+            <HeadCell>En el sitio</HeadCell>
             <HeadCell>Cuándo</HeadCell>
             <HeadCell>Ocupación</HeadCell>
             <HeadCell>Clases</HeadCell>
@@ -777,8 +777,8 @@ export default function CohortesAdmon() {
                   aria-pressed={!!cohort.offering}
                   aria-label={
                     cohort.offering
-                      ? `Ocultar ${cohort.name} del sitio`
-                      : `Mostrar ${cohort.name} en el sitio`
+                      ? `Ocultar la cohorte ${cohort.name} del sitio web`
+                      : `Mostrar la cohorte ${cohort.name} en el sitio web`
                   }
                   disabled={togglingOffering === cohort.id}
                   onClick={(event) => {
@@ -799,7 +799,7 @@ export default function CohortesAdmon() {
                   ) : (
                     <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
                   )}
-                  {cohort.offering ? 'Visible' : 'Oculta'}
+                  {cohort.offering ? 'Cohorte visible' : 'Cohorte oculta'}
                 </button>
 
                 <span className="flex min-w-0 flex-col gap-0.5">

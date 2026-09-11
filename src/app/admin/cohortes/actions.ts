@@ -9,7 +9,7 @@ export interface ActionResult {
   error?: string
 }
 
-/** Marca una cohorte como visible u oculta en el sitio y refresca la oferta pública. */
+/** Marca una cohorte como visible u oculta en el sitio web y refresca header, landing y /programas. */
 export async function setCohortOffering(
   cohortId: string,
   offering: boolean

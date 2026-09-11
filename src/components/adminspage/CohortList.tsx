@@ -279,7 +279,7 @@ export default function CohortList({
                       </span>
                       {cohort.offering && (
                         <span className="inline-flex px-2.5 py-1 rounded-md text-xs font-semibold bg-secondary/30 text-secondary border border-secondary/50">
-                          En oferta
+                          Visible en el sitio
                         </span>
                       )}
                     </div>

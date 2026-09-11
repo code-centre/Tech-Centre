@@ -34,7 +34,7 @@ export interface Readiness {
 }
 
 interface Options {
-  /** Cohortes con `offering = true`. */
+  /** Cohortes visibles en el sitio (`offering = true`). */
   offeringCohorts?: number;
 }
 
@@ -122,8 +122,8 @@ export function getProgramReadiness(program: Program, options: Options = {}): Re
     },
     {
       id: 'cohorte',
-      label: 'Cohorte ofertando',
-      missingLabel: 'Sin cohorte abierta',
+      label: 'Cohorte visible en el sitio',
+      missingLabel: 'Sin cohorte visible en el sitio',
       ok: (options.offeringCohorts ?? 0) > 0,
       tab: 'cohortes',
     },

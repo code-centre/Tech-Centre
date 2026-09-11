@@ -461,8 +461,10 @@ export default function CohortStudentsPage() {
       icon: GraduationCap,
     },
     {
-      label: 'Visible en el sitio',
-      value: cohort?.offering ? 'Sí, aparece en oferta' : 'No, oculta',
+      label: 'Cohorte en el sitio',
+      value: cohort?.offering
+        ? 'Sí, esta cohorte está visible'
+        : 'No, esta cohorte está oculta',
       icon: Eye,
     },
   ];
@@ -562,8 +564,8 @@ export default function CohortStudentsPage() {
                   aria-pressed={!!cohort?.offering}
                   title={
                     cohort?.offering
-                      ? 'Clic para ocultar esta cohorte del sitio'
-                      : 'Clic para mostrar esta cohorte en el sitio'
+                      ? 'Ocultar esta cohorte del sitio web'
+                      : 'Mostrar esta cohorte en el sitio web'
                   }
                   className="inline-flex h-6 cursor-pointer items-center gap-1 rounded-full border px-2.5 text-xs font-semibold transition-colors hover:brightness-95 disabled:cursor-wait disabled:opacity-70"
                   style={
@@ -587,7 +589,7 @@ export default function CohortStudentsPage() {
                   ) : (
                     <EyeOff className="h-3 w-3" aria-hidden="true" />
                   )}
-                  {cohort?.offering ? 'Visible en el sitio' : 'Oculta del sitio'}
+                  {cohort?.offering ? 'Cohorte visible' : 'Cohorte oculta'}
                 </button>
               </div>
               {paceLabel && <span className="text-[13.5px] text-text-muted">{paceLabel}.</span>}
