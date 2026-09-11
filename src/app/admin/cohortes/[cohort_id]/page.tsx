@@ -26,8 +26,10 @@ import {
   Clock,
   GraduationCap,
   Eye,
+  EyeOff,
   CreditCard,
 } from 'lucide-react';
+import { setCohortOffering } from '@/app/admin/cohortes/actions';
 import type { Session, ProgramModule, Grade } from '@/types/supabase';
 import {
   formatDateRange,
@@ -129,8 +131,31 @@ export default function CohortStudentsPage() {
   const [attendanceRows, setAttendanceRows] = useState<{ session_id: number; enrollment_id: number; status: string }[]>([]);
   const [gradeRows, setGradeRows] = useState<Grade[]>([]);
   const [invoiceRows, setInvoiceRows] = useState<{ enrollment_id: number; amount: number; status: string; due_date: string }[]>([]);
+  const [togglingOffering, setTogglingOffering] = useState(false);
+  const [offeringError, setOfferingError] = useState<string | null>(null);
 
   const cohortId = params.cohort_id as string;
+
+  const handleToggleOffering = async () => {
+    if (!cohort) return;
+    try {
+      setTogglingOffering(true);
+      setOfferingError(null);
+      const nextOffering = !cohort.offering;
+      const result = await setCohortOffering(String(cohort.id), nextOffering);
+      if (!result.success) throw new Error(result.error ?? 'No se pudo cambiar la visibilidad');
+      setCohort({ ...cohort, offering: nextOffering });
+      router.refresh();
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === 'object' && 'message' in err
+          ? String((err as { message: string }).message)
+          : 'Error al cambiar la visibilidad';
+      setOfferingError(message);
+    } finally {
+      setTogglingOffering(false);
+    }
+  };
 
   useEffect(() => {
     fetchCohortAndStudents();
@@ -553,6 +578,26 @@ export default function CohortStudentsPage() {
           <div className="flex shrink-0 flex-wrap gap-2.5">
             <button
               type="button"
+              onClick={() => void handleToggleOffering()}
+              disabled={togglingOffering}
+              aria-pressed={!!cohort?.offering}
+              className={`inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-sm font-semibold transition-colors disabled:opacity-60 ${
+                cohort?.offering
+                  ? 'border-[color-mix(in_srgb,var(--pay-serie-porcobrar)_40%,transparent)] bg-[color-mix(in_srgb,var(--pay-serie-porcobrar)_12%,transparent)] text-[var(--pay-serie-porcobrar)] hover:bg-[color-mix(in_srgb,var(--pay-serie-porcobrar)_18%,transparent)]'
+                  : 'border-border-color bg-bg-secondary text-text-primary hover:border-secondary/50'
+              }`}
+            >
+              {togglingOffering ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : cohort?.offering ? (
+                <EyeOff className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Eye className="h-4 w-4" aria-hidden="true" />
+              )}
+              {cohort?.offering ? 'Ocultar del sitio' : 'Mostrar en el sitio'}
+            </button>
+            <button
+              type="button"
               onClick={() => setIsEditModalOpen(true)}
               className="inline-flex h-10 items-center gap-2 rounded-lg border border-border-color bg-bg-secondary px-4 text-sm font-medium text-text-primary transition-colors hover:border-secondary/50"
             >
@@ -569,6 +614,10 @@ export default function CohortStudentsPage() {
             </button>
           </div>
         </div>
+
+        {offeringError && (
+          <p className="border-t border-border-color px-6 py-3 text-sm text-red-400">{offeringError}</p>
+        )}
 
         <div className="grid grid-cols-1 border-t border-border-color bg-bg-secondary sm:grid-cols-2 xl:grid-cols-4">
           <Fact label="Cuándo">

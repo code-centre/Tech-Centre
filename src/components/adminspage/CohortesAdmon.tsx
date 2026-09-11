@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, Plus, X, Save, Loader2, Search, CalendarDays, CalendarPlus, Clock, PlusCircle, Trash2, Pencil, ChevronRight, ChevronDown } from 'lucide-react';
+import { AlertTriangle, Plus, X, Save, Loader2, Search, CalendarDays, CalendarPlus, Clock, PlusCircle, Trash2, Pencil, ChevronRight, ChevronDown, Eye, EyeOff } from 'lucide-react';
 import { useSupabaseClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { setCohortOffering } from '@/app/admin/cohortes/actions';
@@ -729,9 +729,10 @@ export default function CohortesAdmon() {
         </section>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border-color bg-[var(--card-background)]">
-          <div className="hidden grid grid-cols-[minmax(0,1.6fr)_104px_176px_140px_100px_minmax(0,1fr)_20px] gap-3.5 items-center border-b border-border-color bg-bg-secondary px-4 py-3 lg:grid">
+          <div className="hidden grid grid-cols-[minmax(0,1.6fr)_104px_120px_176px_140px_100px_minmax(0,1fr)_20px] gap-3.5 items-center border-b border-border-color bg-bg-secondary px-4 py-3 lg:grid">
             <HeadCell>Cohorte</HeadCell>
             <HeadCell>Estado</HeadCell>
+            <HeadCell>Sitio</HeadCell>
             <HeadCell>Cuándo</HeadCell>
             <HeadCell>Ocupación</HeadCell>
             <HeadCell>Clases</HeadCell>
@@ -758,7 +759,7 @@ export default function CohortesAdmon() {
               <Link
                 key={cohort.id}
                 href={`/admin/cohortes/${cohort.id}`}
-                className="grid grid-cols-[minmax(0,1.6fr)_104px_176px_140px_100px_minmax(0,1fr)_20px] gap-3.5 items-center border-b border-border-color/50 px-4 py-3 transition-colors last:border-b-0 hover:bg-bg-secondary/40 max-lg:flex max-lg:flex-col max-lg:items-start max-lg:gap-2"
+                className="grid grid-cols-[minmax(0,1.6fr)_104px_120px_176px_140px_100px_minmax(0,1fr)_20px] gap-3.5 items-center border-b border-border-color/50 px-4 py-3 transition-colors last:border-b-0 hover:bg-bg-secondary/40 max-lg:flex max-lg:flex-col max-lg:items-start max-lg:gap-2"
               >
                 <span className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-[14.5px] font-semibold text-text-primary">{cohort.name}</span>
@@ -770,6 +771,36 @@ export default function CohortesAdmon() {
                 >
                   {badge.label}
                 </span>
+
+                <button
+                  type="button"
+                  aria-pressed={!!cohort.offering}
+                  aria-label={
+                    cohort.offering
+                      ? `Ocultar ${cohort.name} del sitio`
+                      : `Mostrar ${cohort.name} en el sitio`
+                  }
+                  disabled={togglingOffering === cohort.id}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    void handleToggleOffering(cohort.id, !!cohort.offering);
+                  }}
+                  className={`inline-flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors disabled:opacity-60 ${
+                    cohort.offering
+                      ? 'border-[color-mix(in_srgb,var(--pay-serie-porcobrar)_40%,transparent)] bg-[color-mix(in_srgb,var(--pay-serie-porcobrar)_12%,transparent)] text-[var(--pay-serie-porcobrar)] hover:bg-[color-mix(in_srgb,var(--pay-serie-porcobrar)_18%,transparent)]'
+                      : 'border-border-color bg-bg-secondary text-text-muted hover:border-secondary/40 hover:text-text-primary'
+                  }`}
+                >
+                  {togglingOffering === cohort.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                  ) : cohort.offering ? (
+                    <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                  ) : (
+                    <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
+                  )}
+                  {cohort.offering ? 'Visible' : 'Oculta'}
+                </button>
 
                 <span className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-[13px] text-text-primary">
