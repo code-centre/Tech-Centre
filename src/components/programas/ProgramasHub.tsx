@@ -20,6 +20,7 @@ const ROUTE_FALLBACK_PHOTOS = [
 
 const HERO_PHOTO = '/community/sede-codigo-abierto.webp'
 const CTA_PHOTO = '/community/manos-teclado.webp'
+const PROGRAM_FALLBACK_IMAGE = '/community/sesion-presencial.webp'
 
 const DIAGNOSTICO_URL = '/agendar-diagnostico'
 
@@ -58,6 +59,55 @@ function OpenChip({ start }: { start: string | null }) {
       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--mint)]" aria-hidden />
       {start ? `Abierta · ${start}` : 'Cohorte abierta'}
     </span>
+  )
+}
+
+function LooseProgramCard({ program }: { program: HubProgram }) {
+  return (
+    <article className="flex min-h-[280px] flex-col overflow-hidden rounded-[14px] border border-[var(--line)] bg-[var(--panel)]">
+      <div className="relative aspect-[16/10] w-full shrink-0 bg-[#0D1A16]">
+        <Image
+          src={program.image || PROGRAM_FALLBACK_IMAGE}
+          alt={program.name}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          className="object-cover"
+        />
+        <div
+          className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(7,16,13,0.72)_100%)]"
+          aria-hidden
+        />
+        <div className="absolute bottom-3 left-3">
+          <OpenChip start={formatStart(program.startDate)} />
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <div className="flex flex-col gap-2">
+          <MonoLabel className="text-[9.5px] tracking-[0.12em] text-[var(--mute)]">
+            {['Programa', program.hours ? `${program.hours} h` : null].filter(Boolean).join(' · ')}
+          </MonoLabel>
+          <h3 className="text-[16px] font-semibold leading-tight text-[var(--paper)] lg:text-[17.5px]">
+            {program.name}
+          </h3>
+          {program.subtitle ? (
+            <p className="line-clamp-2 text-[13px] leading-[1.5] text-[var(--soft)]">{program.subtitle}</p>
+          ) : null}
+        </div>
+        <div className="mt-auto flex items-center justify-between gap-2.5 border-t border-[var(--line)] pt-3.5">
+          <span className="text-[16px] font-bold text-[var(--paper)]">
+            {program.price ? formatPrice(program.price, program.currency) : 'Consultar'}
+          </span>
+          <Link
+            href={`/programas-academicos/${program.code}`}
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[var(--mint)] px-3.5 py-2 text-[13px] font-bold text-[var(--ink)] transition-transform hover:scale-[1.02]"
+          >
+            Ver
+            <ArrowRight className="h-[15px] w-[15px]" aria-hidden />
+          </Link>
+        </div>
+      </div>
+    </article>
   )
 }
 
@@ -121,7 +171,7 @@ export default function ProgramasHub({ hub }: Props) {
     () => [
       { id: 'todo', label: 'Todo' },
       ...hub.routes.map((route) => ({ id: route.slug, label: route.name })),
-      ...(hub.loose.length > 0 ? [{ id: 'sueltos', label: 'Cursos sueltos' }] : []),
+      ...(hub.loose.length > 0 ? [{ id: 'sueltos', label: 'Programas' }] : []),
     ],
     [hub.routes, hub.loose.length]
   )
@@ -316,53 +366,27 @@ export default function ProgramasHub({ hub }: Props) {
         )
       })}
 
-      {/* ============ CURSOS SUELTOS ============ */}
+      {/* ============ PROGRAMAS (sin ruta) ============ */}
       {visibleLoose.length > 0 && (
         <section className="mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-5 pt-10 sm:px-8 lg:px-24 lg:pt-16">
           <div className="flex max-w-[700px] flex-col gap-2.5">
             <div className="flex items-center gap-2.5">
               <span className="h-2 w-2 rounded-full bg-[var(--soft)]" aria-hidden />
               <MonoLabel className="text-[11.5px] tracking-[0.2em] text-[var(--soft)]">
-                Cursos sueltos
+                Programas
               </MonoLabel>
             </div>
             <h2 className="lv2-display text-[27px] leading-[1.08] text-[var(--paper)] lg:text-[34px]">
-              No todo es una ruta de seis meses
+              Cursos que puedes tomar sin la ruta completa
             </h2>
             <p className="text-pretty text-[15px] leading-[1.6] text-[var(--soft)] lg:text-[16px]">
-              Cursos cortos que no pertenecen a ninguna ruta. Entras, aprendes una cosa concreta y
-              sales.
+              Programas con cohorte abierta que no pertenecen a ninguna ruta de seis meses.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {visibleLoose.map((program) => (
-              <article
-                key={program.code}
-                className="flex min-h-[190px] flex-col gap-3 rounded-[14px] border border-[var(--line)] bg-[var(--panel)] p-5"
-              >
-                <div className="flex flex-col gap-2">
-                  <MonoLabel className="text-[9.5px] tracking-[0.12em] text-[var(--mute)]">
-                    {['Curso', program.hours ? `${program.hours} h` : null].filter(Boolean).join(' · ')}
-                  </MonoLabel>
-                  <h3 className="text-[16px] font-semibold leading-tight text-[var(--paper)] lg:text-[17.5px]">
-                    {program.name}
-                  </h3>
-                  <OpenChip start={formatStart(program.startDate)} />
-                </div>
-                <div className="mt-auto flex items-center justify-between gap-2.5 border-t border-[var(--line)] pt-3.5">
-                  <span className="text-[16px] font-bold text-[var(--paper)]">
-                    {program.price ? formatPrice(program.price, program.currency) : 'Consultar'}
-                  </span>
-                  <Link
-                    href={`/programas-academicos/${program.code}`}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[var(--mint)] px-3.5 py-2 text-[13px] font-bold text-[var(--ink)] transition-transform hover:scale-[1.02]"
-                  >
-                    Ver
-                    <ArrowRight className="h-[15px] w-[15px]" aria-hidden />
-                  </Link>
-                </div>
-              </article>
+              <LooseProgramCard key={program.code} program={program} />
             ))}
           </div>
         </section>

@@ -17,6 +17,8 @@ export interface HubProgram {
   level: string | null
   price: number | null
   currency: string
+  /** Portada del programa (`programs.image`). */
+  image: string | null
   /** Inicio de la cohorte abierta más próxima, en ISO. */
   startDate: string | null
 }
@@ -65,6 +67,7 @@ interface ProgramRow {
   default_price: number | null
   discount: number | null
   currency: string | null
+  image: string | null
 }
 
 const EMPTY: ProgramsHub = { routes: [], loose: [], openCount: 0, nextStart: null }
@@ -108,7 +111,7 @@ export async function getProgramsHub(client?: SupabaseClient): Promise<ProgramsH
 
   const { data: programRows, error: programsError } = await supabase
     .from('programs')
-    .select('id, code, name, subtitle, total_hours, difficulty, default_price, discount, currency')
+    .select('id, code, name, subtitle, total_hours, difficulty, default_price, discount, currency, image')
     .in('id', Array.from(openByProgram.keys()))
 
   if (programsError) {
@@ -127,6 +130,7 @@ export async function getProgramsHub(client?: SupabaseClient): Promise<ProgramsH
       level: row.difficulty,
       price: row.discount || row.default_price,
       currency: row.currency || 'COP',
+      image: row.image ?? null,
       startDate: openByProgram.get(row.id) ?? null,
     })
   }
