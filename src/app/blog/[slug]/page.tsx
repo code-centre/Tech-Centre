@@ -11,6 +11,7 @@ import BlogContent from '@/components/blog/BlogContent';
 import { ArticleSchema, BreadcrumbListSchema } from '@/components/seo/StructuredData';
 import { readingTimeMinutes } from '@/lib/blog/content';
 import { canonicalSiteUrl } from '@/lib/blog/siteUrl';
+import type { BlogComment } from '@/types/supabase';
 import {
   authorDisplayName,
   fetchAuthorsById,
@@ -167,17 +168,17 @@ export default async function BlogPostPage({
     .eq('post_id', post.id)
     .order('created_at', { ascending: true });
 
+  const commentRows = (commentsData ?? []) as BlogComment[];
+
   const authors = await fetchAuthorsById(supabase, [
     post.author_id,
-    ...(commentsData || []).map((c) => c.user_id as string),
+    ...commentRows.map((c) => c.user_id),
   ]);
 
-  const comments: CommentWithAuthor[] = (commentsData || []).map(
-    (c: Record<string, unknown>) => ({
-      ...c,
-      author: authors.get(c.user_id as string) ?? null,
-    })
-  ) as CommentWithAuthor[];
+  const comments: CommentWithAuthor[] = commentRows.map((c) => ({
+    ...c,
+    author: authors.get(c.user_id) ?? null,
+  }));
 
   const author = authors.get(post.author_id) ?? null;
   const authorName = authorDisplayName(author, 'Anónimo');
