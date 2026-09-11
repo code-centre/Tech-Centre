@@ -45,6 +45,7 @@ function ToolbarButton({
   return (
     <button
       type="button"
+      onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       title={title}
       aria-label={title}
@@ -63,7 +64,14 @@ export default function MarkdownEditor({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef(value);
+  const selectionRef = useRef({ start: 0, end: 0 });
   valueRef.current = value;
+
+  const rememberSelection = () => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    selectionRef.current = { start: ta.selectionStart, end: ta.selectionEnd };
+  };
   const [tab, setTab] = useState<EditorTab>('write');
   const [uploading, setUploading] = useState(false);
 
@@ -85,12 +93,8 @@ export default function MarkdownEditor({
     (before: string, after: string = before, placeholder = 'texto') => {
       const current = valueRef.current;
       const ta = textareaRef.current;
-      if (!ta) {
-        setValue(`${current}${before}${placeholder}${after}`);
-        return;
-      }
-      const start = ta.selectionStart;
-      const end = ta.selectionEnd;
+      const start = ta?.selectionStart ?? selectionRef.current.start;
+      const end = ta?.selectionEnd ?? selectionRef.current.end;
       const selected = current.slice(start, end) || placeholder;
       const next = current.slice(0, start) + before + selected + after + current.slice(end);
       setValue(next, {
@@ -105,12 +109,12 @@ export default function MarkdownEditor({
     (prefix: string) => {
       const current = valueRef.current;
       const ta = textareaRef.current;
+      const start = ta?.selectionStart ?? selectionRef.current.start;
+      const end = ta?.selectionEnd ?? selectionRef.current.end;
       if (!ta) {
         setValue(`${prefix}${current}`);
         return;
       }
-      const start = ta.selectionStart;
-      const end = ta.selectionEnd;
       const lineStart = current.lastIndexOf('\n', start - 1) + 1;
       const lineEndIndex = current.indexOf('\n', end);
       const actualEnd = lineEndIndex === -1 ? current.length : lineEndIndex;
@@ -132,13 +136,8 @@ export default function MarkdownEditor({
   const insertAtCursor = useCallback(
     (text: string) => {
       const current = valueRef.current;
-      const ta = textareaRef.current;
-      if (!ta) {
-        setValue(current ? `${current}\n\n${text}` : text);
-        return;
-      }
-      const start = ta.selectionStart;
-      const end = ta.selectionEnd;
+      const start = textareaRef.current?.selectionStart ?? selectionRef.current.start;
+      const end = textareaRef.current?.selectionEnd ?? selectionRef.current.end;
       const next = current.slice(0, start) + text + current.slice(end);
       setValue(next, { start: start + text.length, end: start + text.length });
     },
@@ -252,6 +251,7 @@ export default function MarkdownEditor({
             id="blog-md-tab-write"
             aria-controls="blog-md-write"
             aria-selected={tab === 'write'}
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setTab('write')}
             className={`px-3 py-2.5 text-sm font-medium border-b-2 transition-colors ${
               tab === 'write'
@@ -267,6 +267,7 @@ export default function MarkdownEditor({
             id="blog-md-tab-preview"
             aria-controls="blog-md-preview"
             aria-selected={tab === 'preview'}
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setTab('preview')}
             className={`px-3 py-2.5 text-sm font-medium border-b-2 transition-colors ${
               tab === 'preview'
@@ -344,6 +345,9 @@ export default function MarkdownEditor({
             id="blog-content-markdown"
             value={value}
             onChange={(e) => onChange(e.target.value)}
+            onSelect={rememberSelection}
+            onKeyUp={rememberSelection}
+            onClick={rememberSelection}
             onPaste={handlePaste}
             onDrop={handleDrop}
             onDragOver={(e) => {
