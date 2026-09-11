@@ -10,6 +10,7 @@ import BlogEyebrow from '@/components/blog/BlogEyebrow';
 import BlogContent from '@/components/blog/BlogContent';
 import { ArticleSchema, BreadcrumbListSchema } from '@/components/seo/StructuredData';
 import { readingTimeMinutes } from '@/lib/blog/content';
+import { canonicalSiteUrl } from '@/lib/blog/siteUrl';
 
 interface CommentWithAuthor {
   id: string;
@@ -34,11 +35,7 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  'https://techcentre.co';
-const DEFAULT_OG_IMAGE = `${BASE_URL}/tech-center-logos/TechCentreLogoColor.png`;
+const BASE_URL = canonicalSiteUrl();
 
 export async function generateMetadata({
   params,
@@ -70,16 +67,9 @@ export async function generateMetadata({
     ? `${(author as { first_name?: string }).first_name || ''} ${(author as { last_name?: string }).last_name || ''}`.trim() || 'Tech Centre'
     : 'Tech Centre';
   const description = meta.excerpt || meta.title;
-  const rawCoverUrl =
-    meta.cover_image?.startsWith('http')
-      ? meta.cover_image
-      : meta.cover_image
-        ? `${BASE_URL}${meta.cover_image.startsWith('/') ? '' : '/'}${meta.cover_image}`
-        : null;
-  // WhatsApp requires og:image under ~600KB. Use our resize API for cover images.
-  const ogImage = rawCoverUrl
-    ? `${BASE_URL}/api/og-image?url=${encodeURIComponent(rawCoverUrl)}`
-    : DEFAULT_OG_IMAGE;
+  // Clean path (no /api, no query string). LinkedIn/Facebook honor robots.txt
+  // and skip Disallow: /api/, so the old /api/og-image URL never loaded.
+  const ogImage = `${BASE_URL}/blog/${slug}/opengraph-image`;
 
   const keywords = [
     ...meta.title.split(/\s+/).filter((w) => w.length > 3),
@@ -106,9 +96,11 @@ export async function generateMetadata({
       images: [
         {
           url: ogImage,
+          secureUrl: ogImage,
           width: 1200,
           height: 630,
           alt: meta.title,
+          type: 'image/png',
         },
       ],
       publishedTime: meta.published_at || meta.updated_at || undefined,

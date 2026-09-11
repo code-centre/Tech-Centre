@@ -7,20 +7,28 @@ const OG_HEIGHT = 630;
 const MAX_KB = 500; // WhatsApp limit ~600KB, we target 500KB to be safe
 
 export async function GET(request: NextRequest) {
-  const clientIp =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'anonymous';
-
-  const limit = rateLimit(`og-image:${clientIp}`, 30, 60_000);
-  if (!limit.allowed) {
-    return NextResponse.json(
-      { error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' },
-      {
-        status: 429,
-        headers: { 'Retry-After': String(limit.retryAfterSec) },
-      }
+  const userAgent = request.headers.get('user-agent') || '';
+  const isSocialBot =
+    /linkedinbot|facebookexternalhit|facebot|twitterbot|whatsapp|slackbot|telegrambot|discordbot|pinterest|iframely|embedly/i.test(
+      userAgent
     );
+
+  if (!isSocialBot) {
+    const clientIp =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'anonymous';
+
+    const limit = rateLimit(`og-image:${clientIp}`, 30, 60_000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(limit.retryAfterSec) },
+        }
+      );
+    }
   }
 
   const url = request.nextUrl.searchParams.get('url');
@@ -29,11 +37,21 @@ export async function GET(request: NextRequest) {
   }
 
   // Only allow URLs from our domain or Supabase storage
+  const supabaseHost = (() => {
+    try {
+      return process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+        : null;
+    } catch {
+      return null;
+    }
+  })();
   const allowedHosts = [
     'techcentre.co',
     'www.techcentre.co',
     'localhost',
     'jyrtclndzwhslfydadna.supabase.co',
+    ...(supabaseHost ? [supabaseHost] : []),
   ];
   let parsedUrl: URL;
   try {

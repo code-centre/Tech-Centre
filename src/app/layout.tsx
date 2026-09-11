@@ -9,6 +9,9 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { OrganizationSchema, EducationalOrganizationSchema } from "@/components/seo/StructuredData";
 import { CONTACT } from "@/components/landing/data";
 import { Toaster } from "sonner";
+import { canonicalSiteUrl } from "@/lib/blog/siteUrl";
+
+const SITE_URL = canonicalSiteUrl();
 
 export const metadata: Metadata = {
   title: {
@@ -55,7 +58,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co'),
+  metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: '/',
   },
@@ -68,10 +71,12 @@ export const metadata: Metadata = {
     description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
     images: [
       {
-        url: "/og-image",
+        url: `${SITE_URL}/og-image`,
+        secureUrl: `${SITE_URL}/og-image`,
+        type: "image/png",
         width: 1200,
         height: 630,
-        alt: "Tech Centre - Centro de Tecnología del Caribe. Rutas de tecnología e IA en Barranquilla.",
+        alt: "Tech Centre - Centro de Tecnología del Caribe. Rutas AI Developer y Datos en Barranquilla.",
       },
     ],
   },
@@ -79,7 +84,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Tech Centre - Centro de Tecnología del Caribe | Educación Tech de Vanguardia",
     description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
-    images: ["/og-image"],
+    images: [`${SITE_URL}/og-image`],
   },
   robots: {
     index: true,

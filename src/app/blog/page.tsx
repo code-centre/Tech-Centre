@@ -3,8 +3,10 @@ import BlogPostCard from '@/components/blog/BlogPostCard';
 import BlogEyebrow from '@/components/blog/BlogEyebrow';
 import { CollectionPageSchema } from '@/components/seo/StructuredData';
 import type { BlogPost } from '@/types/supabase';
+import { canonicalSiteUrl } from '@/lib/blog/siteUrl';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co';
+const BASE_URL = canonicalSiteUrl();
+const OG_IMAGE = `${BASE_URL}/blog/opengraph-image`;
 
 interface BlogPostWithMeta extends BlogPost {
   author: {
@@ -30,10 +32,12 @@ export const metadata = {
     description: 'Artículos y recursos sobre tecnología y formación profesional',
     images: [
       {
-        url: `${BASE_URL}/tech-center-logos/TechCentreLogoColor.png`,
+        url: OG_IMAGE,
+        secureUrl: OG_IMAGE,
+        type: 'image/png',
         width: 1200,
         height: 630,
-        alt: 'Tech Centre - Blog',
+        alt: 'Blog de Tech Centre',
       },
     ],
   },
@@ -41,7 +45,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Blog | Tech-Centre',
     description: 'Artículos y recursos sobre tecnología y formación profesional',
-    images: [`${BASE_URL}/tech-center-logos/TechCentreLogoColor.png`],
+    images: [OG_IMAGE],
   },
 };
 

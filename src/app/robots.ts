@@ -1,13 +1,14 @@
 import { MetadataRoute } from 'next'
+import { canonicalSiteUrl } from '@/lib/blog/siteUrl'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co'
-  
+  const baseUrl = canonicalSiteUrl()
+
   return {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: ['/', '/api/og-image', '/og-image', '/blog/'],
         disallow: [
           '/admin/',
           '/perfil/',
