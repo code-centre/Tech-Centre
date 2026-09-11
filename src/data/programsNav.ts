@@ -64,6 +64,6 @@ async function fetchProgramsNav(): Promise<ProgramsNav> {
 }
 
 export const getProgramsNav = unstable_cache(fetchProgramsNav, ['programs-nav'], {
-  revalidate: 3600,
+  revalidate: 60,
   tags: ['programs-nav'],
 })

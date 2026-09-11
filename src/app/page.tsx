@@ -16,10 +16,10 @@ import FaqHome from "@/components/landing/sections/FaqHome";
 import Visitanos from "@/components/landing/sections/Visitanos";
 import CtaFinal from "@/components/landing/sections/CtaFinal";
 import { getOfferingCohortsByCode } from "@/lib/cohorts/offering";
+import { getProgramsHub } from "@/data/programsHub";
+import CursosSueltos from "@/components/landing/sections/CursosSueltos";
 
-// Las cohortes abiertas se leen en vivo; revalidamos cada hora para reflejar
-// cambios sin necesidad de redeploy.
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: {
@@ -65,7 +65,10 @@ const FAQ_SCHEMA = {
 };
 
 export default async function Home() {
-  const offeringCohorts = await getOfferingCohortsByCode();
+  const [offeringCohorts, hub] = await Promise.all([
+    getOfferingCohortsByCode(),
+    getProgramsHub(),
+  ]);
 
   return (
     <div className="landing-v2 home-conversion">
@@ -92,6 +95,9 @@ export default async function Home() {
       <PruebaBar />
       <EsParaTi />
       <Rutas offering={offeringCohorts} />
+      {hub.loose.length > 0 ? (
+        <CursosSueltos programs={hub.loose} offering={offeringCohorts} />
+      ) : null}
       <ComoEntras />
       <PruebaSocial />
       <ComoAprendes />

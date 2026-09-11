@@ -217,7 +217,7 @@ export async function updateCohort(
   await syncCohortInstructor(client, cohortId, instructor_id);
 
   if (input.offering !== undefined) {
-    revalidateProgramsOffer();
+    revalidateProgramsOffer('route');
   }
 
   const resolvedInstructorId = await getCohortInstructorId(client, cohortId);

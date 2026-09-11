@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { refresh } from 'next/cache'
 import { revalidateProgramsOffer } from '@/lib/revalidate-programs-offer'
 
 export interface ActionResult {
@@ -41,6 +42,7 @@ export async function setCohortOffering(
     return { success: false, error: error.message }
   }
 
-  revalidateProgramsOffer()
+  revalidateProgramsOffer('action')
+  refresh()
   return { success: true }
 }
