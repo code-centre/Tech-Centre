@@ -4,6 +4,7 @@ import BlogEyebrow from '@/components/blog/BlogEyebrow';
 import { CollectionPageSchema } from '@/components/seo/StructuredData';
 import type { BlogPost } from '@/types/supabase';
 import { canonicalSiteUrl } from '@/lib/blog/siteUrl';
+import { fetchAuthorsById, fetchPublishedPosts } from '@/lib/blog/publicPosts';
 
 const BASE_URL = canonicalSiteUrl();
 const OG_IMAGE = `${BASE_URL}/blog/opengraph-image`;
@@ -52,25 +53,7 @@ export const metadata = {
 export default async function BlogPage() {
   const supabase = await createClient();
 
-  const { data: posts, error } = await supabase
-    .from('blog_posts')
-    .select(
-      `
-      id,
-      author_id,
-      title,
-      slug,
-      excerpt,
-      cover_image,
-      is_published,
-      published_at,
-      created_at,
-      updated_at,
-      author:profiles!author_id(first_name, last_name, profile_image)
-    `
-    )
-    .eq('is_published', true)
-    .order('published_at', { ascending: false });
+  const { data: posts, error } = await fetchPublishedPosts(supabase);
 
   if (error) {
     console.error('Error loading blog posts:', error);
@@ -81,6 +64,11 @@ export default async function BlogPage() {
     );
   }
 
+  const authors = await fetchAuthorsById(
+    supabase,
+    (posts || []).map((post) => post.author_id as string)
+  );
+
   const postsWithLikes: BlogPostWithMeta[] = await Promise.all(
     (posts || []).map(async (post: Record<string, unknown>) => {
       const { count } = await supabase
@@ -88,11 +76,9 @@ export default async function BlogPage() {
         .select('*', { count: 'exact', head: true })
         .eq('post_id', post.id as string);
 
-      const author = Array.isArray(post.author) ? post.author[0] : post.author;
-
       return {
         ...post,
-        author: author ?? null,
+        author: authors.get(post.author_id as string) ?? null,
         likes_count: count ?? 0,
       } as BlogPostWithMeta;
     })

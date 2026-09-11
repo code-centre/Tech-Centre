@@ -11,6 +11,11 @@ import BlogContent from '@/components/blog/BlogContent';
 import { ArticleSchema, BreadcrumbListSchema } from '@/components/seo/StructuredData';
 import { readingTimeMinutes } from '@/lib/blog/content';
 import { canonicalSiteUrl } from '@/lib/blog/siteUrl';
+import {
+  authorDisplayName,
+  fetchAuthorsById,
+  fetchPublishedPostBySlug,
+} from '@/lib/blog/publicPosts';
 
 interface CommentWithAuthor {
   id: string;
@@ -45,27 +50,20 @@ export async function generateMetadata({
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data } = await supabase
-    .from('blog_posts')
-    .select('title, excerpt, cover_image, published_at, updated_at, author:profiles!author_id(first_name, last_name)')
-    .eq('slug', slug)
-    .eq('is_published', true)
-    .single();
+  const { data } = await fetchPublishedPostBySlug(supabase, slug);
 
   if (!data) return { title: 'Artículo no encontrado' };
 
   const meta = data as {
+    author_id: string;
     title: string;
     excerpt: string | null;
     cover_image: string | null;
     published_at: string | null;
     updated_at: string | null;
-    author: unknown;
   };
-  const author = Array.isArray(meta.author) ? meta.author[0] : meta.author;
-  const authorName = author
-    ? `${(author as { first_name?: string }).first_name || ''} ${(author as { last_name?: string }).last_name || ''}`.trim() || 'Tech Centre'
-    : 'Tech Centre';
+  const authors = await fetchAuthorsById(supabase, [meta.author_id]);
+  const authorName = authorDisplayName(authors.get(meta.author_id));
   const description = meta.excerpt || meta.title;
   // Clean path (no /api, no query string). LinkedIn/Facebook honor robots.txt
   // and skip Disallow: /api/, so the old /api/og-image URL never loaded.
@@ -125,26 +123,7 @@ export default async function BlogPostPage({
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: postData, error } = await supabase
-    .from('blog_posts')
-    .select(
-      `
-      id,
-      author_id,
-      title,
-      slug,
-      excerpt,
-      content,
-      cover_image,
-      published_at,
-      updated_at,
-      created_at,
-      author:profiles!author_id(first_name, last_name, profile_image)
-    `
-    )
-    .eq('slug', slug)
-    .eq('is_published', true)
-    .single();
+  const { data: postData, error } = await fetchPublishedPostBySlug(supabase, slug);
 
   if (error || !postData) {
     notFound();
@@ -161,7 +140,6 @@ export default async function BlogPostPage({
     published_at: string | null;
     updated_at: string | null;
     created_at: string;
-    author: unknown;
   };
 
   const [{ count: likesCount }, { data: { user } }] = await Promise.all([
@@ -185,30 +163,24 @@ export default async function BlogPostPage({
 
   const { data: commentsData } = await supabase
     .from('blog_comments')
-    .select(
-      `
-      id,
-      post_id,
-      user_id,
-      content,
-      created_at,
-      author:profiles!user_id(first_name, last_name, profile_image)
-    `
-    )
+    .select('id, post_id, user_id, content, created_at')
     .eq('post_id', post.id)
     .order('created_at', { ascending: true });
+
+  const authors = await fetchAuthorsById(supabase, [
+    post.author_id,
+    ...(commentsData || []).map((c) => c.user_id as string),
+  ]);
 
   const comments: CommentWithAuthor[] = (commentsData || []).map(
     (c: Record<string, unknown>) => ({
       ...c,
-      author: Array.isArray(c.author) ? c.author[0] ?? null : c.author ?? null,
+      author: authors.get(c.user_id as string) ?? null,
     })
   ) as CommentWithAuthor[];
 
-  const author = Array.isArray(post.author) ? post.author[0] : post.author;
-  const authorName = author
-    ? `${(author as { first_name?: string }).first_name || ''} ${(author as { last_name?: string }).last_name || ''}`.trim() || 'Anónimo'
-    : 'Anónimo';
+  const author = authors.get(post.author_id) ?? null;
+  const authorName = authorDisplayName(author, 'Anónimo');
 
   const articleImage = post.cover_image?.startsWith('http')
     ? post.cover_image
@@ -255,7 +227,7 @@ export default async function BlogPostPage({
           <div className="flex items-center gap-2">
             {author?.profile_image ? (
               <Image
-                src={(author as { profile_image: string }).profile_image}
+                src={author.profile_image}
                 alt={authorName}
                 width={40}
                 height={40}
