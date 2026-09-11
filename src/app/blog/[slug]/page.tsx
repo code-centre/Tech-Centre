@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock, ArrowRight } from 'lucide-react';
 import CommentsSection from '@/components/blog/CommentsSection';
 import LikeButton from '@/components/blog/LikeButton';
+import ShareButtons from '@/components/blog/ShareButtons';
 import BlogEyebrow from '@/components/blog/BlogEyebrow';
 import BlogContent from '@/components/blog/BlogContent';
 import { ArticleSchema, BreadcrumbListSchema } from '@/components/seo/StructuredData';
@@ -307,13 +308,18 @@ export default async function BlogPostPage({
         )}
       </div>
 
-      <div className="mb-10">
+      <footer className="mb-10 space-y-6 border-t border-border-color pt-8">
         <LikeButton
           postId={post.id}
           initialCount={likesCount ?? 0}
           initialLiked={initialLiked}
         />
-      </div>
+        <ShareButtons
+          title={post.title}
+          url={`${BASE_URL}/blog/${slug}`}
+          excerpt={post.excerpt}
+        />
+      </footer>
 
       <aside className="mb-12 overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-8 text-center">
         <h2 className="font-highlight text-2xl font-extrabold text-text-primary sm:text-3xl">
