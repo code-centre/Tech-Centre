@@ -413,7 +413,7 @@ export default function MarkdownEditor({
             </div>
             <div>
               <dt className="inline font-mono text-text-primary">`código`</dt>
-              <dd className="inline"> · ```bloque```</dd>
+              <dd className="inline"> · ```ts bloque```</dd>
             </div>
             <div>
               <dt className="inline font-mono text-text-primary">&gt; cita</dt>
