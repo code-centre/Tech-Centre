@@ -43,11 +43,14 @@ const LANGUAGE_LABELS: Record<string, string> = {
   plaintext: 'Texto',
 };
 
-export function languageFromClassName(className?: string): string | undefined {
+export function languageFromClassName(
+  className?: string | string[] | null,
+): string | undefined {
   if (!className) return undefined;
-  const token = className
-    .split(/\s+/)
-    .find((part) => part.startsWith('language-') || part.startsWith('lang-'));
+  const tokens = Array.isArray(className) ? className : className.split(/\s+/);
+  const token = tokens.find(
+    (part) => part.startsWith('language-') || part.startsWith('lang-'),
+  );
   if (!token) return undefined;
   const id = token.replace(/^(language|lang)-/, '').trim();
   return id || undefined;

@@ -3,7 +3,7 @@ import { languageFromClassName, languageLabel } from '@/lib/blog/codeLanguage';
 
 function classNameFromChildren(children: ReactNode): string | undefined {
   const child = Children.toArray(children).find((node) => isValidElement(node));
-  if (!isValidElement<{ className?: string }>(child)) return undefined;
+  if (!isValidElement<{ className?: string | string[] }>(child)) return undefined;
   return child.props.className;
 }
 

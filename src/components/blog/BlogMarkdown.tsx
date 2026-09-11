@@ -45,7 +45,13 @@ export default function BlogMarkdown({ content }: BlogMarkdownProps) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight]}
+      rehypePlugins={[
+        rehypeRaw,
+        rehypeSanitize,
+        // After sanitize: fence `language-*` classes survive, then hljs spans
+        // are added without being stripped by the schema.
+        rehypeHighlight,
+      ]}
       components={markdownComponents}
     >
       {content}
