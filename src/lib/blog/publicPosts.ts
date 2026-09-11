@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createServiceRoleClient } from '@/lib/supabase/service-role';
 
 export type BlogAuthor = {
   first_name: string;
@@ -35,6 +36,31 @@ export async function fetchPublishedPostBySlug(
     .maybeSingle();
 }
 
+type AuthorRow = {
+  user_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  profile_image: string | null;
+};
+
+function toAuthorMap(rows: AuthorRow[] | null | undefined): Map<string, BlogAuthor> {
+  const map = new Map<string, BlogAuthor>();
+  for (const row of rows || []) {
+    if (!row.user_id) continue;
+    map.set(row.user_id, {
+      first_name: row.first_name || '',
+      last_name: row.last_name || '',
+      profile_image: row.profile_image ?? null,
+    });
+  }
+  return map;
+}
+
+/**
+ * Author names are public for published posts. Anon cannot read `profiles`
+ * (RLS calls is_instructor()). Prefer the SECURITY DEFINER RPC; fall back
+ * to a display-only service-role read so prod works before the migration.
+ */
 export async function fetchAuthorsById(
   supabase: SupabaseClient,
   authorIds: string[]
@@ -42,23 +68,36 @@ export async function fetchAuthorsById(
   const unique = [...new Set(authorIds.filter(Boolean))];
   if (unique.length === 0) return new Map();
 
-  const { data, error } = await supabase
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    const admin = createServiceRoleClient();
+    const { data, error } = await admin
+      .from('profiles')
+      .select('user_id, first_name, last_name, profile_image')
+      .in('user_id', unique);
+    if (!error && data) return toAuthorMap(data as AuthorRow[]);
+  }
+
+  const viaRpc = await (
+    supabase as unknown as {
+      rpc: (
+        fn: 'blog_authors_public',
+        args: { ids: string[] }
+      ) => Promise<{ data: AuthorRow[] | null; error: { message: string } | null }>;
+    }
+  ).rpc('blog_authors_public', { ids: unique });
+  if (!viaRpc.error && viaRpc.data) {
+    return toAuthorMap(viaRpc.data);
+  }
+
+  const viaProfiles = await supabase
     .from('profiles')
     .select('user_id, first_name, last_name, profile_image')
     .in('user_id', unique);
+  if (!viaProfiles.error && viaProfiles.data && viaProfiles.data.length > 0) {
+    return toAuthorMap(viaProfiles.data as AuthorRow[]);
+  }
 
-  if (error || !data) return new Map();
-
-  return new Map(
-    data.map((row) => [
-      row.user_id as string,
-      {
-        first_name: (row.first_name as string) || '',
-        last_name: (row.last_name as string) || '',
-        profile_image: (row.profile_image as string | null) ?? null,
-      },
-    ])
-  );
+  return new Map();
 }
 
 export function authorDisplayName(
