@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import JoditEditor from 'jodit-react';
+import { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { Upload, X } from 'lucide-react';
 import { useSupabaseClient } from '@/lib/supabase';
 import { toast } from 'sonner';
+import MarkdownEditor from '@/components/blog/MarkdownEditor';
+import { looksLikeHtml } from '@/lib/blog/content';
+import { toEditorMarkdown } from '@/lib/blog/htmlToMarkdown';
 
 function slugify(text: string): string {
   return text
@@ -44,13 +46,15 @@ export default function BlogEditor({
   isSubmitting = false,
 }: BlogEditorProps) {
   const supabase = useSupabaseClient();
-  const editorRef = useRef(null);
 
   const [title, setTitle] = useState(initialValues.title ?? '');
   const [slug, setSlug] = useState(initialValues.slug ?? '');
   const [excerpt, setExcerpt] = useState(initialValues.excerpt ?? '');
   const [coverImage, setCoverImage] = useState(initialValues.cover_image ?? '');
-  const [content, setContent] = useState(initialValues.content ?? '');
+  const [content, setContent] = useState(() => toEditorMarkdown(initialValues.content ?? ''));
+  const [convertedFromHtml, setConvertedFromHtml] = useState(() =>
+    looksLikeHtml(initialValues.content ?? '')
+  );
   const [isPublished, setIsPublished] = useState(initialValues.is_published ?? false);
   const [uploadingCover, setUploadingCover] = useState(false);
 
@@ -59,7 +63,10 @@ export default function BlogEditor({
     if (initialValues.slug !== undefined) setSlug(initialValues.slug);
     if (initialValues.excerpt !== undefined) setExcerpt(initialValues.excerpt);
     if (initialValues.cover_image !== undefined) setCoverImage(initialValues.cover_image);
-    if (initialValues.content !== undefined) setContent(initialValues.content);
+    if (initialValues.content !== undefined) {
+      setConvertedFromHtml(looksLikeHtml(initialValues.content));
+      setContent(toEditorMarkdown(initialValues.content));
+    }
     if (initialValues.is_published !== undefined) setIsPublished(initialValues.is_published);
   }, [initialValues]);
 
@@ -76,10 +83,6 @@ export default function BlogEditor({
 
   const handleSlugChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSlug(e.target.value);
-  }, []);
-
-  const handleContentChange = useCallback((newContent: string) => {
-    setContent(newContent);
   }, []);
 
   const uploadCoverImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,63 +128,6 @@ export default function BlogEditor({
   };
 
   const removeCoverImage = () => setCoverImage('');
-
-  const editorConfig = useMemo(
-    () => ({
-      toolbarButtonSize: 'middle' as const,
-      toolbarAdaptive: false,
-      showCharsCounter: false,
-      showWordsCounter: false,
-      showXPathInStatusbar: false,
-      buttons: [
-        'bold',
-        'italic',
-        'underline',
-        'strikethrough',
-        'ul',
-        'ol',
-        'outdent',
-        'indent',
-        'align',
-        'link',
-        'image',
-        'paragraph',
-        'heading',
-        'source',
-      ],
-      removeButtons: [
-        'font',
-        'fontsize',
-        'brush',
-        'copyformat',
-        'table',
-        'video',
-        'file',
-        'hr',
-        'eraser',
-        'fullsize',
-        'print',
-        'about',
-      ],
-      uploader: {
-        url: '/api/blog/upload-image',
-        imagesExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        headers: {},
-        format: 'json',
-        method: 'POST',
-        prepareData: (formData: FormData) => {
-          const file = formData.get('files[0]') as File;
-          if (file) {
-            const newFormData = new FormData();
-            newFormData.append('file', file);
-            return newFormData;
-          }
-          return formData;
-        },
-      },
-    }),
-    []
-  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -301,17 +247,14 @@ export default function BlogEditor({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-text-primary mb-2">
+        <label htmlFor="blog-content-markdown" className="block text-sm font-medium text-text-primary mb-2">
           Contenido
         </label>
-        <div className="text-text-primary">
-          <JoditEditor
-            ref={editorRef}
-            value={content}
-            config={editorConfig}
-            onChange={handleContentChange}
-          />
-        </div>
+        <MarkdownEditor
+          value={content}
+          onChange={setContent}
+          convertedFromHtml={convertedFromHtml}
+        />
       </div>
 
       <div className="flex items-center gap-4">

@@ -659,6 +659,7 @@ section[id], div[id] {
   color: var(--text-primary);
   margin: 0 0 1.15rem;
 }
+.blog-prose h1,
 .blog-prose h2 {
   font-family: var(--font-parabole), 'Space Grotesk', sans-serif;
   font-size: 1.7rem;
@@ -746,6 +747,104 @@ section[id], div[id] {
   background: none;
   border: 0;
   padding: 0;
+  display: block;
+  overflow-wrap: normal;
+  white-space: pre;
+  color: var(--text-primary);
+}
+.blog-prose .blog-code-block {
+  margin: 1.5rem 0;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+.blog-prose .blog-code-block figcaption {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem 0.9rem 0;
+}
+.blog-prose .blog-code-lang {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.blog-prose .blog-code-block pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.blog-prose .blog-code-block.has-language pre {
+  padding-top: 0.55rem;
+}
+.blog-prose .hljs-comment,
+.blog-prose .hljs-quote {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.blog-prose .hljs-keyword,
+.blog-prose .hljs-selector-tag,
+.blog-prose .hljs-literal,
+.blog-prose .hljs-meta {
+  color: var(--highlight);
+}
+.blog-prose .hljs-string,
+.blog-prose .hljs-doctag,
+.blog-prose .hljs-regexp,
+.blog-prose .hljs-addition {
+  color: var(--primary);
+}
+.blog-prose .hljs-number,
+.blog-prose .hljs-attr,
+.blog-prose .hljs-attribute,
+.blog-prose .hljs-symbol {
+  color: #b56a12;
+}
+.blog-prose .hljs-title,
+.blog-prose .hljs-title.function_,
+.blog-prose .hljs-section {
+  color: var(--brand-cyan);
+  font-weight: 600;
+}
+.blog-prose .hljs-built_in,
+.blog-prose .hljs-type,
+.blog-prose .hljs-class .hljs-title,
+.blog-prose .hljs-title.class_ {
+  color: color-mix(in srgb, var(--highlight) 70%, var(--primary));
+}
+.blog-prose .hljs-variable,
+.blog-prose .hljs-template-variable,
+.blog-prose .hljs-params,
+.blog-prose .hljs-property {
+  color: var(--text-primary);
+}
+.blog-prose .hljs-punctuation,
+.blog-prose .hljs-operator {
+  color: var(--text-muted);
+}
+.blog-prose .hljs-deletion {
+  color: #c4433b;
+}
+[data-theme="dark"] .blog-prose .hljs-string,
+[data-theme="dark"] .blog-prose .hljs-doctag,
+[data-theme="dark"] .blog-prose .hljs-regexp,
+[data-theme="dark"] .blog-prose .hljs-addition {
+  color: var(--secondary);
+}
+[data-theme="dark"] .blog-prose .hljs-number,
+[data-theme="dark"] .blog-prose .hljs-attr,
+[data-theme="dark"] .blog-prose .hljs-attribute,
+[data-theme="dark"] .blog-prose .hljs-symbol {
+  color: #e6b067;
+}
+[data-theme="dark"] .blog-prose .hljs-title,
+[data-theme="dark"] .blog-prose .hljs-title.function_,
+[data-theme="dark"] .blog-prose .hljs-section {
+  color: #7fd4dc;
 }
 .blog-prose img {
   border-radius: 0.75rem;
@@ -757,6 +856,53 @@ section[id], div[id] {
   border: 0;
   border-top: 1px solid var(--border-color);
   margin: 2rem 0;
+}
+.blog-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+.blog-prose th,
+.blog-prose td {
+  border: 1px solid var(--border-color);
+  padding: 0.55rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.blog-prose th {
+  background: var(--bg-secondary);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.blog-prose tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--bg-secondary) 55%, transparent);
+}
+.blog-prose ul.contains-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+.blog-prose li.task-list-item {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.blog-prose li.task-list-item input[type='checkbox'] {
+  margin-top: 0.45em;
+  accent-color: var(--primary);
+}
+.blog-prose del {
+  color: var(--text-muted);
+}
+.blog-prose em,
+.blog-prose i {
+  font-style: italic;
+}
+.blog-prose li > ul,
+.blog-prose li > ol {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
 }
 
 .program-description-content {

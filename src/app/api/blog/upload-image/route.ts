@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
     } = supabase.storage.from(BUCKET).getPublicUrl(data.path);
 
     return NextResponse.json({
+      url: publicUrl,
       files: [publicUrl],
       path: '',
       baseurl: '',

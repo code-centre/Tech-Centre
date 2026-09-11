@@ -2,12 +2,14 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import parse, { Element } from 'html-react-parser';
 import { ArrowLeft, Calendar, Clock, ArrowRight } from 'lucide-react';
 import CommentsSection from '@/components/blog/CommentsSection';
 import LikeButton from '@/components/blog/LikeButton';
+import ShareButtons from '@/components/blog/ShareButtons';
 import BlogEyebrow from '@/components/blog/BlogEyebrow';
+import BlogContent from '@/components/blog/BlogContent';
 import { ArticleSchema, BreadcrumbListSchema } from '@/components/seo/StructuredData';
+import { readingTimeMinutes } from '@/lib/blog/content';
 
 interface CommentWithAuthor {
   id: string;
@@ -30,37 +32,6 @@ function formatDate(dateStr: string | null): string {
     month: 'long',
     day: 'numeric',
   });
-}
-
-function readingTimeMinutes(html: string | null): number {
-  if (!html) return 1;
-  const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  const words = text ? text.split(' ').length : 0;
-  return Math.max(1, Math.round(words / 200));
-}
-
-// Quita de los estilos en línea las propiedades de color y tipografía que
-// rompen el tema (vienen pegadas desde editores como Google Docs). Conserva
-// el resto (text-align, etc.).
-const STRIPPED_STYLE_PROPS = new Set([
-  'color',
-  'background-color',
-  'background',
-  'font-family',
-  'font-size',
-  'line-height',
-]);
-
-function sanitizeInlineStyle(style: string): string | undefined {
-  const kept = style
-    .split(';')
-    .map((decl) => decl.trim())
-    .filter(Boolean)
-    .filter((decl) => {
-      const prop = decl.split(':')[0]?.trim().toLowerCase();
-      return prop ? !STRIPPED_STYLE_PROPS.has(prop) : false;
-    });
-  return kept.length ? kept.join(';') : undefined;
 }
 
 const BASE_URL =
@@ -331,47 +302,24 @@ export default async function BlogPostPage({
 
       <div className="mb-8">
         {post.content ? (
-          <div className="blog-prose blog-content overflow-x-hidden">
-            {parse(post.content, {
-              replace: (domNode) => {
-                if (domNode instanceof Element && domNode.attribs) {
-                  if (domNode.name === 'img') {
-                    const { width: _w, height: _h, style: _s, ...rest } = domNode.attribs;
-                    return (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        {...rest}
-                        className="max-w-full h-auto rounded-lg my-4 block"
-                        style={{ maxWidth: '100%', height: 'auto' }}
-                        loading="lazy"
-                      />
-                    );
-                  }
-                  // Saneamos estilos en línea (p. ej. pegados desde Google Docs:
-                  // color:#000000, font-family:Arial) para que mande el tema y se
-                  // lea bien en modo claro y oscuro.
-                  if (domNode.attribs.style) {
-                    const cleaned = sanitizeInlineStyle(domNode.attribs.style);
-                    if (cleaned) domNode.attribs.style = cleaned;
-                    else delete domNode.attribs.style;
-                  }
-                }
-                return undefined;
-              },
-            })}
-          </div>
+          <BlogContent content={post.content} />
         ) : (
           <p className="text-text-muted">Este artículo no tiene contenido.</p>
         )}
       </div>
 
-      <div className="mb-10">
+      <footer className="mb-10 space-y-6 border-t border-border-color pt-8">
         <LikeButton
           postId={post.id}
           initialCount={likesCount ?? 0}
           initialLiked={initialLiked}
         />
-      </div>
+        <ShareButtons
+          title={post.title}
+          url={`${BASE_URL}/blog/${slug}`}
+          excerpt={post.excerpt}
+        />
+      </footer>
 
       <aside className="mb-12 overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-8 text-center">
         <h2 className="font-highlight text-2xl font-extrabold text-text-primary sm:text-3xl">
