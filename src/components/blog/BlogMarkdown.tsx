@@ -3,9 +3,12 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
+import rehypeHighlight from 'rehype-highlight';
+import BlogCodeBlock from '@/components/blog/BlogCodeBlock';
 
 const markdownComponents: Components = {
   h1: ({ children }) => <h2>{children}</h2>,
+  pre: ({ children }) => <BlogCodeBlock>{children}</BlogCodeBlock>,
   img: ({ src, alt }) => {
     if (!src || typeof src !== 'string') return null;
     return (
@@ -42,7 +45,7 @@ export default function BlogMarkdown({ content }: BlogMarkdownProps) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeRaw, rehypeSanitize]}
+      rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight]}
       components={markdownComponents}
     >
       {content}
