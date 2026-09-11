@@ -1,4 +1,5 @@
 import type { ServiceClient } from '@/lib/services/cohorts-service';
+import { syncModulesFromSyllabus } from '@/lib/programs/sync-syllabus-modules';
 import { generateSlug } from '@/../utils/generateSlug';
 import type {
   AudienceFit,
@@ -199,6 +200,8 @@ function buildProgramRecord(input: ProgramFieldsInput): Record<string, unknown> 
 export async function createProgram(client: ServiceClient, input: CreateProgramInput) {
   const code = await generateUniqueProgramCode(client, input.name);
   const now = new Date().toISOString();
+  const syllabusToSync = input.syllabus;
+  const createInput: CreateProgramInput = { ...input, syllabus: undefined };
 
   const { data, error } = await (client as any)
     .from('programs')
@@ -211,7 +214,7 @@ export async function createProgram(client: ServiceClient, input: CreateProgramI
       default_price: 0,
       syllabus: {},
       image: null,
-      ...buildProgramRecord(input),
+      ...buildProgramRecord(createInput),
       name: input.name.trim(),
       code,
       created_at: now,
@@ -221,6 +224,12 @@ export async function createProgram(client: ServiceClient, input: CreateProgramI
     .single();
 
   if (error) throw new Error(error.message);
+
+  if (syllabusToSync !== undefined) {
+    await syncModulesFromSyllabus(client, data.id as number, syllabusToSync);
+    return getProgram(client, data.id as number);
+  }
+
   return data;
 }
 
@@ -229,7 +238,9 @@ export async function updateProgram(
   programId: number,
   input: UpdateProgramInput
 ) {
-  const record = buildProgramRecord(input);
+  const syllabusToSync = input.syllabus;
+  const updateInput: UpdateProgramInput = { ...input, syllabus: undefined };
+  const record = buildProgramRecord(updateInput);
 
   if (input.name !== undefined) {
     const name = input.name.trim();
@@ -242,20 +253,33 @@ export async function updateProgram(
     record.code = code;
   }
 
-  if (Object.keys(record).length === 0) {
+  if (Object.keys(record).length === 0 && syllabusToSync === undefined) {
     throw new Error('No fields to update');
   }
 
-  record.updated_at = new Date().toISOString();
+  let data: unknown;
 
-  const { data, error } = await (client as any)
-    .from('programs')
-    .update(record)
-    .eq('id', programId)
-    .select('*')
-    .single();
+  if (Object.keys(record).length > 0) {
+    record.updated_at = new Date().toISOString();
 
-  if (error) throw new Error(error.message);
+    const { data: updated, error } = await (client as any)
+      .from('programs')
+      .update(record)
+      .eq('id', programId)
+      .select('*')
+      .single();
+
+    if (error) throw new Error(error.message);
+    data = updated;
+  } else {
+    data = await getProgram(client, programId);
+  }
+
+  if (syllabusToSync !== undefined) {
+    await syncModulesFromSyllabus(client, programId, syllabusToSync);
+    return getProgram(client, programId);
+  }
+
   return data;
 }
 
