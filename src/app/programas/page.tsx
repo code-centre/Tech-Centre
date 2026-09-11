@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 
 // La oferta cambia cuando se abren o cierran cohortes: se revalida cada hora
 // para reflejarlo sin necesidad de redesplegar.
-export const revalidate = 3600;
+export const revalidate = 60;
 
 /** Hub de programas: las rutas visibles y los cursos que no pertenecen a ninguna. */
 export default async function ProgramasPage() {

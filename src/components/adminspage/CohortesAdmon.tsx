@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { AlertTriangle, Plus, X, Save, Loader2, Search, CalendarDays, CalendarPlus, Clock, PlusCircle, Trash2, Pencil, ChevronRight, ChevronDown } from 'lucide-react';
 import { useSupabaseClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { setCohortOffering } from '@/app/admin/cohortes/actions';
 import {
   parseDateBogota,
   formatDateRange,
@@ -92,14 +93,12 @@ export default function CohortesAdmon() {
     try {
       setTogglingOffering(cohortId);
       setError(null);
-      const { error } = await supabase
-        .from('cohorts')
-        .update({ offering: !currentStatus })
-        .eq('id', cohortId);
+      const nextOffering = !currentStatus;
+      const result = await setCohortOffering(cohortId, nextOffering);
 
-      if (error) throw error;
+      if (!result.success) throw new Error(result.error ?? 'Error al cambiar la visibilidad');
       setCohorts(cohorts.map(c =>
-        c.id === cohortId ? { ...c, offering: !currentStatus } : c
+        c.id === cohortId ? { ...c, offering: nextOffering } : c
       ));
       router.refresh();
     } catch (err: unknown) {

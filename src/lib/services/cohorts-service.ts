@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
+import { revalidateProgramsOffer } from '@/lib/revalidate-programs-offer';
 
 export type ServiceClient = SupabaseClient<Database>;
 
@@ -214,6 +215,10 @@ export async function updateCohort(
   }
 
   await syncCohortInstructor(client, cohortId, instructor_id);
+
+  if (input.offering !== undefined) {
+    revalidateProgramsOffer();
+  }
 
   const resolvedInstructorId = await getCohortInstructorId(client, cohortId);
   return { ...data, instructor_id: resolvedInstructorId };

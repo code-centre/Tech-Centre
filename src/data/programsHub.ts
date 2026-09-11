@@ -156,7 +156,13 @@ export async function getProgramsHub(client?: SupabaseClient): Promise<ProgramsH
     })
   }
 
-  const inSomeRoute = new Set(resolvedLinks.map((link) => link.program_id))
+  // Solo cuentan rutas visibles: un programa ligado a una ruta oculta va a sueltos.
+  const visibleRouteIds = new Set(routeRows.map((route) => route.id))
+  const inSomeRoute = new Set(
+    resolvedLinks
+      .filter((link) => visibleRouteIds.has(link.route_id))
+      .map((link) => link.program_id)
+  )
 
   const routes: HubRoute[] = routeRows.map((route) => ({
     id: route.id,

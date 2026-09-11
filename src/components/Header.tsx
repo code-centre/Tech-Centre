@@ -34,8 +34,27 @@ function programaHref(programa: NavProgram): string {
   return `/programas-academicos/${programa.code}`
 }
 
+function looseSubtitle(programa: NavProgram): string | null {
+  if (programa.hours) return `${programa.hours} horas`
+  if (programa.subtitle) return programa.subtitle
+  return null
+}
+
+/** Rutas vivas si hay; respaldo estático si no. Los sueltos en vivo nunca se pierden. */
+function resolveProgramsMenu(nav?: ProgramsNav): ProgramsNav {
+  const liveLoose = nav?.loose ?? []
+  const liveRoutes = nav?.routes ?? []
+
+  if (liveRoutes.length > 0) {
+    return { routes: liveRoutes, loose: liveLoose }
+  }
+
+  return { routes: NAV_RESPALDO.routes, loose: liveLoose }
+}
+
 export default function Header({ nav }: { nav?: ProgramsNav }) {
-  const menu = nav && nav.routes.length > 0 ? nav : NAV_RESPALDO
+  const menu = resolveProgramsMenu(nav)
+  const hasLoose = menu.loose.length > 0
   const { user, loading: loadingUser } = useUser()
   const supabase = useSupabaseClient()
   const router = useRouter()
@@ -106,8 +125,12 @@ export default function Header({ nav }: { nav?: ProgramsNav }) {
                 </span>
                 <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
               </Link>
-              <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 mt-2 w-[38rem] bg-[#0D1A16] rounded-xl shadow-xl border border-[#1f3a30] p-3 transition-all duration-200 z-50">
-                <div className="grid grid-cols-2 gap-x-3">
+              <div
+                className={`invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 mt-2 bg-[#0D1A16] rounded-xl shadow-xl border border-[#1f3a30] p-3 transition-all duration-200 z-50 ${
+                  hasLoose ? 'w-[54rem]' : 'w-[38rem]'
+                }`}
+              >
+                <div className={`grid gap-x-3 ${hasLoose ? 'grid-cols-3' : 'grid-cols-2'}`}>
                   {menu.routes.map((ruta, indiceRuta) => (
                     <div key={ruta.slug}>
                       <p
@@ -136,32 +159,35 @@ export default function Header({ nav }: { nav?: ProgramsNav }) {
                       </ul>
                     </div>
                   ))}
-                </div>
 
-                {menu.loose.length > 0 && (
-                  <div className="mt-2 border-t border-[#1f3a30] pt-2">
-                    <p className="px-3 pb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/45">
-                      Cursos sueltos
-                    </p>
-                    <ul className="grid grid-cols-2 gap-x-3">
-                      {menu.loose.map((programa) => (
-                        <li key={programa.code}>
-                          <Link
-                            href={programaHref(programa)}
-                            className="block rounded-lg px-3 py-2 text-white transition-colors hover:bg-[#10241E] hover:text-[#3FE0A0]"
-                          >
-                            <span className="block text-sm font-semibold leading-snug">
-                              {programa.name}
-                            </span>
-                            {programa.hours ? (
-                              <span className="block text-xs text-white/50">{programa.hours} horas</span>
-                            ) : null}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  {hasLoose && (
+                    <div>
+                      <p className="px-3 pb-2 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/45">
+                        Cursos sueltos
+                      </p>
+                      <ul>
+                        {menu.loose.map((programa) => {
+                          const subtitle = looseSubtitle(programa)
+                          return (
+                            <li key={programa.code}>
+                              <Link
+                                href={programaHref(programa)}
+                                className="block rounded-lg px-3 py-2 text-white transition-colors hover:bg-[#10241E] hover:text-[#3FE0A0]"
+                              >
+                                <span className="block text-sm font-semibold leading-snug">
+                                  {programa.name}
+                                </span>
+                                {subtitle ? (
+                                  <span className="block text-xs text-white/50">{subtitle}</span>
+                                ) : null}
+                              </Link>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -420,21 +446,27 @@ export default function Header({ nav }: { nav?: ProgramsNav }) {
                     </div>
                   ))}
 
-                  {menu.loose.length > 0 && (
+                  {hasLoose && (
                     <div className="mt-1">
                       <p className="py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/45">
                         Cursos sueltos
                       </p>
-                      {menu.loose.map((programa) => (
-                        <Link
-                          key={programa.code}
-                          href={programaHref(programa)}
-                          className="block py-2 pl-3 text-sm text-white/90 hover:text-[#3FE0A0]"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {programa.name}
-                        </Link>
-                      ))}
+                      {menu.loose.map((programa) => {
+                        const subtitle = looseSubtitle(programa)
+                        return (
+                          <Link
+                            key={programa.code}
+                            href={programaHref(programa)}
+                            className="block py-2 pl-3 text-sm text-white/90 hover:text-[#3FE0A0]"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <span className="block">{programa.name}</span>
+                            {subtitle ? (
+                              <span className="block text-xs text-white/45">{subtitle}</span>
+                            ) : null}
+                          </Link>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
