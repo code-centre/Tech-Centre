@@ -555,47 +555,45 @@ export default function CohortStudentsPage() {
                     {statusBadge.label}
                   </span>
                 )}
-                <span
-                  className="inline-flex h-6 items-center rounded-full px-2.5 text-xs font-semibold"
+                <button
+                  type="button"
+                  onClick={() => void handleToggleOffering()}
+                  disabled={togglingOffering}
+                  aria-pressed={!!cohort?.offering}
+                  title={
+                    cohort?.offering
+                      ? 'Clic para ocultar esta cohorte del sitio'
+                      : 'Clic para mostrar esta cohorte en el sitio'
+                  }
+                  className="inline-flex h-6 cursor-pointer items-center gap-1 rounded-full border px-2.5 text-xs font-semibold transition-colors hover:brightness-95 disabled:cursor-wait disabled:opacity-70"
                   style={
                     cohort?.offering
                       ? {
                           background: 'color-mix(in srgb, var(--pay-serie-porcobrar) 14%, transparent)',
                           color: 'var(--pay-serie-porcobrar)',
+                          borderColor: 'color-mix(in srgb, var(--pay-serie-porcobrar) 35%, transparent)',
                         }
                       : {
                           background: 'color-mix(in srgb, var(--pay-neutro) 14%, transparent)',
                           color: 'var(--pay-neutro)',
+                          borderColor: 'color-mix(in srgb, var(--pay-neutro) 35%, transparent)',
                         }
                   }
                 >
+                  {togglingOffering ? (
+                    <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+                  ) : cohort?.offering ? (
+                    <Eye className="h-3 w-3" aria-hidden="true" />
+                  ) : (
+                    <EyeOff className="h-3 w-3" aria-hidden="true" />
+                  )}
                   {cohort?.offering ? 'Visible en el sitio' : 'Oculta del sitio'}
-                </span>
+                </button>
               </div>
               {paceLabel && <span className="text-[13.5px] text-text-muted">{paceLabel}.</span>}
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2.5">
-            <button
-              type="button"
-              onClick={() => void handleToggleOffering()}
-              disabled={togglingOffering}
-              aria-pressed={!!cohort?.offering}
-              className={`inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-sm font-semibold transition-colors disabled:opacity-60 ${
-                cohort?.offering
-                  ? 'border-[color-mix(in_srgb,var(--pay-serie-porcobrar)_40%,transparent)] bg-[color-mix(in_srgb,var(--pay-serie-porcobrar)_12%,transparent)] text-[var(--pay-serie-porcobrar)] hover:bg-[color-mix(in_srgb,var(--pay-serie-porcobrar)_18%,transparent)]'
-                  : 'border-border-color bg-bg-secondary text-text-primary hover:border-secondary/50'
-              }`}
-            >
-              {togglingOffering ? (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              ) : cohort?.offering ? (
-                <EyeOff className="h-4 w-4" aria-hidden="true" />
-              ) : (
-                <Eye className="h-4 w-4" aria-hidden="true" />
-              )}
-              {cohort?.offering ? 'Ocultar del sitio' : 'Mostrar en el sitio'}
-            </button>
             <button
               type="button"
               onClick={() => setIsEditModalOpen(true)}
