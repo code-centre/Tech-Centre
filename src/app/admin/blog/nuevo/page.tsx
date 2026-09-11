@@ -75,7 +75,7 @@ export default function NuevoBlogPage() {
               Nuevo artículo
             </h1>
             <p className="text-text-muted text-sm mt-2">
-              Crea un nuevo artículo para el blog
+              Escribe el artículo en Markdown. La vista previa muestra cómo se verá publicado.
             </p>
           </div>
           <Link

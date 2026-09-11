@@ -659,6 +659,7 @@ section[id], div[id] {
   color: var(--text-primary);
   margin: 0 0 1.15rem;
 }
+.blog-prose h1,
 .blog-prose h2 {
   font-family: var(--font-parabole), 'Space Grotesk', sans-serif;
   font-size: 1.7rem;
@@ -746,6 +747,9 @@ section[id], div[id] {
   background: none;
   border: 0;
   padding: 0;
+  display: block;
+  overflow-wrap: normal;
+  white-space: pre;
 }
 .blog-prose img {
   border-radius: 0.75rem;
@@ -757,6 +761,53 @@ section[id], div[id] {
   border: 0;
   border-top: 1px solid var(--border-color);
   margin: 2rem 0;
+}
+.blog-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+.blog-prose th,
+.blog-prose td {
+  border: 1px solid var(--border-color);
+  padding: 0.55rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.blog-prose th {
+  background: var(--bg-secondary);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.blog-prose tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--bg-secondary) 55%, transparent);
+}
+.blog-prose ul.contains-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+.blog-prose li.task-list-item {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.blog-prose li.task-list-item input[type='checkbox'] {
+  margin-top: 0.45em;
+  accent-color: var(--primary);
+}
+.blog-prose del {
+  color: var(--text-muted);
+}
+.blog-prose em,
+.blog-prose i {
+  font-style: italic;
+}
+.blog-prose li > ul,
+.blog-prose li > ol {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
 }
 
 .program-description-content {
