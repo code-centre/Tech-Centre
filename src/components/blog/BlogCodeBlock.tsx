@@ -1,7 +1,9 @@
 import { Children, isValidElement, type ReactNode } from 'react';
 import { languageFromClassName, languageLabel } from '@/lib/blog/codeLanguage';
 
-function classNameFromChildren(children: ReactNode): string | undefined {
+function classNameFromChildren(
+  children: ReactNode,
+): string | string[] | undefined {
   const child = Children.toArray(children).find((node) => isValidElement(node));
   if (!isValidElement<{ className?: string | string[] }>(child)) return undefined;
   return child.props.className;
