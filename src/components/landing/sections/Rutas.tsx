@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, ChevronRight, Shuffle } from "lucide-react";
+import { ArrowRight, Shuffle } from "lucide-react";
 import SparkEyebrow from "../SparkEyebrow";
 import Reveal from "../Reveal";
 import {
@@ -10,9 +11,12 @@ import {
   RUTAS_MODULOS_NOTE,
   moduloHref,
   type Ruta,
+  type RutaModule,
 } from "../rutas/data";
 import { COMO_FUNCIONA } from "../rutas/data";
-import { checkoutHref, type OfferingCohort } from "@/lib/cohorts/checkout";
+import type { OfferingCohort } from "@/lib/cohorts/checkout";
+import type { ProgramCatalogItem } from "@/data/programsHub";
+import { PROGRAM_FALLBACK_IMAGE } from "@/components/programas/ProgramOfferCards";
 
 /** Mapa de code de programa (= slug del módulo) -> cohorte abierta. */
 export type OfferingCohortMap = Record<string, OfferingCohort>;
@@ -36,14 +40,90 @@ const TONE = {
   },
 } as const;
 
+function moduleBlurb(mod: RutaModule, catalog?: ProgramCatalogItem): string {
+  return catalog?.blurb ?? catalog?.subtitle ?? mod.outcome;
+}
+
+function moduleProgramHref(mod: RutaModule, cohort?: OfferingCohort): string {
+  const base = moduloHref(mod.slug);
+  return cohort ? `${base}?cohortId=${cohort.cohortId}` : base;
+}
+
+function LandingModuleCard({
+  mod,
+  index,
+  tone,
+  catalog,
+  cohort,
+}: {
+  mod: RutaModule;
+  index: number;
+  tone: (typeof TONE)[keyof typeof TONE];
+  catalog?: ProgramCatalogItem;
+  cohort?: OfferingCohort;
+}) {
+  const title = catalog?.name ?? mod.title;
+  const blurb = moduleBlurb(mod, catalog);
+  const image = catalog?.image || PROGRAM_FALLBACK_IMAGE;
+  const meta = [catalog?.hours ? `${catalog.hours} h` : null, catalog?.level ?? mod.levelLabel]
+    .filter(Boolean)
+    .join(" · ");
+
+  return (
+    <Link
+      href={moduleProgramHref(mod, cohort)}
+      className="group flex overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[rgba(2,132,199,0.35)] hover:shadow-[0_0_0_1px_rgba(2,132,199,0.12),0_16px_40px_-16px_rgba(2,132,199,0.2)]"
+      aria-label={`Ver más sobre el módulo ${index + 1}: ${title}`}
+    >
+      <div className="relative size-28 shrink-0 overflow-hidden bg-slate-100 sm:size-36 md:size-44">
+        <Image
+          src={image}
+          alt=""
+          fill
+          sizes="176px"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-4 sm:p-5">
+        <div className="flex flex-col gap-1.5">
+          <span
+            className="lv2-mono w-fit text-[11px] !normal-case !tracking-normal"
+            style={{ color: tone.color }}
+          >
+            Módulo {index + 1}
+          </span>
+          <h4 className="text-[16px] font-bold leading-snug text-[var(--paper)] transition-colors group-hover:text-[var(--cyan)] sm:text-[17px]">
+            {title}
+          </h4>
+          <p className="line-clamp-2 text-sm leading-relaxed text-[var(--soft)] sm:line-clamp-3">{blurb}</p>
+          {meta ? (
+            <p className="lv2-mono !normal-case !tracking-normal text-xs text-[var(--mute)]">{meta}</p>
+          ) : null}
+        </div>
+
+        <span className="mt-auto inline-flex items-center gap-1.5 pt-1 text-sm font-semibold text-[var(--mint-cta)] transition-colors group-hover:text-[var(--mint-dim)]">
+          Ver más
+          <ArrowRight
+            className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+            aria-hidden="true"
+          />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
 function RutaCard({
   ruta,
   delay,
   offering,
+  moduleCatalog = {},
 }: {
   ruta: Ruta;
   delay: number;
   offering: OfferingCohortMap;
+  moduleCatalog?: Record<string, ProgramCatalogItem>;
 }) {
   const reduce = useReducedMotion();
   const tone = TONE[ruta.tone];
@@ -82,6 +162,20 @@ function RutaCard({
         ))}
       </ul>
 
+      <ol className="flex flex-col gap-3">
+        {ruta.modules.map((mod, i) => (
+          <li key={mod.slug}>
+            <LandingModuleCard
+              mod={mod}
+              index={i}
+              tone={tone}
+              catalog={moduleCatalog[mod.slug]}
+              cohort={offering[mod.slug]}
+            />
+          </li>
+        ))}
+      </ol>
+
       <div
         className="rounded-xl border p-5"
         style={{ borderColor: tone.softBorder, background: tone.soft }}
@@ -93,73 +187,6 @@ function RutaCard({
           {cumbre.outcome.replace(/^Terminas con /, "").replace(/^./, (c) => c.toUpperCase())}
         </p>
       </div>
-
-      <ol className="flex flex-1 flex-col gap-3">
-        {ruta.modules.map((mod, i) => {
-          const isCumbre = i === ruta.modules.length - 1;
-          // El slug del módulo coincide con el `code` del programa, así que la
-          // cohorte abierta se busca directamente por slug.
-          const cohort = offering[mod.slug];
-          return (
-            <li key={mod.slug}>
-              <div
-                className="flex flex-col gap-4 rounded-xl border p-4 transition-all duration-300 md:p-5"
-                style={{
-                  borderColor: isCumbre ? tone.border : "var(--line)",
-                  background: isCumbre ? tone.soft : "rgba(15, 23, 42, 0.04)",
-                }}
-              >
-                <div className="flex gap-4">
-                  <span
-                    className="lv2-display shrink-0 text-xl"
-                    style={{ color: isCumbre ? tone.color : tone.dim }}
-                    aria-hidden="true"
-                  >
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-[var(--paper)]">{mod.title}</p>
-                    <p className="lv2-mono mt-1 !normal-case !tracking-normal !text-[var(--mute)]">
-                      {mod.stack}
-                    </p>
-                    <p
-                      className="mt-2 text-sm font-semibold"
-                      style={{ color: tone.color }}
-                    >
-                      {mod.outcome}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-[var(--line)] pt-3.5">
-                  {cohort ? (
-                    <Link
-                      href={checkoutHref(cohort.cohortId)}
-                      className="lv2-btn px-4 py-2 text-sm"
-                      aria-label={`Inscríbete al módulo ${i + 1}: ${mod.title}`}
-                    >
-                      Inscríbete
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </Link>
-                  ) : null}
-                  <Link
-                    href={moduloHref(mod.slug)}
-                    className="group/mod lv2-mono inline-flex items-center gap-1 !normal-case !tracking-normal"
-                    style={{ color: tone.color }}
-                    aria-label={`Ver el módulo ${i + 1}: ${mod.title}`}
-                  >
-                    Ver el módulo
-                    <ChevronRight
-                      className="h-4 w-4 transition-transform duration-300 group-hover/mod:translate-x-1"
-                      aria-hidden="true"
-                    />
-                  </Link>
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
 
       <footer className="flex flex-col gap-3">
         <p className="lv2-mono !normal-case !tracking-normal !text-[var(--mute)]">
@@ -173,8 +200,10 @@ function RutaCard({
 /** Las dos rutas, en versión de decisión: qué construyes, con qué, con qué sales. */
 export default function Rutas({
   offering = {},
+  moduleCatalog = {},
 }: {
   offering?: OfferingCohortMap;
+  moduleCatalog?: Record<string, ProgramCatalogItem>;
 }) {
   const cruce = COMO_FUNCIONA.callouts[1];
 
@@ -208,6 +237,7 @@ export default function Rutas({
               ruta={ruta}
               delay={i * 0.08}
               offering={offering}
+              moduleCatalog={moduleCatalog}
             />
           ))}
         </div>

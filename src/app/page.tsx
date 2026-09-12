@@ -15,9 +15,12 @@ import DespuesDeLaCumbre from "@/components/landing/sections/DespuesDeLaCumbre";
 import FaqHome from "@/components/landing/sections/FaqHome";
 import Visitanos from "@/components/landing/sections/Visitanos";
 import CtaFinal from "@/components/landing/sections/CtaFinal";
+import { RUTAS } from "@/components/landing/rutas/data";
 import { getOfferingCohortsByCode } from "@/lib/cohorts/offering";
-import { getProgramsHub } from "@/data/programsHub";
+import { getProgramCatalogByCodes, getProgramsHub } from "@/data/programsHub";
 import CursosSueltos from "@/components/landing/sections/CursosSueltos";
+
+const ROUTE_MODULE_CODES = RUTAS.flatMap((ruta) => ruta.modules.map((mod) => mod.slug));
 
 export const revalidate = 60;
 
@@ -65,9 +68,10 @@ const FAQ_SCHEMA = {
 };
 
 export default async function Home() {
-  const [offeringCohorts, hub] = await Promise.all([
+  const [offeringCohorts, hub, moduleCatalog] = await Promise.all([
     getOfferingCohortsByCode(),
     getProgramsHub(),
+    getProgramCatalogByCodes(ROUTE_MODULE_CODES),
   ]);
 
   return (
@@ -94,10 +98,8 @@ export default async function Home() {
       <Hero />
       <PruebaBar />
       <EsParaTi />
-      <Rutas offering={offeringCohorts} />
-      {hub.loose.length > 0 ? (
-        <CursosSueltos programs={hub.loose} offering={offeringCohorts} />
-      ) : null}
+      <Rutas offering={offeringCohorts} moduleCatalog={moduleCatalog} />
+      {hub.loose.length > 0 ? <CursosSueltos programs={hub.loose} /> : null}
       <ComoEntras />
       <PruebaSocial />
       <ComoAprendes />

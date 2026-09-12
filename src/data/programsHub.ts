@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { isActiveOfferingCohort } from '@/lib/cohorts/lifecycle'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 /**
@@ -13,14 +14,29 @@ export interface HubProgram {
   code: string
   name: string
   subtitle: string | null
+  /** Subtítulo o extracto de la descripción del programa. */
+  blurb: string | null
   hours: number | null
   level: string | null
   price: number | null
   currency: string
   /** Portada del programa (`programs.image`). */
   image: string | null
-  /** Inicio de la cohorte abierta más próxima, en ISO. */
+  /** Cohorte activa visible en el sitio (la más próxima por fecha). */
+  cohortId: number | null
+  /** Inicio de la cohorte activa más próxima, en ISO. */
   startDate: string | null
+}
+
+/** Datos de catálogo sin depender de cohorte activa (p. ej. módulos en la landing). */
+export interface ProgramCatalogItem {
+  code: string
+  name: string
+  subtitle: string | null
+  blurb: string | null
+  image: string | null
+  hours: number | null
+  level: string | null
 }
 
 export interface HubRoute {
@@ -62,6 +78,7 @@ interface ProgramRow {
   code: string | null
   name: string | null
   subtitle: string | null
+  description: string | null
   total_hours: number | null
   difficulty: string | null
   default_price: number | null
@@ -71,6 +88,33 @@ interface ProgramRow {
 }
 
 const EMPTY: ProgramsHub = { routes: [], loose: [], openCount: 0, nextStart: null }
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+/** Subtítulo del programa; si falta, un extracto corto de la descripción. */
+export function programBlurb(subtitle: string | null | undefined, description: string | null | undefined): string | null {
+  const sub = subtitle?.trim()
+  if (sub) return sub
+  if (!description?.trim()) return null
+  const plain = stripHtml(description)
+  if (!plain) return null
+  return plain.length > 180 ? `${plain.slice(0, 177).trim()}…` : plain
+}
+
+function rowToCatalog(row: ProgramRow): ProgramCatalogItem | null {
+  if (!row.code || !row.name) return null
+  return {
+    code: row.code,
+    name: row.name,
+    subtitle: row.subtitle,
+    blurb: programBlurb(row.subtitle, row.description),
+    image: row.image ?? null,
+    hours: row.total_hours,
+    level: row.difficulty,
+  }
+}
 
 /**
  * @param client Cliente alterno. El header lo llama con uno anónimo y sin
@@ -88,7 +132,7 @@ export async function getProgramsHub(client?: SupabaseClient): Promise<ProgramsH
     supabase.from('route_programs').select('route_id, program_id, position'),
     supabase
       .from('cohorts')
-      .select('program_id, start_date')
+      .select('id, program_id, start_date, end_date')
       .eq('offering', true)
       .order('start_date', { ascending: true }),
   ])
@@ -99,11 +143,17 @@ export async function getProgramsHub(client?: SupabaseClient): Promise<ProgramsH
     return EMPTY
   }
 
-  // program_id -> inicio de su cohorte abierta más próxima
-  const openByProgram = new Map<number, string | null>()
-  for (const row of (cohortsResult.data ?? []) as { program_id: number; start_date: string | null }[]) {
+  // program_id -> cohorte activa visible más próxima
+  const openByProgram = new Map<number, { cohortId: number; startDate: string | null }>()
+  for (const row of (cohortsResult.data ?? []) as {
+    id: number
+    program_id: number
+    start_date: string | null
+    end_date: string | null
+  }[]) {
+    if (!isActiveOfferingCohort(row.start_date, row.end_date)) continue
     if (!openByProgram.has(row.program_id)) {
-      openByProgram.set(row.program_id, row.start_date)
+      openByProgram.set(row.program_id, { cohortId: row.id, startDate: row.start_date })
     }
   }
 
@@ -111,7 +161,7 @@ export async function getProgramsHub(client?: SupabaseClient): Promise<ProgramsH
 
   const { data: programRows, error: programsError } = await supabase
     .from('programs')
-    .select('id, code, name, subtitle, total_hours, difficulty, default_price, discount, currency, image')
+    .select('id, code, name, subtitle, description, total_hours, difficulty, default_price, discount, currency, image')
     .in('id', Array.from(openByProgram.keys()))
 
   if (programsError) {
@@ -126,12 +176,14 @@ export async function getProgramsHub(client?: SupabaseClient): Promise<ProgramsH
       code: row.code,
       name: row.name,
       subtitle: row.subtitle,
+      blurb: programBlurb(row.subtitle, row.description),
       hours: row.total_hours,
       level: row.difficulty,
       price: row.discount || row.default_price,
       currency: row.currency || 'COP',
       image: row.image ?? null,
-      startDate: openByProgram.get(row.id) ?? null,
+      cohortId: openByProgram.get(row.id)?.cohortId ?? null,
+      startDate: openByProgram.get(row.id)?.startDate ?? null,
     })
   }
 
@@ -189,7 +241,10 @@ export async function getProgramsHub(client?: SupabaseClient): Promise<ProgramsH
     .map(([, program]) => program)
     .sort((a, b) => (b.hours ?? 0) - (a.hours ?? 0))
 
-  const starts = Array.from(openByProgram.values()).filter((value): value is string => Boolean(value)).sort()
+  const starts = Array.from(openByProgram.values())
+    .map((entry) => entry.startDate)
+    .filter((value): value is string => Boolean(value))
+    .sort()
 
   return {
     // Una ruta sin programas abiertos no se muestra.
@@ -198,4 +253,30 @@ export async function getProgramsHub(client?: SupabaseClient): Promise<ProgramsH
     openCount: programsById.size,
     nextStart: starts[0] ?? null,
   }
+}
+
+/** Portadas y descripciones por `code`, sin exigir cohorte activa. */
+export async function getProgramCatalogByCodes(
+  codes: string[],
+  client?: SupabaseClient
+): Promise<Record<string, ProgramCatalogItem>> {
+  if (codes.length === 0) return {}
+
+  const supabase = client ?? (await createClient())
+  const { data, error } = await supabase
+    .from('programs')
+    .select('code, name, subtitle, description, total_hours, difficulty, image')
+    .in('code', codes)
+
+  if (error) {
+    console.error('Error al cargar catálogo de programas:', error)
+    return {}
+  }
+
+  const map: Record<string, ProgramCatalogItem> = {}
+  for (const row of (data ?? []) as unknown as ProgramRow[]) {
+    const item = rowToCatalog(row)
+    if (item) map[item.code] = item
+  }
+  return map
 }

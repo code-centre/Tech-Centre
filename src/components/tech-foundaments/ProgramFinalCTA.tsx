@@ -12,8 +12,6 @@ interface Props {
 }
 
 export default function ProgramFinalCTA({ programData, cohortId, seatsLeft }: Props) {
-  const hasSeats = typeof seatsLeft === 'number' && seatsLeft > 0
-
   return (
     <section
       className="relative overflow-hidden rounded-2xl border border-secondary/40 bg-(--card-diplomado-bg) shadow-xl"
@@ -44,18 +42,7 @@ export default function ProgramFinalCTA({ programData, cohortId, seatsLeft }: Pr
             Si llegaste hasta aquí, ya sabes si es para ti.
           </h2>
           <p className="text-lg card-text-muted text-pretty">
-            {hasSeats ? (
-              <>
-                Y si todavía no, el diagnóstico son 20 minutos: revisamos tu nivel y te decimos de
-                frente si entrar en esta cohorte — quedan {seatsLeft}{' '}
-                {seatsLeft === 1 ? 'cupo' : 'cupos'} — o esperar la siguiente.
-              </>
-            ) : (
-              <>
-                Y si todavía no, el diagnóstico son 20 minutos: revisamos tu nivel y te decimos de
-                frente si entrar ahora o esperar la siguiente cohorte.
-              </>
-            )}
+            Reserva tu lugar con $100.000 y asegura tu cupo antes de que se llenen los grupos.
           </p>
         </div>
 
@@ -63,13 +50,10 @@ export default function ProgramFinalCTA({ programData, cohortId, seatsLeft }: Pr
           cohortId={cohortId}
           programCode={programData.code || programData.slug}
           source={`programa-${programData.code || programData.slug}-cierre`}
+          seatsLeft={seatsLeft}
           size="lg"
           layout="inline"
         />
-
-        <p className="text-sm card-text-muted">
-          Diagnóstico gratuito de 20 min · Sin compromiso · Te respondemos el mismo día
-        </p>
       </div>
     </section>
   )

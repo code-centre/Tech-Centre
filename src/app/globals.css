@@ -1281,6 +1281,7 @@ html:not([data-theme="dark"]) .faq-section [aria-label="Editar"]:hover {
   --panel-2: #10241E;
   --line: rgba(255, 255, 255, 0.09);
   --mint: #3FE0A0;
+  --mint-cta: #3FE0A0;
   --mint-dim: #2BBF85;
   --cyan: #74BAFF;
   --paper: #F1F6F3;
@@ -1340,14 +1341,14 @@ html:not([data-theme="dark"]) .faq-section [aria-label="Editar"]:hover {
   padding: 0.9rem 1.6rem;
   border-radius: 999px;
   font-weight: 700;
-  background: var(--mint);
+  background: var(--mint-cta);
   color: var(--ink);
   border: 1px solid transparent;
   transition: transform 0.2s ease, box-shadow 0.3s ease, filter 0.2s ease;
 }
 .landing-v2 .lv2-btn:hover {
   filter: brightness(1.06);
-  box-shadow: 0 0 0 1px rgba(63, 224, 160, 0.4), 0 8px 30px rgba(63, 224, 160, 0.25);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mint-cta) 40%, transparent), 0 8px 30px color-mix(in srgb, var(--mint-cta) 25%, transparent);
   transform: scale(1.02);
 }
 .landing-v2 .lv2-btn:active { transform: scale(0.98); }

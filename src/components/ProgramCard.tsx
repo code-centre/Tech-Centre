@@ -55,13 +55,13 @@ export function ProgramCard({
     >
       <div className="bg-bg-card rounded-xl shadow-lg overflow-hidden transition-all duration-300 h-full flex flex-col relative border border-border-color hover:border-secondary/50 hover:shadow-xl hover:shadow-secondary/20 hover:-translate-y-1 active:scale-[0.98]">
         {/* Image Section - Limpia sin elementos encima */}
-        <div className="relative h-48 overflow-hidden bg-bg-secondary">
+        <div className="relative aspect-square w-full overflow-hidden bg-bg-secondary">
           <Image
-            src={image || '/placeholder-course.jpg'} 
-            width={500}
-            height={300}
+            src={image || '/placeholder-course.jpg'}
             alt={title || 'Curso'}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             priority={false}
           />
           {/* Gradient Overlay sutil */}

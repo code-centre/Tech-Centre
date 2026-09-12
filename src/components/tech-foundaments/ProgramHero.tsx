@@ -9,6 +9,7 @@ import ProgramCTAButtons from './ProgramCTAButtons'
 interface Props {
   programData: Program
   cohortId?: number | null
+  seatsLeft?: number | null
   stack?: string[]
   /** Modalidad de la cohorte seleccionada, para la píldora de la derecha. */
   modality?: string
@@ -26,7 +27,7 @@ const KIND_LABEL: Record<string, string> = {
   certificacion: 'Certificación',
 }
 
-export function ProgramHero({ programData, cohortId, stack = [], modality, aside }: Props) {
+export function ProgramHero({ programData, cohortId, seatsLeft, stack = [], modality, aside }: Props) {
   const kind = programData.kind ? (KIND_LABEL[programData.kind.toLowerCase()] ?? programData.kind) : null
 
   // Píldoras de contexto: solo las que tienen dato.
@@ -133,6 +134,7 @@ export function ProgramHero({ programData, cohortId, stack = [], modality, aside
             cohortId={cohortId}
             programCode={programData.code || programData.slug}
             source={`programa-${programData.code || programData.slug}-hero`}
+            seatsLeft={seatsLeft}
             size="lg"
             layout="inline"
             className="pt-1"

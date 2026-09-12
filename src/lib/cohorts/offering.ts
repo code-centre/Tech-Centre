@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { isActiveOfferingCohort } from '@/lib/cohorts/lifecycle';
 import type { OfferingCohort } from './checkout';
 
 export type { OfferingCohort } from './checkout';
@@ -8,6 +9,7 @@ interface CohortWithProgramRow {
   id: number;
   slug: string | null;
   start_date: string | null;
+  end_date: string | null;
   offering: boolean;
   programs: { code: string | null } | { code: string | null }[] | null;
 }
@@ -34,7 +36,7 @@ export async function getOfferingCohortsByCode(): Promise<Record<string, Offerin
 
     const { data, error } = await supabase
       .from('cohorts')
-      .select('id, slug, start_date, offering, programs(code)')
+      .select('id, slug, start_date, end_date, offering, programs(code)')
       .eq('offering', true)
       .order('start_date', { ascending: true });
 
@@ -44,6 +46,7 @@ export async function getOfferingCohortsByCode(): Promise<Record<string, Offerin
     const map: Record<string, OfferingCohort> = {};
 
     for (const row of rows) {
+      if (!isActiveOfferingCohort(row.start_date, row.end_date)) continue;
       const program = Array.isArray(row.programs) ? row.programs[0] : row.programs;
       const code = program?.code;
       if (!code) continue;

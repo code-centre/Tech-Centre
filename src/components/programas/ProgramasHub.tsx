@@ -4,8 +4,12 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, SearchX } from 'lucide-react'
-import { formatPrice } from '../../../utils/formatCurrency'
-import type { HubProgram, ProgramsHub } from '@/data/programsHub'
+import type { ProgramsHub } from '@/data/programsHub'
+import {
+  formatOfferStart,
+  LooseProgramCard,
+  RouteModuleCard,
+} from '@/components/programas/ProgramOfferCards'
 
 interface Props {
   hub: ProgramsHub
@@ -20,8 +24,6 @@ const ROUTE_FALLBACK_PHOTOS = [
 
 const HERO_PHOTO = '/community/sede-codigo-abierto.webp'
 const CTA_PHOTO = '/community/manos-teclado.webp'
-const PROGRAM_FALLBACK_IMAGE = '/community/sesion-presencial.webp'
-
 const DIAGNOSTICO_URL = '/agendar-diagnostico'
 
 const COMO_FUNCIONA = [
@@ -31,18 +33,6 @@ const COMO_FUNCIONA = [
   { valor: '1 proyecto', detalle: 'real al cierre, presentado en demo day.' },
 ]
 
-/** "2026-09-28" -> "28 de septiembre". El año solo si no es el actual. */
-function formatStart(iso: string | null): string | null {
-  if (!iso) return null
-  const date = new Date(`${iso}T12:00:00`)
-  if (isNaN(date.getTime())) return null
-  const day = date.getDate()
-  const month = date.toLocaleDateString('es-CO', { month: 'long' })
-  const year = date.getFullYear()
-  const currentYear = new Date().getFullYear()
-  return year === currentYear ? `${day} de ${month}` : `${day} de ${month} de ${year}`
-}
-
 function MonoLabel({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <span
@@ -50,117 +40,6 @@ function MonoLabel({ children, className = '' }: { children: React.ReactNode; cl
     >
       {children}
     </span>
-  )
-}
-
-function OpenChip({ start }: { start: string | null }) {
-  return (
-    <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[rgba(63,224,160,0.3)] bg-[rgba(63,224,160,0.10)] px-2.5 py-[3px] text-[11px] text-[var(--mint)]">
-      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--mint)]" aria-hidden />
-      {start ? `Abierta · ${start}` : 'Cohorte abierta'}
-    </span>
-  )
-}
-
-function LooseProgramCard({ program }: { program: HubProgram }) {
-  return (
-    <article className="flex min-h-[280px] flex-col overflow-hidden rounded-[14px] border border-[var(--line)] bg-[var(--panel)]">
-      <div className="relative aspect-[16/10] w-full shrink-0 bg-[#0D1A16]">
-        <Image
-          src={program.image || PROGRAM_FALLBACK_IMAGE}
-          alt={program.name}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          className="object-cover"
-        />
-        <div
-          className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(7,16,13,0.72)_100%)]"
-          aria-hidden
-        />
-        <div className="absolute bottom-3 left-3">
-          <OpenChip start={formatStart(program.startDate)} />
-        </div>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="flex flex-col gap-2">
-          <MonoLabel className="text-[9.5px] tracking-[0.12em] text-[var(--mute)]">
-            {['Programa', program.hours ? `${program.hours} h` : null].filter(Boolean).join(' · ')}
-          </MonoLabel>
-          <h3 className="text-[16px] font-semibold leading-tight text-[var(--paper)] lg:text-[17.5px]">
-            {program.name}
-          </h3>
-          {program.subtitle ? (
-            <p className="line-clamp-2 text-[13px] leading-[1.5] text-[var(--soft)]">{program.subtitle}</p>
-          ) : null}
-        </div>
-        <div className="mt-auto flex items-center justify-between gap-2.5 border-t border-[var(--line)] pt-3.5">
-          <span className="text-[16px] font-bold text-[var(--paper)]">
-            {program.price ? formatPrice(program.price, program.currency) : 'Consultar'}
-          </span>
-          <Link
-            href={`/programas-academicos/${program.code}`}
-            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[var(--mint)] px-3.5 py-2 text-[13px] font-bold text-[var(--ink)] transition-transform hover:scale-[1.02]"
-          >
-            Ver
-            <ArrowRight className="h-[15px] w-[15px]" aria-hidden />
-          </Link>
-        </div>
-      </div>
-    </article>
-  )
-}
-
-function RouteProgramCard({
-  program,
-  position,
-  tone,
-}: {
-  program: HubProgram
-  position: number
-  tone: string
-}) {
-  return (
-    <article className="flex min-h-[336px] flex-col gap-[15px] rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-6">
-      <div className="flex items-start justify-between gap-3">
-        <span
-          className="font-[family-name:var(--mono)] rounded-lg bg-white/[0.04] px-2.5 py-1 text-[11px] tracking-[0.1em]"
-          style={{ color: tone }}
-        >
-          {String(position).padStart(2, '0')}
-        </span>
-        <OpenChip start={formatStart(program.startDate)} />
-      </div>
-
-      <div className="flex flex-col gap-2.5">
-        <h3 className="text-[21px] font-semibold leading-tight tracking-[-0.012em] text-[var(--paper)]">
-          {program.name}
-        </h3>
-        {program.subtitle && (
-          <p className="text-[14.5px] leading-[1.55] text-[var(--soft)] text-pretty">{program.subtitle}</p>
-        )}
-      </div>
-
-      <p className="font-[family-name:var(--mono)] text-[10.5px] tracking-[0.06em] text-[var(--mute)]">
-        {[program.hours ? `${program.hours} horas` : null, program.level].filter(Boolean).join(' · ')}
-      </p>
-
-      <div className="mt-auto flex flex-col gap-3.5 border-t border-[var(--line)] pt-4">
-        <div className="flex items-baseline justify-between gap-2.5">
-          <span className="text-[19px] font-bold text-[var(--paper)]">
-            {program.price ? formatPrice(program.price, program.currency) : 'Consultar'}
-          </span>
-          <MonoLabel className="text-[var(--mute)] tracking-[0.08em]">Reservas con $100.000</MonoLabel>
-        </div>
-        <Link
-          href={`/programas-academicos/${program.code}`}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--mint)] px-[18px] py-[11px] text-[14.5px] font-bold text-[var(--ink)] transition-transform hover:scale-[1.02]"
-        >
-          Ver el programa
-          <ArrowRight className="h-4 w-4" aria-hidden />
-        </Link>
-      </div>
-    </article>
   )
 }
 
@@ -181,7 +60,7 @@ export default function ProgramasHub({ hub }: Props) {
   const visibleCount =
     visibleRoutes.reduce((total, route) => total + route.programs.length, 0) + visibleLoose.length
 
-  const nextStart = formatStart(hub.nextStart)
+  const nextStart = formatOfferStart(hub.nextStart)
   const cohortLine = nextStart
     ? `Cohorte abierta · inicia ${nextStart} · 12 cupos por grupo`
     : 'Cohortes abiertas · 12 cupos por grupo'
@@ -296,7 +175,7 @@ export default function ProgramasHub({ hub }: Props) {
           { key: 'Nivel', value: route.level },
           { key: 'Modalidad', value: route.modality },
           { key: 'Duración', value: route.duration },
-          { key: 'Próximo inicio', value: formatStart(route.programs[0]?.startDate ?? null) },
+          { key: 'Próximo inicio', value: formatOfferStart(route.programs[0]?.startDate ?? null) },
         ].filter((item) => Boolean(item.value))
 
         return (
@@ -352,16 +231,13 @@ export default function ProgramasHub({ hub }: Props) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <ol className="flex flex-col gap-4">
               {route.programs.map((program, index) => (
-                <RouteProgramCard
-                  key={program.code}
-                  program={program}
-                  position={index + 1}
-                  tone={tone}
-                />
+                <li key={program.code}>
+                  <RouteModuleCard program={program} position={index + 1} tone={tone} />
+                </li>
               ))}
-            </div>
+            </ol>
           </section>
         )
       })}

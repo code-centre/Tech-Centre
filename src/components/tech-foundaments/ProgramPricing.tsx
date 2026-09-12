@@ -8,11 +8,12 @@ import ProgramPriceBlock from './ProgramPriceBlock'
 interface Props {
   programData: Program
   cohortId?: number | null
+  seatsLeft?: number | null
   maximumPayments?: number | null
   includes: string[]
 }
 
-export default function ProgramPricing({ programData, cohortId, maximumPayments, includes }: Props) {
+export default function ProgramPricing({ programData, cohortId, seatsLeft, maximumPayments, includes }: Props) {
   const hasPrice = Boolean(programData.discount || programData.default_price)
   if (!hasPrice && includes.length === 0) return null
 
@@ -70,6 +71,7 @@ export default function ProgramPricing({ programData, cohortId, maximumPayments,
               cohortId={cohortId}
               programCode={programData.code || programData.slug}
               source={`programa-${programData.code || programData.slug}-inversion`}
+              seatsLeft={seatsLeft}
             />
           </div>
         )}

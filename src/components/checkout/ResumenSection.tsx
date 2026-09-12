@@ -8,6 +8,10 @@ import QuickSignUp from './QuickSignUp'
 import PaymentMethodDropdown from './PaymentMethodDropdown'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
 import { calculatePrice, calculateInstallments } from '@/lib/pricing/price-calculator'
+import {
+  RESERVATION_DEPOSIT_COP,
+  reservationBalanceAmount,
+} from '@/lib/pricing/reservation'
 import { incrementCouponUses } from '@/lib/discounts/coupon-service'
 import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service'
 import type { Program } from '@/types/programs'
@@ -27,6 +31,7 @@ interface Props {
   matriculaAdded: boolean
   matriculaAmount?: number
   couponCode?: string | null
+  checkoutMode?: 'standard' | 'reservation'
   className?: string
 }
 
@@ -40,6 +45,8 @@ function PaymentTotal({
   selectedInstallments,
   matriculaAdded,
   matriculaAmount,
+  isReservation,
+  balanceAmount,
 }: {
   programName: string
   totalAmount: number
@@ -49,6 +56,8 @@ function PaymentTotal({
   selectedInstallments: number
   matriculaAdded: boolean
   matriculaAmount: number
+  isReservation: boolean
+  balanceAmount: number
 }) {
   // IMPORTANTE: priceCalculation.total ya incluye descuentos del programa
   // La matrícula NO tiene descuentos, se suma directamente
@@ -63,13 +72,40 @@ function PaymentTotal({
   
   return (
     <div className="space-y-3">
-      <h2 className="text-2xl font-bold text-text-primary">Resumen de pago</h2>
+      <h2 className="text-2xl font-bold text-text-primary">
+        {isReservation ? 'Apartado de cupo' : 'Resumen de pago'}
+      </h2>
       
       <div className="space-y-2">
         <p className="text-sm text-text-muted">{programName}</p>
+
+        {isReservation && (
+          <div className="space-y-2 pt-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-text-muted">Precio del programa</span>
+              <span className="text-text-primary font-medium">
+                ${Math.round(subtotal || 0).toLocaleString()} COP
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-emerald-400">Pagas hoy (apartado)</span>
+              <span className="font-medium text-emerald-400">
+                ${RESERVATION_DEPOSIT_COP.toLocaleString()} COP
+              </span>
+            </div>
+            {balanceAmount > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-text-muted">Saldo pendiente</span>
+                <span className="text-text-primary font-medium">
+                  ${Math.round(balanceAmount).toLocaleString()} COP
+                </span>
+              </div>
+            )}
+          </div>
+        )}
         
         {/* Desglose cuando hay método de pago o cuando hay matrícula */}
-        {shouldShowBreakdown && (
+        {!isReservation && shouldShowBreakdown && (
           <div className="space-y-2 pt-2">
             {priceCalculation?.paymentMethodDiscount && priceCalculation.paymentMethodDiscount > 0 ? (
               <>
@@ -108,18 +144,20 @@ function PaymentTotal({
         {/* Total */}
         <div className="pt-2">
           <p className="text-4xl font-bold text-text-primary">
-            ${Math.round(displayAmount).toLocaleString()} COP
+            ${Math.round(isReservation ? RESERVATION_DEPOSIT_COP : displayAmount).toLocaleString()} COP
           </p>
           <p className="text-xs text-text-muted mt-1">
-            {paymentMethod 
-              ? (matriculaAdded && matriculaAmount > 0 
-                  ? (paymentMethod === 'installments' && selectedInstallments > 1
-                      ? 'Total a pagar hoy (primera cuota + matrícula)'
-                      : 'Total a pagar (programa + matrícula)')
-                  : 'Precio final · Sin costos ocultos')
-              : (matriculaAdded && matriculaAmount > 0
-                  ? 'Precio del programa + matrícula'
-                  : 'Precio del programa')}
+            {isReservation
+              ? 'Apartado para reservar tu cupo · El saldo queda pendiente en tu perfil'
+              : paymentMethod 
+                ? (matriculaAdded && matriculaAmount > 0 
+                    ? (paymentMethod === 'installments' && selectedInstallments > 1
+                        ? 'Total a pagar hoy (primera cuota + matrícula)'
+                        : 'Total a pagar (programa + matrícula)')
+                    : 'Precio final · Sin costos ocultos')
+                : (matriculaAdded && matriculaAmount > 0
+                    ? 'Precio del programa + matrícula'
+                    : 'Precio del programa')}
           </p>
           {paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation?.installmentAmount && (
             <p className="text-xs text-emerald-400 mt-1">
@@ -149,6 +187,7 @@ function PaymentAction({
   matriculaAdded,
   matriculaAmount,
   onPayClick,
+  isReservation,
 }: {
   paymentMethod: 'full' | 'installments' | null
   setPaymentMethod: (value: 'full' | 'installments' | null) => void
@@ -165,10 +204,14 @@ function PaymentAction({
   matriculaAdded: boolean
   matriculaAmount: number
   onPayClick: () => void
+  isReservation: boolean
 }) {
   const getButtonText = () => {
     if (disableButton) return 'Procesando...'
     if (hasMultipleCohorts && !selectedCohortId) return 'Selecciona un horario para continuar'
+    if (isReservation) {
+      return `Pagar $${RESERVATION_DEPOSIT_COP.toLocaleString()} y apartar mi cupo`
+    }
     if (!paymentMethod) return 'Selecciona un método de pago'
     
     let amountToShow = 0
@@ -192,15 +235,24 @@ function PaymentAction({
 
   return (
     <div className="space-y-4">
-      <PaymentMethodDropdown
-        data={data}
-        selectedCohortId={selectedCohortId}
-        paymentMethod={paymentMethod}
-        setPaymentMethod={setPaymentMethod}
-        selectedInstallments={selectedInstallments}
-        setSelectedInstallments={setSelectedInstallments}
-        onPriceChange={onPriceChange}
-      />
+      {!isReservation && (
+        <PaymentMethodDropdown
+          data={data}
+          selectedCohortId={selectedCohortId}
+          paymentMethod={paymentMethod}
+          setPaymentMethod={setPaymentMethod}
+          selectedInstallments={selectedInstallments}
+          setSelectedInstallments={setSelectedInstallments}
+          onPriceChange={onPriceChange}
+        />
+      )}
+
+      {isReservation && (
+        <p className="text-sm text-text-muted leading-relaxed">
+          Al pagar el apartado reservamos tu cupo en la cohorte. El saldo del programa lo verás
+          como pago pendiente en tu perfil y podrás completarlo después.
+        </p>
+      )}
       
       <button
         onClick={onPayClick}
@@ -275,11 +327,14 @@ export default function ResumenSection({
   hasMultipleCohorts = false,
   matriculaAdded,
   matriculaAmount = 0,
+  checkoutMode = 'standard',
   className,
 }: Props) {
   const router = useRouter()
   const supabase = useSupabaseClient()
   const { user } = useUser()
+  const isReservation = checkoutMode === 'reservation'
+  const balanceAmount = isReservation ? reservationBalanceAmount(subtotal || 0) : 0
   const [discount, setDiscount] = useState<number>(0)
   const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null)
   const [showQuickSignUp, setShowQuickSignUp] = useState<boolean>(false)
@@ -327,7 +382,7 @@ export default function ResumenSection({
         throw new Error('Por favor, selecciona un horario para continuar.')
       }
 
-      if (!paymentMethod) {
+      if (!isReservation && !paymentMethod) {
         throw new Error('Por favor, selecciona un método de pago para continuar.')
       }
 
@@ -342,6 +397,8 @@ export default function ResumenSection({
         throw new Error('La información del programa está incompleta. Por favor, intenta nuevamente.')
       }
 
+      const agreedPrice = isReservation ? (subtotal || 0) : totalAmount
+
       // 1. Crear enrollment o usar uno existente con pending_payment
       let enrollment
       const { data: newEnrollment, error: enrollmentError } = await supabase
@@ -350,7 +407,7 @@ export default function ResumenSection({
           cohort_id: selectedCohortId,
           student_id: user.id,
           status: 'pending_payment',
-          agreed_price: totalAmount,
+          agreed_price: agreedPrice,
         })
         .select()
         .single()
@@ -378,7 +435,7 @@ export default function ResumenSection({
                 // Actualizar el precio acordado por si cambió
                 const { error: updateError } = await supabase
                   .from('enrollments')
-                  .update({ agreed_price: totalAmount })
+                  .update({ agreed_price: agreedPrice })
                   .eq('id', enrollment.id)
 
                 if (updateError) {
@@ -416,7 +473,60 @@ export default function ResumenSection({
       // 2. Crear facturas antes del link de pago (el link se genera en el servidor)
       let firstInvoiceId: number | null = null
 
-      if (paymentMethod === 'installments' && selectedInstallments > 1) {
+      if (isReservation) {
+        const today = new Date().toISOString().split('T')[0]
+        const reservationInvoices = [
+          {
+            enrollment_id: enrollment.id,
+            label: `Apartado de cupo - ${data.name}`,
+            amount: RESERVATION_DEPOSIT_COP,
+            due_date: today,
+            status: 'pending',
+            meta: {
+              product_type: 'program',
+              product_id: slugProgram || data.code?.toString() || 'unknown',
+              user_id: user.id,
+              payment_type: 'reservation_deposit',
+              payment_number: 1,
+              total_payments: balanceAmount > 0 ? 2 : 1,
+              checkout_mode: 'reservation',
+            },
+          },
+        ]
+
+        if (balanceAmount > 0) {
+          reservationInvoices.push({
+            enrollment_id: enrollment.id,
+            label: `Saldo del programa - ${data.name}`,
+            amount: balanceAmount,
+            due_date: today,
+            status: 'pending',
+            meta: {
+              product_type: 'program',
+              product_id: slugProgram || data.code?.toString() || 'unknown',
+              user_id: user.id,
+              payment_type: 'program_balance',
+              payment_number: 2,
+              total_payments: 2,
+              checkout_mode: 'reservation',
+            },
+          })
+        }
+
+        const { data: insertedInvoices, error: invoiceError } = await supabase
+          .from('invoices')
+          .insert(reservationInvoices)
+          .select('id, meta')
+
+        if (invoiceError) {
+          console.error('Error al crear facturas de apartado:', invoiceError)
+        } else {
+          const first = (insertedInvoices ?? []).find(
+            (inv: { meta?: { payment_number?: number } }) => inv.meta?.payment_number === 1
+          ) ?? insertedInvoices?.[0]
+          firstInvoiceId = first?.id ?? null
+        }
+      } else if (paymentMethod === 'installments' && selectedInstallments > 1) {
         const installments = calculateInstallments(totalAmount, selectedInstallments)
 
         const invoices = installments.map((installment) => ({
@@ -494,11 +604,18 @@ export default function ResumenSection({
 
       const paymentLinkData = await paymentLinkResponse.json()
 
+      if (paymentLinkData.requiresManualPayment) {
+        router.push(paymentLinkData.invoicesUrl || '/perfil/facturas')
+        return
+      }
+
       if (!paymentLinkResponse.ok || !paymentLinkData.url) {
-        try {
-          await supabase.from('enrollments').delete().eq('id', enrollment.id)
-        } catch (deleteError) {
-          console.error('Error al eliminar enrollment:', deleteError)
+        if (!isReservation) {
+          try {
+            await supabase.from('enrollments').delete().eq('id', enrollment.id)
+          } catch (deleteError) {
+            console.error('Error al eliminar enrollment:', deleteError)
+          }
         }
         throw new Error(
           paymentLinkData.error || 'No pudimos generar el link de pago. Por favor, intenta nuevamente.'
@@ -532,7 +649,7 @@ export default function ResumenSection({
     handleGetLinkToPay()
   }
 
-  const isFormValid = subtotal && paymentMethod && selectedCohortId
+  const isFormValid = subtotal && selectedCohortId && (isReservation || paymentMethod)
 
   return (
     <div className={`bg-bg-card w-full flex flex-col gap-6 lg:gap-8 p-6 lg:p-8 rounded-2xl shadow-xl border border-border-color max-w-xl ${className || ''}`}>
@@ -572,6 +689,8 @@ export default function ResumenSection({
         selectedInstallments={selectedInstallments}
         matriculaAdded={matriculaAdded}
         matriculaAmount={matriculaAmount}
+        isReservation={isReservation}
+        balanceAmount={balanceAmount}
       />
 
       {/* Cupón (opcional, colapsado por defecto) */}
@@ -613,6 +732,7 @@ export default function ResumenSection({
           matriculaAdded={matriculaAdded}
           matriculaAmount={matriculaAmount}
           onPayClick={handlePayClick}
+          isReservation={isReservation}
         />
       </div>
 

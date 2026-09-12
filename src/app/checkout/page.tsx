@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
 import type { Program } from '@/types/programs'
 import { Loader2 } from 'lucide-react'
+import { isReservationCheckoutMode } from '@/lib/pricing/reservation'
 
 export default function ViewCheckoutPage() {
   return (
@@ -51,6 +52,9 @@ function ViewCheckoutContent() {
 
   const cohortIdParam = searchParams.get('cohortId')
   const slugProgram = searchParams.get('slug') // Mantener compatibilidad con el método anterior
+  const checkoutMode = isReservationCheckoutMode(searchParams.get('mode'))
+    ? 'reservation'
+    : 'standard'
 
   // Cargar datos desde la cohorte o desde el slug (fallback)
   useEffect(() => {
@@ -139,6 +143,14 @@ function ViewCheckoutContent() {
     fetchData()
   }, [cohortIdParam, slugProgram, supabase])
 
+  // El apartado de cupo no incluye matrícula anual en el mismo pago.
+  useEffect(() => {
+    if (checkoutMode === 'reservation') {
+      setMatriculaShouldShow(false)
+      setMatriculaAmount(0)
+    }
+  }, [checkoutMode])
+
   if (loading) {
     return <CheckoutLoader />
   }
@@ -156,6 +168,12 @@ function ViewCheckoutContent() {
 
   return (
     <main className="mt-26 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 bg-bg-primary min-h-screen">
+      {checkoutMode === 'reservation' && (
+        <p className="mb-6 rounded-xl border border-secondary/40 bg-secondary/10 px-4 py-3 text-sm text-text-primary">
+          <strong className="font-semibold">Apartado de cupo:</strong> pagas $100.000 hoy para
+          reservar tu lugar. El saldo del programa queda como pago pendiente en tu perfil.
+        </p>
+      )}
       <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Panel izquierdo: Resumen del programa */}
         <div className="w-full lg:col-span-2">
@@ -179,7 +197,7 @@ function ViewCheckoutContent() {
               setMatriculaShouldShow(shouldShow)
             }}
             onHasMultipleCohortsChange={setHasMultipleCohorts}
-            matriculaAdded={matriculaShouldShow}
+            matriculaAdded={checkoutMode === 'reservation' ? false : matriculaShouldShow}
             matriculaAmount={matriculaAmount}
           />
         </div>
@@ -198,8 +216,9 @@ function ViewCheckoutContent() {
             setSelectedInstallments={setSelectedInstallments}
             setSubtotal={setSubtotal}
             hasMultipleCohorts={hasMultipleCohorts}
-            matriculaAdded={matriculaShouldShow}
+            matriculaAdded={checkoutMode === 'reservation' ? false : matriculaShouldShow}
             matriculaAmount={matriculaAmount}
+            checkoutMode={checkoutMode}
           />
         </div>
       </div>

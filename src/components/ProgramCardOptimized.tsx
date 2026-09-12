@@ -171,7 +171,7 @@ export default function ProgramCardOptimized({ program, cohorts }: ProgramCardPr
   return (
     <Link href={`/programas-academicos/${slug}`} className={styles.card}>
       {/* Imagen del programa con badge */}
-      <div className="relative h-48 overflow-hidden bg-bg-secondary">
+      <div className="relative aspect-square w-full overflow-hidden bg-bg-secondary">
         <Image
           src={program.image || '/placeholder-course.jpg'}
           alt={program.name || 'Programa'}

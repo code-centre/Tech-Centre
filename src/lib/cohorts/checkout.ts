@@ -18,3 +18,8 @@ export interface OfferingCohort {
 export function checkoutHref(cohortId: number): string {
   return `/checkout?cohortId=${cohortId}`;
 }
+
+/** Checkout para apartar cupo con depósito de $100.000. */
+export function reservationCheckoutHref(cohortId: number): string {
+  return `/checkout?cohortId=${cohortId}&mode=reservation`;
+}

@@ -30,8 +30,12 @@ const NAV_RESPALDO: ProgramsNav = {
 /** El acento alterna entre las rutas, como en el hub. */
 const TONO_RUTA = ["#3FE0A0", "#74BAFF"]
 
-function programaHref(programa: NavProgram): string {
-  return `/programas-academicos/${programa.code}`
+function programaHref(programa: NavProgram, withCohort = false): string {
+  const base = `/programas-academicos/${programa.code}`
+  if (withCohort && programa.cohortId) {
+    return `${base}?cohortId=${programa.cohortId}`
+  }
+  return base
 }
 
 function looseSubtitle(programa: NavProgram): string | null {
@@ -171,7 +175,7 @@ export default function Header({ nav }: { nav?: ProgramsNav }) {
                           return (
                             <li key={programa.code}>
                               <Link
-                                href={programaHref(programa)}
+                                href={programaHref(programa, true)}
                                 className="block rounded-lg px-3 py-2 text-white transition-colors hover:bg-[#10241E] hover:text-[#3FE0A0]"
                               >
                                 <span className="block text-sm font-semibold leading-snug">
@@ -456,7 +460,7 @@ export default function Header({ nav }: { nav?: ProgramsNav }) {
                         return (
                           <Link
                             key={programa.code}
-                            href={programaHref(programa)}
+                            href={programaHref(programa, true)}
                             className="block py-2 pl-3 text-sm text-white/90 hover:text-[#3FE0A0]"
                             onClick={() => setIsMenuOpen(false)}
                           >

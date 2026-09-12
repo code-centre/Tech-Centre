@@ -81,6 +81,7 @@ export default function ProgramContainer({
       <ProgramHero
         programData={currentProgramData}
         cohortId={selectedCohort?.id ?? selectedCohortId}
+        seatsLeft={seatsLeft}
         stack={stack}
         modality={selectedCohort?.modality}
         aside={
@@ -141,6 +142,7 @@ export default function ProgramContainer({
       <ProgramPricing
         programData={currentProgramData}
         cohortId={selectedCohort?.id ?? selectedCohortId}
+        seatsLeft={seatsLeft}
         maximumPayments={selectedCohort?.maximum_payments}
         includes={includes}
       />

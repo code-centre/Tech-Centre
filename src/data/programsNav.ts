@@ -15,6 +15,8 @@ export interface NavProgram {
   name: string
   subtitle: string | null
   hours: number | null
+  /** Cohorte activa visible; el menú enlaza al detalle con este id. */
+  cohortId?: number | null
 }
 
 export interface NavRoute {
@@ -41,11 +43,18 @@ async function fetchProgramsNav(): Promise<ProgramsNav> {
     })
     const hub = await getProgramsHub(supabase)
 
-    const toNav = (program: { code: string; name: string; subtitle: string | null; hours: number | null }) => ({
+    const toNav = (program: {
+      code: string
+      name: string
+      subtitle: string | null
+      hours: number | null
+      cohortId?: number | null
+    }) => ({
       code: program.code,
       name: program.name,
       subtitle: program.subtitle,
       hours: program.hours,
+      cohortId: program.cohortId ?? null,
     })
 
     return {
@@ -54,7 +63,7 @@ async function fetchProgramsNav(): Promise<ProgramsNav> {
         name: route.name,
         programs: route.programs.map(toNav),
       })),
-      loose: hub.loose.map(toNav),
+      loose: hub.loose.filter((program) => program.cohortId != null).map(toNav),
     }
   } catch (error) {
     // El menú nunca debe tumbar el layout: si falla, el header usa su respaldo.

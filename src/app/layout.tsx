@@ -114,7 +114,10 @@ export default async function RootLayout({
 
   return (
     <html lang="es" suppressHydrationWarning>
-      <head>
+     <body
+        className="antialiased"
+        style={{ fontFamily: "var(--font-space-grotesk)" }}
+      >
         <Script
           id="theme-init"
           strategy="beforeInteractive"
@@ -134,11 +137,6 @@ export default async function RootLayout({
             `,
           }}
         />
-      </head>
-     <body
-        className="antialiased"
-        style={{ fontFamily: "var(--font-space-grotesk)" }}
-      >
         <ThemeProvider>
           <OrganizationSchema
             address={{
