@@ -59,6 +59,7 @@ export function loadMetaPixel(): void {
   const first = document.getElementsByTagName('script')[0];
   first?.parentNode?.insertBefore(script, first);
 
+  fbq('set', 'autoConfig', false, pixelId);
   fbq('init', pixelId);
   window.__tcMetaPixelLoaded = true;
 }

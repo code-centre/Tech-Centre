@@ -132,6 +132,7 @@ export async function recordAndSendMetaEvent(params: {
   persist?: Omit<PersistMarketingEventInput, 'eventName' | 'eventId' | 'source'>;
 }): Promise<{ sent: boolean }> {
   let inserted = false;
+  let duplicate = false;
   try {
     const persist = await persistMarketingEvent({
       eventName: params.eventName,
@@ -148,11 +149,16 @@ export async function recordAndSendMetaEvent(params: {
       },
     });
     inserted = persist.inserted;
+    duplicate = Boolean(persist.duplicate);
   } catch {
     logMetaError('persist before CAPI failed', {
       eventName: params.eventName,
       eventId: params.eventId,
     });
+  }
+
+  if (duplicate) {
+    return { sent: false };
   }
 
   if (params.eventName === 'CompleteRegistration' && !inserted) {

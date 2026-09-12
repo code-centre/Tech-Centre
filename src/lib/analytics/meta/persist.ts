@@ -30,7 +30,7 @@ function touchFields(prefix: 'first' | 'last', touch: AttributionSnapshot['first
 
 export async function persistMarketingEvent(
   input: PersistMarketingEventInput
-): Promise<{ inserted: boolean }> {
+): Promise<{ inserted: boolean; duplicate?: boolean }> {
   const supabase = serviceClient();
   if (!supabase) return { inserted: false };
 
@@ -51,7 +51,7 @@ export async function persistMarketingEvent(
 
   if (error) {
     if (error.code === '23505') {
-      return { inserted: false };
+      return { inserted: false, duplicate: true };
     }
     logMetaError('failed to persist marketing_event', {
       eventName: input.eventName,
@@ -156,7 +156,7 @@ export async function upsertAttribution(params: {
   const now = new Date().toISOString();
 
   if (!row) {
-    await (supabase as any).from('marketing_attribution').insert({
+    const { error } = await (supabase as any).from('marketing_attribution').insert({
       session_id: snapshot.session_id,
       lead_id: params.leadId ?? null,
       user_id: params.userId ?? null,
@@ -166,6 +166,12 @@ export async function upsertAttribution(params: {
       last_touch_at: snapshot.last_touch_at ?? now,
       updated_at: now,
     });
+    if (error && error.code !== '23505') {
+      logMetaError('failed to insert marketing_attribution', {
+        eventName: 'attribution',
+        eventId: snapshot.session_id,
+      });
+    }
     return;
   }
 
@@ -193,4 +199,41 @@ export async function getAttributionForIdentity(params: {
 }): Promise<Record<string, unknown> | null> {
   const { row } = await findAttributionRow(params);
   return row;
+}
+
+/**
+ * Attach lead_id / user_id onto an existing first-touch row (session or email).
+ * First-touch fields stay immutable.
+ */
+export async function linkAttributionIdentity(params: {
+  userId?: string | null;
+  leadId?: number | null;
+  email?: string | null;
+  sessionId?: string | null;
+}): Promise<void> {
+  const { supabase, row } = await findAttributionRow({
+    sessionId: params.sessionId,
+    leadId: params.leadId,
+    userId: params.userId,
+    email: params.email,
+  });
+  if (!supabase || !row) return;
+
+  const update: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+  };
+  if (params.leadId && !row.lead_id) update.lead_id = params.leadId;
+  if (params.userId && !row.user_id) update.user_id = params.userId;
+  if (Object.keys(update).length === 1) return;
+
+  const { error } = await (supabase as any)
+    .from('marketing_attribution')
+    .update(update)
+    .eq('id', row.id);
+  if (error && error.code !== '23505') {
+    logMetaError('failed to link marketing_attribution identity', {
+      eventName: 'attribution',
+      eventId: params.userId || String(params.leadId ?? ''),
+    });
+  }
 }

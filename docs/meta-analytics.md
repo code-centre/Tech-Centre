@@ -6,9 +6,10 @@ Layer that answers which campaign/ad produced each lead or student, and reconstr
 
 - **Browser:** Meta Pixel via `src/lib/analytics/meta/client.ts`. Components never call `window.fbq` directly.
 - **Server:** Conversions API via `sendMetaEvent()` in `src/lib/analytics/meta/server.ts`. Access token never ships to the client.
-- **Dedup:** the same `event_id` is used on Pixel and CAPI (`crypto.randomUUID()`, or `invoice:{id}` for Purchase).
+- **Dedup:** Pixel and CAPI share `event_id`. PageView / ViewContent / InitiateCheckout use a UUID. CompleteRegistration uses `registration:{userId}`. Purchase uses `invoice:{id}`. Pixel autoConfig is off so Meta does not fire its own PageView.
 - **Persistence:** `marketing_attribution` (first/last UTM), `marketing_events` (funnel), `marketing_spend` (manual spend).
-- **Purchase source of truth:** Wompi webhook (`/api/payments/webhook`) after signature verification, or admin mark-paid. **Never** `/checkout/confirmacion` refresh.
+- **Purchase source of truth:** Wompi webhook (`/api/payments/webhook`) after signature verification, or admin mark-paid. **Never** `/checkout/confirmacion` refresh. The invoice row is claimed with `status <> paid` before Purchase is recorded.
+- **Browser CAPI route** (`POST /api/analytics/meta`) only accepts `ViewContent`, `InitiateCheckout`, `CompleteRegistration`. Lead, Schedule, DiagnosticCompleted, and Purchase are server-only. Identity for that route comes from the session, not the JSON body.
 
 ```
 Pixel (browser)  ──event_id──►  CAPI (Graph API)
@@ -63,7 +64,7 @@ Cookie `tc_attr` + `localStorage` (`tc_attr`) + session `tc_sid`.
 - **First-touch** (`first_*`) is written once and never overwritten.
 - **Last-touch** updates when a new session has UTM or `fbclid`.
 - Fields: `utm_source/medium/campaign/content/term`, `fbclid`, `landing_page`, `referrer`, `_fbp`/`_fbc`, `first_touch_at` / `last_touch_at`.
-- Attached to `leads` on form submit, then to `profiles.user_id` on signup/payment.
+- Attached to `leads` on form submit, then to `profiles.user_id` on `/registro` (cookie `tc_sid` + email) and again when Purchase is recorded (email / user id). First-touch is never overwritten.
 
 ## Funnels
 
@@ -76,9 +77,11 @@ Schedule = diagnóstico form saved (there is no Google Calendar webhook). Diagno
 
 ## Payments
 
-Webhook flow: validate Wompi checksum → mark matching invoice `paid` (any installment) → confirm enrollment only if `payment_number === 1` → `marketing_events` Purchase → CAPI.
+Webhook flow: validate Wompi checksum → claim matching invoice `paid` (`status <> paid`) → `marketing_events` Purchase → CAPI. Enrollment confirms only for a reservation deposit (`payment_type = reservation_deposit`) or an explicit `payment_number === 1`. Missing `payment_number` is not treated as payment 1.
 
-Previously the webhook skipped later cuotas. It now marks them paid so installment Purchases can fire. Enrollment confirmation is still first installment only.
+Previously the webhook skipped later cuotas. It now marks them paid so installment Purchases can fire. Enrollment confirmation is still first installment / reservation only.
+
+A unique `marketing_events.event_id` (and CompleteRegistration’s per-user unique index) claims the conversion. A second webhook or admin mark-paid with the same id does not send another CAPI event.
 
 CAPI failure is logged (`[meta]`) without tokens or PII in production and does not fail the webhook.
 
@@ -104,11 +107,12 @@ Use Events Manager → Test Events with `META_TEST_EVENT_CODE` set.
 2. **Lead** — submit apartar-cupo. Not on form open. Refreshing the success state does not resubmit.
 3. **Schedule** — submit `/agendar-diagnostico`. Lead + Schedule both fire.
 4. **DiagnosticCompleted** — admin → estudiante/lead → “Marcar diagnóstico completado”.
-5. **InitiateCheckout** — open `/checkout?cohortId=…` once; reload should not duplicate in the same tab (`sessionStorage`).
+5. **InitiateCheckout** — open `/checkout?cohortId=…` once; reload should not duplicate in the same tab (`sessionStorage`). Reservation vs standard are separate keys.
 6. **Purchase** — pay in Wompi test. Value = charged amount (100.000 for apartado). Rejected card = no Purchase. Reload `/checkout/confirmacion` = no extra Purchase.
 7. **Installment** — pay a later invoice; second Purchase, different `event_id` / `order_id`.
 8. **UTM first/last** — land with `utm_campaign=a`, later with `utm_campaign=b`. `first_*` stays `a`, `last_*` becomes `b`.
 9. Dedup: Events Manager shows 1 event for Pixel+CAPI sharing `event_id`.
+10. **PageView** — one PageView per route change, not two on first load.
 
 ## Events Manager setup (Anuar)
 
@@ -122,16 +126,16 @@ Use Events Manager → Test Events with `META_TEST_EVENT_CODE` set.
 ## Changelog
 
 - Added Pixel + CAPI helpers (`src/lib/analytics/meta/*`).
-- Global PageView Pixel in root layout; ViewContent on program landings.
-- Lead/Schedule on public forms; CompleteRegistration on signup; InitiateCheckout on checkout; Purchase only after Wompi/admin paid.
-- First/last UTM attribution tables + cookie/localStorage.
-- Webhook marks later cuotas paid and records Purchase without failing payment if CAPI fails.
-- `/admin/marketing` dashboard, spend form, Origen / Marketing on student and lead views.
+- Global PageView Pixel in root layout; ViewContent on program landings. Pixel autoConfig is disabled so first load is a single PageView.
+- Lead/Schedule on public forms (server CAPI); CompleteRegistration on signup (`registration:{userId}`); InitiateCheckout on checkout; Purchase only after Wompi/admin paid.
+- First/last UTM attribution tables + cookie/localStorage. `user_id` is linked at `/registro` and again on Purchase.
+- Webhook claims the invoice (`status <> paid`) before Purchase. Duplicate `event_id` does not send a second CAPI call.
+- `/admin/marketing` is `requireRole(['admin'])` on the page plus the existing client AdminRoute and server actions.
 - Diagnostic completed timestamp on `leads`.
 
 ## Risks / pendings
 
-- Apply `supabase/migrations/20260912000001_marketing_analytics.sql` on the project before using the dashboard.
+- Apply the three `supabase/migrations/2026091200000{1,2,3}_marketing_*.sql` files on the project before using the dashboard.
 - `leads` DDL is not in-repo; migration only `ALTER`s it.
 - Diagnóstico “scheduled” is form submit, not calendar confirmation.
 - `/contacto` and `/inscripcion` still open WhatsApp only — not leads, not Meta events.
@@ -139,3 +143,5 @@ Use Events Manager → Test Events with `META_TEST_EVENT_CODE` set.
 - Occupancy uses offering cohort capacity; Ejecutivo uses configured capacity when a cohort exists.
 - Meta Ads API spend pull is documented only, not built.
 - First paid invoice currently also confirms `enrollments.status = enrolled`, so reservations ≈ matrículas on the reservation checkout path.
+- Manual `marketing_spend` rows that overlap the selected dates are counted in full (not pro-rated).
+- Checkout quick-signup with email confirmation and no session links attribution on Purchase (email) rather than at signup.

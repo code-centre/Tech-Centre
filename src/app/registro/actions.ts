@@ -1,6 +1,9 @@
 'use server';
 
 import { createServiceRoleClient } from '@/lib/supabase/service-role';
+import { cookies } from 'next/headers';
+import { linkAttributionIdentity } from '@/lib/analytics/meta/persist';
+import { SESSION_COOKIE } from '@/lib/analytics/meta/types';
 
 interface SignupProfileInput {
   userId: string;
@@ -84,12 +87,27 @@ export async function ensureUserProfile(input: EnsureProfileInput): Promise<Acti
 
   if (profileError) {
     if (profileError.code === '23505') {
+      await linkSignupAttribution(userId, email);
       return { success: true };
     }
     return { success: false, error: profileError.message || 'No se pudo crear el perfil' };
   }
 
+  await linkSignupAttribution(userId, email);
   return { success: true };
+}
+
+async function linkSignupAttribution(userId: string, email: string): Promise<void> {
+  try {
+    const cookieStore = await cookies();
+    await linkAttributionIdentity({
+      userId,
+      email,
+      sessionId: cookieStore.get(SESSION_COOKIE)?.value ?? null,
+    });
+  } catch {
+    // attribution must not fail signup
+  }
 }
 
 /**

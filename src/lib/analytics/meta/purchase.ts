@@ -1,7 +1,7 @@
 import { canonicalSiteUrl } from '@/lib/blog/siteUrl';
 import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { logMetaError } from './log';
-import { getAttributionForIdentity } from './persist';
+import { getAttributionForIdentity, linkAttributionIdentity } from './persist';
 import { getInvoicePaymentNumber } from '@/lib/payments/invoice-meta';
 import { recordAndSendMetaEvent } from './server';
 
@@ -66,6 +66,10 @@ export async function recordConfirmedPurchase(params: {
       .maybeSingle();
 
     const profileRow = profile as { user_id: string; email: string | null; phone: string | null } | null;
+    await linkAttributionIdentity({
+      userId: enrollment.student_id,
+      email: profileRow?.email,
+    });
     const attribution = await getAttributionForIdentity({
       userId: enrollment.student_id,
       email: profileRow?.email,
