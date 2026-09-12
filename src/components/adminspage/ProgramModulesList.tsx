@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Plus, Pencil, Trash2, X, BookOpen, Loader2 } from 'lucide-react';
+import { buildSyllabusFromModules } from '@/lib/programs/sync-syllabus-modules';
 import type { ProgramModule } from '@/types/supabase';
 import type { SyllabusData } from '@/types/programs';
 
@@ -36,20 +37,11 @@ export default function ProgramModulesList({
 
   const sortedModules = [...modules].sort((a, b) => a.order_index - b.order_index);
 
-  async function syncSyllabusFromModules(modulesList: ProgramModule[]) {
-    const syllabusPayload = {
-      modules: modulesList
-        .sort((a, b) => a.order_index - b.order_index)
-        .map((m) => ({
-          id: m.id,
-          title: m.name,
-          topics: (m.content as { topics?: string[] })?.topics ?? [],
-        })),
-    };
+  async function persistSyllabusFromModules(modulesList: ProgramModule[]) {
     await supabase
       .from('programs')
       .update({
-        syllabus: syllabusPayload,
+        syllabus: buildSyllabusFromModules(modulesList),
         updated_at: new Date().toISOString(),
       })
       .eq('id', programId);
@@ -133,7 +125,7 @@ export default function ProgramModulesList({
           m.id === editingModule.id ? data : m
         ) as ProgramModule[];
         setModules(updated);
-        await syncSyllabusFromModules(updated);
+        await persistSyllabusFromModules(updated);
       } else {
         const { data, error } = await supabase
           .from('program_modules')
@@ -144,7 +136,7 @@ export default function ProgramModulesList({
         if (error) throw error;
         const updated = [...modules, data] as ProgramModule[];
         setModules(updated);
-        await syncSyllabusFromModules(updated);
+        await persistSyllabusFromModules(updated);
       }
       closeModal();
       router.refresh();
@@ -170,7 +162,7 @@ export default function ProgramModulesList({
       if (error) throw error;
       const updated = modules.filter((m) => m.id !== module.id);
       setModules(updated);
-      await syncSyllabusFromModules(updated);
+      await persistSyllabusFromModules(updated);
       router.refresh();
     } catch (err) {
       console.error('Error al eliminar:', err);
@@ -180,33 +172,27 @@ export default function ProgramModulesList({
 
   const handleImportFromSyllabus = async () => {
     if (!syllabus?.modules?.length) return;
-    const maxOrder =
-      modules.length > 0 ? Math.max(...modules.map((m) => m.order_index)) + 1 : 0;
 
     setIsImporting(true);
     try {
-      const inserts = syllabus.modules.map((m, i) => ({
-        program_id: parseInt(programId, 10),
-        name: m.title,
-        order_index: maxOrder + i,
-        hours: null,
-        content: m.topics?.length ? { topics: m.topics } : null,
-      }));
+      const response = await fetch(
+        `/api/admin/programs/${programId}/sync-modules-from-syllabus`,
+        { method: 'POST' }
+      );
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error ?? 'No se pudo importar desde el temario');
+      }
 
-      const { data, error } = await supabase
-        .from('program_modules')
-        .insert(inserts)
-        .select('*');
-
-      if (error) throw error;
-      const newModules = (data ?? []) as ProgramModule[];
-      const updated = [...modules, ...newModules];
-      setModules(updated);
-      await syncSyllabusFromModules(updated);
+      setModules((payload.modules ?? []) as ProgramModule[]);
       router.refresh();
     } catch (err) {
       console.error('Error al importar:', err);
-      alert('No se pudo importar desde el temario.');
+      alert(
+        err instanceof Error
+          ? err.message
+          : 'No se pudo importar desde el temario.'
+      );
     } finally {
       setIsImporting(false);
     }
@@ -222,7 +208,7 @@ export default function ProgramModulesList({
           Módulos del programa
         </h2>
         <div className="flex items-center gap-2">
-          {syllabus?.modules?.length ? (
+          {syllabus?.modules?.length && modules.length === 0 ? (
             <button
               type="button"
               onClick={handleImportFromSyllabus}
@@ -234,7 +220,7 @@ export default function ProgramModulesList({
               ) : (
                 <BookOpen className="w-4 h-4" />
               )}
-              Importar desde temario
+              Importar temario de la landing
             </button>
           ) : null}
           <button
@@ -252,7 +238,7 @@ export default function ProgramModulesList({
         {sortedModules.length === 0 ? (
           <div className="text-center py-12 border border-dashed border-border-color rounded-lg bg-bg-secondary/50">
             <p className="text-text-muted mb-4">
-              No hay módulos. Agrega uno o importa desde el temario.
+              No hay módulos. Estos son el mismo temario que ve la landing; agrega uno o importa el existente.
             </p>
             <button
               type="button"
