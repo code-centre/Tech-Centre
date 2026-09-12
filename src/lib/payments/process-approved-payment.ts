@@ -2,11 +2,13 @@ import { incrementCouponUses } from '@/lib/discounts/coupon-service';
 import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service';
 import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { handleInvoicePaidForEnrollment } from '@/lib/payments/confirm-enrollment-paid';
+import { recordConfirmedPurchase } from '@/lib/analytics/meta/purchase';
 
 interface InvoiceRow {
   id: number;
   enrollment_id: number;
   status: string;
+  amount: number;
   meta: Record<string, unknown> | null;
 }
 
@@ -37,7 +39,7 @@ export async function processApprovedWompiPayment(params: {
   if (paymentLinkId) {
     const { data, error } = await supabase
       .from('invoices')
-      .select('id, enrollment_id, status, meta')
+      .select('id, enrollment_id, status, amount, meta')
       .contains('meta', { payment_id: paymentLinkId });
 
     if (error) {
@@ -51,7 +53,7 @@ export async function processApprovedWompiPayment(params: {
   if ((!invoices || invoices.length === 0) && transactionId) {
     const { data, error } = await supabase
       .from('invoices')
-      .select('id, enrollment_id, status, meta')
+      .select('id, enrollment_id, status, amount, meta')
       .contains('meta', { transaction_id: transactionId });
 
     if (error) {
@@ -74,8 +76,6 @@ export async function processApprovedWompiPayment(params: {
     const isFirstInstallment =
       Number(invoice.meta?.payment_number ?? 1) === 1;
 
-    if (!isFirstInstallment) continue;
-
     const { error: invoiceUpdateError } = await (supabase as any)
       .from('invoices')
       .update({
@@ -93,48 +93,55 @@ export async function processApprovedWompiPayment(params: {
       return { ok: false, message: invoiceUpdateError.message };
     }
 
-    await handleInvoicePaidForEnrollment(supabase, invoice);
+    if (isFirstInstallment) {
+      await handleInvoicePaidForEnrollment(supabase, invoice);
 
-    const { data: enrollmentData, error: enrollmentError } = await supabase
-      .from('enrollments')
-      .select('id, student_id, status, agreed_price')
-      .eq('id', invoice.enrollment_id)
-      .single();
-
-    if (enrollmentError || !enrollmentData) {
-      return { ok: false, message: 'Enrollment not found' };
-    }
-
-    const enrollment = enrollmentData as EnrollmentRow;
-
-    const matriculaAdded = Boolean(invoice.meta?.matricula_added);
-    const matriculaAmount = Number(invoice.meta?.matricula_amount ?? 0);
-
-    if (matriculaAdded && matriculaAmount > 0) {
-      try {
-        await markMatriculaAsPaid(supabase, enrollment.student_id);
-      } catch (matriculaError) {
-        console.warn('Webhook matricula update failed:', matriculaError);
-      }
-    }
-
-    const couponCode = invoice.meta?.coupon_code;
-    if (typeof couponCode === 'string' && couponCode.length > 0) {
-      const { data: couponData } = await supabase
-        .from('discount_coupons')
-        .select('id')
-        .eq('code', couponCode.toUpperCase())
+      const { data: enrollmentData, error: enrollmentError } = await supabase
+        .from('enrollments')
+        .select('id, student_id, status, agreed_price')
+        .eq('id', invoice.enrollment_id)
         .single();
 
-      const couponId = (couponData as { id?: string } | null)?.id;
-      if (couponId) {
+      if (enrollmentError || !enrollmentData) {
+        return { ok: false, message: 'Enrollment not found' };
+      }
+
+      const enrollment = enrollmentData as EnrollmentRow;
+
+      const matriculaAdded = Boolean(invoice.meta?.matricula_added);
+      const matriculaAmount = Number(invoice.meta?.matricula_amount ?? 0);
+
+      if (matriculaAdded && matriculaAmount > 0) {
         try {
-          await incrementCouponUses(couponId);
-        } catch (couponError) {
-          console.warn('Webhook coupon increment failed:', couponError);
+          await markMatriculaAsPaid(supabase, enrollment.student_id);
+        } catch (matriculaError) {
+          console.warn('Webhook matricula update failed:', matriculaError);
+        }
+      }
+
+      const couponCode = invoice.meta?.coupon_code;
+      if (typeof couponCode === 'string' && couponCode.length > 0) {
+        const { data: couponData } = await supabase
+          .from('discount_coupons')
+          .select('id')
+          .eq('code', couponCode.toUpperCase())
+          .single();
+
+        const couponId = (couponData as { id?: string } | null)?.id;
+        if (couponId) {
+          try {
+            await incrementCouponUses(couponId);
+          } catch (couponError) {
+            console.warn('Webhook coupon increment failed:', couponError);
+          }
         }
       }
     }
+
+    await recordConfirmedPurchase({
+      invoiceId: invoice.id,
+      transactionId,
+    });
   }
 
   return { ok: true, message: 'Payment processed' };

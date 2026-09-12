@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { confirmEnrollmentPaid } from '@/lib/payments/confirm-enrollment-paid';
+import { recordConfirmedPurchase } from '@/lib/analytics/meta/purchase';
 
 export interface MarkInvoicePaidResult {
   success: boolean;
@@ -65,6 +66,16 @@ export async function markInvoicePaidAdmin(
   if (wasPending) {
     const mergedMeta = { ...(inv.meta ?? {}), ...payload.meta };
     const paymentNumber = Number(mergedMeta.payment_number ?? 1);
+    const transactionId =
+      typeof mergedMeta.transaction_id === 'string'
+        ? mergedMeta.transaction_id
+        : `invoice:${invoiceId}`;
+
+    await recordConfirmedPurchase({
+      invoiceId,
+      transactionId,
+    });
+
     if (paymentNumber === 1) {
       const result = await confirmEnrollmentPaid(supabase, inv.enrollment_id, payload.paid_at);
       if (result.error) {

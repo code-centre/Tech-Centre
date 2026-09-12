@@ -22,6 +22,9 @@ import RemoveEnrollmentDialog, {
 } from '@/components/adminspage/RemoveEnrollmentDialog';
 import { updateProfileAdmin } from '@/app/admin/actions';
 import { MarkAsPaidModal } from './MarkAsPaidModal';
+import MarketingOriginSection, {
+  type MarketingOriginData,
+} from '@/components/adminspage/MarketingOriginSection';
 import NewInvoiceModal from './NewInvoiceModal';
 import EnrollStudentModal from './EnrollStudentModal';
 import {
@@ -110,6 +113,7 @@ interface Props {
   enrollments: DetailEnrollment[];
   invoices: DetailInvoice[];
   lead: DetailLead | null;
+  marketing?: MarketingOriginData | null;
   canEditRole: boolean;
   openEnroll?: boolean;
 }
@@ -119,6 +123,7 @@ export default function StudentDetail({
   enrollments,
   invoices,
   lead,
+  marketing = null,
   canEditRole,
   openEnroll = false,
 }: Props) {
@@ -775,6 +780,10 @@ export default function StudentDetail({
                 )}
               </div>
             </section>
+          )}
+
+          {marketing && (
+            <MarketingOriginSection data={marketing} onUpdated={() => router.refresh()} />
           )}
         </div>
       </div>

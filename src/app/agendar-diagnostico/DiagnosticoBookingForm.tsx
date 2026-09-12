@@ -6,6 +6,7 @@ import { AlertCircle, CalendarDays, CheckCircle, Loader2 } from 'lucide-react';
 import { submitDiagnosticoBooking } from './actions';
 import { GOOGLE_CALENDAR_DIAGNOSTICO_URL } from '@/components/landing/rutas/data';
 import { DIAGNOSTICO_ORIENTATION_OPTION } from '@/lib/diagnostico/program-options';
+import { currentAttribution, newEventId, trackLead, trackSchedule } from '@/lib/analytics/meta/events';
 
 interface DiagnosticoBookingFormProps {
   programOptions: string[];
@@ -59,9 +60,14 @@ export default function DiagnosticoBookingForm({
     setLoading(true);
     setError(null);
 
+    const eventId = newEventId();
+    const scheduleEventId = newEventId();
     const result = await submitDiagnosticoBooking({
       ...form,
       source,
+      eventId,
+      scheduleEventId,
+      attribution: currentAttribution(),
     });
 
     setLoading(false);
@@ -71,6 +77,22 @@ export default function DiagnosticoBookingForm({
       return;
     }
 
+    trackLead({
+      eventId,
+      email: form.email,
+      phone: form.phone,
+      contentName: form.program,
+      persistCapi: false,
+      leadId: result.leadId ?? null,
+    });
+    trackSchedule({
+      eventId: scheduleEventId,
+      email: form.email,
+      phone: form.phone,
+      contentName: form.program,
+      persistCapi: false,
+      leadId: result.leadId ?? null,
+    });
     setSuccess(true);
   };
 

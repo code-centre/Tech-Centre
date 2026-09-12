@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { headers } from 'next/headers'
+import { trackServerLeadConversion } from '@/lib/analytics/meta/lead-server'
+import type { AttributionSnapshot } from '@/lib/analytics/meta/types'
 
 interface LeadFormData {
   name: string
@@ -13,10 +15,16 @@ interface LeadFormData {
   company?: string // honeypot
 }
 
+interface LeadTrackingMeta {
+  eventId?: string
+  attribution?: AttributionSnapshot | null
+}
+
 interface ActionResult {
   success: boolean
   message?: string
   error?: string
+  leadId?: number
 }
 
 function mapIntentToStage(intent: string): string {
@@ -70,7 +78,8 @@ function validateFormData(data: LeadFormData): { valid: boolean; error?: string 
 
 export async function createLead(
   formData: LeadFormData,
-  programId: number
+  programId: number,
+  tracking?: LeadTrackingMeta
 ): Promise<ActionResult> {
   try {
     // Validar datos
@@ -93,7 +102,7 @@ export async function createLead(
     // Verificar que el programa existe
     const { data: program, error: programError } = await supabase
       .from('programs')
-      .select('id')
+      .select('id, name, code')
       .eq('id', programId)
       .single()
 
@@ -141,9 +150,29 @@ export async function createLead(
       }
     }
 
+    const leadId = (data as { id: number }).id
+    const programRow = program as { id: number; name?: string; code?: string }
+
+    try {
+      await trackServerLeadConversion({
+        eventId: tracking?.eventId,
+        attribution: tracking?.attribution ?? null,
+        email: formData.email.trim().toLowerCase(),
+        phone: phoneDigits,
+        leadId,
+        programId,
+        contentName: programRow.name ?? null,
+        contentIds: programRow.code ? [programRow.code] : [],
+        eventName: 'Lead',
+      })
+    } catch (trackingError) {
+      console.error('Lead tracking failed:', trackingError)
+    }
+
     return { 
       success: true, 
-      message: '¡Tu cupo ha sido apartado exitosamente!' 
+      message: '¡Tu cupo ha sido apartado exitosamente!',
+      leadId,
     }
   } catch (error) {
     console.error('Unexpected error creating lead:', error)

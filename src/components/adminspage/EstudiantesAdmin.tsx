@@ -22,6 +22,7 @@ import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 import AdminEmptyState from '@/components/admin/AdminEmptyState';
 import NewLeadModal from './NewLeadModal';
 import { createProfileFromLead } from '@/app/admin/estudiantes/actions';
+import MarketingOriginSection from './MarketingOriginSection';
 import {
   buildLeadRow,
   buildProfileRow,
@@ -78,6 +79,7 @@ export default function EstudiantesAdmin() {
   const [enrollments, setEnrollments] = useState<StudentEnrollment[]>([]);
   const [invoices, setInvoices] = useState<StudentInvoice[]>([]);
   const [leads, setLeads] = useState<LeadRow[]>([]);
+  const [leadAttribution, setLeadAttribution] = useState<Record<number, Record<string, unknown>>>({});
   const [loading, setLoading] = useState(true);
 
   const [segment, setSegment] = useState<Segment>('all');
@@ -107,7 +109,7 @@ export default function EstudiantesAdmin() {
         supabase.from('invoices').select('id, enrollment_id, amount, due_date, status, paid_at'),
         supabase
           .from('leads')
-          .select('id, full_name, email, phone, source, stage, notes, created_at')
+          .select('id, full_name, email, phone, source, stage, notes, created_at, diagnostic_completed_at')
           .order('created_at', { ascending: false }),
       ]);
 
@@ -128,6 +130,18 @@ export default function EstudiantesAdmin() {
       );
       setInvoices((invoicesRes.data ?? []) as StudentInvoice[]);
       setLeads((leadsRes.data ?? []) as LeadRow[]);
+      const leadIds = ((leadsRes.data ?? []) as LeadRow[]).map((lead) => lead.id);
+      if (leadIds.length > 0) {
+        const { data: attrRows } = await supabase
+          .from('marketing_attribution')
+          .select('*')
+          .in('lead_id', leadIds);
+        const map: Record<number, Record<string, unknown>> = {};
+        for (const row of (attrRows ?? []) as Record<string, unknown>[]) {
+          if (typeof row.lead_id === 'number') map[row.lead_id] = row;
+        }
+        setLeadAttribution(map);
+      }
     } catch (err) {
       console.error('Error al cargar estudiantes:', err);
     } finally {
@@ -507,6 +521,31 @@ export default function EstudiantesAdmin() {
                 converting={converting === person.leadId}
                 onToggle={() => setExpanded(expanded === person.key ? null : person.key)}
                 onConvert={() => person.leadId && handleConvert(person.leadId)}
+                origin={
+                  person.leadId
+                    ? {
+                        leadId: person.leadId,
+                        source:
+                          (leadAttribution[person.leadId]?.first_utm_source as string) ||
+                          person.origin,
+                        campaign: (leadAttribution[person.leadId]?.first_utm_campaign as string) || null,
+                        creative: (leadAttribution[person.leadId]?.first_utm_content as string) || null,
+                        firstLanding: (leadAttribution[person.leadId]?.first_landing_page as string) || null,
+                        firstTouchAt:
+                          (leadAttribution[person.leadId]?.first_touch_at as string) || person.createdAt,
+                        lastCampaign: (leadAttribution[person.leadId]?.last_utm_campaign as string) || null,
+                        lastTouchAt: (leadAttribution[person.leadId]?.last_touch_at as string) || null,
+                        diagnosticStatus: leads.find((l) => l.id === person.leadId)?.diagnostic_completed_at
+                          ? 'completed'
+                          : person.intent === 'Pidió diagnóstico'
+                            ? 'scheduled'
+                            : 'none',
+                        reservationAmount: 0,
+                        totalPaid: 0,
+                        attributableCac: null,
+                      }
+                    : null
+                }
               />
             ) : (
               <ProfileRowView key={person.key} person={person} />
@@ -713,12 +752,14 @@ function LeadRowView({
   converting,
   onToggle,
   onConvert,
+  origin,
 }: {
   person: PersonRow;
   open: boolean;
   converting: boolean;
   onToggle: () => void;
   onConvert: () => void;
+  origin: import('./MarketingOriginSection').MarketingOriginData | null;
 }) {
   const fresh = person.ageInDays <= 7;
   const whatsapp = person.phone ? `https://wa.me/${person.phone.replace(/\D/g, '')}` : null;
@@ -775,6 +816,7 @@ function LeadRowView({
             {person.interest && <Chip>Interés: {person.interest}</Chip>}
             <Chip>{formatDate(person.createdAt)}</Chip>
           </div>
+          {origin && <MarketingOriginSection data={origin} />}
           <div className="flex flex-wrap gap-2.5">
             {whatsapp && (
               <a

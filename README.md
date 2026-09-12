@@ -56,6 +56,10 @@ Crea un archivo `.env` en la raíz con:
 | `RESEND_FROM_EMAIL` | Remitente verificado en Resend (ej: `Tech Centre <notificaciones@techcentre.co>`) | Sí (producción) |
 | `DIAGNOSTICO_NOTIFY_EMAIL` | Correo que recibe solicitudes de diagnóstico (default: `anuar@codigoabierto.tech`) | Opcional |
 | `CRON_SECRET` | Secret para autorizar el cron de recordatorios (`Authorization: Bearer …`) | Sí (recordatorios) |
+| `NEXT_PUBLIC_META_PIXEL_ID` | ID del Pixel de Meta Ads (browser). Vacío = Pixel apagado | Opcional |
+| `META_CONVERSIONS_API_ACCESS_TOKEN` | Token de Conversions API (solo servidor). Nunca `NEXT_PUBLIC_` | Sí (Meta CAPI) |
+| `META_TEST_EVENT_CODE` | Código de Test Events de Events Manager | Opcional |
+| `META_API_VERSION` | Versión de Graph API (default `v21.0`) | Opcional |
 
 ## Scripts
 
@@ -208,6 +212,10 @@ https://techcentre.co/api/payments/webhook
 ```
 
 Variables requeridas: `WOMPI_EVENTS_SECRET`, `WOMPI_SECRET_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+
+### Meta Ads (Pixel + Conversions API)
+
+Ver [`docs/meta-analytics.md`](docs/meta-analytics.md): eventos, atribución first/last, Purchase solo tras webhook de Wompi, y el panel `/admin/marketing`.
 
 ### Clientes sin OAuth (Grok Bot, scripts)
 
