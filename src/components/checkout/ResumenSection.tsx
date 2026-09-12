@@ -7,8 +7,10 @@ import DiscountCoupon from './DiscountCoupon'
 import QuickSignUp from './QuickSignUp'
 import PaymentMethodDropdown from './PaymentMethodDropdown'
 import ReservationBalancePlan from './ReservationBalancePlan'
+import CohortInstallmentPlanPreview from './CohortInstallmentPlanPreview'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
-import { calculatePrice, calculateInstallments } from '@/lib/pricing/price-calculator'
+import { calculatePrice } from '@/lib/pricing/price-calculator'
+import { buildCohortInstallmentPlan } from '@/lib/pricing/cohort-installment-schedule'
 import {
   RESERVATION_DEPOSIT_COP,
   formatReservationDepositCop,
@@ -271,15 +273,27 @@ function PaymentAction({
   return (
     <div className="space-y-4">
       {!isReservation && (
-        <PaymentMethodDropdown
-          data={data}
-          selectedCohortId={selectedCohortId}
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
-          selectedInstallments={selectedInstallments}
-          setSelectedInstallments={setSelectedInstallments}
-          onPriceChange={onPriceChange}
-        />
+        <>
+          <PaymentMethodDropdown
+            data={data}
+            selectedCohortId={selectedCohortId}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+            selectedInstallments={selectedInstallments}
+            setSelectedInstallments={setSelectedInstallments}
+            onPriceChange={onPriceChange}
+          />
+          {paymentMethod === 'installments' && selectedInstallments > 1 && (
+            <CohortInstallmentPlanPreview
+              selectedCohortId={selectedCohortId}
+              amount={totalAmount}
+              installmentCount={selectedInstallments}
+              setInstallmentCount={setSelectedInstallments}
+              mode="full_checkout"
+              readOnly
+            />
+          )}
+        </>
       )}
 
       {isReservation && balanceAmount > 0 && (
@@ -610,9 +624,27 @@ export default function ResumenSection({
           firstInvoiceId = first?.id ?? null
         }
       } else if (paymentMethod === 'installments' && selectedInstallments > 1) {
-        const installments = calculateInstallments(totalAmount, selectedInstallments)
+        const { data: cohortRow, error: cohortScheduleError } = await supabase
+          .from('cohorts')
+          .select('start_date, end_date')
+          .eq('id', selectedCohortId)
+          .single()
 
-        const invoices = installments.map((installment) => ({
+        if (cohortScheduleError || !cohortRow?.start_date) {
+          throw new Error(
+            'Esta cohorte no tiene fechas definidas. Escríbenos para armar tu plan de pagos.'
+          )
+        }
+
+        const installmentPlan = buildCohortInstallmentPlan(
+          totalAmount,
+          cohortRow.start_date,
+          cohortRow.end_date ?? cohortRow.start_date,
+          selectedInstallments,
+          'full_checkout'
+        )
+
+        const invoices = installmentPlan.map((installment) => ({
           enrollment_id: enrollment.id,
           label: `Pago ${installment.number} de ${selectedInstallments} - ${data.name}`,
           amount: installment.amount,
@@ -628,6 +660,8 @@ export default function ResumenSection({
             coupon_code: appliedCouponCode || null,
             matricula_added: matriculaAdded,
             matricula_amount: matriculaAmount || 0,
+            due_milestone: installment.dueLabel,
+            checkout_mode: 'installments',
           },
         }))
 

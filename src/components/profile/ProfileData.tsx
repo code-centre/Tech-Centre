@@ -340,6 +340,7 @@ export default function ProfileData() {
 
   const completion = completionSummary(formData)
   const fullName = `${formData.first_name} ${formData.last_name}`.trim()
+  const showRoleBadge = user?.role !== 'lead'
   const roleLabel =
     user?.role === 'admin' ? 'Admin' : user?.role === 'instructor' ? 'Instructor' : 'Estudiante'
   const roleColor =
@@ -347,7 +348,9 @@ export default function ProfileData() {
       ? 'var(--pay-aviso)'
       : user?.role === 'instructor'
         ? 'var(--pay-serie-porcobrar)'
-        : 'var(--pay-serie-cobrado)'
+        : user?.role === 'lead'
+          ? 'var(--pay-neutro)'
+          : 'var(--pay-serie-cobrado)'
 
   return (
     <section className="flex flex-col gap-5">
@@ -391,12 +394,14 @@ export default function ProfileData() {
                 <span className="text-xl font-bold tracking-tight text-text-primary">
                   {fullName || 'Tu nombre'}
                 </span>
-                <span
-                  className="inline-flex h-6 items-center rounded-full px-2.5 text-xs font-semibold"
-                  style={{ background: `color-mix(in srgb, ${roleColor} 14%, transparent)`, color: roleColor }}
-                >
-                  {roleLabel}
-                </span>
+                {showRoleBadge && (
+                  <span
+                    className="inline-flex h-6 items-center rounded-full px-2.5 text-xs font-semibold"
+                    style={{ background: `color-mix(in srgb, ${roleColor} 14%, transparent)`, color: roleColor }}
+                  >
+                    {roleLabel}
+                  </span>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 <Chip icon={<Mail className="h-[15px] w-[15px]" />}>{formData.email}</Chip>

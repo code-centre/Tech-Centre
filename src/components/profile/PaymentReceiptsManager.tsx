@@ -215,6 +215,59 @@ export default function PaymentReceiptsManager() {
     return ''
   }
 
+  const dueMilestoneOf = (invoice: Invoice): string | null => {
+    const meta = invoice.meta as Record<string, unknown> | null
+    const milestone = meta?.due_milestone
+    return typeof milestone === 'string' && milestone.length > 0 ? milestone : null
+  }
+
+  const paymentStatusOf = (
+    invoice: Invoice
+  ): { label: string; tone: 'paid' | 'late' | 'ok' | 'review' | 'upcoming' } => {
+    if (invoice.status === 'paid') return { label: 'Pagada', tone: 'paid' }
+    if (invoice.status === 'pending_review') return { label: 'En revisión', tone: 'review' }
+    if (isOverdue(invoice)) {
+      return { label: `Vencida · ${daysLate(invoice)} d`, tone: 'late' }
+    }
+    const dueMs = invoice.due_date
+      ? new Date(`${invoice.due_date}T12:00:00`).getTime()
+      : null
+    if (dueMs && dueMs > today.getTime()) {
+      return { label: 'Próxima', tone: 'upcoming' }
+    }
+    return { label: 'Al día', tone: 'ok' }
+  }
+
+  const statusPillStyle = (tone: ReturnType<typeof paymentStatusOf>['tone']) => {
+    switch (tone) {
+      case 'paid':
+        return {
+          background: 'color-mix(in srgb, var(--pay-serie-cobrado) 14%, transparent)',
+          color: 'var(--pay-serie-cobrado)',
+        }
+      case 'late':
+        return {
+          background: 'color-mix(in srgb, var(--pay-critico) 14%, transparent)',
+          color: 'var(--pay-critico)',
+        }
+      case 'review':
+        return {
+          background: 'color-mix(in srgb, var(--pay-aviso) 14%, transparent)',
+          color: 'var(--pay-aviso)',
+        }
+      case 'upcoming':
+        return {
+          background: 'color-mix(in srgb, var(--secondary) 14%, transparent)',
+          color: 'var(--secondary)',
+        }
+      default:
+        return {
+          background: 'color-mix(in srgb, var(--pay-serie-cobrado) 14%, transparent)',
+          color: 'var(--pay-serie-cobrado)',
+        }
+    }
+  }
+
 
   if (loading) {
     return (
@@ -265,7 +318,13 @@ export default function PaymentReceiptsManager() {
         | { name?: string; end_date?: string | null; program?: unknown }
         | null
       const program = unwrap(cohort?.program as never) as { name?: string } | null
-      const rows = invoices.filter((invoice) => invoice.enrollment_id === enrollment.id)
+      const rows = invoices
+        .filter((invoice) => invoice.enrollment_id === enrollment.id)
+        .sort((a, b) => {
+          const pa = Number((a.meta as Record<string, unknown>)?.payment_number ?? 999)
+          const pb = Number((b.meta as Record<string, unknown>)?.payment_number ?? 999)
+          return pa - pb
+        })
 
       return {
         id: enrollment.id,
@@ -399,7 +458,7 @@ export default function PaymentReceiptsManager() {
 
               <div className="hidden grid-cols-[minmax(0,1fr)_116px_122px_230px] items-center gap-3.5 border-b border-border-color bg-bg-secondary px-5 py-[11px] lg:grid">
                 <HeadCell>Concepto</HeadCell>
-                <HeadCell>Vence</HeadCell>
+                <HeadCell>Fecha de cuota</HeadCell>
                 <HeadCell right>Monto</HeadCell>
                 <span />
               </div>
@@ -408,6 +467,8 @@ export default function PaymentReceiptsManager() {
                 const late = isOverdue(invoice)
                 const review = invoice.status === 'pending_review'
                 const isPaid = invoice.status === 'paid'
+                const milestone = dueMilestoneOf(invoice)
+                const paymentStatus = paymentStatusOf(invoice)
 
                 return (
                   <div
@@ -434,16 +495,27 @@ export default function PaymentReceiptsManager() {
                       </span>
                     </div>
 
-                    <span
-                      className="text-[13px]"
-                      style={{ color: late ? 'var(--pay-critico)' : 'var(--text-muted)' }}
-                    >
-                      {late
-                        ? `venció hace ${daysLate(invoice)} d`
-                        : isPaid
-                          ? formatDate(invoice.due_date)
-                          : `vence ${formatDate(invoice.due_date)}`}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className="text-[13px] leading-snug"
+                        style={{ color: late ? 'var(--pay-critico)' : 'var(--text-primary)' }}
+                      >
+                        {milestone ??
+                          (late
+                            ? `Venció el ${formatDate(invoice.due_date)}`
+                            : isPaid
+                              ? `Cuota del ${formatDate(invoice.due_date)}`
+                              : `Vence el ${formatDate(invoice.due_date)}`)}
+                      </span>
+                      {!isPaid && (
+                        <span
+                          className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                          style={statusPillStyle(paymentStatus.tone)}
+                        >
+                          {paymentStatus.label}
+                        </span>
+                      )}
+                    </div>
 
                     <span className="text-right text-sm font-semibold text-text-primary">
                       {formatMoney(invoice.amount)}

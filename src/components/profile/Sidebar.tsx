@@ -83,15 +83,17 @@ export const Sidebar = ({ activeSection, onSectionChange, sections }: SidebarPro
         )}
         <div className="flex min-w-0 flex-col gap-[3px]">
           <span className="truncate text-[14.5px] font-semibold text-text-primary">{fullName}</span>
-          <span
-            className="inline-flex h-5 w-fit items-center rounded-full px-2 text-[11px] font-semibold"
-            style={{
-              background: `color-mix(in srgb, ${roleColor} 14%, transparent)`,
-              color: roleColor,
-            }}
-          >
-            {ROLE_LABEL[role] ?? role}
-          </span>
+          {role !== 'lead' && (
+            <span
+              className="inline-flex h-5 w-fit items-center rounded-full px-2 text-[11px] font-semibold"
+              style={{
+                background: `color-mix(in srgb, ${roleColor} 14%, transparent)`,
+                color: roleColor,
+              }}
+            >
+              {ROLE_LABEL[role] ?? role}
+            </span>
+          )}
         </div>
       </div>
 
