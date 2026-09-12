@@ -10,6 +10,7 @@ interface Props {
   value?: number | null;
   email?: string | null;
   userId?: string | null;
+  variant?: 'reservation' | 'standard';
 }
 
 export default function InitiateCheckoutTracker({
@@ -19,6 +20,7 @@ export default function InitiateCheckoutTracker({
   value,
   email,
   userId,
+  variant = 'standard',
 }: Props) {
   useEffect(() => {
     if (!name) return;
@@ -29,8 +31,9 @@ export default function InitiateCheckoutTracker({
       programId,
       email,
       userId,
+      variant,
     });
-  }, [programId, name, code, value, email, userId]);
+  }, [programId, name, code, value, email, userId, variant]);
 
   return null;
 }

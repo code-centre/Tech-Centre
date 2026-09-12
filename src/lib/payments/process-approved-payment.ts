@@ -3,6 +3,7 @@ import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service';
 import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { handleInvoicePaidForEnrollment } from '@/lib/payments/confirm-enrollment-paid';
 import { recordConfirmedPurchase } from '@/lib/analytics/meta/purchase';
+import { isEnrollmentConfirmingPayment } from '@/lib/payments/invoice-meta';
 
 interface InvoiceRow {
   id: number;
@@ -73,8 +74,7 @@ export async function processApprovedWompiPayment(params: {
   for (const invoice of invoices) {
     if (invoice.status === 'paid') continue;
 
-    const isFirstInstallment =
-      Number(invoice.meta?.payment_number ?? 1) === 1;
+    const isFirstInstallment = isEnrollmentConfirmingPayment(invoice.meta);
 
     const { error: invoiceUpdateError } = await (supabase as any)
       .from('invoices')
@@ -92,6 +92,11 @@ export async function processApprovedWompiPayment(params: {
       console.error('Webhook invoice update error:', invoiceUpdateError);
       return { ok: false, message: invoiceUpdateError.message };
     }
+
+    await recordConfirmedPurchase({
+      invoiceId: invoice.id,
+      transactionId,
+    });
 
     if (isFirstInstallment) {
       await handleInvoicePaidForEnrollment(supabase, invoice);
@@ -137,11 +142,6 @@ export async function processApprovedWompiPayment(params: {
         }
       }
     }
-
-    await recordConfirmedPurchase({
-      invoiceId: invoice.id,
-      transactionId,
-    });
   }
 
   return { ok: true, message: 'Payment processed' };

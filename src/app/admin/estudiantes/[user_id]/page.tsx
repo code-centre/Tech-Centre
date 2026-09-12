@@ -9,6 +9,7 @@ import StudentDetail, {
   type DetailProfile,
 } from '@/components/adminspage/StudentDetail';
 import { formatLeadOrigin, parseLeadNotes } from '@/lib/students';
+import { isReservationDeposit } from '@/lib/payments/invoice-meta';
 import type { MarketingOriginData } from '@/components/adminspage/MarketingOriginSection';
 
 export const metadata: Metadata = {
@@ -227,10 +228,9 @@ export default async function StudentDetailPage({ params, searchParams }: Props)
   const attr = (attribution ?? null) as Record<string, unknown> | null;
   const paidInvoices = invoices.filter((invoice) => invoice.status === 'paid');
   const reservationAmount = paidInvoices.reduce((sum, invoice) => {
-    const paymentNumber = Number(invoice.meta?.payment_number ?? 1);
-    const isReservation =
-      invoice.meta?.payment_type === 'reservation_deposit' || paymentNumber === 1;
-    return isReservation ? sum + Number(invoice.amount || 0) : sum;
+    return isReservationDeposit(invoice.meta)
+      ? sum + Number(invoice.amount || 0)
+      : sum;
   }, 0);
   const totalPaid = paidInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
   const scheduled =

@@ -146,15 +146,17 @@ export default function LeadForm({ programId, programSlug }: LeadFormProps) {
       })
 
       if (result.success) {
-        trackLead({
-          eventId,
-          email: formData.email,
-          phone: formData.whatsapp,
-          contentIds: programSlug ? [programSlug] : [],
-          programId,
-          leadId: result.leadId ?? null,
-          persistCapi: false,
-        })
+        if (result.leadId) {
+          trackLead({
+            eventId,
+            email: formData.email,
+            phone: formData.whatsapp,
+            contentIds: programSlug ? [programSlug] : [],
+            programId,
+            leadId: result.leadId,
+            persistCapi: false,
+          })
+        }
         setIsSuccess(true)
         // Resetear formulario
         setFormData({

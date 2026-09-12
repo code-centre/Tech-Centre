@@ -36,9 +36,11 @@ const DIAG: Record<MarketingOriginData['diagnosticStatus'], string> = {
 export default function MarketingOriginSection({
   data,
   onUpdated,
+  canMarkDiagnostic = false,
 }: {
   data: MarketingOriginData;
   onUpdated?: () => void;
+  canMarkDiagnostic?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
   const [status, setStatus] = useState(data.diagnosticStatus);
@@ -76,7 +78,7 @@ export default function MarketingOriginSection({
         <Item label="Total pagado" value={money(data.totalPaid)} />
         <Item label="CAC atribuible" value={data.attributableCac == null ? '—' : money(data.attributableCac)} />
       </dl>
-      {data.leadId && status !== 'completed' && (
+      {canMarkDiagnostic && data.leadId && status !== 'completed' && (
         <div className="px-5 py-3">
           <button
             type="button"

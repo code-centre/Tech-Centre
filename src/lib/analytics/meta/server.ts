@@ -11,6 +11,7 @@ import type {
 } from './types';
 
 const DEFAULT_API_VERSION = 'v21.0';
+const CAPI_TIMEOUT_MS = 5_000;
 
 function pixelId(): string | null {
   return process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || null;
@@ -83,6 +84,9 @@ export async function sendMetaEvent(input: SendMetaEventInput): Promise<{ ok: bo
   const testCode = process.env.META_TEST_EVENT_CODE?.trim();
   if (testCode) payload.test_event_code = testCode;
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), CAPI_TIMEOUT_MS);
+
   try {
     const response = await fetch(
       `https://graph.facebook.com/${apiVersion()}/${id}/events`,
@@ -90,6 +94,7 @@ export async function sendMetaEvent(input: SendMetaEventInput): Promise<{ ok: bo
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...payload, access_token: token }),
+        signal: controller.signal,
       }
     );
 
@@ -104,12 +109,17 @@ export async function sendMetaEvent(input: SendMetaEventInput): Promise<{ ok: bo
 
     logMetaInfo('CAPI sent', { eventName: input.eventName, eventId: input.eventId });
     return { ok: true };
-  } catch {
-    logMetaError('CAPI request threw', {
+  } catch (error) {
+    const timedOut =
+      (error instanceof Error && error.name === 'AbortError') ||
+      (typeof error === 'object' && error !== null && 'name' in error && (error as { name?: string }).name === 'AbortError');
+    logMetaError(timedOut ? 'CAPI request timed out' : 'CAPI request threw', {
       eventName: input.eventName,
       eventId: input.eventId,
     });
     return { ok: false };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -120,9 +130,10 @@ export async function recordAndSendMetaEvent(params: {
   userData?: MetaUserDataInput;
   customData?: MetaCustomData;
   persist?: Omit<PersistMarketingEventInput, 'eventName' | 'eventId' | 'source'>;
-}): Promise<void> {
+}): Promise<{ sent: boolean }> {
+  let inserted = false;
   try {
-    await persistMarketingEvent({
+    const persist = await persistMarketingEvent({
       eventName: params.eventName,
       eventId: params.eventId,
       source: 'capi',
@@ -136,6 +147,7 @@ export async function recordAndSendMetaEvent(params: {
         order_id: params.customData?.order_id ?? params.customData?.transaction_id,
       },
     });
+    inserted = persist.inserted;
   } catch {
     logMetaError('persist before CAPI failed', {
       eventName: params.eventName,
@@ -143,19 +155,25 @@ export async function recordAndSendMetaEvent(params: {
     });
   }
 
+  if (params.eventName === 'CompleteRegistration' && !inserted) {
+    return { sent: false };
+  }
+
   try {
-    await sendMetaEvent({
+    const capi = await sendMetaEvent({
       eventName: params.eventName,
       eventId: params.eventId,
       eventSourceUrl: params.eventSourceUrl,
       userData: params.userData,
       customData: params.customData,
     });
+    return { sent: capi.ok };
   } catch {
     logMetaError('CAPI swallowed', {
       eventName: params.eventName,
       eventId: params.eventId,
     });
+    return { sent: false };
   }
 }
 

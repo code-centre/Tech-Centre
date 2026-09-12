@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { isReservationDeposit } from '@/lib/payments/invoice-meta';
 import {
   DEFAULT_MODULE_CAPACITY,
   MARKETING_EJECUTIVO_CODES,
@@ -85,111 +86,143 @@ function one<T>(value: T | T[] | null | undefined): T | null {
   return value ?? null;
 }
 
+const PAGE_SIZE = 1000;
+const MAX_ROWS = 20_000;
+
+async function fetchAllPages<T>(
+  query: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>
+): Promise<T[]> {
+  const rows: T[] = [];
+  for (let from = 0; from < MAX_ROWS; from += PAGE_SIZE) {
+    const { data, error } = await query(from, from + PAGE_SIZE - 1);
+    if (error) break;
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < PAGE_SIZE) break;
+  }
+  return rows;
+}
+
 export async function buildMarketingReport(filters: MarketingFilters): Promise<MarketingReport> {
   const supabase = await createClient();
   const from = filters.from;
   const to = filters.to;
+  const fromStart = `${from}T00:00:00`;
+  const toEnd = `${to}T23:59:59`;
 
-  const [
-    leadsRes,
-    eventsRes,
-    attrRes,
-    invoicesRes,
-    enrollmentsRes,
-    spendRes,
-    programsRes,
-    routesRes,
-    cohortsRes,
-  ] = await Promise.all([
-    supabase
-      .from('leads')
-      .select('id, email, source, stage, interested_program_id, diagnostic_completed_at, created_at')
-      .gte('created_at', `${from}T00:00:00`)
-      .lte('created_at', `${to}T23:59:59`),
-    supabase
-      .from('marketing_events')
-      .select('event_name, event_id, lead_id, user_id, program_id, value, occurred_at')
-      .gte('occurred_at', `${from}T00:00:00`)
-      .lte('occurred_at', `${to}T23:59:59`),
-    supabase.from('marketing_attribution').select('*'),
-    supabase
-      .from('invoices')
-      .select('id, enrollment_id, amount, status, paid_at, meta')
-      .eq('status', 'paid'),
-    supabase
-      .from('enrollments')
-      .select('id, student_id, status, cohort_id, created_at, updated_at, cohort:cohorts(id, program_id, capacity, offering, program:programs(id, name, code))'),
-    supabase.from('marketing_spend').select('*'),
-    supabase.from('programs').select('id, name, code'),
-    supabase.from('routes').select('id, slug, name'),
-    supabase
-      .from('cohorts')
-      .select('id, program_id, capacity, offering')
-      .eq('offering', true),
-  ]);
-
-  const leads = (leadsRes.data ?? []) as {
-    id: number;
-    email: string | null;
-    source: string;
-    stage: string | null;
-    interested_program_id: number | null;
-    diagnostic_completed_at: string | null;
-    created_at: string;
-  }[];
-  const events = (eventsRes.data ?? []) as {
-    event_name: string;
-    lead_id: number | null;
-    user_id: string | null;
-    program_id: number | null;
-    value: number | null;
-    occurred_at: string;
-  }[];
-  const attributions = (attrRes.data ?? []) as Record<string, unknown>[];
-  const invoices = (invoicesRes.data ?? []) as {
-    id: number;
-    enrollment_id: number;
-    amount: number;
-    status: string;
-    paid_at: string | null;
-    meta: Record<string, unknown> | null;
-  }[];
-  const enrollments = (enrollmentsRes.data ?? []) as {
-    id: number;
-    student_id: string;
-    status: string;
-    cohort_id: number;
-    created_at: string;
-    updated_at: string;
-    cohort:
-      | {
+  const [leads, events, attributions, invoices, enrollments, spendRows, programs, routes, offeringCohorts] =
+    await Promise.all([
+      fetchAllPages((rangeFrom, rangeTo) =>
+        supabase
+          .from('leads')
+          .select('id, email, source, stage, interested_program_id, diagnostic_completed_at, created_at')
+          .gte('created_at', fromStart)
+          .lte('created_at', toEnd)
+          .range(rangeFrom, rangeTo)
+      ) as Promise<
+        {
           id: number;
-          program_id: number;
-          capacity: number | null;
-          offering: boolean;
-          program: { id: number; name: string; code: string } | { id: number; name: string; code: string }[] | null;
-        }
-      | null;
-  }[];
-  const spendRows = (spendRes.data ?? []) as {
-    campaign_name: string;
-    utm_campaign: string | null;
-    utm_content: string | null;
-    starts_on: string;
-    ends_on: string;
-    spend: number;
-  }[];
-  const programs = (programsRes.data ?? []) as { id: number; name: string; code: string }[];
-  const routes = (routesRes.data ?? []) as { id: string; slug: string; name: string }[];
-  const offeringCohorts = (cohortsRes.data ?? []) as {
-    id: number;
-    program_id: number;
-    capacity: number | null;
-  }[];
+          email: string | null;
+          source: string;
+          stage: string | null;
+          interested_program_id: number | null;
+          diagnostic_completed_at: string | null;
+          created_at: string;
+        }[]
+      >,
+      fetchAllPages((rangeFrom, rangeTo) =>
+        supabase
+          .from('marketing_events')
+          .select('event_name, event_id, lead_id, user_id, program_id, value, occurred_at')
+          .gte('occurred_at', fromStart)
+          .lte('occurred_at', toEnd)
+          .range(rangeFrom, rangeTo)
+      ) as Promise<
+        {
+          event_name: string;
+          lead_id: number | null;
+          user_id: string | null;
+          program_id: number | null;
+          value: number | null;
+          occurred_at: string;
+        }[]
+      >,
+      fetchAllPages((rangeFrom, rangeTo) =>
+        supabase.from('marketing_attribution').select('*').range(rangeFrom, rangeTo)
+      ),
+      fetchAllPages((rangeFrom, rangeTo) =>
+        supabase
+          .from('invoices')
+          .select('id, enrollment_id, amount, status, paid_at, meta')
+          .eq('status', 'paid')
+          .not('paid_at', 'is', null)
+          .gte('paid_at', fromStart)
+          .lte('paid_at', toEnd)
+          .range(rangeFrom, rangeTo)
+      ) as Promise<
+        {
+          id: number;
+          enrollment_id: number;
+          amount: number;
+          status: string;
+          paid_at: string | null;
+          meta: Record<string, unknown> | null;
+        }[]
+      >,
+      fetchAllPages((rangeFrom, rangeTo) =>
+        supabase
+          .from('enrollments')
+          .select(
+            'id, student_id, status, cohort_id, created_at, updated_at, cohort:cohorts(id, program_id, capacity, offering, program:programs(id, name, code))'
+          )
+          .range(rangeFrom, rangeTo)
+      ) as Promise<
+        {
+          id: number;
+          student_id: string;
+          status: string;
+          cohort_id: number;
+          created_at: string;
+          updated_at: string;
+          cohort:
+            | {
+                id: number;
+                program_id: number;
+                capacity: number | null;
+                offering: boolean;
+                program:
+                  | { id: number; name: string; code: string }
+                  | { id: number; name: string; code: string }[]
+                  | null;
+              }
+            | null;
+        }[]
+      >,
+      fetchAllPages((rangeFrom, rangeTo) =>
+        supabase.from('marketing_spend').select('*').range(rangeFrom, rangeTo)
+      ) as Promise<
+        {
+          campaign_name: string;
+          utm_campaign: string | null;
+          utm_content: string | null;
+          starts_on: string;
+          ends_on: string;
+          spend: number;
+        }[]
+      >,
+      supabase.from('programs').select('id, name, code').then((res) => (res.data ?? []) as { id: number; name: string; code: string }[]),
+      supabase.from('routes').select('id, slug, name').then((res) => (res.data ?? []) as { id: string; slug: string; name: string }[]),
+      supabase
+        .from('cohorts')
+        .select('id, program_id, capacity, offering')
+        .eq('offering', true)
+        .then((res) => (res.data ?? []) as { id: number; program_id: number; capacity: number | null }[]),
+    ]);
 
+  const attrRows = attributions as Record<string, unknown>[];
   const attrByLead = new Map<number, Record<string, unknown>>();
   const attrByUser = new Map<string, Record<string, unknown>>();
-  for (const row of attributions) {
+  for (const row of attrRows) {
     if (typeof row.lead_id === 'number') attrByLead.set(row.lead_id, row);
     if (typeof row.user_id === 'string') attrByUser.set(row.user_id, row);
   }
@@ -245,28 +278,41 @@ export async function buildMarketingReport(filters: MarketingFilters): Promise<M
     );
   });
 
-  const viewContent = events.filter(
-    (event) => event.event_name === 'ViewContent' && matchesProgram(event.program_id)
-  );
+  const viewContent = events.filter((event) => {
+    if (event.event_name !== 'ViewContent') return false;
+    if (!matchesProgram(event.program_id)) return false;
+    const attr =
+      (event.lead_id != null ? attrByLead.get(event.lead_id) : undefined) ||
+      (event.user_id ? attrByUser.get(event.user_id) : undefined);
+    return matchesCampaign(attr) && matchesAudience(attr);
+  });
   const diagnosticsScheduled = filteredLeads.filter(
     (lead) => lead.stage === 'diagnostico' || lead.source.startsWith('diagnostico_')
   );
   const diagnosticsCompleted = filteredLeads.filter((lead) => Boolean(lead.diagnostic_completed_at));
 
-  const checkoutStarted = events.filter((event) => event.event_name === 'InitiateCheckout').length;
+  const checkoutStarted = events.filter((event) => {
+    if (event.event_name !== 'InitiateCheckout') return false;
+    if (!matchesProgram(event.program_id)) return false;
+    const attr =
+      (event.lead_id != null ? attrByLead.get(event.lead_id) : undefined) ||
+      (event.user_id ? attrByUser.get(event.user_id) : undefined);
+    return matchesCampaign(attr) && matchesAudience(attr);
+  }).length;
 
   const paidInRange = invoices.filter((invoice) => inRange(invoice.paid_at, from, to));
   const enrollmentById = new Map(enrollments.map((e) => [e.id, e]));
 
-  const reservationInvoices = paidInRange.filter((invoice) => {
+  function invoiceMatchesFilters(invoice: (typeof invoices)[number]): boolean {
     const enrollment = enrollmentById.get(invoice.enrollment_id);
     const program = one(enrollment?.cohort?.program);
-    const paymentNumber = Number(invoice.meta?.payment_number ?? 1);
-    const isReservation =
-      invoice.meta?.payment_type === 'reservation_deposit' || paymentNumber === 1;
     const attr = enrollment ? attrByUser.get(enrollment.student_id) : undefined;
-    return isReservation && matchesCampaign(attr) && matchesAudience(attr) && matchesProgram(program?.id);
-  });
+    return matchesCampaign(attr) && matchesAudience(attr) && matchesProgram(program?.id);
+  }
+
+  const reservationInvoices = paidInRange.filter(
+    (invoice) => isReservationDeposit(invoice.meta) && invoiceMatchesFilters(invoice)
+  );
 
   const enrolled = enrollments.filter((enrollment) => {
     if (enrollment.status !== 'enrolled') return false;
@@ -277,24 +323,44 @@ export async function buildMarketingReport(filters: MarketingFilters): Promise<M
   });
 
   const attributedRevenue = paidInRange.reduce((sum, invoice) => {
-    const enrollment = enrollmentById.get(invoice.enrollment_id);
-    const program = one(enrollment?.cohort?.program);
-    const attr = enrollment ? attrByUser.get(enrollment.student_id) : undefined;
-    if (!matchesCampaign(attr) || !matchesAudience(attr) || !matchesProgram(program?.id)) return sum;
+    if (!invoiceMatchesFilters(invoice)) return sum;
     return sum + Number(invoice.amount || 0);
   }, 0);
 
-  const spend = spendRows
-    .filter((row) => row.starts_on <= to && row.ends_on >= from)
-    .filter((row) => {
-      if (!filters.campaign) return true;
-      return row.utm_campaign === filters.campaign || row.campaign_name === filters.campaign;
-    })
-    .filter((row) => {
-      if (!filters.audience) return true;
-      return !row.utm_content || row.utm_content === filters.audience;
-    })
-    .reduce((sum, row) => sum + Number(row.spend || 0), 0);
+  const campaignsInScope = new Set<string>();
+  if (filters.programId || filters.routeSlug) {
+    for (const lead of filteredLeads) {
+      const attr = attrByLead.get(lead.id);
+      const name = String(attr?.first_utm_campaign || attr?.last_utm_campaign || '');
+      if (name) campaignsInScope.add(name);
+    }
+    for (const invoice of paidInRange.filter(invoiceMatchesFilters)) {
+      const enrollment = enrollmentById.get(invoice.enrollment_id);
+      const attr = enrollment ? attrByUser.get(enrollment.student_id) : undefined;
+      const name = String(attr?.first_utm_campaign || attr?.last_utm_campaign || '');
+      if (name) campaignsInScope.add(name);
+    }
+    for (const enrollment of enrolled) {
+      const attr = attrByUser.get(enrollment.student_id);
+      const name = String(attr?.first_utm_campaign || attr?.last_utm_campaign || '');
+      if (name) campaignsInScope.add(name);
+    }
+  }
+
+  const filteredSpend = spendRows.filter((row) => {
+    if (row.starts_on > to || row.ends_on < from) return false;
+    if (filters.campaign && row.utm_campaign !== filters.campaign && row.campaign_name !== filters.campaign) {
+      return false;
+    }
+    if (filters.audience && row.utm_content && row.utm_content !== filters.audience) return false;
+    if (filters.programId || filters.routeSlug) {
+      const key = row.utm_campaign || row.campaign_name;
+      return campaignsInScope.has(key);
+    }
+    return true;
+  });
+
+  const spend = filteredSpend.reduce((sum, row) => sum + Number(row.spend || 0), 0);
 
   const leadsCount = filteredLeads.length;
   const reservations = reservationInvoices.length;
@@ -387,12 +453,11 @@ export async function buildMarketingReport(filters: MarketingFilters): Promise<M
   }
 
   for (const invoice of paidInRange) {
+    if (isReservationDeposit(invoice.meta)) continue;
+    if (!invoiceMatchesFilters(invoice)) continue;
     const enrollment = enrollmentById.get(invoice.enrollment_id);
     const program = one(enrollment?.cohort?.program);
     const attr = enrollment ? attrByUser.get(enrollment.student_id) : undefined;
-    if (!matchesCampaign(attr) || !matchesAudience(attr) || !matchesProgram(program?.id)) continue;
-    const paymentNumber = Number(invoice.meta?.payment_number ?? 1);
-    if (paymentNumber === 1) continue;
     const row = ensureCampaign(attr, program?.name || 'Sin programa');
     row.revenue += Number(invoice.amount || 0);
   }
@@ -404,7 +469,7 @@ export async function buildMarketingReport(filters: MarketingFilters): Promise<M
     row.enrollments += 1;
   }
 
-  for (const spendRow of spendRows.filter((row) => row.starts_on <= to && row.ends_on >= from)) {
+  for (const spendRow of filteredSpend) {
     const matching = [...campaignKeys.values()].filter(
       (row) =>
         row.campaign === (spendRow.utm_campaign || spendRow.campaign_name) &&
@@ -464,6 +529,7 @@ export async function buildMarketingReport(filters: MarketingFilters): Promise<M
     const pEnroll = enrolled.filter((e) => one(e.cohort?.program)?.id === program.id).length;
     const seats = seatsByProgram.get(program.id) ?? DEFAULT_MODULE_CAPACITY;
     const revenue = paidInRange.reduce((sum, invoice) => {
+      if (!invoiceMatchesFilters(invoice)) return sum;
       const enrollment = enrollmentById.get(invoice.enrollment_id);
       return one(enrollment?.cohort?.program)?.id === program.id ? sum + Number(invoice.amount || 0) : sum;
     }, 0);
@@ -488,7 +554,7 @@ export async function buildMarketingReport(filters: MarketingFilters): Promise<M
 
   const campaignOptions = [
     ...new Set(
-      attributions
+      attrRows
         .flatMap((a) => [a.first_utm_campaign, a.last_utm_campaign])
         .filter((v): v is string => typeof v === 'string' && v.length > 0)
     ),

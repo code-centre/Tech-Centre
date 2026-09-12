@@ -141,8 +141,10 @@ export function trackInitiateCheckout(params: {
   programId?: number | null;
   email?: string | null;
   userId?: string | null;
+  variant?: 'reservation' | 'standard';
 }): string {
-  const key = `meta:checkout:${params.contentIds.join(',')}`;
+  const variant = params.variant ?? 'standard';
+  const key = `meta:checkout:${variant}:${params.contentIds.join(',')}`;
   if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(key)) {
     return sessionStorage.getItem(key) as string;
   }

@@ -48,21 +48,16 @@ export async function markDiagnosticCompleted(leadId: number): Promise<{ success
   const supabase = await createClient();
   const now = new Date().toISOString();
 
-  const { data: lead, error: fetchError } = await (supabase as any)
-    .from('leads')
-    .select('id, email, phone, interested_program_id, diagnostic_completed_at')
-    .eq('id', leadId)
-    .single();
-
-  if (fetchError || !lead) return { success: false, error: 'Lead no encontrado' };
-  if (lead.diagnostic_completed_at) return { success: true };
-
-  const { error } = await (supabase as any)
+  const { data: lead, error } = await (supabase as any)
     .from('leads')
     .update({ diagnostic_completed_at: now })
-    .eq('id', leadId);
+    .eq('id', leadId)
+    .is('diagnostic_completed_at', null)
+    .select('id, email, phone, interested_program_id')
+    .maybeSingle();
 
   if (error) return { success: false, error: error.message };
+  if (!lead) return { success: true };
 
   const attribution = await getAttributionForIdentity({ leadId, email: lead.email });
 

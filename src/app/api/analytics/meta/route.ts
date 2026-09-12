@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/lib/rate-limit';
+import { createClient } from '@/lib/supabase/route-handler';
 import { upsertAttribution } from '@/lib/analytics/meta/persist';
-import { hasEventForUser } from '@/lib/analytics/meta/persist';
 import { recordAndSendMetaEvent, requestClientHints } from '@/lib/analytics/meta/server';
-import { META_CUSTOM_EVENTS, META_STANDARD_EVENTS, type AttributionSnapshot, type MetaEventName } from '@/lib/analytics/meta/types';
+import {
+  META_CUSTOM_EVENTS,
+  META_STANDARD_EVENTS,
+  SESSION_COOKIE,
+  type AttributionSnapshot,
+  type MetaEventName,
+} from '@/lib/analytics/meta/types';
 
 export const runtime = 'nodejs';
 
@@ -33,21 +39,31 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, reason: 'purchase_server_only' }, { status: 400 });
   }
 
-  const hints = requestClientHints(request);
-  const attribution = (body.attribution ?? null) as AttributionSnapshot | null;
-  const userId = typeof body.userId === 'string' ? body.userId : null;
-  const leadId = typeof body.leadId === 'number' ? body.leadId : null;
-  const email = typeof body.email === 'string' ? body.email : null;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const userId = user?.id ?? null;
+  const email = user?.email ?? null;
 
-  if (eventName === 'CompleteRegistration' && userId) {
-    if (await hasEventForUser('CompleteRegistration', userId)) {
-      return NextResponse.json({ ok: true, deduped: true });
-    }
+  if (eventName === 'CompleteRegistration' && !userId) {
+    return NextResponse.json({ ok: true, skipped: true });
   }
 
-  if (attribution?.session_id) {
+  const hints = requestClientHints(request);
+  const attribution = (body.attribution ?? null) as AttributionSnapshot | null;
+  const cookieSessionId = request.cookies.get(SESSION_COOKIE)?.value || null;
+
+  if (attribution && (cookieSessionId || userId)) {
     try {
-      await upsertAttribution({ snapshot: attribution, leadId, userId, email });
+      await upsertAttribution({
+        snapshot: {
+          ...attribution,
+          session_id: cookieSessionId || `user:${userId}`,
+        },
+        userId,
+        email,
+      });
     } catch {
       // attribution must not fail the conversion
     }
@@ -63,8 +79,7 @@ export async function POST(request: NextRequest) {
     eventSourceUrl: typeof body.eventSourceUrl === 'string' ? body.eventSourceUrl : request.headers.get('referer'),
     userData: {
       email,
-      phone: typeof body.phone === 'string' ? body.phone : null,
-      externalId: typeof body.externalId === 'string' ? body.externalId : userId,
+      externalId: userId,
       clientIpAddress: hints.clientIpAddress,
       clientUserAgent: hints.clientUserAgent,
       fbp,
@@ -79,7 +94,6 @@ export async function POST(request: NextRequest) {
       content_category: typeof customData.content_category === 'string' ? customData.content_category : undefined,
     },
     persist: {
-      leadId,
       userId,
       programId: typeof body.programId === 'number' ? body.programId : null,
     },

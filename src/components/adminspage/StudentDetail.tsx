@@ -783,7 +783,11 @@ export default function StudentDetail({
           )}
 
           {marketing && (
-            <MarketingOriginSection data={marketing} onUpdated={() => router.refresh()} />
+            <MarketingOriginSection
+              data={marketing}
+              canMarkDiagnostic={canEditRole}
+              onUpdated={() => router.refresh()}
+            />
           )}
         </div>
       </div>

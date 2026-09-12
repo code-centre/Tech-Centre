@@ -117,7 +117,16 @@ function readCookie(name: string): string | null {
 
 function writeCookie(name: string, value: string, maxAgeSec: number): void {
   if (typeof document === 'undefined') return;
-  document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSec}; SameSite=Lax`;
+  const parts = [
+    `${name}=${encodeURIComponent(value)}`,
+    'Path=/',
+    `Max-Age=${maxAgeSec}`,
+    'SameSite=Lax',
+  ];
+  if (typeof location !== 'undefined' && location.protocol === 'https:') {
+    parts.push('Secure');
+  }
+  document.cookie = parts.join('; ');
 }
 
 function parseSnapshot(raw: string | null): AttributionSnapshot | null {

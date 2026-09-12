@@ -521,6 +521,7 @@ export default function EstudiantesAdmin() {
                 converting={converting === person.leadId}
                 onToggle={() => setExpanded(expanded === person.key ? null : person.key)}
                 onConvert={() => person.leadId && handleConvert(person.leadId)}
+                onUpdated={fetchAll}
                 origin={
                   person.leadId
                     ? {
@@ -752,6 +753,7 @@ function LeadRowView({
   converting,
   onToggle,
   onConvert,
+  onUpdated,
   origin,
 }: {
   person: PersonRow;
@@ -759,6 +761,7 @@ function LeadRowView({
   converting: boolean;
   onToggle: () => void;
   onConvert: () => void;
+  onUpdated: () => void;
   origin: import('./MarketingOriginSection').MarketingOriginData | null;
 }) {
   const fresh = person.ageInDays <= 7;
@@ -816,7 +819,9 @@ function LeadRowView({
             {person.interest && <Chip>Interés: {person.interest}</Chip>}
             <Chip>{formatDate(person.createdAt)}</Chip>
           </div>
-          {origin && <MarketingOriginSection data={origin} />}
+          {origin && (
+            <MarketingOriginSection data={origin} canMarkDiagnostic onUpdated={onUpdated} />
+          )}
           <div className="flex flex-wrap gap-2.5">
             {whatsapp && (
               <a

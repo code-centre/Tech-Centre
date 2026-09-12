@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { BarChart3, Plus } from 'lucide-react';
 import AdminPageHeader from '@/components/admin/AdminPageHeader';
 import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
@@ -41,11 +41,13 @@ export default function MarketingDashboard() {
   const [campaign, setCampaign] = useState('');
   const [programId, setProgramId] = useState('');
   const [routeSlug, setRouteSlug] = useState('');
+  const [audienceInput, setAudienceInput] = useState('');
   const [audience, setAudience] = useState('');
   const [report, setReport] = useState<MarketingReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [spendOpen, setSpendOpen] = useState(false);
+  const [spendSaving, setSpendSaving] = useState(false);
   const [spendForm, setSpendForm] = useState({
     campaignName: '',
     utmCampaign: '',
@@ -56,6 +58,16 @@ export default function MarketingDashboard() {
     notes: '',
   });
   const [spendError, setSpendError] = useState<string | null>(null);
+
+  const loadSeq = useRef(0);
+
+  useEffect(() => {
+    const next = audienceInput.trim();
+    const timer = window.setTimeout(() => {
+      setAudience((prev) => (prev === next ? prev : next));
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [audienceInput]);
 
   const filters = useMemo(
     () => ({
@@ -70,12 +82,15 @@ export default function MarketingDashboard() {
   );
 
   function load() {
+    const seq = ++loadSeq.current;
     startTransition(async () => {
       try {
         setError(null);
         const next = await getMarketingDashboard(filters);
+        if (seq !== loadSeq.current) return;
         setReport(next);
       } catch (err) {
+        if (seq !== loadSeq.current) return;
         setError(err instanceof Error ? err.message : 'No se pudo cargar el reporte');
       }
     });
@@ -88,23 +103,29 @@ export default function MarketingDashboard() {
 
   async function handleSpend(e: React.FormEvent) {
     e.preventDefault();
+    if (spendSaving) return;
+    setSpendSaving(true);
     setSpendError(null);
-    const result = await addMarketingSpend({
-      campaignName: spendForm.campaignName,
-      utmCampaign: spendForm.utmCampaign,
-      utmContent: spendForm.utmContent,
-      startsOn: spendForm.startsOn,
-      endsOn: spendForm.endsOn,
-      spend: Number(spendForm.spend),
-      notes: spendForm.notes,
-    });
-    if (!result.success) {
-      setSpendError(result.error || 'No se pudo guardar el gasto');
-      return;
+    try {
+      const result = await addMarketingSpend({
+        campaignName: spendForm.campaignName,
+        utmCampaign: spendForm.utmCampaign,
+        utmContent: spendForm.utmContent,
+        startsOn: spendForm.startsOn,
+        endsOn: spendForm.endsOn,
+        spend: Number(spendForm.spend),
+        notes: spendForm.notes,
+      });
+      if (!result.success) {
+        setSpendError(result.error || 'No se pudo guardar el gasto');
+        return;
+      }
+      setSpendOpen(false);
+      setSpendForm((prev) => ({ ...prev, campaignName: '', spend: '', notes: '' }));
+      load();
+    } finally {
+      setSpendSaving(false);
     }
-    setSpendOpen(false);
-    setSpendForm((prev) => ({ ...prev, campaignName: '', spend: '', notes: '' }));
-    load();
   }
 
   if (!report && pending) {
@@ -195,8 +216,8 @@ export default function MarketingDashboard() {
         <label className="flex flex-col gap-1 text-[12px] text-text-muted">
           Audiencia / ad
           <input
-            value={audience}
-            onChange={(e) => setAudience(e.target.value)}
+            value={audienceInput}
+            onChange={(e) => setAudienceInput(e.target.value)}
             placeholder="utm_content"
             className={FIELD}
           />
@@ -272,8 +293,8 @@ export default function MarketingDashboard() {
           </label>
           {spendError && <p className="md:col-span-3 text-sm text-red-400">{spendError}</p>}
           <div className="md:col-span-3">
-            <button type="submit" className="btn-primary">
-              Guardar gasto
+            <button type="submit" className="btn-primary" disabled={spendSaving}>
+              {spendSaving ? 'Guardando…' : 'Guardar gasto'}
             </button>
           </div>
         </form>

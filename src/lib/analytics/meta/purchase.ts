@@ -2,6 +2,7 @@ import { canonicalSiteUrl } from '@/lib/blog/siteUrl';
 import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { logMetaError } from './log';
 import { getAttributionForIdentity } from './persist';
+import { getInvoicePaymentNumber } from '@/lib/payments/invoice-meta';
 import { recordAndSendMetaEvent } from './server';
 
 interface InvoiceRow {
@@ -109,7 +110,7 @@ export async function recordConfirmedPurchase(params: {
         value: amount,
         currency: 'COP',
         metadata: {
-          payment_number: invoice.meta?.payment_number ?? 1,
+          payment_number: getInvoicePaymentNumber(invoice.meta),
           payment_type: invoice.meta?.payment_type ?? null,
         },
       },

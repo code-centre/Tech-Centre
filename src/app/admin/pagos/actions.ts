@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { confirmEnrollmentPaid } from '@/lib/payments/confirm-enrollment-paid';
 import { recordConfirmedPurchase } from '@/lib/analytics/meta/purchase';
+import { isEnrollmentConfirmingPayment } from '@/lib/payments/invoice-meta';
 
 export interface MarkInvoicePaidResult {
   success: boolean;
@@ -65,7 +66,6 @@ export async function markInvoicePaidAdmin(
 
   if (wasPending) {
     const mergedMeta = { ...(inv.meta ?? {}), ...payload.meta };
-    const paymentNumber = Number(mergedMeta.payment_number ?? 1);
     const transactionId =
       typeof mergedMeta.transaction_id === 'string'
         ? mergedMeta.transaction_id
@@ -76,7 +76,7 @@ export async function markInvoicePaidAdmin(
       transactionId,
     });
 
-    if (paymentNumber === 1) {
+    if (isEnrollmentConfirmingPayment(mergedMeta)) {
       const result = await confirmEnrollmentPaid(supabase, inv.enrollment_id, payload.paid_at);
       if (result.error) {
         return { success: false, error: result.error };
@@ -143,7 +143,7 @@ export async function createInvoiceAdmin(payload: {
     return { success: false, error: 'No se encontró la matrícula' };
   }
 
-  const meta: Record<string, unknown> = { created_by_admin: user.id };
+  const meta: Record<string, unknown> = { created_by_admin: user.id, payment_number: 1 };
   if (payload.notes?.trim()) meta.admin_notes = payload.notes.trim();
   if (payload.markPaid && payload.paymentMethod) meta.admin_payment_method = payload.paymentMethod;
 

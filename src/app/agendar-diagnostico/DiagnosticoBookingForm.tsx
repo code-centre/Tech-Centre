@@ -77,22 +77,24 @@ export default function DiagnosticoBookingForm({
       return;
     }
 
-    trackLead({
-      eventId,
-      email: form.email,
-      phone: form.phone,
-      contentName: form.program,
-      persistCapi: false,
-      leadId: result.leadId ?? null,
-    });
-    trackSchedule({
-      eventId: scheduleEventId,
-      email: form.email,
-      phone: form.phone,
-      contentName: form.program,
-      persistCapi: false,
-      leadId: result.leadId ?? null,
-    });
+    if (result.leadId) {
+      trackLead({
+        eventId,
+        email: form.email,
+        phone: form.phone,
+        contentName: form.program,
+        persistCapi: false,
+        leadId: result.leadId,
+      });
+      trackSchedule({
+        eventId: scheduleEventId,
+        email: form.email,
+        phone: form.phone,
+        contentName: form.program,
+        persistCapi: false,
+        leadId: result.leadId,
+      });
+    }
     setSuccess(true);
   };
 
