@@ -5,6 +5,7 @@ import { Mail, Lock, Loader2, AlertCircle, CheckCircle, MailCheck } from 'lucide
 import { quickSignUp } from '@/lib/auth/quick-signup'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { trackCompleteRegistration } from '@/lib/analytics/meta/events'
 
 interface Props {
   onSuccess: () => void
@@ -61,6 +62,13 @@ export default function QuickSignUp({ onSuccess, onCancel }: Props) {
       if (!result.success) {
         setError(result.error || 'Error al crear la cuenta')
         return
+      }
+
+      if (result.user?.id) {
+        trackCompleteRegistration({
+          email: email.trim().toLowerCase(),
+          userId: result.user.id,
+        })
       }
 
       // Si requiere verificación de correo, mostrar mensaje

@@ -9,6 +9,8 @@ import Loader from "@/components/Loader"
 import NavigationCard from "@/components/NavigationCard"
 import ProgramContainer from "@/components/tech-foundaments/ProgramContainer"
 import { CourseSchema } from "@/components/seo/StructuredData"
+import ViewContentTracker from "@/components/analytics/ViewContentTracker"
+import { programListPrice } from "@/lib/analytics/meta/types"
 
 interface ProgramDetailClientProps {
   initialProgramData: Program | null
@@ -151,6 +153,13 @@ export default function ProgramDetailClient({
     <>
       {programData && (
         <>
+          <ViewContentTracker
+            programId={programData.id}
+            name={programData.name || ''}
+            code={programData.code || programData.slug || slug}
+            category={programData.kind || programData.name}
+            value={programListPrice(programData)}
+          />
           <CourseSchema
             name={programData.name || ''}
             description={
