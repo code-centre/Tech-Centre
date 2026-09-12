@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { createSignupProfile } from "@/app/registro/actions";
 import { AlertCircle, CheckCircle2, Loader2, Mail, Eye, EyeOff } from "lucide-react";
+import { trackCompleteRegistration } from "@/lib/analytics/meta/events";
 
 interface FormData {
   email: string;
@@ -159,6 +160,11 @@ export default function SignUp() {
               : 'Error al guardar el perfil. Por favor, contacta al soporte.'
           );
         }
+
+        trackCompleteRegistration({
+          email: formData.email.trim().toLowerCase(),
+          userId: authData.user.id,
+        });
 
         setIsRegistered(true);
         router.push("/iniciar-sesion?verification=email-sent");

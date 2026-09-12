@@ -10,6 +10,7 @@ import { OrganizationSchema, EducationalOrganizationSchema } from "@/components/
 import { CONTACT } from "@/components/landing/data";
 import { Toaster } from "sonner";
 import { canonicalSiteUrl } from "@/lib/blog/siteUrl";
+import MetaPixel from "@/components/analytics/MetaPixel";
 
 const SITE_URL = canonicalSiteUrl();
 
@@ -175,6 +176,8 @@ export default async function RootLayout({
         </ThemeProvider>
         <Toaster position="top-right" richColors />
         
+        <MetaPixel />
+
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-YCK2DMSV9J"

@@ -9,6 +9,8 @@ import StudentDetail, {
   type DetailProfile,
 } from '@/components/adminspage/StudentDetail';
 import { formatLeadOrigin, parseLeadNotes } from '@/lib/students';
+import { isReservationDeposit } from '@/lib/payments/invoice-meta';
+import type { MarketingOriginData } from '@/components/adminspage/MarketingOriginSection';
 
 export const metadata: Metadata = {
   title: 'Ficha del estudiante',
@@ -176,17 +178,28 @@ export default async function StudentDetailPage({ params, searchParams }: Props)
   // Si esta persona llegó por un formulario, su registro sigue en `leads` y
   // explica de dónde salió.
   let lead: DetailLead | null = null;
+  let leadId: number | null = null;
+  let diagnosticCompletedAt: string | null = null;
   if (profile.email) {
     const { data: leadData } = await supabase
       .from('leads')
-      .select('full_name, source, stage, notes, created_at')
+      .select('id, full_name, source, stage, notes, created_at, diagnostic_completed_at')
       .eq('email', profile.email)
       .order('created_at', { ascending: true })
       .limit(1)
       .maybeSingle();
 
     if (leadData) {
-      const row = leadData as { source: string; stage: string | null; notes: string | null; created_at: string };
+      const row = leadData as {
+        id: number;
+        source: string;
+        stage: string | null;
+        notes: string | null;
+        created_at: string;
+        diagnostic_completed_at: string | null;
+      };
+      leadId = row.id;
+      diagnosticCompletedAt = row.diagnostic_completed_at;
       const notes = parseLeadNotes(row.notes);
       lead = {
         createdAt: row.created_at,
@@ -198,12 +211,57 @@ export default async function StudentDetailPage({ params, searchParams }: Props)
     }
   }
 
+  const { data: attribution } = await supabase
+    .from('marketing_attribution')
+    .select('*')
+    .or(
+      [
+        `user_id.eq.${user_id}`,
+        leadId ? `lead_id.eq.${leadId}` : null,
+      ]
+        .filter(Boolean)
+        .join(',')
+    )
+    .limit(1)
+    .maybeSingle();
+
+  const attr = (attribution ?? null) as Record<string, unknown> | null;
+  const paidInvoices = invoices.filter((invoice) => invoice.status === 'paid');
+  const reservationAmount = paidInvoices.reduce((sum, invoice) => {
+    return isReservationDeposit(invoice.meta)
+      ? sum + Number(invoice.amount || 0)
+      : sum;
+  }, 0);
+  const totalPaid = paidInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+  const scheduled =
+    lead?.intent === 'Pidió un diagnóstico' || Boolean(diagnosticCompletedAt);
+
+  const marketing: MarketingOriginData = {
+    leadId,
+    source: (attr?.first_utm_source as string) || lead?.origin || null,
+    campaign: (attr?.first_utm_campaign as string) || null,
+    creative: (attr?.first_utm_content as string) || null,
+    firstLanding: (attr?.first_landing_page as string) || null,
+    firstTouchAt: (attr?.first_touch_at as string) || lead?.createdAt || profile.created_at,
+    lastCampaign: (attr?.last_utm_campaign as string) || null,
+    lastTouchAt: (attr?.last_touch_at as string) || null,
+    diagnosticStatus: diagnosticCompletedAt
+      ? 'completed'
+      : scheduled
+        ? 'scheduled'
+        : 'none',
+    reservationAmount,
+    totalPaid,
+    attributableCac: null,
+  };
+
   return (
     <StudentDetail
       profile={profile}
       enrollments={enrollments}
       invoices={invoices}
       lead={lead}
+      marketing={marketing}
       canEditRole={canEditRole}
       openEnroll={matricular === '1'}
     />

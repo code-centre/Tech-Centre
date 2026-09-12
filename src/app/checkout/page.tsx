@@ -3,6 +3,8 @@
 import { Suspense } from 'react'
 import ConfigurationSection from '@/components/checkout/ConfigurationSection'
 import ResumenSection from '@/components/checkout/ResumenSection'
+import InitiateCheckoutTracker from '@/components/analytics/InitiateCheckoutTracker'
+import { programListPrice } from '@/lib/analytics/meta/types'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
@@ -11,6 +13,7 @@ import { Loader2 } from 'lucide-react'
 import {
   formatReservationDepositCop,
   isReservationCheckoutMode,
+  RESERVATION_DEPOSIT_COP,
 } from '@/lib/pricing/reservation'
 
 export default function ViewCheckoutPage() {
@@ -172,6 +175,19 @@ function ViewCheckoutContent() {
 
   return (
     <main className="mt-26 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 bg-bg-primary min-h-screen">
+      <InitiateCheckoutTracker
+        programId={data.id}
+        name={data.name || ''}
+        code={data.code || ''}
+        value={
+          checkoutMode === 'reservation'
+            ? RESERVATION_DEPOSIT_COP
+            : programListPrice(data)
+        }
+        email={user?.email ?? null}
+        userId={user?.id ?? null}
+        variant={checkoutMode === 'reservation' ? 'reservation' : 'standard'}
+      />
       {checkoutMode === 'reservation' && (
         <p className="mb-6 rounded-xl border border-secondary/40 bg-secondary/10 px-4 py-3 text-sm text-text-primary">
           <strong className="font-semibold">Apartado de cupo:</strong> pagas {formatReservationDepositCop()}{' '}

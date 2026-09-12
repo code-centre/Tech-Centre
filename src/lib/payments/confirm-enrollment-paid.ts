@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { sendEnrollmentConfirmedEmail } from '@/lib/email/enrollment-emails';
+import { isEnrollmentConfirmingPayment } from '@/lib/payments/invoice-meta';
 
 interface EnrollmentRow {
   id: number;
@@ -72,8 +73,7 @@ export async function handleInvoicePaidForEnrollment(
     meta?: Record<string, unknown> | null;
   },
 ): Promise<void> {
-  const paymentNumber = Number(invoice.meta?.payment_number ?? 1);
-  if (paymentNumber !== 1) return;
+  if (!isEnrollmentConfirmingPayment(invoice.meta)) return;
 
   await confirmEnrollmentPaid(supabase, invoice.enrollment_id);
 }

@@ -8,6 +8,8 @@ import {
 } from '@/lib/diagnostico/program-options';
 import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { headers } from 'next/headers';
+import { trackServerLeadConversion } from '@/lib/analytics/meta/lead-server';
+import type { AttributionSnapshot } from '@/lib/analytics/meta/types';
 
 export interface DiagnosticoFormData {
   name: string;
@@ -17,6 +19,9 @@ export interface DiagnosticoFormData {
   message?: string;
   source?: string;
   company?: string;
+  eventId?: string;
+  scheduleEventId?: string;
+  attribution?: AttributionSnapshot | null;
 }
 
 export interface DiagnosticoActionResult {
@@ -24,6 +29,7 @@ export interface DiagnosticoActionResult {
   message?: string;
   error?: string;
   emailSent?: boolean;
+  leadId?: number;
 }
 
 function buildDiagnosticoSource(origen: string): string {
@@ -140,10 +146,41 @@ export async function submitDiagnosticoBooking(
       console.warn('[diagnostico] Lead guardado pero correo no enviado:', emailResult.error);
     }
 
+    const leadId = (lead as { id: number }).id;
+    try {
+      await trackServerLeadConversion({
+        eventId: formData.eventId,
+        attribution: formData.attribution ?? null,
+        email: payload.email,
+        phone: payload.phone,
+        leadId,
+        programId: interestedProgramId,
+        contentName: payload.program,
+        contentIds: interestedProgramId ? [payload.program] : [],
+        eventName: 'Lead',
+      });
+      if (formData.scheduleEventId) {
+        await trackServerLeadConversion({
+          eventId: formData.scheduleEventId,
+          attribution: formData.attribution ?? null,
+          email: payload.email,
+          phone: payload.phone,
+          leadId,
+          programId: interestedProgramId,
+          contentName: payload.program,
+          contentIds: interestedProgramId ? [payload.program] : [],
+          eventName: 'Schedule',
+        });
+      }
+    } catch (trackingError) {
+      console.error('[diagnostico] tracking failed:', trackingError);
+    }
+
     return {
       success: true,
       message: 'Solicitud enviada. Elige tu horario en el calendario.',
       emailSent: emailResult.sent,
+      leadId,
     };
   } catch (error) {
     console.error('[diagnostico] Error inesperado:', error);

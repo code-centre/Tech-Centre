@@ -159,7 +159,7 @@ export default function CohortInstallmentPlanPreview({
           <select
             id="cohort-installment-count"
             value={installmentCount}
-            onChange={(e) => setInstallmentCount(parseInt(e.target.value, 10))}
+            onChange={(e) => setInstallmentCount?.(parseInt(e.target.value, 10))}
             className="w-full rounded-lg border border-border-color bg-bg-card px-4 py-3 text-text-primary transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-secondary"
           >
             {installmentOptions.map((count) => {

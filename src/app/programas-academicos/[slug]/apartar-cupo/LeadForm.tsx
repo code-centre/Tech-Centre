@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react'
 import { createLead } from './actions'
 import Link from 'next/link'
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { currentAttribution, newEventId, trackLead } from '@/lib/analytics/meta/events'
 
 interface LeadFormProps {
   programId: number
@@ -138,9 +139,24 @@ export default function LeadForm({ programId, programSlug }: LeadFormProps) {
     setSubmitError(null)
 
     try {
-      const result = await createLead(formData, programId)
+      const eventId = newEventId()
+      const result = await createLead(formData, programId, {
+        eventId,
+        attribution: currentAttribution(),
+      })
 
       if (result.success) {
+        if (result.leadId) {
+          trackLead({
+            eventId,
+            email: formData.email,
+            phone: formData.whatsapp,
+            contentIds: programSlug ? [programSlug] : [],
+            programId,
+            leadId: result.leadId,
+            persistCapi: false,
+          })
+        }
         setIsSuccess(true)
         // Resetear formulario
         setFormData({
