@@ -819,7 +819,6 @@ export default function ResumenSection({
           setSelectedReservationInstallments={
             setSelectedReservationInstallments ?? (() => {})
           }
-          selectedCohortId={selectedCohortId}
         />
       </div>
 
