@@ -55,16 +55,19 @@ export async function markInvoicePaidAdmin(
   };
   const wasPending = inv.status !== 'paid';
 
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from('invoices')
     .update(payload as never)
-    .eq('id', invoiceId);
+    .eq('id', invoiceId)
+    .neq('status', 'paid')
+    .select('id')
+    .maybeSingle();
 
   if (updateError) {
     return { success: false, error: updateError.message };
   }
 
-  if (wasPending) {
+  if (wasPending && updated) {
     const mergedMeta = { ...(inv.meta ?? {}), ...payload.meta };
     const transactionId =
       typeof mergedMeta.transaction_id === 'string'

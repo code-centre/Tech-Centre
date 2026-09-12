@@ -76,7 +76,7 @@ export async function processApprovedWompiPayment(params: {
 
     const isFirstInstallment = isEnrollmentConfirmingPayment(invoice.meta);
 
-    const { error: invoiceUpdateError } = await (supabase as any)
+    const { data: updated, error: invoiceUpdateError } = await (supabase as any)
       .from('invoices')
       .update({
         status: 'paid',
@@ -86,12 +86,17 @@ export async function processApprovedWompiPayment(params: {
           ...(transactionId ? { transaction_id: transactionId } : {}),
         },
       })
-      .eq('id', invoice.id);
+      .eq('id', invoice.id)
+      .neq('status', 'paid')
+      .select('id')
+      .maybeSingle();
 
     if (invoiceUpdateError) {
       console.error('Webhook invoice update error:', invoiceUpdateError);
       return { ok: false, message: invoiceUpdateError.message };
     }
+
+    if (!updated) continue;
 
     await recordConfirmedPurchase({
       invoiceId: invoice.id,

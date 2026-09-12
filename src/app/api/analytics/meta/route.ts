@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/route-handler';
-import { upsertAttribution } from '@/lib/analytics/meta/persist';
+import { linkAttributionIdentity, upsertAttribution } from '@/lib/analytics/meta/persist';
 import { recordAndSendMetaEvent, requestClientHints } from '@/lib/analytics/meta/server';
 import {
-  META_CUSTOM_EVENTS,
-  META_STANDARD_EVENTS,
   SESSION_COOKIE,
   type AttributionSnapshot,
   type MetaEventName,
@@ -13,7 +11,11 @@ import {
 
 export const runtime = 'nodejs';
 
-const ALLOWED = new Set<string>([...META_STANDARD_EVENTS, ...META_CUSTOM_EVENTS]);
+const CLIENT_EVENTS = new Set<MetaEventName>([
+  'ViewContent',
+  'InitiateCheckout',
+  'CompleteRegistration',
+]);
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
@@ -31,12 +33,8 @@ export async function POST(request: NextRequest) {
 
   const eventName = body.eventName as string;
   const eventId = typeof body.eventId === 'string' ? body.eventId : '';
-  if (!ALLOWED.has(eventName) || !eventId) {
+  if (!CLIENT_EVENTS.has(eventName as MetaEventName) || !eventId) {
     return NextResponse.json({ error: 'Invalid event' }, { status: 400 });
-  }
-
-  if (eventName === 'Purchase') {
-    return NextResponse.json({ ok: false, reason: 'purchase_server_only' }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -63,6 +61,16 @@ export async function POST(request: NextRequest) {
         },
         userId,
         email,
+      });
+    } catch {
+      // attribution must not fail the conversion
+    }
+  } else if (userId) {
+    try {
+      await linkAttributionIdentity({
+        userId,
+        email,
+        sessionId: cookieSessionId,
       });
     } catch {
       // attribution must not fail the conversion

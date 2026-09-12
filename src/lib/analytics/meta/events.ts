@@ -29,12 +29,7 @@ async function sendToServer(payload: ClientTrackPayload & { eventId: string }): 
         eventName: payload.eventName,
         eventId: payload.eventId,
         eventSourceUrl: payload.eventSourceUrl || (typeof window !== 'undefined' ? window.location.href : undefined),
-        email: payload.email ?? null,
-        phone: payload.phone ?? null,
-        externalId: payload.externalId ?? null,
         customData: payload.customData,
-        leadId: payload.leadId ?? null,
-        userId: payload.userId ?? null,
         programId: payload.programId ?? null,
         attribution,
       }),
@@ -178,11 +173,11 @@ export function trackCompleteRegistration(params: {
   email: string;
   userId: string;
 }): string {
+  const eventId = `registration:${params.userId}`;
   const key = `meta:reg:${params.userId}`;
   if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(key)) {
-    return sessionStorage.getItem(key) as string;
+    return eventId;
   }
-  const eventId = newEventId();
   try {
     sessionStorage.setItem(key, eventId);
   } catch {
