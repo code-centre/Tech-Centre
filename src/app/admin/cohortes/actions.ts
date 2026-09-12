@@ -23,17 +23,19 @@ export async function setCohortOffering(
     return { success: false, error: 'No autenticado' }
   }
 
-  const { data: profile } = await supabase
+  const { data: profileRow } = await supabase
     .from('profiles')
     .select('role')
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (profile?.role !== 'admin' && profile?.role !== 'instructor') {
+  const role = (profileRow as { role?: string } | null)?.role
+  if (role !== 'admin' && role !== 'instructor') {
     return { success: false, error: 'Sin permiso' }
   }
 
-  const { error } = await supabase
+  // `cohorts` aún no está en el tipo Database generado; el cast evita `never`.
+  const { error } = await (supabase as any)
     .from('cohorts')
     .update({ offering })
     .eq('id', cohortId)
