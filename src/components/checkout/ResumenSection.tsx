@@ -6,12 +6,17 @@ import { Lock, Mail, Check, ChevronDown } from 'lucide-react'
 import DiscountCoupon from './DiscountCoupon'
 import QuickSignUp from './QuickSignUp'
 import PaymentMethodDropdown from './PaymentMethodDropdown'
+import ReservationBalancePlan from './ReservationBalancePlan'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
 import { calculatePrice, calculateInstallments } from '@/lib/pricing/price-calculator'
 import {
   RESERVATION_DEPOSIT_COP,
+  formatReservationDepositCop,
+  reservationAgreedPrice,
   reservationBalanceAmount,
+  reservationCheckoutButtonLabel,
 } from '@/lib/pricing/reservation'
+import { buildReservationBalancePlan } from '@/lib/pricing/reservation-schedule'
 import { incrementCouponUses } from '@/lib/discounts/coupon-service'
 import { markMatriculaAsPaid } from '@/lib/matricula/matricula-service'
 import type { Program } from '@/types/programs'
@@ -32,6 +37,8 @@ interface Props {
   matriculaAmount?: number
   couponCode?: string | null
   checkoutMode?: 'standard' | 'reservation'
+  selectedReservationInstallments?: number
+  setSelectedReservationInstallments?: (installments: number) => void
   className?: string
 }
 
@@ -47,6 +54,8 @@ function PaymentTotal({
   matriculaAmount,
   isReservation,
   balanceAmount,
+  couponDiscount,
+  reservationTotal,
 }: {
   programName: string
   totalAmount: number
@@ -58,6 +67,8 @@ function PaymentTotal({
   matriculaAmount: number
   isReservation: boolean
   balanceAmount: number
+  couponDiscount: number
+  reservationTotal: number
 }) {
   // IMPORTANTE: priceCalculation.total ya incluye descuentos del programa
   // La matrícula NO tiene descuentos, se suma directamente
@@ -84,20 +95,36 @@ function PaymentTotal({
             <div className="flex justify-between text-sm">
               <span className="text-text-muted">Precio del programa</span>
               <span className="text-text-primary font-medium">
-                ${Math.round(subtotal || 0).toLocaleString()} COP
+                ${Math.round(subtotal || 0).toLocaleString('es-CO')} COP
               </span>
             </div>
+            {couponDiscount > 0 && (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span className="text-emerald-400">Descuento (cupón)</span>
+                  <span className="font-medium text-emerald-400">
+                    -${Math.round(couponDiscount).toLocaleString('es-CO')} COP
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">Total del programa</span>
+                  <span className="text-text-primary font-medium">
+                    ${Math.round(reservationTotal).toLocaleString('es-CO')} COP
+                  </span>
+                </div>
+              </>
+            )}
             <div className="flex justify-between text-sm">
-              <span className="text-emerald-400">Pagas hoy (apartado)</span>
+              <span className="text-emerald-400">Pagas hoy (apartado fijo)</span>
               <span className="font-medium text-emerald-400">
-                ${RESERVATION_DEPOSIT_COP.toLocaleString()} COP
+                {formatReservationDepositCop()} COP
               </span>
             </div>
             {balanceAmount > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-text-muted">Saldo pendiente</span>
                 <span className="text-text-primary font-medium">
-                  ${Math.round(balanceAmount).toLocaleString()} COP
+                  ${Math.round(balanceAmount).toLocaleString('es-CO')} COP
                 </span>
               </div>
             )}
@@ -144,7 +171,9 @@ function PaymentTotal({
         {/* Total */}
         <div className="pt-2">
           <p className="text-4xl font-bold text-text-primary">
-            ${Math.round(isReservation ? RESERVATION_DEPOSIT_COP : displayAmount).toLocaleString()} COP
+            {isReservation
+              ? `${formatReservationDepositCop()} COP`
+              : `$${Math.round(displayAmount).toLocaleString('es-CO')} COP`}
           </p>
           <p className="text-xs text-text-muted mt-1">
             {isReservation
@@ -188,6 +217,9 @@ function PaymentAction({
   matriculaAmount,
   onPayClick,
   isReservation,
+  balanceAmount,
+  selectedReservationInstallments,
+  setSelectedReservationInstallments,
 }: {
   paymentMethod: 'full' | 'installments' | null
   setPaymentMethod: (value: 'full' | 'installments' | null) => void
@@ -205,12 +237,15 @@ function PaymentAction({
   matriculaAmount: number
   onPayClick: () => void
   isReservation: boolean
+  balanceAmount: number
+  selectedReservationInstallments: number
+  setSelectedReservationInstallments: (installments: number) => void
 }) {
   const getButtonText = () => {
     if (disableButton) return 'Procesando...'
     if (hasMultipleCohorts && !selectedCohortId) return 'Selecciona un horario para continuar'
     if (isReservation) {
-      return `Pagar $${RESERVATION_DEPOSIT_COP.toLocaleString()} y apartar mi cupo`
+      return reservationCheckoutButtonLabel()
     }
     if (!paymentMethod) return 'Selecciona un método de pago'
     
@@ -247,10 +282,19 @@ function PaymentAction({
         />
       )}
 
+      {isReservation && balanceAmount > 0 && (
+        <ReservationBalancePlan
+          selectedCohortId={selectedCohortId}
+          balanceAmount={balanceAmount}
+          selectedInstallments={selectedReservationInstallments}
+          setSelectedInstallments={setSelectedReservationInstallments}
+        />
+      )}
+
       {isReservation && (
         <p className="text-sm text-text-muted leading-relaxed">
-          Al pagar el apartado reservamos tu cupo en la cohorte. El saldo del programa lo verás
-          como pago pendiente en tu perfil y podrás completarlo después.
+          {reservationCheckoutButtonLabel()} para asegurar tu lugar. Las cuotas del saldo quedan
+          programadas en tu perfil con las fechas de la cohorte.
         </p>
       )}
       
@@ -328,14 +372,21 @@ export default function ResumenSection({
   matriculaAdded,
   matriculaAmount = 0,
   checkoutMode = 'standard',
+  selectedReservationInstallments = 3,
+  setSelectedReservationInstallments,
   className,
 }: Props) {
   const router = useRouter()
   const supabase = useSupabaseClient()
   const { user } = useUser()
   const isReservation = checkoutMode === 'reservation'
-  const balanceAmount = isReservation ? reservationBalanceAmount(subtotal || 0) : 0
   const [discount, setDiscount] = useState<number>(0)
+  const reservationTotal = isReservation
+    ? reservationAgreedPrice(subtotal || 0, discount)
+    : 0
+  const balanceAmount = isReservation
+    ? reservationBalanceAmount(subtotal || 0, discount)
+    : 0
   const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null)
   const [showQuickSignUp, setShowQuickSignUp] = useState<boolean>(false)
   const [disableButton, setDisableButton] = useState<boolean>(false)
@@ -397,7 +448,9 @@ export default function ResumenSection({
         throw new Error('La información del programa está incompleta. Por favor, intenta nuevamente.')
       }
 
-      const agreedPrice = isReservation ? (subtotal || 0) : totalAmount
+      const agreedPrice = isReservation
+        ? reservationAgreedPrice(subtotal || 0, discount)
+        : totalAmount
 
       // 1. Crear enrollment o usar uno existente con pending_payment
       let enrollment
@@ -475,6 +528,31 @@ export default function ResumenSection({
 
       if (isReservation) {
         const today = new Date().toISOString().split('T')[0]
+
+        const { data: cohortRow, error: cohortScheduleError } = await supabase
+          .from('cohorts')
+          .select('start_date, end_date')
+          .eq('id', selectedCohortId)
+          .single()
+
+        if (cohortScheduleError || !cohortRow?.start_date) {
+          throw new Error(
+            'Esta cohorte no tiene fechas definidas. Escríbenos para apartar tu cupo con un plan de pagos.'
+          )
+        }
+
+        const balancePlan =
+          balanceAmount > 0
+            ? buildReservationBalancePlan(
+                balanceAmount,
+                cohortRow.start_date,
+                cohortRow.end_date ?? cohortRow.start_date,
+                selectedReservationInstallments
+              )
+            : []
+
+        const totalPayments = 1 + balancePlan.length
+
         const reservationInvoices = [
           {
             enrollment_id: enrollment.id,
@@ -488,30 +566,35 @@ export default function ResumenSection({
               user_id: user.id,
               payment_type: 'reservation_deposit',
               payment_number: 1,
-              total_payments: balanceAmount > 0 ? 2 : 1,
+              total_payments: totalPayments,
               checkout_mode: 'reservation',
+              balance_installments: balancePlan.length,
+              coupon_code: appliedCouponCode || null,
+              coupon_discount: discount > 0 ? discount : null,
             },
           },
-        ]
-
-        if (balanceAmount > 0) {
-          reservationInvoices.push({
+          ...balancePlan.map((installment) => ({
             enrollment_id: enrollment.id,
-            label: `Saldo del programa - ${data.name}`,
-            amount: balanceAmount,
-            due_date: today,
+            label: `Saldo cuota ${installment.number} de ${balancePlan.length} - ${data.name}`,
+            amount: installment.amount,
+            due_date: installment.dueDate,
             status: 'pending',
             meta: {
               product_type: 'program',
               product_id: slugProgram || data.code?.toString() || 'unknown',
               user_id: user.id,
               payment_type: 'program_balance',
-              payment_number: 2,
-              total_payments: 2,
+              payment_number: 1 + installment.number,
+              total_payments: totalPayments,
               checkout_mode: 'reservation',
+              due_milestone: installment.dueLabel,
+              balance_installment: installment.number,
+              balance_installments: balancePlan.length,
+              coupon_code: appliedCouponCode || null,
+              coupon_discount: discount > 0 ? discount : null,
             },
-          })
-        }
+          })),
+        ]
 
         const { data: insertedInvoices, error: invoiceError } = await supabase
           .from('invoices')
@@ -686,6 +769,8 @@ export default function ResumenSection({
         matriculaAmount={matriculaAmount}
         isReservation={isReservation}
         balanceAmount={balanceAmount}
+        couponDiscount={discount}
+        reservationTotal={reservationTotal}
       />
 
       {/* Cupón (opcional, colapsado por defecto) */}
@@ -704,6 +789,7 @@ export default function ResumenSection({
               subtotal={subtotal || 0}
               onDiscountChange={setDiscount}
               onCouponApplied={handleCouponApplied}
+              requirePaymentMethod={!isReservation}
             />
           )}
         </>
@@ -728,6 +814,12 @@ export default function ResumenSection({
           matriculaAmount={matriculaAmount}
           onPayClick={handlePayClick}
           isReservation={isReservation}
+          balanceAmount={balanceAmount}
+          selectedReservationInstallments={selectedReservationInstallments}
+          setSelectedReservationInstallments={
+            setSelectedReservationInstallments ?? (() => {})
+          }
+          selectedCohortId={selectedCohortId}
         />
       </div>
 

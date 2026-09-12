@@ -10,6 +10,8 @@ interface Props {
   subtotal: number
   onDiscountChange: (discount: number) => void
   onCouponApplied?: (couponCode: string) => void
+  /** Si false, no exige método de pago antes de validar (p. ej. apartado de cupo). */
+  requirePaymentMethod?: boolean
 }
 
 export default function DiscountCoupon({
@@ -17,6 +19,7 @@ export default function DiscountCoupon({
   subtotal,
   onDiscountChange,
   onCouponApplied,
+  requirePaymentMethod = true,
 }: Props) {
   const [couponCode, setCouponCode] = useState('')
   const [loading, setLoading] = useState(false)
@@ -33,7 +36,11 @@ export default function DiscountCoupon({
     }
 
     if (!subtotal || subtotal <= 0) {
-      setError('Por favor, selecciona un método de pago primero')
+      setError(
+        requirePaymentMethod
+          ? 'Por favor, selecciona un método de pago primero'
+          : 'El precio del programa no está disponible'
+      )
       return
     }
 

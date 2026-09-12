@@ -8,7 +8,10 @@ import { useEffect, useState } from 'react'
 import { useSupabaseClient, useUser } from '@/lib/supabase'
 import type { Program } from '@/types/programs'
 import { Loader2 } from 'lucide-react'
-import { isReservationCheckoutMode } from '@/lib/pricing/reservation'
+import {
+  formatReservationDepositCop,
+  isReservationCheckoutMode,
+} from '@/lib/pricing/reservation'
 
 export default function ViewCheckoutPage() {
   return (
@@ -49,6 +52,7 @@ function ViewCheckoutContent() {
   const [matriculaAmount, setMatriculaAmount] = useState<number>(0)
   const [matriculaShouldShow, setMatriculaShouldShow] = useState<boolean>(false)
   const [hasMultipleCohorts, setHasMultipleCohorts] = useState<boolean>(false)
+  const [selectedReservationInstallments, setSelectedReservationInstallments] = useState<number>(3)
 
   const cohortIdParam = searchParams.get('cohortId')
   const slugProgram = searchParams.get('slug') // Mantener compatibilidad con el método anterior
@@ -170,8 +174,9 @@ function ViewCheckoutContent() {
     <main className="mt-26 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 bg-bg-primary min-h-screen">
       {checkoutMode === 'reservation' && (
         <p className="mb-6 rounded-xl border border-secondary/40 bg-secondary/10 px-4 py-3 text-sm text-text-primary">
-          <strong className="font-semibold">Apartado de cupo:</strong> pagas $100.000 hoy para
-          reservar tu lugar. El saldo del programa queda como pago pendiente en tu perfil.
+          <strong className="font-semibold">Apartado de cupo:</strong> pagas {formatReservationDepositCop()}{' '}
+          hoy para apartar tu lugar. Eliges en cuántas cuotas pagas el saldo y las fechas salen del
+          calendario de la cohorte (inicio, mitad y final).
         </p>
       )}
       <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8">
@@ -219,6 +224,8 @@ function ViewCheckoutContent() {
             matriculaAdded={checkoutMode === 'reservation' ? false : matriculaShouldShow}
             matriculaAmount={matriculaAmount}
             checkoutMode={checkoutMode}
+            selectedReservationInstallments={selectedReservationInstallments}
+            setSelectedReservationInstallments={setSelectedReservationInstallments}
           />
         </div>
       </div>

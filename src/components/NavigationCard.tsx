@@ -3,6 +3,10 @@
 import Link from 'next/link'
 import { ArrowRight, CalendarDays, Clock3, MapPin } from 'lucide-react'
 import { checkoutHref, reservationCheckoutHref } from '@/lib/cohorts/checkout'
+import {
+  formatReservationDepositCop,
+  reservationCheckoutButtonLabel,
+} from '@/lib/pricing/reservation'
 import { programSeatsUrgencyCopy } from '@/lib/programSeatsCopy'
 import type { Program } from '@/types/programs'
 import type { Cohort } from '@/types/cohorts'
@@ -78,9 +82,10 @@ export default function NavigationCard({
           <div className="flex min-w-0 flex-1 items-center gap-2 justify-end">
             <Link
               href={reserveHref}
-              className="inline-flex items-center justify-center px-3 py-3 rounded-xl border-2 border-secondary/50 card-text-primary text-[13px] font-semibold hover:border-secondary hover:bg-secondary/10 transition-all duration-300"
+              title={reservationCheckoutButtonLabel()}
+              className="inline-flex items-center justify-center px-3 py-3 rounded-xl border-2 border-secondary/50 card-text-primary text-[12px] font-semibold leading-tight hover:border-secondary hover:bg-secondary/10 transition-all duration-300"
             >
-              $100.000
+              Pagar {formatReservationDepositCop()}
             </Link>
             <Link
               href={enrollHref}
