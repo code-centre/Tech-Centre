@@ -156,7 +156,7 @@ export default function PaymentMethodDropdown({
 
             return (
               <option key={numInstallments} value={`installments-${numInstallments}`}>
-                {numInstallments} cuotas - ${installmentAmount.toLocaleString()} COP/mes
+                {numInstallments} cuotas · ${installmentAmount.toLocaleString('es-CO')} COP c/u
               </option>
             )
           })}

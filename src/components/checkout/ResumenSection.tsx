@@ -52,6 +52,7 @@ function PaymentTotal({
   priceCalculation,
   paymentMethod,
   selectedInstallments,
+  selectedCohortId,
   matriculaAdded,
   matriculaAmount,
   isReservation,
@@ -65,6 +66,7 @@ function PaymentTotal({
   priceCalculation: ReturnType<typeof calculatePrice> | null
   paymentMethod: 'full' | 'installments' | null
   selectedInstallments: number
+  selectedCohortId: number | null
   matriculaAdded: boolean
   matriculaAmount: number
   isReservation: boolean
@@ -75,10 +77,17 @@ function PaymentTotal({
   // IMPORTANTE: priceCalculation.total ya incluye descuentos del programa
   // La matrícula NO tiene descuentos, se suma directamente
   const programAmount = priceCalculation?.total || subtotal || 0
+  const matriculaExtra = matriculaAdded && matriculaAmount > 0 ? matriculaAmount : 0
+  const isInstallmentCheckout =
+    paymentMethod === 'installments' && selectedInstallments > 1 && Boolean(priceCalculation?.installmentAmount)
+  const firstInstallmentToday =
+    isInstallmentCheckout && priceCalculation?.installmentAmount
+      ? priceCalculation.installmentAmount + matriculaExtra
+      : null
   // Si hay matrícula pero no hay método de pago, incluirla en el total mostrado
-  const displayAmount = paymentMethod 
-    ? totalAmount 
-    : (subtotal || 0) + (matriculaAdded && matriculaAmount > 0 ? matriculaAmount : 0)
+  const displayAmount = firstInstallmentToday ?? (paymentMethod
+    ? totalAmount
+    : (subtotal || 0) + matriculaExtra)
   
   // Mostrar desglose si hay método de pago O si hay matrícula que se debe cobrar
   const shouldShowBreakdown = paymentMethod && priceCalculation || (matriculaAdded && matriculaAmount > 0)
@@ -180,20 +189,32 @@ function PaymentTotal({
           <p className="text-xs text-text-muted mt-1">
             {isReservation
               ? 'Apartado para reservar tu cupo · El saldo queda pendiente en tu perfil'
-              : paymentMethod 
-                ? (matriculaAdded && matriculaAmount > 0 
-                    ? (paymentMethod === 'installments' && selectedInstallments > 1
-                        ? 'Total a pagar hoy (primera cuota + matrícula)'
-                        : 'Total a pagar (programa + matrícula)')
-                    : 'Precio final · Sin costos ocultos')
-                : (matriculaAdded && matriculaAmount > 0
+              : isInstallmentCheckout
+                ? matriculaExtra > 0
+                  ? 'Pagas hoy la cuota 1 (incluye matrícula)'
+                  : 'Pagas hoy la cuota 1'
+                : paymentMethod
+                  ? matriculaExtra > 0
+                    ? 'Total a pagar (programa + matrícula)'
+                    : 'Precio final · Sin costos ocultos'
+                  : matriculaExtra > 0
                     ? 'Precio del programa + matrícula'
-                    : 'Precio del programa')}
+                    : 'Precio del programa'}
           </p>
-          {paymentMethod === 'installments' && selectedInstallments > 1 && priceCalculation?.installmentAmount && (
-            <p className="text-xs text-emerald-400 mt-1">
-              {selectedInstallments} cuotas sin interés
-            </p>
+          {isInstallmentCheckout && priceCalculation && (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm font-medium text-text-primary">
+                {selectedInstallments} cuotas · sin interés
+              </p>
+              <CohortInstallmentPlanPreview
+                selectedCohortId={selectedCohortId}
+                amount={priceCalculation.total}
+                installmentCount={selectedInstallments}
+                mode="full_checkout"
+                readOnly
+                firstPaymentExtra={matriculaExtra}
+              />
+            </div>
           )}
         </div>
       </div>
@@ -283,16 +304,6 @@ function PaymentAction({
             setSelectedInstallments={setSelectedInstallments}
             onPriceChange={onPriceChange}
           />
-          {paymentMethod === 'installments' && selectedInstallments > 1 && (
-            <CohortInstallmentPlanPreview
-              selectedCohortId={selectedCohortId}
-              amount={totalAmount}
-              installmentCount={selectedInstallments}
-              setInstallmentCount={setSelectedInstallments}
-              mode="full_checkout"
-              readOnly
-            />
-          )}
         </>
       )}
 
@@ -423,7 +434,8 @@ export default function ResumenSection({
     : null
 
   // Calcular total incluyendo matrícula si está agregada
-  const totalAmount = (priceCalculation?.total || 0) + (matriculaAdded ? matriculaAmount : 0)
+  const matriculaExtra = matriculaAdded && matriculaAmount > 0 ? matriculaAmount : 0
+  const totalAmount = (priceCalculation?.total || 0) + matriculaExtra
 
   const handleCouponApplied = (couponCode: string) => {
     setAppliedCouponCode(couponCode)
@@ -636,8 +648,9 @@ export default function ResumenSection({
           )
         }
 
+        const programTotal = priceCalculation?.total ?? totalAmount - matriculaExtra
         const installmentPlan = buildCohortInstallmentPlan(
-          totalAmount,
+          programTotal,
           cohortRow.start_date,
           cohortRow.end_date ?? cohortRow.start_date,
           selectedInstallments,
@@ -647,7 +660,10 @@ export default function ResumenSection({
         const invoices = installmentPlan.map((installment) => ({
           enrollment_id: enrollment.id,
           label: `Pago ${installment.number} de ${selectedInstallments} - ${data.name}`,
-          amount: installment.amount,
+          amount:
+            installment.number === 1
+              ? installment.amount + matriculaExtra
+              : installment.amount,
           due_date: installment.dueDate,
           status: 'pending',
           meta: {
@@ -799,6 +815,7 @@ export default function ResumenSection({
         priceCalculation={priceCalculation}
         paymentMethod={paymentMethod}
         selectedInstallments={selectedInstallments}
+        selectedCohortId={selectedCohortId}
         matriculaAdded={matriculaAdded}
         matriculaAmount={matriculaAmount}
         isReservation={isReservation}

@@ -14,11 +14,13 @@ interface Props {
   /** Monto total a dividir en cuotas (programa completo o saldo del apartado). */
   amount: number
   installmentCount: number
-  setInstallmentCount: (value: number) => void
+  setInstallmentCount?: (value: number) => void
   mode: CohortInstallmentMode
   /** Si true, solo muestra la lista (sin selector). */
   readOnly?: boolean
   selectLabel?: string
+  /** Suma a la primera cuota (p. ej. matrícula). */
+  firstPaymentExtra?: number
 }
 
 interface CohortSchedule {
@@ -35,6 +37,7 @@ export default function CohortInstallmentPlanPreview({
   mode,
   readOnly = false,
   selectLabel,
+  firstPaymentExtra = 0,
 }: Props) {
   const supabase = useSupabaseClient()
   const [schedule, setSchedule] = useState<CohortSchedule | null>(null)
@@ -90,11 +93,12 @@ export default function CohortInstallmentPlanPreview({
   )
 
   useEffect(() => {
+    if (readOnly || !setInstallmentCount) return
     if (installmentOptions.length === 0) return
     if (!installmentOptions.includes(installmentCount)) {
       setInstallmentCount(installmentOptions[installmentOptions.length - 1] ?? 1)
     }
-  }, [installmentOptions, installmentCount, setInstallmentCount])
+  }, [readOnly, installmentOptions, installmentCount, setInstallmentCount])
 
   const plan = useMemo(() => {
     if (!schedule || amount <= 0) return []
@@ -180,17 +184,29 @@ export default function CohortInstallmentPlanPreview({
       )}
 
       <ul className="space-y-2 rounded-lg border border-border-color bg-bg-secondary/40 p-3">
-        {plan.map((installment) => (
-          <li
-            key={installment.number}
-            className="flex items-start justify-between gap-3 text-sm"
-          >
-            <span className="text-text-muted">{installment.dueLabel}</span>
-            <span className="shrink-0 font-semibold tabular-nums text-text-primary">
-              ${installment.amount.toLocaleString('es-CO')}
-            </span>
-          </li>
-        ))}
+        {plan.map((installment) => {
+          const extra = installment.number === 1 ? firstPaymentExtra : 0
+          const displayAmount = installment.amount + extra
+          return (
+            <li
+              key={installment.number}
+              className="flex items-start justify-between gap-3 text-sm"
+            >
+              <div className="min-w-0">
+                <p className="font-medium text-text-primary">
+                  Cuota {installment.number} de {installmentCount}
+                </p>
+                <p className="text-text-muted">{installment.dueLabel}</p>
+                {extra > 0 && (
+                  <p className="text-xs text-text-muted">Incluye matrícula en esta cuota</p>
+                )}
+              </div>
+              <span className="shrink-0 font-semibold tabular-nums text-text-primary">
+                ${displayAmount.toLocaleString('es-CO')}
+              </span>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
