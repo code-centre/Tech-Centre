@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/route-handler';
 import { getPaymentProvider } from '@/lib/payments/payment-factory';
-import { WOMPI_MIN_AMOUNT_COP } from '@/lib/pricing/reservation';
 
 export async function POST(
   _request: NextRequest,
@@ -82,17 +81,6 @@ export async function POST(
       return NextResponse.json(
         { error: 'No tienes permiso para pagar esta factura' },
         { status: 403 }
-      );
-    }
-
-    if (invoice.amount < WOMPI_MIN_AMOUNT_COP) {
-      return NextResponse.json(
-        {
-          requiresManualPayment: true,
-          invoicesUrl: '/perfil/facturas',
-          message: `El monto mínimo para pagar con tarjeta es ${WOMPI_MIN_AMOUNT_COP.toLocaleString('es-CO')} COP. Puedes pagar tu apartado por transferencia y subir el comprobante en Facturas.`,
-        },
-        { status: 422 }
       );
     }
 

@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSupabaseClient } from '@/lib/supabase';
 import EnrollmentModal from '@/components/adminspage/EnrollmentModal';
+import RemoveEnrollmentDialog, {
+  type RemoveEnrollmentTarget,
+} from '@/components/adminspage/RemoveEnrollmentDialog';
 import SessionsList from '@/components/adminspage/SessionsList';
 import InstructorGrades from '@/components/instructor/InstructorGrades';
 import { CohortEditModal, formatCohortSchedule } from '@/components/adminspage/CohortEditModal';
@@ -12,6 +15,7 @@ import {
   ArrowLeft,
   ChevronRight,
   UserPlus,
+  UserMinus,
   Calendar,
   BookOpen,
   Hash,
@@ -133,6 +137,7 @@ export default function CohortStudentsPage() {
   const [invoiceRows, setInvoiceRows] = useState<{ enrollment_id: number; amount: number; status: string; due_date: string }[]>([]);
   const [togglingOffering, setTogglingOffering] = useState(false);
   const [offeringError, setOfferingError] = useState<string | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<RemoveEnrollmentTarget | null>(null);
 
   const cohortId = params.cohort_id as string;
 
@@ -689,12 +694,13 @@ export default function CohortStudentsPage() {
 
       {activeTab === 'students' && (
         <section className="overflow-hidden rounded-xl border border-border-color bg-[var(--card-background)]">
-          <div className="hidden grid-cols-[36px_minmax(0,1fr)_176px_132px_156px_20px] items-center gap-3.5 border-b border-border-color bg-bg-secondary px-4 py-3 lg:grid">
+          <div className="hidden grid-cols-[36px_minmax(0,1fr)_176px_132px_156px_36px_20px] items-center gap-3.5 border-b border-border-color bg-bg-secondary px-4 py-3 lg:grid">
             <span />
             <HeadCell>Estudiante</HeadCell>
             <HeadCell>Asistencia</HeadCell>
             <HeadCell>Notas</HeadCell>
             <HeadCell>Pagos</HeadCell>
+            <HeadCell>Sacar</HeadCell>
             <span />
           </div>
 
@@ -712,10 +718,13 @@ export default function CohortStudentsPage() {
                   : 'var(--pay-serie-cobrado)';
 
               return (
-                <Link
+                <div
                   key={student.id}
+                  className="flex items-center gap-2 border-b border-border-color/50 px-4 py-3 last:border-b-0 max-lg:flex-col max-lg:items-stretch lg:gap-3.5"
+                >
+                <Link
                   href={student.userId ? `/admin/estudiantes/${student.userId}` : '#'}
-                  className="grid grid-cols-[36px_minmax(0,1fr)_176px_132px_156px_20px] gap-3.5 items-center border-b border-border-color/50 px-4 py-3 transition-colors last:border-b-0 hover:bg-bg-secondary/40 max-lg:flex max-lg:flex-col max-lg:items-start max-lg:gap-2"
+                  className="grid min-w-0 flex-1 grid-cols-[36px_minmax(0,1fr)_176px_132px_156px_20px] gap-3.5 items-center transition-colors hover:bg-bg-secondary/40 max-lg:flex max-lg:flex-col max-lg:items-start max-lg:gap-2 lg:rounded-lg lg:px-0 lg:py-0"
                 >
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-secondary/12 text-[13px] font-semibold text-secondary">
                     {initialsOf(student.name)}
@@ -802,8 +811,27 @@ export default function CohortStudentsPage() {
                     )}
                   </span>
 
-                  <ChevronRight className="h-[18px] w-[18px] text-text-muted" aria-hidden="true" />
+                  <ChevronRight className="h-[18px] w-[18px] text-text-muted max-lg:hidden" aria-hidden="true" />
                 </Link>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setRemoveTarget({
+                      enrollmentId: student.id,
+                      studentName: student.name,
+                      cohortName: cohortName,
+                      invoiceCount: student.invoices.length,
+                      paidInvoiceCount: student.paidCount,
+                    })
+                  }
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-red-500/40 text-red-600 transition-colors hover:border-red-500 hover:bg-red-500/10 dark:text-red-400 max-lg:w-full max-lg:gap-2 max-lg:px-3"
+                  title={`Sacar a ${student.name} de la cohorte`}
+                  aria-label={`Sacar a ${student.name} de la cohorte`}
+                >
+                  <UserMinus className="h-4 w-4" aria-hidden="true" />
+                  <span className="text-sm font-medium lg:hidden">Sacar de la cohorte</span>
+                </button>
+                </div>
               );
             })
           )}
@@ -892,6 +920,12 @@ export default function CohortStudentsPage() {
             : undefined
         }
         onEnrollmentCreated={handleEnrollmentCreated}
+      />
+
+      <RemoveEnrollmentDialog
+        target={removeTarget}
+        onClose={() => setRemoveTarget(null)}
+        onRemoved={fetchCohortAndStudents}
       />
 
       {isDeleteOpen && (

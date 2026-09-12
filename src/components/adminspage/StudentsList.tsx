@@ -24,6 +24,7 @@ import AdminSearchInput from '@/components/admin/AdminSearchInput';
 import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 import AdminEmptyState from '@/components/admin/AdminEmptyState';
 import AddInstructorModal from '@/components/adminspage/AddInstructorModal';
+import { removeEnrollmentFromCohort } from '@/app/admin/cohortes/actions';
 import {
   adminTableShellClass,
   adminTableHeadCellClass,
@@ -349,19 +350,21 @@ export function StudentsList({
   };
 
   const handleExpelUser = async (enrollmentId: number, studentName: string) => {
-    if (!confirm(`¿Estás seguro de que deseas expulsar a ${studentName} de la cohorte?`)) return;
+    if (!confirm(`¿Estás seguro de que deseas sacar a ${studentName} de la cohorte?`)) return;
     setExpellingId(enrollmentId);
     try {
-      const { error } = await supabase
-        .from('enrollments')
-        .delete()
-        .eq('id', enrollmentId);
-
-      if (error) throw error;
+      const result = await removeEnrollmentFromCohort(enrollmentId);
+      if (!result.success) {
+        throw new Error(result.error ?? 'No se pudo sacar de la cohorte');
+      }
       onUserExpelled?.();
     } catch (err) {
-      console.error('Error al expulsar usuario:', err);
-      alert('No se pudo expulsar al usuario. Por favor intenta de nuevo.');
+      console.error('Error al sacar de la cohorte:', err);
+      alert(
+        err instanceof Error
+          ? err.message
+          : 'No se pudo sacar de la cohorte. Por favor intenta de nuevo.'
+      );
     } finally {
       setExpellingId(null);
     }

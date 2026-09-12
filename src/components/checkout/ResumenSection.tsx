@@ -604,11 +604,6 @@ export default function ResumenSection({
 
       const paymentLinkData = await paymentLinkResponse.json()
 
-      if (paymentLinkData.requiresManualPayment) {
-        router.push(paymentLinkData.invoicesUrl || '/perfil/facturas')
-        return
-      }
-
       if (!paymentLinkResponse.ok || !paymentLinkData.url) {
         if (!isReservation) {
           try {

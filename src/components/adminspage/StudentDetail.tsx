@@ -14,8 +14,12 @@ import {
   MessageSquare,
   Pencil,
   Plus,
+  UserMinus,
   X,
 } from 'lucide-react';
+import RemoveEnrollmentDialog, {
+  type RemoveEnrollmentTarget,
+} from '@/components/adminspage/RemoveEnrollmentDialog';
 import { updateProfileAdmin } from '@/app/admin/actions';
 import { MarkAsPaidModal } from './MarkAsPaidModal';
 import NewInvoiceModal from './NewInvoiceModal';
@@ -124,6 +128,7 @@ export default function StudentDetail({
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [removeTarget, setRemoveTarget] = useState<RemoveEnrollmentTarget | null>(null);
   const [form, setForm] = useState({
     first_name: profile.first_name || '',
     last_name: profile.last_name || '',
@@ -414,19 +419,40 @@ export default function StudentDetail({
                               .join(' · ')}
                           </span>
                         </div>
-                        <div className="flex shrink-0 flex-col items-end gap-[3px]">
-                          <span className="text-[15px] font-semibold tabular-nums text-text-primary">
-                            {enrollment.agreedPrice ? formatMoney(enrollment.agreedPrice) : '—'}
-                          </span>
-                          <span className="text-[12.5px] text-text-muted">
-                            {summary.count === 0
-                              ? 'Sin facturas'
-                              : summary.pending === 0
-                                ? 'Pagado completo'
-                                : summary.overdueCount > 0
-                                  ? `Debe ${formatMoney(summary.pending)}`
-                                  : 'Precio acordado'}
-                          </span>
+                        <div className="flex shrink-0 items-start gap-2">
+                          <div className="flex flex-col items-end gap-[3px]">
+                            <span className="text-[15px] font-semibold tabular-nums text-text-primary">
+                              {enrollment.agreedPrice ? formatMoney(enrollment.agreedPrice) : '—'}
+                            </span>
+                            <span className="text-[12.5px] text-text-muted">
+                              {summary.count === 0
+                                ? 'Sin facturas'
+                                : summary.pending === 0
+                                  ? 'Pagado completo'
+                                  : summary.overdueCount > 0
+                                    ? `Debe ${formatMoney(summary.pending)}`
+                                    : 'Precio acordado'}
+                            </span>
+                          </div>
+                          {canEditRole && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setRemoveTarget({
+                                  enrollmentId: enrollment.id,
+                                  studentName: `${profile.first_name} ${profile.last_name}`.trim() || profile.email,
+                                  cohortName: enrollment.cohortName ?? undefined,
+                                  invoiceCount: enrollmentInvoices.length,
+                                  paidInvoiceCount: enrollmentInvoices.filter((i) => i.status === 'paid').length,
+                                })
+                              }
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-500/40 text-red-600 transition-colors hover:border-red-500 hover:bg-red-500/10 dark:text-red-400"
+                              title="Sacar de esta cohorte"
+                              aria-label={`Sacar de ${enrollment.cohortName ?? 'la cohorte'}`}
+                            >
+                              <UserMinus className="h-4 w-4" aria-hidden="true" />
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -752,6 +778,12 @@ export default function StudentDetail({
           )}
         </div>
       </div>
+
+      <RemoveEnrollmentDialog
+        target={removeTarget}
+        onClose={() => setRemoveTarget(null)}
+        onRemoved={() => router.refresh()}
+      />
 
       <NewInvoiceModal
         open={charging}
