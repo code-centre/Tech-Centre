@@ -1,0 +1,10 @@
+{
+  "name": "Tech Centre",
+  "install": "npm install",
+  "terminals": [
+    {
+      "name": "next-dev",
+      "command": "npm run dev"
+    }
+  ]
+}
