@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import SignUp from "./sign-up";
+import { signupPrefillFromSearchParams } from "@/lib/signupPrefill";
 
 export const metadata: Metadata = {
   title: "Registro",
@@ -10,6 +11,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RegistroPage() {
-  return <SignUp />;
+interface RegistroPageProps {
+  searchParams: Promise<{
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    nombre?: string;
+    phone?: string;
+    telefono?: string;
+  }>;
+}
+
+export default async function RegistroPage({ searchParams }: RegistroPageProps) {
+  const params = await searchParams;
+  const prefill = signupPrefillFromSearchParams(params);
+  const hasPrefill = Boolean(prefill.email || prefill.firstName || prefill.lastName);
+
+  return <SignUp initialValues={prefill} fromInscripcion={hasPrefill} />;
 }

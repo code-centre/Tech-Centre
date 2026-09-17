@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
 import { whatsappWith } from "@/components/landing/data";
 import { RUTAS } from "@/components/landing/rutas/data";
+import { signupPrefillFromInscripcion, signupPrefillQuery } from "@/lib/signupPrefill";
 
 const gruposProgramas = RUTAS.map((ruta) => ({
   label: `${ruta.label} · ${ruta.name}`,
@@ -25,6 +27,7 @@ const fuentes = [
 ];
 
 export default function InscripcionForm() {
+  const router = useRouter();
   const [form, setForm] = useState({
     nombre: "",
     email: "",
@@ -37,6 +40,9 @@ export default function InscripcionForm() {
     e.preventDefault();
     const text = `Hola, quiero inscribirme en Tech Centre.\nNombre: ${form.nombre}\nCorreo: ${form.email}\nTeléfono: ${form.telefono}\nPrograma: ${form.programa}\nMe enteré por: ${form.fuente}`;
     window.open(whatsappWith(text), "_blank", "noopener,noreferrer");
+
+    const query = signupPrefillQuery(signupPrefillFromInscripcion(form));
+    router.push(query ? `/registro?${query}` : "/registro");
   };
 
   const field =
@@ -117,7 +123,7 @@ export default function InscripcionForm() {
         <Send className="h-5 w-5" aria-hidden="true" />
       </button>
       <p className="mt-3 text-center text-xs lv2-mute">
-        Te contactamos por WhatsApp para coordinar los siguientes pasos.
+        Se abre WhatsApp para avisarnos y, enseguida, creas tu cuenta con los datos que ya llenaste.
       </p>
     </form>
   );

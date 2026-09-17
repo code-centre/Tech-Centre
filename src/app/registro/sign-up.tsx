@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { createSignupProfile } from "@/app/registro/actions";
 import { AlertCircle, CheckCircle2, Loader2, Mail, Eye, EyeOff } from "lucide-react";
 import { trackCompleteRegistration } from "@/lib/analytics/meta/events";
+import type { SignupPrefill } from "@/lib/signupPrefill";
 
 interface FormData {
   email: string;
@@ -15,6 +16,11 @@ interface FormData {
   confirmPassword: string;
   firstName: string;
   lastName: string;
+}
+
+interface SignUpProps {
+  initialValues?: SignupPrefill;
+  fromInscripcion?: boolean;
 }
 
 interface FormErrors {
@@ -55,16 +61,17 @@ const getErrorMessage = (error: unknown): string => {
   return "Ocurrió un error inesperado. Por favor, intenta nuevamente o contacta al soporte si el problema persiste.";
 };
 
-export default function SignUp() {
+export default function SignUp({ initialValues, fromInscripcion = false }: SignUpProps) {
   const router = useRouter();
   const supabase = createClient();
+  const phone = initialValues?.phone?.trim() ?? "";
 
   const [formData, setFormData] = useState<FormData>({
-    email: "",
+    email: initialValues?.email ?? "",
     password: "",
     confirmPassword: "",
-    firstName: "",
-    lastName: "",
+    firstName: initialValues?.firstName ?? "",
+    lastName: initialValues?.lastName ?? "",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -151,6 +158,7 @@ export default function SignUp() {
           email: formData.email.trim().toLowerCase(),
           firstName: formData.firstName.trim(),
           lastName: formData.lastName.trim(),
+          phone,
         });
 
         if (!profileResult.success) {
@@ -248,7 +256,9 @@ export default function SignUp() {
               Crea tu cuenta
             </h2>
             <p className="text-text-muted dark:text-gray-400 text-sm">
-              Solo necesitamos estos datos para comenzar. Puedes completar tu perfil después.
+              {fromInscripcion
+                ? "Ya trajimos el nombre y el correo de tu inscripción. Crea tu contraseña para terminar la cuenta."
+                : "Solo necesitamos estos datos para comenzar. Puedes completar tu perfil después."}
             </p>
           </div>
 

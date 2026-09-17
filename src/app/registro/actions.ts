@@ -10,6 +10,7 @@ interface SignupProfileInput {
   email: string;
   firstName: string;
   lastName: string;
+  phone?: string;
 }
 
 interface EnsureProfileInput {
@@ -17,6 +18,7 @@ interface EnsureProfileInput {
   email: string;
   firstName: string;
   lastName: string;
+  phone?: string;
   profileImage?: string | null;
 }
 
@@ -74,7 +76,7 @@ export async function ensureUserProfile(input: EnsureProfileInput): Promise<Acti
     email,
     first_name: firstName,
     last_name: lastName,
-    phone: '',
+    phone: input.phone?.trim() || '',
     id_type: 'CC',
     id_number: '',
     birthdate: '1990-01-01',
@@ -124,5 +126,6 @@ export async function createSignupProfile(input: SignupProfileInput): Promise<Ac
     email: input.email,
     firstName: input.firstName,
     lastName: input.lastName,
+    phone: input.phone,
   });
 }
