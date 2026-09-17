@@ -4,16 +4,21 @@ import EmpresasAliadas from "@/components/empresas/EmpresasAliadas";
 import CursosEmpresas from "@/components/empresas/CursosEmpresas";
 import Confianza from "@/components/empresas/Confianza";
 import FAQ from "@/components/empresas/FAQ";
+import { defaultOpenGraph, defaultTwitter } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
   title: "Para Empresas",
-  description: "Capacitación corporativa en tecnología para empresas. Programas de formación personalizados para equipos de trabajo. Transforma tu organización con Tech Centre.",
+  description: "Formación corporativa en tecnología con el método experiencial de Tech Centre, la academia de tecnología del Caribe. Programas para equipos, alineados a la industria.",
   keywords: ["capacitación corporativa", "formación empresarial", "cursos para empresas", "tecnología empresarial", "Barranquilla"],
-  openGraph: {
-    title: "Para Empresas - Tech Centre",
-    description: "Capacitación corporativa en tecnología para empresas. Programas de formación personalizados.",
-    type: "website",
-  },
+  openGraph: defaultOpenGraph({
+    title: "Para Empresas · Tech Centre",
+    description: "Formación corporativa experiencial en tecnología para equipos, en Barranquilla.",
+    url: "/empresas",
+  }),
+  twitter: defaultTwitter({
+    title: "Para Empresas · Tech Centre",
+    description: "Formación corporativa experiencial en tecnología para equipos, en Barranquilla.",
+  }),
 };
 
 export default function EmpresasPage() {

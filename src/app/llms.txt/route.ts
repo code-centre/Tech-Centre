@@ -9,8 +9,9 @@ import {
   precioModulo,
 } from '@/components/landing/rutas/data';
 import { AGENTES_META, AGENTES_PATH } from '@/components/landing/agentes/data';
+import { SITE_URL } from '@/lib/seo/site';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co';
+const BASE_URL = SITE_URL;
 
 export async function GET() {
   const supabase = await createClient();
@@ -27,7 +28,7 @@ export async function GET() {
   lines.push('# Tech Centre');
   lines.push('');
   lines.push(
-    '> Centro de Tecnología del Caribe. Formación presencial en tecnología e IA en Barranquilla, Colombia: dos rutas de aprendizaje (Producto y Datos) compuestas por módulos independientes de 8 semanas, con mentores activos en la industria, grupos de máximo 12 personas y proyectos reales desplegados.',
+    '> Tech Centre es la academia de tecnología del Caribe. Formación experiencial, presencial y alineada a la industria: aprendes construyendo proyectos reales, con mentores que trabajan en tecnología, grupos de máximo 12 personas y una comunidad que te impulsa. Sede en Casa Tech, Barranquilla, Colombia.',
   );
   lines.push('');
   lines.push('Datos clave:');
@@ -38,6 +39,7 @@ export async function GET() {
   lines.push(`- Próxima cohorte: ${RUTAS_COHORTE.startDate} · ${RUTAS_COHORTE.seatsTotal} cupos por grupo`);
   lines.push('- La admisión empieza con un diagnóstico gratuito de 20 minutos que ubica a cada persona en el módulo que le corresponde, sin examen ni pago');
   lines.push('- Educación informal conforme al Decreto 1075 de 2015 (Colombia): se entrega constancia de participación, no título profesional');
+  lines.push('- Diferencial: academia experiencial alineada a la industria, no un curso grabado ni un bootcamp masivo');
   lines.push('');
   lines.push(`Versión completa del contenido del sitio en un solo archivo markdown: [llms-full.txt](${BASE_URL}/llms-full.txt)`);
   lines.push('');
@@ -57,7 +59,7 @@ export async function GET() {
 
   lines.push('## Páginas principales');
   lines.push('');
-  lines.push(`- [Inicio: rutas de aprendizaje](${BASE_URL}/): las dos rutas, precios, método y preguntas frecuentes`);
+  lines.push(`- [Inicio](${BASE_URL}/): la academia de tecnología del Caribe, rutas, precios, método y diagnóstico gratuito`);
   lines.push(`- [Agendar diagnóstico gratuito](${BASE_URL}/agendar-diagnostico): primer paso de admisión, 20 minutos, sin costo`);
   lines.push(`- [Metodología](${BASE_URL}/metodologia): cómo se aprende en Tech Centre`);
   lines.push(`- [Preguntas frecuentes](${BASE_URL}/faq)`);

@@ -10,7 +10,7 @@ import aliados from "../../../data/aliados.json";
 export const metadata: Metadata = {
   title: "Empleabilidad · No te dejamos en la puerta del certificado",
   description:
-    "Un mes después de certificarte entras a nuestro programa de empleabilidad: portafolio, skills de industria, cómo venderte y networking con empresas en convenio.",
+    "Después de formarte en la academia de tecnología del Caribe entras al programa de empleabilidad: portafolio real, skills de industria y conexión con empresas.",
 };
 
 const steps = [

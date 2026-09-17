@@ -1,9 +1,10 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import type { Program } from '@/types/programs'
+import { SITE_URL } from '@/lib/seo/site'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co'
+  const baseUrl = SITE_URL
   
   const supabase = await createClient()
   
@@ -20,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '/empleabilidad', priority: 0.7, changeFrequency: 'monthly' },
     { path: '/contacto', priority: 0.6, changeFrequency: 'monthly' },
     { path: '/faq', priority: 0.6, changeFrequency: 'monthly' },
+    { path: '/agendar-diagnostico', priority: 0.8, changeFrequency: 'weekly' },
     { path: '/inscripcion', priority: 0.8, changeFrequency: 'monthly' },
     { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
     { path: '/empresas', priority: 0.6, changeFrequency: 'weekly' },

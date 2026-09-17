@@ -1,3 +1,12 @@
+import {
+  DEFAULT_OG_PATH,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_SLOGAN,
+  SITE_TAGLINE,
+  SITE_URL,
+} from "@/lib/seo/site"
+
 interface StructuredDataProps {
   data: Record<string, any>
 }
@@ -10,6 +19,18 @@ export function StructuredData({ data }: StructuredDataProps) {
     />
   )
 }
+
+const DEFAULT_LOGO = `${SITE_URL}/tech-center-logos/TechCentreLogoColor.png`
+const DEFAULT_IMAGE = `${SITE_URL}${DEFAULT_OG_PATH}`
+const CARIBBEAN_KNOWS = [
+  "formación experiencial en tecnología",
+  "inteligencia artificial",
+  "ingeniería de agentes de IA",
+  "desarrollo de software",
+  "ciencia de datos",
+  "machine learning",
+  "programación",
+]
 
 interface OrganizationSchemaProps {
   name?: string
@@ -32,10 +53,10 @@ interface OrganizationSchemaProps {
 }
 
 export function OrganizationSchema({
-  name = "Tech Centre",
-  url = process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co",
-  logo = `${process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co"}/tech-center-logos/TechCentreLogoColor.png`,
-  description = "Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia.",
+  name = SITE_NAME,
+  url = SITE_URL,
+  logo = DEFAULT_LOGO,
+  description = SITE_DESCRIPTION,
   address,
   contactPoint,
   sameAs,
@@ -43,10 +64,20 @@ export function OrganizationSchema({
   const schema = {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${url}/#organization`,
     name,
+    alternateName: ["TechCentre", "Centro de Tecnología del Caribe"],
     url,
     logo,
+    image: DEFAULT_IMAGE,
     description,
+    slogan: SITE_SLOGAN,
+    areaServed: [
+      { "@type": "Place", name: "Caribe colombiano" },
+      { "@type": "City", name: "Barranquilla" },
+      { "@type": "Country", name: "Colombia" },
+    ],
+    knowsAbout: CARIBBEAN_KNOWS,
     ...(address && {
       address: {
         "@type": "PostalAddress",
@@ -77,28 +108,57 @@ interface EducationalOrganizationSchemaProps {
     postalCode?: string
     addressCountry?: string
   }
+  sameAs?: string[]
 }
 
 export function EducationalOrganizationSchema({
-  name = "Tech Centre",
-  url = process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co",
-  logo = `${process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co"}/tech-center-logos/TechCentreLogoColor.png`,
-  description = "Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia.",
+  name = SITE_NAME,
+  url = SITE_URL,
+  logo = DEFAULT_LOGO,
+  description = SITE_DESCRIPTION,
   address,
+  sameAs,
 }: EducationalOrganizationSchemaProps) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
+    "@id": `${url}/#educational-organization`,
     name,
+    alternateName: SITE_TAGLINE,
     url,
     logo,
+    image: DEFAULT_IMAGE,
     description,
+    slogan: SITE_SLOGAN,
+    areaServed: [
+      { "@type": "Place", name: "Caribe" },
+      { "@type": "City", name: "Barranquilla" },
+      { "@type": "Country", name: "Colombia" },
+    ],
+    knowsAbout: CARIBBEAN_KNOWS,
     ...(address && {
       address: {
         "@type": "PostalAddress",
         ...address,
       },
     }),
+    ...(sameAs && sameAs.length > 0 && { sameAs }),
+  }
+
+  return <StructuredData data={schema} />
+}
+
+export function WebsiteSchema() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    name: SITE_NAME,
+    alternateName: SITE_TAGLINE,
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    inLanguage: "es-CO",
+    publisher: { "@id": `${SITE_URL}/#organization` },
   }
 
   return <StructuredData data={schema} />
@@ -128,10 +188,10 @@ interface LocalBusinessSchemaProps {
 }
 
 export function LocalBusinessSchema({
-  name = "Tech Centre",
-  url = process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co",
-  logo = `${process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co"}/tech-center-logos/TechCentreLogoColor.png`,
-  description = "Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia.",
+  name = SITE_NAME,
+  url = SITE_URL,
+  logo = DEFAULT_LOGO,
+  description = SITE_DESCRIPTION,
   address = {
     addressLocality: "Barranquilla",
     addressRegion: "Atlántico",
@@ -147,9 +207,11 @@ export function LocalBusinessSchema({
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
+    "@id": `${url}/#local-business`,
     name,
     url,
     logo,
+    image: DEFAULT_IMAGE,
     description,
     address: {
       "@type": "PostalAddress",
@@ -305,12 +367,12 @@ export function ArticleSchema({
   datePublished,
   dateModified,
   author,
-  publisher = { name: "Tech Centre", logo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co"}/tech-center-logos/TechCentreLogoColor.png` },
+  publisher = { name: SITE_NAME, logo: DEFAULT_LOGO },
   mainEntityOfPage,
   interactionStatistic,
   commentCount,
 }: ArticleSchemaProps) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://techcentre.co"
+  const baseUrl = SITE_URL
   const schema = {
     "@context": "https://schema.org",
     "@type": "Article",

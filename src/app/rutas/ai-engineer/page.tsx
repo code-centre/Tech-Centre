@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRouteBySlug } from "@/data/routes";
+import { socialImages } from "@/lib/seo/site";
 import AIEngineerLanding from "./AIEngineerLanding";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,9 +23,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: route.metadata.title,
       description: route.metadata.description,
       type: "website",
-      images: route.image
-        ? [{ url: route.image, width: 1200, height: 630, alt: route.name }]
-        : [],
+      images: socialImages(route.image, route.name),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: route.metadata.title,
+      description: route.metadata.description,
+      images: socialImages(route.image, route.name).map((image) => image.url),
     },
   };
 }

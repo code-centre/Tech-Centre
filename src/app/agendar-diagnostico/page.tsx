@@ -10,7 +10,7 @@ import {
 export const metadata: Metadata = {
   title: 'Agendar diagnóstico gratuito',
   description:
-    'Agenda tu diagnóstico gratuito en Tech Centre. Te ubicamos en el módulo o programa correcto según tu nivel.',
+    'Agenda tu diagnóstico gratuito en Tech Centre, la academia de tecnología del Caribe. Te ubicamos en el módulo o programa correcto según tu nivel, sin examen ni pago.',
   robots: { index: true, follow: true },
 };
 

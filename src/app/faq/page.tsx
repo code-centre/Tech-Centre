@@ -7,7 +7,7 @@ import { FAQS } from "@/components/landing/data";
 export const metadata: Metadata = {
   title: "Preguntas frecuentes · Tech Centre",
   description:
-    "Resolvemos tus dudas sobre requisitos, horarios, modalidad, inversión, empleabilidad e inscripción en los programas de Tech Centre.",
+    "Dudas sobre la academia de tecnología del Caribe: requisitos, horarios, modalidad presencial, inversión, empleabilidad e inscripción en Tech Centre.",
 };
 
 export default function FaqPage() {

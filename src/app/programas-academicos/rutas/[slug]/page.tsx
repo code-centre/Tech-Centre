@@ -17,6 +17,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { getRouteBySlug } from "@/data/routes";
+import { socialImages } from "@/lib/seo/site";
 
 interface RoutePageProps {
   params: Promise<{ slug: string }>;
@@ -43,16 +44,13 @@ export async function generateMetadata({
       title: route.metadata.title,
       description: route.metadata.description,
       type: "website",
-      images: route.image
-        ? [
-            {
-              url: route.image,
-              width: 1200,
-              height: 630,
-              alt: route.name,
-            },
-          ]
-        : [],
+      images: socialImages(route.image, route.name),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: route.metadata.title,
+      description: route.metadata.description,
+      images: socialImages(route.image, route.name).map((image) => image.url),
     },
   };
 }

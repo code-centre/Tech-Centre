@@ -15,8 +15,9 @@ import {
   precioModulo,
 } from '@/components/landing/rutas/data';
 import { AGENTES_META, AGENTES_PATH } from '@/components/landing/agentes/data';
+import { SITE_URL } from '@/lib/seo/site';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co';
+const BASE_URL = SITE_URL;
 
 /**
  * Versión completa en markdown del contenido del sitio, pensada para agentes
@@ -28,7 +29,11 @@ export const dynamic = 'force-static';
 export async function GET() {
   const l: string[] = [];
 
-  l.push('# Tech Centre · Centro de Tecnología del Caribe');
+  l.push('# Tech Centre · La academia de tecnología del Caribe');
+  l.push('');
+  l.push(
+    '> Tech Centre es la academia de tecnología del Caribe. Formación experiencial alineada a la industria: aprendes haciendo, con mentores activos, proyectos reales desplegados y grupos de máximo 12 personas. Presencial en Casa Tech, Barranquilla, Colombia.',
+  );
   l.push('');
   l.push(`> ${RUTAS_HERO.subtitle}`);
   l.push('');

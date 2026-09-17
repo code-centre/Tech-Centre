@@ -8,7 +8,7 @@ import { CONTACT } from "@/components/landing/data";
 export const metadata: Metadata = {
   title: "Contacto · Visítanos en la Casa Tech",
   description:
-    "Visítanos en la Casa Tech, El Prado, Barranquilla. Escríbenos por WhatsApp o déjanos tus datos y te orientamos para elegir tu programa.",
+    "Visita Casa Tech en El Prado, Barranquilla, sede de la academia de tecnología del Caribe. Escríbenos por WhatsApp y te orientamos para elegir tu programa.",
 };
 
 const datos = [

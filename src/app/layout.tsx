@@ -6,54 +6,33 @@ import { getProgramsNav } from "@/data/programsNav";
 import { Footer } from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { OrganizationSchema, EducationalOrganizationSchema } from "@/components/seo/StructuredData";
+import { OrganizationSchema, EducationalOrganizationSchema, WebsiteSchema } from "@/components/seo/StructuredData";
 import { CONTACT } from "@/components/landing/data";
 import { Toaster } from "sonner";
-import { canonicalSiteUrl } from "@/lib/blog/siteUrl";
+import {
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+  SITE_TITLE_DEFAULT,
+  SITE_TITLE_TEMPLATE,
+  SITE_URL,
+  defaultOpenGraph,
+  defaultTwitter,
+} from "@/lib/seo/site";
 import MetaPixel from "@/components/analytics/MetaPixel";
-
-const SITE_URL = canonicalSiteUrl();
 
 export const metadata: Metadata = {
   title: {
-    default: "Tech Centre - Centro de tecnología del Caribe",
-    template: "%s | Tech Centre"
+    default: SITE_TITLE_DEFAULT,
+    template: SITE_TITLE_TEMPLATE,
   },
-  description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
-  keywords: [
-    "centro tecnología Caribe",
-    "cursos programación Barranquilla",
-    "diplomados tech Colombia",
-    "educación tecnológica vanguardia",
-    "formación tech Caribe",
-    "aprender tecnología Barranquilla",
-    "cursos tecnología calidad",
-    "centro formación tech Caribe colombiano",
-    "programación Caribe",
-    "tecnología vanguardia Colombia",
-    "inteligencia artificial",
-    "análisis de datos",
-    "python",
-    "agentes IA",
-    "javascript",
-    "react",
-    "diseño",
-    "figma",
-    "desarrollo web",
-    "machine learning",
-    "data science",
-    "programación python",
-    "desarrollo react",
-    "diseño UI/UX",
-    "análisis datos python",
-    "inteligencia artificial Colombia",
-    "cursos python Barranquilla",
-    "cursos react Caribe",
-    "diseño figma Barranquilla",
-  ],
-  authors: [{ name: "Tech Centre" }],
-  creator: "Tech Centre",
-  publisher: "Tech Centre",
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: "education",
   formatDetection: {
     email: false,
     address: false,
@@ -61,47 +40,26 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: '/',
+    canonical: "/",
+    types: {
+      "text/plain": [
+        { url: "/llms.txt", title: "llms.txt" },
+        { url: "/llms-full.txt", title: "llms-full.txt" },
+      ],
+    },
   },
-  openGraph: {
-    type: "website",
-    locale: "es_CO",
-    url: "/",
-    siteName: "Tech Centre",
-    title: "Tech Centre - Centro de Tecnología del Caribe | Educación Tech de Vanguardia",
-    description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
-    images: [
-      {
-        url: `${SITE_URL}/og-image`,
-        secureUrl: `${SITE_URL}/og-image`,
-        type: "image/png",
-        width: 1200,
-        height: 630,
-        alt: "Tech Centre - Centro de Tecnología del Caribe. Rutas AI Developer y Datos en Barranquilla.",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Tech Centre - Centro de Tecnología del Caribe | Educación Tech de Vanguardia",
-    description: "Tech Centre - Centro de tecnología del Caribe. Formamos a los profesionales tech del futuro con programas prácticos, actualizados y de vanguardia. Educación tecnológica de calidad en Barranquilla, Colombia.",
-    images: [`${SITE_URL}/og-image`],
-  },
+  openGraph: defaultOpenGraph(),
+  twitter: defaultTwitter(),
   robots: {
     index: true,
     follow: true,
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
-  },
-  verification: {
-    // Agregar códigos de verificación cuando estén disponibles
-    // google: 'your-google-verification-code',
-    // yandex: 'your-yandex-verification-code',
   },
 };
 
@@ -139,6 +97,7 @@ export default async function RootLayout({
           }}
         />
         <ThemeProvider>
+          <WebsiteSchema />
           <OrganizationSchema
             address={{
               streetAddress: "Cra. 50 #72-126, El Prado",
@@ -164,6 +123,11 @@ export default async function RootLayout({
               addressRegion: "Atlántico",
               addressCountry: "CO",
             }}
+            sameAs={[
+              CONTACT.social.instagram,
+              CONTACT.social.linkedin,
+              CONTACT.social.facebook,
+            ]}
           />
 
           <AuthProvider>

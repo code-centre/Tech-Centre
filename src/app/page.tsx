@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
 import { LocalBusinessSchema, StructuredData } from "@/components/seo/StructuredData";
+import {
+  HOME_DESCRIPTION,
+  HOME_TITLE,
+  SITE_KEYWORDS,
+  defaultOpenGraph,
+  defaultTwitter,
+} from "@/lib/seo/site";
 import { CONTACT } from "@/components/landing/data";
 import { RUTAS_FAQS_HOME } from "@/components/landing/rutas/data";
 import StickyDiagnosticCta from "@/components/landing/agentes/StickyDiagnosticCta";
@@ -26,35 +33,19 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: {
-    absolute:
-      "Rutas de aprendizaje en tecnología e IA · Tech Centre · Barranquilla",
+    absolute: HOME_TITLE,
   },
-  description:
-    "Dos rutas para entrar a la industria tech: AI Developer (JavaScript, TypeScript y agentes de IA) y Datos (Python, SQL y machine learning). Tres módulos de 8 semanas que puedes tomar de forma independiente, presencial en Casa Tech, Barranquilla. Diagnóstico gratuito.",
-  keywords: [
-    "aprender a programar Barranquilla",
-    "curso de programación desde cero",
-    "curso de agentes de IA",
-    "curso de datos y machine learning",
-    "JavaScript TypeScript React",
-    "Python SQL machine learning",
-    "formación presencial tecnología Caribe",
-    "Tech Centre",
-  ],
-  openGraph: {
-    title: "Dos rutas para entrar a la industria tech · Tech Centre Barranquilla",
-    description:
-      "Ruta AI Developer: aplicaciones y agentes de IA. Ruta Datos: datos y machine learning. Tres módulos de 8 semanas, máximo 12 personas, presencial en Casa Tech. Empieza con un diagnóstico gratuito.",
-    type: "website",
-    images: [
-      {
-        url: "/og-image",
-        width: 1200,
-        height: 630,
-        alt: "Rutas de aprendizaje · Tech Centre, Centro de Tecnología del Caribe",
-      },
-    ],
-  },
+  description: HOME_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  openGraph: defaultOpenGraph({
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    url: "/",
+  }),
+  twitter: defaultTwitter({
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+  }),
 };
 
 const FAQ_SCHEMA = {

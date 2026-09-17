@@ -19,8 +19,8 @@ interface BlogPostWithMeta extends BlogPost {
 }
 
 export const metadata = {
-  title: 'Blog | Tech-Centre',
-  description: 'Artículos y recursos sobre tecnología y formación profesional',
+  title: 'Blog | Tech Centre',
+  description: 'Ideas sobre tecnología, IA y cómo se aprende de forma experiencial en el Caribe. Artículos de la academia Tech Centre.',
   alternates: {
     canonical: '/blog',
   },
@@ -29,8 +29,8 @@ export const metadata = {
     locale: 'es_CO',
     url: `${BASE_URL}/blog`,
     siteName: 'Tech Centre',
-    title: 'Blog | Tech-Centre',
-    description: 'Artículos y recursos sobre tecnología y formación profesional',
+    title: 'Blog | Tech Centre',
+    description: 'Ideas sobre tecnología, IA y cómo se aprende de forma experiencial en el Caribe.',
     images: [
       {
         url: OG_IMAGE,
@@ -44,8 +44,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blog | Tech-Centre',
-    description: 'Artículos y recursos sobre tecnología y formación profesional',
+    title: 'Blog | Tech Centre',
+    description: 'Ideas sobre tecnología, IA y cómo se aprende de forma experiencial en el Caribe.',
     images: [OG_IMAGE],
   },
 };

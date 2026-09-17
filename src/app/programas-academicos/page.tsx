@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
 import { ProgramsList } from "@/components/ProgramsList";
 import { MessageCircle } from "lucide-react";
+import { defaultOpenGraph, defaultTwitter } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
   title: "Programas Académicos",
-  description: "Explora nuestros programas académicos en tecnología: diplomados y cursos especializados diseñados para el mercado laboral actual. Formación práctica y experiencial en Barranquilla, Colombia.",
-  keywords: ["programas académicos", "diplomados", "cursos tech", "educación tecnológica", "Barranquilla", "Colombia"],
-  openGraph: {
-    title: "Programas Académicos - Tech Centre",
-    description: "Explora nuestros programas académicos en tecnología diseñados para el mercado laboral actual.",
-    type: "website",
-  },
+  description: "Programas experienciales de Tech Centre, la academia de tecnología del Caribe: formación alineada a la industria, presencial en Barranquilla.",
+  keywords: ["programas académicos", "academia tecnología Caribe", "formación experiencial", "cursos tech Barranquilla"],
+  openGraph: defaultOpenGraph({
+    title: "Programas Académicos · Tech Centre",
+    description: "Programas experienciales alineados a la industria, presencial en Casa Tech, Barranquilla.",
+    url: "/programas-academicos",
+  }),
+  twitter: defaultTwitter({
+    title: "Programas Académicos · Tech Centre",
+    description: "Programas experienciales alineados a la industria, presencial en Casa Tech, Barranquilla.",
+  }),
 };
 
 const WHATSAPP_URL = 'https://wa.me/573005523872?text=Hola%2C%20quiero%20información%20sobre%20los%20programas%20de%20Tech%20Centre'

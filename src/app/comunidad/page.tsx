@@ -11,7 +11,7 @@ import { COMMUNITY_FORMATS, GALLERY_MOSAIC, GALLERY_MARQUEE } from "@/components
 export const metadata: Metadata = {
   title: "Comunidad · La agenda del ecosistema",
   description:
-    "La tecnología se vive en comunidad. Eventos organizados por Costa Digital, el centro de innovación del Caribe del que Tech Centre hace parte: Tech Nights, hackatones y más.",
+    "La academia de tecnología del Caribe se vive en comunidad. Eventos de Costa Digital: Tech Nights, hackatones y el ecosistema del que Tech Centre hace parte.",
 };
 
 const COSTA_AGENDA = "https://www.codigoabierto.tech/eventos";

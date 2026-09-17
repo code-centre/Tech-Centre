@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type { Program } from '@/types/programs'
+import { SITE_NAME, SITE_URL, socialImages } from '@/lib/seo/site'
 
 interface ProgramMetadataOptions {
   program: Program
@@ -65,24 +66,24 @@ function extractTechnicalKeywords(program: Program): string[] {
 /**
  * Genera metadata optimizada para una página de programa académico
  */
-export function generateProgramMetadata({ program, baseUrl = 'https://techcentre.co' }: ProgramMetadataOptions): Metadata {
+export function generateProgramMetadata({ program, baseUrl = SITE_URL }: ProgramMetadataOptions): Metadata {
   const programName = program.name || 'Programa'
   const programDescription = program.description 
     ? (typeof program.description === 'string' 
         ? program.description.replace(/<[^>]*>/g, '').substring(0, 160)
         : String(program.description).substring(0, 160))
-    : `Descubre ${programName} en Tech Centre - Centro de tecnología del Caribe. Educación tecnológica de calidad y vanguardia en Barranquilla, Colombia.`
+    : `${programName} en Tech Centre, la academia de tecnología del Caribe. Formación experiencial alineada a la industria, presencial en Barranquilla.`
   
   const programSlug = program.code || program.slug || ''
   const programUrl = `${baseUrl}/programas-academicos/${programSlug}`
   
   // Keywords base
   const baseKeywords = [
-    'centro tecnología Caribe',
+    'academia de tecnología Caribe',
+    'formación experiencial tecnología',
     'cursos programación Barranquilla',
-    'diplomados tech Colombia',
-    'educación tecnológica vanguardia',
-    'formación tech Caribe',
+    'formación tech alineada a la industria',
+    SITE_NAME,
   ]
   
   // Keywords técnicas específicas del programa
@@ -97,12 +98,9 @@ export function generateProgramMetadata({ program, baseUrl = 'https://techcentre
   
   const allKeywords = [...baseKeywords, ...technicalKeywords, ...programKeywords]
   
-  const title = `${programName} | Tech Centre - Centro Tecnología Caribe`
-  const description = `${programDescription}... Formación tecnológica de calidad y vanguardia en Barranquilla, Colombia.`
-  
-  const imageUrl = program.image 
-    ? (program.image.startsWith('http') ? program.image : `${baseUrl}${program.image}`)
-    : `${baseUrl}/tech-center-logos/TechCentreLogoColor.png`
+  const title = `${programName} | ${SITE_NAME}`
+  const description = `${programDescription} Formación experiencial en Casa Tech, Barranquilla.`
+  const images = socialImages(program.image, `${programName} · ${SITE_NAME}`)
 
   return {
     title,
@@ -116,22 +114,15 @@ export function generateProgramMetadata({ program, baseUrl = 'https://techcentre
       description,
       type: 'website',
       url: programUrl,
-      siteName: 'Tech Centre',
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${programName} - Tech Centre`,
-        },
-      ],
+      siteName: SITE_NAME,
+      images,
       locale: 'es_CO',
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [imageUrl],
+      images: images.map((image) => image.url),
     },
   }
 }

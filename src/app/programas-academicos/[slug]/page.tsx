@@ -24,7 +24,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (program && !error) {
       return generateProgramMetadata({ 
         program: program as unknown as Program,
-        baseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://techcentre.co'
       })
     }
   } catch (error) {

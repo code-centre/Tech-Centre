@@ -18,7 +18,7 @@ import { SHARED_MODULES, GALLERY_MOSAIC, GALLERY_MARQUEE } from "@/components/la
 export const metadata: Metadata = {
   title: "Cómo aprendes · El método Tech Centre",
   description:
-    "Aprender haciendo, acompañado, en el Caribe. Clases presenciales, proyectos desde el día 1, mentores activos en la industria y una comunidad que no te suelta.",
+    "El método de la academia de tecnología del Caribe: aprender haciendo, con mentores de industria, proyectos reales desde el día 1 y grupos pequeños en Casa Tech, Barranquilla.",
 };
 
 const pillars = [

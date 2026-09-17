@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Hanken_Grotesk, Space_Mono } from "next/font/google";
 import ProgramasHub from "@/components/programas/ProgramasHub";
 import { getProgramsHub } from "@/data/programsHub";
+import { defaultOpenGraph, defaultTwitter } from "@/lib/seo/site";
 
 const hanken = Hanken_Grotesk({
   subsets: ["latin"],
@@ -18,18 +19,21 @@ const spaceMono = Space_Mono({
 
 const TITLE = "Programas y rutas de formación | Tech Centre";
 const DESCRIPTION =
-  "Dos rutas de seis meses y cursos cortos, presenciales en Casa Tech, Barranquilla. Aquí solo aparece lo que tiene cohorte abierta.";
+  "Programas experienciales de la academia de tecnología del Caribe: rutas de AI Developer y Datos, más cursos con cohorte abierta, presenciales en Casa Tech, Barranquilla.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: "/programas" },
-  openGraph: {
+  openGraph: defaultOpenGraph({
     title: TITLE,
     description: DESCRIPTION,
     url: "/programas",
-    type: "website",
-  },
+  }),
+  twitter: defaultTwitter({
+    title: TITLE,
+    description: DESCRIPTION,
+  }),
 };
 
 // La oferta cambia cuando se abren o cierran cohortes: se revalida cada hora

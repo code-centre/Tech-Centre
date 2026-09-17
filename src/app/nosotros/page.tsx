@@ -13,7 +13,7 @@ import { MENTORS } from "@/components/landing/data";
 export const metadata: Metadata = {
   title: "Sobre nosotros · Tech Centre y Costa Digital",
   description:
-    "La historia de Tech Centre: la convicción de su fundador, Anuar Harb, y su pertenencia al ecosistema Costa Digital. Devolverle al Caribe la oportunidad que transforma.",
+    "Tech Centre es la academia de tecnología del Caribe. La historia de su fundador, Anuar Harb, y su pertenencia al ecosistema Costa Digital: devolverle al Caribe la oportunidad que transforma.",
 };
 
 export default function NosotrosPage() {
