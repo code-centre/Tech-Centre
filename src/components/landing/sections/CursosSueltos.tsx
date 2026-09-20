@@ -17,7 +17,7 @@ export default function CursosSueltos({ programs }: { programs: HubProgram[] }) 
 
   return (
     <section
-      id="programas"
+      id="otros-programas"
       className="relative overflow-hidden border-y border-[var(--line)] bg-[#07100D] py-20 md:py-24"
       aria-labelledby="programas-title"
     >
@@ -32,11 +32,12 @@ export default function CursosSueltos({ programs }: { programs: HubProgram[] }) 
             id="programas-title"
             className="lv2-display mt-5 max-w-3xl text-3xl text-[var(--paper)] sm:text-4xl"
           >
-            Cursos que puedes tomar{' '}
-            <span className="text-[var(--mint)]">sin la ruta completa</span>
+            Otros programas con{' '}
+            <span className="text-[var(--mint)]">cohorte abierta</span>
           </h2>
           <p className="mt-3 max-w-2xl text-base text-[var(--soft)] sm:text-lg">
-            Programas con cohorte activa hoy. Presencial en Casa Tech.
+            Cursos independientes, aparte de las rutas técnicas y del Programa
+            Ejecutivo. Presencial en Casa Tech.
           </p>
         </Reveal>
 

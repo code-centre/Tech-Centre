@@ -178,8 +178,8 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            Dos rutas para construir con tecnología e IA: AI Developer y Datos.
-            Aprende en grupos pequeños, con mentores cerca y proyectos reales.
+            AI Developer, Datos y un Programa Ejecutivo para líderes. Aprende
+            en grupos pequeños, con mentores cerca y proyectos reales.
           </motion.p>
 
           <motion.div
@@ -202,15 +202,14 @@ export default function Hero() {
                 <ArrowRight className="h-5 w-5" aria-hidden="true" />
               </a>
               <a
-                href="#rutas"
+                href="#caminos"
                 className="border-b border-white/20 pb-0.5 text-[15px] lv2-soft transition-colors hover:border-[var(--mint)] hover:text-[var(--mint)]"
               >
-                Explora las rutas
+                Explora los programas
               </a>
             </div>
             <p className="lv2-mono !normal-case !tracking-normal !text-[var(--mute)]">
-              20 minutos · sin examen · sin pago · te ubica en el módulo donde
-              debes empezar
+              20 minutos · Gratis · Sin examen
             </p>
           </motion.div>
 

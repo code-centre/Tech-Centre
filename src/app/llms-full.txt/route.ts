@@ -44,7 +44,7 @@ export async function GET() {
   l.push('- Sede: Casa Tech · Cra. 50 #72-126, El Prado, Barranquilla, Colombia');
   l.push(`- Contacto: ${CONTACT.email} · WhatsApp ${CONTACT.phone}`);
   l.push(`- Web: ${BASE_URL}`);
-  l.push(`- Próxima cohorte: ${RUTAS_COHORTE.startDate} · máximo ${RUTAS_COHORTE.seatsTotal} personas por grupo`);
+  l.push(`- ${RUTAS_COHORTE.startLabel} · máximo ${RUTAS_COHORTE.seatsTotal} personas por grupo`);
   l.push(`- Admisión: diagnóstico gratuito de 20 minutos (${BASE_URL}/agendar-diagnostico), sin examen ni pago. Ubica a cada persona en el módulo que le corresponde.`);
   l.push('');
 

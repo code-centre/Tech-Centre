@@ -6,6 +6,7 @@ type AgentesEvent =
   | "scroll_90"
   | "open_week_accordion"
   | "click_cta_diagnostico"
+  | "click_cta_path"
   | "click_cta_clase_demo"
   | "open_faq"
   | "click_whatsapp"

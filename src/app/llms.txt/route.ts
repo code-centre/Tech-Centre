@@ -36,7 +36,7 @@ export async function GET() {
   lines.push(`- Contacto: ${CONTACT.email} · WhatsApp ${CONTACT.phone}`);
   lines.push('- Modalidad: presencial, 8 horas a la semana (4 en sede + 4 de práctica guiada), 64 horas por módulo');
   lines.push(`- Precios: módulos 1 y 2 ${RUTAS_PRECIOS.modulo} COP, módulo 3 avanzado ${RUTAS_PRECIOS.moduloAvanzado} COP. Reserva de cupo ${RUTAS_PRECIOS.reserva}, hasta ${RUTAS_PRECIOS.cuotas} cuotas sin interés, ${RUTAS_PRECIOS.descuentoEgresados} de descuento para egresados`);
-  lines.push(`- Próxima cohorte: ${RUTAS_COHORTE.startDate} · ${RUTAS_COHORTE.seatsTotal} cupos por grupo`);
+  lines.push(`- ${RUTAS_COHORTE.startLabel} · ${RUTAS_COHORTE.seatsTotal} cupos por grupo`);
   lines.push('- La admisión empieza con un diagnóstico gratuito de 20 minutos que ubica a cada persona en el módulo que le corresponde, sin examen ni pago');
   lines.push('- Educación informal conforme al Decreto 1075 de 2015 (Colombia): se entrega constancia de participación, no título profesional');
   lines.push('- Diferencial: academia experiencial alineada a la industria, no un curso grabado ni un bootcamp masivo');

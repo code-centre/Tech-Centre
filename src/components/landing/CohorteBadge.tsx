@@ -5,11 +5,11 @@ interface CohorteBadgeProps {
 }
 
 /**
- * Chip de cohorte: fecha de inicio y cupos.
- * Muestra escasez solo si RUTAS_COHORTE.seatsLeft tiene un número.
+ * Chip de cohorte: ventana de inicio y cupos.
+ * Las fechas exactas viven en cada programa, no aquí.
  */
 export default function CohorteBadge({ className = "" }: CohorteBadgeProps) {
-  const { startDate, seatsTotal, seatsLeft } = RUTAS_COHORTE;
+  const { startLabel, seatsTotal, seatsLeft } = RUTAS_COHORTE;
 
   return (
     <span
@@ -17,8 +17,7 @@ export default function CohorteBadge({ className = "" }: CohorteBadgeProps) {
     >
       <span className="lv2-dot" aria-hidden="true" />
       <span className="font-[family-name:var(--mono)] text-xs text-[var(--paper)]">
-        Próxima cohorte{" "}
-        <strong className="font-bold text-[var(--mint)]">{startDate}</strong>
+        {startLabel}
         {typeof seatsLeft === "number" ? (
           <>
             {" · quedan "}
@@ -26,7 +25,10 @@ export default function CohorteBadge({ className = "" }: CohorteBadgeProps) {
             {` de ${seatsTotal} cupos`}
           </>
         ) : (
-          ` · ${seatsTotal} cupos por grupo`
+          <>
+            {" · "}
+            {seatsTotal} cupos por grupo
+          </>
         )}
       </span>
     </span>

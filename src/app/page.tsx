@@ -8,16 +8,17 @@ import {
   defaultTwitter,
 } from "@/lib/seo/site";
 import { CONTACT } from "@/components/landing/data";
-import { RUTAS_FAQS_HOME } from "@/components/landing/rutas/data";
+import { RUTAS_DIAGNOSTICO_URL, RUTAS_FAQS_HOME } from "@/components/landing/rutas/data";
 import StickyDiagnosticCta from "@/components/landing/agentes/StickyDiagnosticCta";
 import Hero from "@/components/landing/sections/Hero";
 import PruebaBar from "@/components/landing/sections/PruebaBar";
 import Comunidad from "@/components/landing/sections/Comunidad";
+import EncuentraTuCamino from "@/components/landing/sections/EncuentraTuCamino";
 import Rutas from "@/components/landing/sections/Rutas";
 import ComoEntras from "@/components/landing/sections/ComoEntras";
 import PruebaSocial from "@/components/landing/sections/PruebaSocial";
 import ComoAprendes from "@/components/landing/sections/ComoAprendes";
-import PorDondeEmpiezas from "@/components/landing/sections/PorDondeEmpiezas";
+import LoQueConstruyes from "@/components/landing/sections/LoQueConstruyes";
 import Inversion from "@/components/landing/sections/Inversion";
 import DespuesDeLaCumbre from "@/components/landing/sections/DespuesDeLaCumbre";
 import FaqHome from "@/components/landing/sections/FaqHome";
@@ -27,6 +28,10 @@ import { RUTAS } from "@/components/landing/rutas/data";
 import { getOfferingCohortsByCode } from "@/lib/cohorts/offering";
 import { getProgramCatalogByCodes, getProgramsHub } from "@/data/programsHub";
 import CursosSueltos from "@/components/landing/sections/CursosSueltos";
+import {
+  ejecutivoHref,
+  standaloneLoosePrograms,
+} from "@/lib/programs/entryPaths";
 
 const ROUTE_MODULE_CODES = RUTAS.flatMap((ruta) => ruta.modules.map((mod) => mod.slug));
 
@@ -66,6 +71,9 @@ export default async function Home() {
     getProgramCatalogByCodes(ROUTE_MODULE_CODES),
   ]);
 
+  const standalone = standaloneLoosePrograms(hub.loose);
+  const executiveUrl = ejecutivoHref(hub.loose);
+
   return (
     <div className="landing-v2 home-conversion">
       <LocalBusinessSchema
@@ -86,17 +94,18 @@ export default async function Home() {
         hasMap={CONTACT.mapsUrl}
       />
       <StructuredData data={FAQ_SCHEMA} />
-      <StickyDiagnosticCta />
+      <StickyDiagnosticCta href={RUTAS_DIAGNOSTICO_URL} />
       <Hero />
       <PruebaBar />
       <Comunidad />
+      <EncuentraTuCamino routes={hub.routes} loose={hub.loose} />
       <Rutas offering={offeringCohorts} moduleCatalog={moduleCatalog} />
-      {hub.loose.length > 0 ? <CursosSueltos programs={hub.loose} /> : null}
+      {standalone.length > 0 ? <CursosSueltos programs={standalone} /> : null}
       <ComoEntras />
       <PruebaSocial />
       <ComoAprendes />
-      <PorDondeEmpiezas />
-      <Inversion />
+      <LoQueConstruyes />
+      <Inversion ejecutivoHref={executiveUrl} />
       <DespuesDeLaCumbre />
       <FaqHome />
       <Visitanos />

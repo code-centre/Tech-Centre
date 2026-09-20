@@ -234,31 +234,40 @@ export const COMO_FUNCIONA = {
 } as const;
 
 export const DESPUES_CUMBRE = {
-  eyebrow: "Después de tu ruta",
-  title: "El aprendizaje te conecta con el ecosistema",
+  eyebrow: "Más allá del salón",
+  title: "Tu aprendizaje no termina en el salón.",
   intro:
-    "Tech Centre es la puerta de entrada al ecosistema Costa Digital. Terminar tu ruta no es el final del viaje: es el momento en que empiezas a aplicar lo que sabes en proyectos reales del Caribe.",
+    "Tech Centre es la puerta de entrada al ecosistema Costa Digital. Lo que pasa en clase se conecta con comunidad, proyectos y oportunidades de la región, sin promesas automáticas de empleo.",
   items: [
     {
-      title: "Prácticas con Ciudad Inmersiva",
-      body: "Los mejores perfiles de cada cohorte pueden acceder a prácticas y proyectos reales con Ciudad Inmersiva, aplicando lo aprendido en productos que ya están en el mercado.",
+      verb: "Aprendes",
+      title: "Tech Centre",
+      body: "Formación presencial, mentores cerca y proyectos que puedes mostrar.",
     },
     {
-      title: "Centro de Innovación de Costa Digital",
-      body: "Participa en retos, proyectos e iniciativas del Centro de Innovación, donde la tecnología se pone al servicio de la región y su industria.",
+      verb: "Conectas",
+      title: "Comunidad",
+      body: "Demo days, eventos y una red de estudiantes, mentores y egresados que se apoya.",
     },
     {
-      title: "Comunidad que sigue contigo",
-      body: "Demo days, eventos mensuales, mentorías y una red de egresados que se refiere, se contrata y se apoya. Al cierre de cada ciclo conectamos egresados con oportunidades reales del ecosistema. Aquí nadie aprende solo.",
+      verb: "Construyes",
+      title: "Ciudad Inmersiva",
+      body: "Perfiles seleccionados pueden sumarse a prácticas y proyectos reales en productos que ya están en el mercado.",
+    },
+    {
+      verb: "Exploras",
+      title: "Ecosistema Caribe",
+      body: "Costa Digital, Caribe Ventures y la red de innovación de la región. Aquí se abren conversaciones, no se garantizan cupos.",
     },
   ],
 } as const;
 
 export const RUTAS_CTA_FINAL = {
-  title: "El viaje apenas comienza",
-  body: "Agenda tu diagnóstico gratuito y descubre en qué módulo empiezas. O ven primero a un demo day y mira con tus propios ojos lo que construyen nuestros estudiantes. No tienes que saberlo todo para empezar, solo dar el primer paso.",
+  eyebrow: "Tu siguiente paso",
+  title: "Tu próximo proyecto puede empezar aquí.",
+  body: "No necesitas tener claro todo el camino. Solo descubrir cuál es tu siguiente nivel.",
   cta: "Agenda tu diagnóstico gratuito",
-  note: "Gratis · sin compromiso · te ubica en tu módulo",
+  note: "20 minutos · Gratis · Sin compromiso",
   empresas:
     "¿Buscas formar a tu equipo? También llevamos estos programas dentro de empresas. Escríbenos.",
 } as const;
@@ -270,8 +279,12 @@ export const RUTAS_CTA_FINAL = {
 
 /** Cohorte vigente. Actualizar al abrir la siguiente. */
 export const RUTAS_COHORTE = {
-  /** Fecha de inicio en texto, como se muestra al usuario. */
-  startDate: "3 de octubre",
+  /**
+   * Etiqueta de ventana, no una fecha única: los programas no arrancan
+   * todos el mismo día. Las fechas exactas viven en cada ficha.
+   */
+  startDate: "octubre",
+  startLabel: "Nuevas cohortes en octubre",
   /** Cupos por grupo. */
   seatsTotal: 12,
   /**
@@ -360,56 +373,56 @@ export const RUTAS_FIT = {
 
 /** Embudo explícito: qué pasa cuando el visitante hace clic. */
 export const RUTAS_COMO_ENTRAS = {
-  eyebrow: "Cómo entras",
-  title: "Tres pasos, sin letra pequeña",
+  eyebrow: "Empieza por aquí",
+  title: "Te ayudamos a encontrar el programa correcto.",
   intro:
-    "No hay examen de admisión ni pago para empezar la conversación. El diagnóstico existe para que no pagues por repetir lo que ya sabes.",
+    "El diagnóstico sirve si estás empezando, si ya programas o trabajas con datos, o si buscas aplicar IA en tu trabajo o empresa. No es un examen de admisión.",
   steps: [
     {
-      when: "Paso 01 · hoy",
-      title: "Agendas el diagnóstico",
-      body: "20 minutos con un mentor, en la sede o por videollamada. Nos cuentas de dónde vienes y a dónde quieres llegar. Gratis y sin compromiso.",
+      when: "Paso 01",
+      title: "Cuéntanos qué quieres lograr",
+      body: "20 minutos con alguien del equipo. Queremos entender qué sabes hoy y qué quieres ser capaz de hacer.",
     },
     {
-      when: "Paso 02 · mismo día",
-      title: "Te ubicamos en tu módulo",
-      body: "Si nunca has programado, empiezas en el módulo 1. Si ya programas o trabajas con datos, entras directo al 2 o al 3, sin pagar lo que ya sabes.",
+      when: "Paso 02",
+      title: "Te recomendamos un punto de entrada",
+      body: "Puede ser un módulo técnico, un nivel avanzado o el Programa Ejecutivo de IA Aplicada.",
     },
     {
-      when: "Paso 03 · cuando decidas",
-      title: "Reservas tu cupo y empiezas",
-      body: "Con la reserva aseguras uno de los cupos de la cohorte. El resto lo pagas en cuotas sin interés.",
+      when: "Paso 03",
+      title: "Si hace sentido, reservas",
+      body: "Con la reserva aseguras tu cupo. Sin presión y sin pagar antes de saber qué programa encaja contigo.",
     },
   ],
-  note: "Cada módulo dura 8 semanas. La ruta completa son tres: unos seis meses en total, con compromisos cortos y avance visible cada dos meses.",
-  cta: "Descubre en qué módulo empiezas",
+  note: "20 minutos · Gratis · Sin examen",
+  cta: "Agenda tu diagnóstico gratuito",
 } as const;
 
 /** Preguntas de la home: las objeciones que frenan el clic. */
 export const RUTAS_FAQS_HOME: { q: string; a: string }[] = [
   {
-    q: "¿Necesito saber programar para entrar?",
-    a: "No. El módulo 1 empieza desde cero: lógica, terminal, Git y programación desde lo más básico. Solo necesitas computador, internet y ganas reales de aprender.",
+    q: "¿Necesito experiencia previa?",
+    a: "No para empezar. El módulo 1 de cada ruta técnica parte desde cero. El Programa Ejecutivo de IA Aplicada tampoco pide que sepas programar. Si ya tienes experiencia, el diagnóstico te ubica más adelante.",
   },
   {
-    q: "Ya programo, ¿puedo saltarme el módulo 1?",
-    a: "Sí. El diagnóstico gratuito te ubica directo en el módulo 2 o en el 3, sin pagar ni repetir lo que ya sabes.",
+    q: "¿Puedo entrar directo a un módulo avanzado?",
+    a: "Sí. Si ya programas o trabajas con datos, el diagnóstico puede ubicarte en un módulo intermedio o avanzado, sin pagar ni repetir lo que ya sabes.",
   },
   {
-    q: "¿Cuánto tiempo me toma a la semana?",
-    a: "8 horas: 4 presenciales en Casa Tech, sábados o entre semana, y 4 de práctica guiada en casa. Está pensado para que puedas seguir trabajando.",
+    q: "¿Necesito mi propio computador?",
+    a: "Sí. Llevas tu laptop a Casa Tech. Necesitas computador, internet y ganas reales de construir.",
   },
   {
-    q: "¿Puedo pagar a cuotas o hay becas?",
-    a: "Sí a las dos. Reservas tu cupo y pagas el resto en hasta tres cuotas sin interés, o de contado con 10% de descuento. Si ya hiciste un módulo con nosotros, tienes otro 10% de descuento como egresado. También tenemos becas y convenios, como Becas Atlántico.",
+    q: "¿Esto es virtual o presencial?",
+    a: "Presencial en Casa Tech, Barranquilla. Cada módulo técnico son 8 horas a la semana: 4 en el salón, sábados o entre semana, y 4 de práctica guiada en casa.",
   },
   {
-    q: "¿Esto me garantiza un empleo?",
-    a: "No prometemos empleo. Te llevas un portafolio de proyectos desplegados, el programa de empleabilidad y una red que sí se refiere entre ella. Lo que abre puertas es lo que construyes.",
+    q: "¿Tech Centre garantiza empleo?",
+    a: "No. Te llevas proyectos que puedes mostrar, el programa de empleabilidad y una red que se refiere entre ella. Lo que abre puertas es lo que construyes.",
   },
   {
-    q: "¿Qué me llevo al terminar?",
-    a: "Un proyecto real desplegado y presentado en demo day, constancia de participación de Tech Centre, y acceso a la comunidad de egresados y al ecosistema Costa Digital.",
+    q: "¿Cómo funciona el diagnóstico?",
+    a: "20 minutos, gratis y sin examen. Nos cuentas qué quieres lograr y te recomendamos un módulo técnico, un nivel avanzado o el Programa Ejecutivo. Solo reservas si hace sentido.",
   },
 ];
 

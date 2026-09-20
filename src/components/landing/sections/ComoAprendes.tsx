@@ -1,61 +1,37 @@
 "use client";
 
 import Image from "next/image";
-import {
-  Users,
-  Code,
-  MessageSquare,
-  Sparkles,
-  UsersRound,
-} from "lucide-react";
-import type { ElementType } from "react";
 import SparkEyebrow from "../SparkEyebrow";
 import Reveal from "../Reveal";
 
-interface Pillar {
-  icon: ElementType;
-  title: string;
-  description: string;
-}
-
-const pillars: Pillar[] = [
+const STEPS = [
   {
-    icon: Users,
-    title: "Máximo 12 personas por curso",
-    description:
-      "Mentores que resuelven tus dudas en el momento. Guía cercana, no auditorios.",
+    n: "01",
+    title: "Aprende",
+    body: "4 horas presenciales con un mentor, en grupos de máximo 12 personas.",
   },
   {
-    icon: Code,
-    title: "Proyectos desde el primer día",
-    description:
-      "Aprendes haciendo. Cada módulo cierra con un proyecto real presentado en demo day.",
+    n: "02",
+    title: "Construye",
+    body: "4 horas de práctica guiada sobre tu proyecto, compatible con tu trabajo.",
   },
   {
-    icon: MessageSquare,
-    title: "Feedback y seguimiento continuo",
-    description:
-      "Retroalimentación constante sobre tu código y guía personalizada en cada paso.",
+    n: "03",
+    title: "Recibe feedback",
+    body: "Code review, revisión y acompañamiento durante el proceso, no al final.",
   },
   {
-    icon: Sparkles,
-    title: "IA como herramienta de trabajo",
-    description:
-      "Desarrollo asistido por IA desde el día uno, con criterio sobre qué delegar y qué entender.",
+    n: "04",
+    title: "Presenta",
+    body: "Cada módulo termina con un proyecto real y Demo Day.",
   },
-  {
-    icon: UsersRound,
-    title: "Comunidad y eventos",
-    description:
-      "Tech Nights, hackatones y una red activa de estudiantes, mentores y profesionales del Caribe.",
-  },
-];
+] as const;
 
 export default function ComoAprendes() {
   return (
     <section
       id="metodo"
-      className="relative py-24 md:py-28"
+      className="relative py-20 md:py-24"
       aria-labelledby="metodo-title"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -67,13 +43,14 @@ export default function ComoAprendes() {
                 id="metodo-title"
                 className="lv2-display mt-5 text-4xl text-[var(--paper)] sm:text-[2.75rem]"
               >
-                Presencial, con{" "}
-                <span className="lv2-mint">code review cara a cara</span>
+                Aquí no vienes a ver clases.
+                <br />
+                <span className="lv2-mint">Vienes a construir.</span>
               </h2>
               <p className="mt-4 text-lg leading-relaxed lv2-soft">
-                4 horas presenciales en Casa Tech, sábados o entre semana, y 4
-                horas de práctica guiada en casa. Grupos de máximo 12 personas y
-                feedback real, no foros anónimos.
+                8 horas a la semana: 4 presenciales en Casa Tech, sábados o
+                entre semana, y 4 de práctica guiada. Feedback real, no foros
+                anónimos.
               </p>
             </Reveal>
 
@@ -97,38 +74,28 @@ export default function ComoAprendes() {
             </Reveal>
           </div>
 
-          <ul className="flex flex-col gap-4">
-            {pillars.map((pillar, i) => {
-              const Icon = pillar.icon;
-              return (
-                <li key={pillar.title}>
-                  <Reveal delay={i * 0.06}>
-                    <article className="lv2-card flex gap-4 p-5 transition-transform duration-300 hover:-translate-y-0.5 md:p-6">
-                      <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[rgba(63,224,160,0.12)] text-[var(--mint)]">
-                        <Icon className="h-5 w-5" aria-hidden="true" />
-                      </span>
-                      <div>
-                        <h3 className="text-[17px] font-bold text-[var(--paper)]">
-                          {pillar.title}
-                        </h3>
-                        <p className="mt-1.5 text-[15px] leading-relaxed lv2-soft">
-                          {pillar.description}
-                        </p>
-                      </div>
-                    </article>
-                  </Reveal>
-                </li>
-              );
-            })}
-          </ul>
+          <ol className="flex flex-col gap-4">
+            {STEPS.map((step, i) => (
+              <li key={step.n}>
+                <Reveal delay={i * 0.06}>
+                  <article className="lv2-card flex gap-4 p-5 md:p-6">
+                    <p className="lv2-mono shrink-0 !text-[var(--mint)]">
+                      {step.n}
+                    </p>
+                    <div>
+                      <h3 className="text-[17px] font-bold text-[var(--paper)]">
+                        {step.title}
+                      </h3>
+                      <p className="mt-1.5 text-[15px] leading-relaxed lv2-soft">
+                        {step.body}
+                      </p>
+                    </div>
+                  </article>
+                </Reveal>
+              </li>
+            ))}
+          </ol>
         </div>
-
-        <Reveal delay={0.1}>
-          <p className="lv2-display mx-auto mt-16 max-w-3xl text-center text-2xl text-[var(--paper)] md:text-3xl">
-            Aquí no solo estudias tecnología.{" "}
-            <span className="lv2-mint">La vives.</span>
-          </p>
-        </Reveal>
       </div>
     </section>
   );

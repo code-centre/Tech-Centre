@@ -4,8 +4,14 @@ import { useEffect, useState } from "react";
 import { AGENTES_DIAGNOSTICO_URL } from "./data";
 import { trackAgentes } from "./track";
 
+interface StickyDiagnosticCtaProps {
+  href?: string;
+}
+
 /** Barra fija en móvil para no perder el CTA en páginas largas. */
-export default function StickyDiagnosticCta() {
+export default function StickyDiagnosticCta({
+  href = AGENTES_DIAGNOSTICO_URL,
+}: StickyDiagnosticCtaProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -26,7 +32,7 @@ export default function StickyDiagnosticCta() {
   return (
     <div className="agentes-sticky-cta" role="region" aria-label="Agendar diagnóstico">
       <a
-        href={AGENTES_DIAGNOSTICO_URL}
+        href={href}
         target="_blank"
         rel="noopener noreferrer"
         className="agentes-btn-amber"
