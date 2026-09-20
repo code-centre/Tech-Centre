@@ -12,11 +12,12 @@ import { RUTAS_FAQS_HOME } from "@/components/landing/rutas/data";
 import StickyDiagnosticCta from "@/components/landing/agentes/StickyDiagnosticCta";
 import Hero from "@/components/landing/sections/Hero";
 import PruebaBar from "@/components/landing/sections/PruebaBar";
-import EsParaTi from "@/components/landing/sections/EsParaTi";
+import Comunidad from "@/components/landing/sections/Comunidad";
 import Rutas from "@/components/landing/sections/Rutas";
 import ComoEntras from "@/components/landing/sections/ComoEntras";
 import PruebaSocial from "@/components/landing/sections/PruebaSocial";
 import ComoAprendes from "@/components/landing/sections/ComoAprendes";
+import PorDondeEmpiezas from "@/components/landing/sections/PorDondeEmpiezas";
 import Inversion from "@/components/landing/sections/Inversion";
 import DespuesDeLaCumbre from "@/components/landing/sections/DespuesDeLaCumbre";
 import FaqHome from "@/components/landing/sections/FaqHome";
@@ -88,12 +89,13 @@ export default async function Home() {
       <StickyDiagnosticCta />
       <Hero />
       <PruebaBar />
-      <EsParaTi />
+      <Comunidad />
       <Rutas offering={offeringCohorts} moduleCatalog={moduleCatalog} />
       {hub.loose.length > 0 ? <CursosSueltos programs={hub.loose} /> : null}
       <ComoEntras />
       <PruebaSocial />
       <ComoAprendes />
+      <PorDondeEmpiezas />
       <Inversion />
       <DespuesDeLaCumbre />
       <FaqHome />
