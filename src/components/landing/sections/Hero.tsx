@@ -1,12 +1,109 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import CohorteBadge from "../CohorteBadge";
 import { RUTAS_DIAGNOSTICO_URL } from "../rutas/data";
 import { trackAgentes } from "../agentes/track";
+
+const HERO_POSTER = "/techcentre-hero.jpg";
+const HERO_VIDEO_WEBM = "/videos/hero-video.webm";
+const HERO_VIDEO_MP4 = "/videos/hero-video.mp4";
+
+function shouldLoadHeroVideo(reduceMotion: boolean): boolean {
+  if (reduceMotion || typeof navigator === "undefined") return false;
+  const connection = (
+    navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }
+  ).connection;
+  if (connection?.saveData) return false;
+  if (connection?.effectiveType === "slow-2g" || connection?.effectiveType === "2g") {
+    return false;
+  }
+  return true;
+}
+
+function HeroMedia() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const reduce = useReducedMotion();
+  const [loadVideo, setLoadVideo] = useState(false);
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    setLoadVideo(shouldLoadHeroVideo(Boolean(reduce)));
+  }, [reduce]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!loadVideo || !video) return;
+
+    let visible = false;
+
+    const syncPlayback = () => {
+      if (visible && !document.hidden) {
+        const play = video.play();
+        if (play) play.catch(() => {});
+      } else {
+        video.pause();
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        syncPlayback();
+      },
+      { threshold: 0.2 },
+    );
+
+    observer.observe(video);
+    document.addEventListener("visibilitychange", syncPlayback);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", syncPlayback);
+      video.pause();
+    };
+  }, [loadVideo]);
+
+  return (
+    <>
+      <Image
+        src={HERO_POSTER}
+        alt="Estudiantes de Tech Centre en una clase presencial en Barranquilla"
+        fill
+        priority
+        sizes="100vw"
+        className="scale-[1.06] object-cover"
+      />
+      {loadVideo ? (
+        <video
+          ref={videoRef}
+          className={`pointer-events-none absolute inset-0 h-full w-full scale-[1.06] object-cover transition-opacity duration-700 ${
+            playing ? "opacity-100" : "opacity-0"
+          }`}
+          muted
+          loop
+          playsInline
+          preload="none"
+          poster={HERO_POSTER}
+          aria-hidden="true"
+          disablePictureInPicture
+          disableRemotePlayback
+          onPlaying={() => setPlaying(true)}
+        >
+          <source src={HERO_VIDEO_WEBM} type="video/webm" />
+          <source src={HERO_VIDEO_MP4} type="video/mp4" />
+        </video>
+      ) : null}
+      <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(7,16,13,0.92)_0%,rgba(7,16,13,0.62)_46%,rgba(7,16,13,0.28)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(110%_85%_at_90%_8%,rgba(28,90,73,0.32)_0%,transparent_62%)]" />
+    </>
+  );
+}
 
 /** Cifras de la oferta que sostienen la promesa del titular. */
 const FACTS = [
@@ -36,16 +133,7 @@ export default function Hero() {
         className="absolute inset-0 z-0"
         style={{ y: reduce ? 0 : imageY }}
       >
-        <Image
-          src="/techcentre-hero.jpg"
-          alt="Estudiantes de Tech Centre en una clase presencial en Barranquilla"
-          fill
-          priority
-          sizes="100vw"
-          className="scale-[1.06] object-cover"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(7,16,13,0.92)_0%,rgba(7,16,13,0.62)_46%,rgba(7,16,13,0.28)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(110%_85%_at_90%_8%,rgba(28,90,73,0.32)_0%,transparent_62%)]" />
+        <HeroMedia />
       </motion.div>
 
       <div aria-hidden="true" className="lv2-tex right-[8%] top-[14%] hidden h-40 w-40 md:block" />
@@ -90,10 +178,8 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            Tech Centre es el Centro de Tecnología del Caribe. Dos rutas
-            presenciales: AI Developer, para construir aplicaciones y agentes de IA,
-            y Datos, para predecir con Python y machine learning. Grupos de
-            máximo 12 personas, con code review cara a cara.
+            Dos rutas para construir con tecnología e IA: AI Developer y Datos.
+            Aprende en grupos pequeños, con mentores cerca y proyectos reales.
           </motion.p>
 
           <motion.div
@@ -119,7 +205,7 @@ export default function Hero() {
                 href="#rutas"
                 className="border-b border-white/20 pb-0.5 text-[15px] lv2-soft transition-colors hover:border-[var(--mint)] hover:text-[var(--mint)]"
               >
-                o mira primero las dos rutas
+                Explora las rutas
               </a>
             </div>
             <p className="lv2-mono !normal-case !tracking-normal !text-[var(--mute)]">
