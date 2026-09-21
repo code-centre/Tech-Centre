@@ -10,6 +10,12 @@ import {
 import { toast } from 'sonner'
 import { formatMoney } from '@/lib/students'
 import NextImage from 'next/image'
+import {
+  RECEIPT_ACCEPT,
+  isPdfFile,
+  isPdfUrl,
+  validateReceiptFile,
+} from '@/lib/payments/receipt-file'
 
 interface Invoice {
   id: number
@@ -41,7 +47,7 @@ export default function PaymentReceiptsManager() {
   const [loading, setLoading] = useState(true)
   const [uploadingInvoiceId, setUploadingInvoiceId] = useState<number | null>(null)
   const [creatingPaymentLinkId, setCreatingPaymentLinkId] = useState<number | null>(null)
-  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [previewFile, setPreviewFile] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -80,6 +86,33 @@ export default function PaymentReceiptsManager() {
         .order('due_date', { ascending: true })
 
       if (invoiceError) throw invoiceError
+
+      const hasOpenInvoices = (invoiceData || []).some(
+        (invoice) => invoice.status !== 'paid' && invoice.status !== 'pending_review',
+      )
+
+      if (hasOpenInvoices) {
+        const result = await fetch('/api/payments/reconcile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ all: true }),
+        })
+          .then((res) => res.json().catch(() => ({})))
+          .catch(() => ({}))
+
+        if (result?.status === 'APPROVED') {
+          const { data: refreshed, error: refreshError } = await supabase
+            .from('invoices')
+            .select('*')
+            .in('enrollment_id', enrollmentIds)
+            .order('due_date', { ascending: true })
+
+          if (refreshError) throw refreshError
+          setInvoices(refreshed || [])
+          return
+        }
+      }
+
       setInvoices(invoiceData || [])
 
     } catch (err: any) {
@@ -96,26 +129,21 @@ export default function PaymentReceiptsManager() {
     try {
       setUploadingInvoiceId(invoiceId)
 
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        throw new Error('Solo se permiten archivos de imagen')
+      const validationError = validateReceiptFile(file)
+      if (validationError) {
+        throw new Error(validationError)
       }
 
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        throw new Error('El archivo no debe superar los 5MB')
-      }
-
-      const fileExt = file.name.split('.').pop()
+      const fileExt = file.name.split('.').pop() || (isPdfFile(file) ? 'pdf' : 'jpg')
       const fileName = `receipt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`
       const filePath = `receipts/${user.id}/${invoiceId}/${fileName}`
 
-      // Upload to Supabase storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('activities')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: true
+          upsert: true,
+          contentType: file.type || (isPdfFile(file) ? 'application/pdf' : undefined),
         })
 
       if (uploadError) throw uploadError
@@ -536,7 +564,7 @@ export default function PaymentReceiptsManager() {
                           {invoice.url_recipe && (
                             <button
                               type="button"
-                              onClick={() => setPreviewImage(invoice.url_recipe)}
+                              onClick={() => setPreviewFile(invoice.url_recipe)}
                               className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-secondary hover:underline"
                             >
                               <Receipt className="h-[15px] w-[15px]" />
@@ -569,7 +597,7 @@ export default function PaymentReceiptsManager() {
                             Comprobante
                             <input
                               type="file"
-                              accept="image/*,application/pdf"
+                              accept={RECEIPT_ACCEPT}
                               onChange={(event) => handleFileSelect(event, invoice.id)}
                               className="hidden"
                             />
@@ -597,26 +625,48 @@ export default function PaymentReceiptsManager() {
       )}
 
 
-      {/* Image Preview Modal */}
-      {previewImage && (
-        <div 
+      {previewFile && (
+        <div
           className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
-          onClick={() => setPreviewImage(null)}
+          onClick={() => setPreviewFile(null)}
         >
-          <div className="relative max-w-4xl max-h-full">
-            <button
-              onClick={() => setPreviewImage(null)}
-              className="absolute -top-12 right-0 p-2 text-white hover:text-gray-300 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <NextImage
-              src={previewImage}
-              alt="Recibo de pago"
-              width={800}
-              height={600}
-              className="max-w-full max-h-[80vh] object-contain rounded-lg"
-            />
+          <div
+            className="relative max-w-4xl w-full max-h-full"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="absolute -top-12 right-0 flex items-center gap-3">
+              <a
+                href={previewFile}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-white hover:text-gray-300"
+              >
+                Abrir archivo
+              </a>
+              <button
+                type="button"
+                onClick={() => setPreviewFile(null)}
+                className="p-2 text-white hover:text-gray-300 transition-colors"
+                aria-label="Cerrar comprobante"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            {isPdfUrl(previewFile) ? (
+              <iframe
+                src={previewFile}
+                title="Comprobante de pago"
+                className="w-full h-[80vh] rounded-lg bg-white"
+              />
+            ) : (
+              <NextImage
+                src={previewFile}
+                alt="Comprobante de pago"
+                width={800}
+                height={600}
+                className="max-w-full max-h-[80vh] object-contain rounded-lg"
+              />
+            )}
           </div>
         </div>
       )}

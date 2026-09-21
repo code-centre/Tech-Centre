@@ -8,6 +8,7 @@ export interface CreatePaymentLinkParams {
   description: string; // Descripción del pago
   redirectUrl: string; // URL de redirección después del pago
   metadata?: Record<string, any>; // Metadatos adicionales
+  sku?: string;
 }
 
 export interface PaymentLink {
@@ -24,6 +25,9 @@ export interface TransactionStatus {
   createdAt: string; // Fecha de creación
   updatedAt: string; // Fecha de actualización
   metadata?: Record<string, any>; // Metadatos adicionales
+  paymentLinkId?: string | null;
+  redirectUrl?: string | null;
+  reference?: string | null;
 }
 
 export type PaymentProviderName = 'wompi' | 'stripe' | 'paypal';

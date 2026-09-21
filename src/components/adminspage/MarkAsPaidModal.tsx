@@ -5,6 +5,11 @@ import { useSupabaseClient, useUser } from '@/lib/supabase';
 import { X, Upload, Loader2, CheckCircle, Landmark, Banknote } from 'lucide-react';
 import { toast } from 'sonner';
 import { markInvoicePaidAdmin } from '@/app/admin/pagos/actions';
+import {
+  RECEIPT_ACCEPT,
+  isPdfFile,
+  validateReceiptFile,
+} from '@/lib/payments/receipt-file';
 
 export interface InvoiceForModal {
   id: number;
@@ -50,20 +55,24 @@ export function MarkAsPaidModal({
     onClose();
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (selected && selected.type.startsWith('image/')) {
-      setFile(selected);
+  const acceptReceiptFile = (selected: File | undefined) => {
+    if (!selected) return;
+    const validationError = validateReceiptFile(selected);
+    if (validationError) {
+      toast.error(validationError);
+      return;
     }
+    setFile(selected);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    acceptReceiptFile(e.target.files?.[0]);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    const dropped = e.dataTransfer.files[0];
-    if (dropped && dropped.type.startsWith('image/')) {
-      setFile(dropped);
-    }
+    acceptReceiptFile(e.dataTransfer.files[0]);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -79,7 +88,7 @@ export function MarkAsPaidModal({
     if (!invoice || !user) return;
 
     if (method === 'transfer' && !file) {
-      toast.error('Debes subir la imagen del comprobante de transferencia');
+      toast.error('Debes subir el comprobante de transferencia (imagen o PDF)');
       return;
     }
 
@@ -89,10 +98,11 @@ export function MarkAsPaidModal({
       let urlRecipe: string | null = null;
 
       if (method === 'transfer' && file) {
-        if (file.size > 5 * 1024 * 1024) {
-          throw new Error('El archivo no debe superar los 5MB');
+        const validationError = validateReceiptFile(file);
+        if (validationError) {
+          throw new Error(validationError);
         }
-        const fileExt = file.name.split('.').pop() || 'jpg';
+        const fileExt = file.name.split('.').pop() || (isPdfFile(file) ? 'pdf' : 'jpg');
         const fileName = `receipt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
         const filePath = `receipts/admin/${invoice.id}/${fileName}`;
 
@@ -101,6 +111,7 @@ export function MarkAsPaidModal({
           .upload(filePath, file, {
             cacheControl: '3600',
             upsert: true,
+            contentType: file.type || (isPdfFile(file) ? 'application/pdf' : undefined),
           });
 
         if (uploadError) throw uploadError;
@@ -227,7 +238,7 @@ export function MarkAsPaidModal({
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept={RECEIPT_ACCEPT}
                     onChange={handleFileSelect}
                     className="hidden"
                   />
@@ -237,9 +248,9 @@ export function MarkAsPaidModal({
                     <>
                       <Upload className="w-10 h-10 text-text-muted mx-auto mb-2" />
                       <p className="text-sm text-text-muted">
-                        Arrastra una imagen o haz clic para seleccionar
+                        Arrastra una imagen o un PDF, o haz clic para seleccionar
                       </p>
-                      <p className="text-xs text-text-muted mt-1">Máx. 5MB</p>
+                      <p className="text-xs text-text-muted mt-1">JPG, PNG, WEBP o PDF. Máx. 10MB</p>
                     </>
                   )}
                 </div>

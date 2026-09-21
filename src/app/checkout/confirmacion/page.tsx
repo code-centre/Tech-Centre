@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { useSupabaseClient } from '@/lib/supabase'
 import { ProfessorWelcome } from '@/components/checkout/ProfessorWelcome'
+import { isWompiTransactionId } from '@/lib/payments/wompi-ids'
 
 export default function CheckoutPage() {
   return (
@@ -42,27 +43,32 @@ function CheckoutContent() {
   const enrollmentId = searchParams.get('id')
   const invoiceIdParam = searchParams.get('invoiceId')
 
-  const resolveTransactionStatus = useCallback(
-    async (paymentId: string | null | undefined) => {
-      if (!paymentId) {
-        return { status: 'PENDING' }
-      }
+  const wompiTransactionId = [searchParams.get('id'), searchParams.get('transaction_id')].find(
+    (value) => isWompiTransactionId(value)
+  )
 
+  const reconcilePayment = useCallback(
+    async (payload: { invoiceId?: number; enrollmentId?: number }) => {
       try {
-        const res = await fetch(
-          `/api/payments/transaction-status?paymentId=${encodeURIComponent(paymentId)}`
-        )
-        const data = await res.json()
+        const res = await fetch('/api/payments/reconcile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...payload,
+            transactionId: wompiTransactionId,
+          }),
+        })
+        const data = (await res.json()) as { status?: string }
         if (res.ok && data.status) {
-          return { status: data.status as string }
+          return data.status
         }
       } catch (paymentErr) {
-        console.warn('No se pudo verificar estado del pago:', paymentErr)
+        console.warn('No se pudo confirmar el pago con Wompi:', paymentErr)
       }
 
-      return { status: 'PENDING' }
+      return 'PENDING'
     },
-    []
+    [wompiTransactionId]
   )
 
   const processInvoicePaymentConfirmation = useCallback(async () => {
@@ -112,21 +118,15 @@ function CheckoutContent() {
       }
 
       setInvoiceLabel(invoice.label)
-      setInvoicePaid(invoice.status === 'paid')
-
-      const paymentId =
-        invoice.meta?.payment_id ||
-        searchParams.get('reference') ||
-        searchParams.get('id')
-
-      const transactionStatus = await resolveTransactionStatus(
-        typeof paymentId === 'string' ? paymentId : null
-      )
 
       if (invoice.status === 'paid') {
+        setInvoicePaid(true)
         setStatusTransaction('APPROVED')
       } else {
-        setStatusTransaction(transactionStatus.status)
+        const status = await reconcilePayment({ invoiceId })
+        const approved = status === 'APPROVED'
+        setInvoicePaid(approved)
+        setStatusTransaction(status)
       }
     } catch (err) {
       console.error('Error al procesar confirmación de pago de factura:', err)
@@ -134,12 +134,25 @@ function CheckoutContent() {
     } finally {
       setLoading(false)
     }
-  }, [invoiceIdParam, supabase, searchParams, resolveTransactionStatus])
+  }, [invoiceIdParam, supabase, reconcilePayment])
 
   useEffect(() => {
     const processPaymentConfirmation = async () => {
       if (invoiceIdParam) {
         await processInvoicePaymentConfirmation()
+        return
+      }
+
+      if (!enrollmentId && !wompiTransactionId) {
+        setError('No se proporcionó un ID de inscripción')
+        setLoading(false)
+        return
+      }
+
+      if (wompiTransactionId && !invoiceIdParam && !/^\d+$/.test(enrollmentId ?? '')) {
+        const status = await reconcilePayment({})
+        setStatusTransaction(status)
+        setLoading(false)
         return
       }
 
@@ -192,16 +205,15 @@ function CheckoutContent() {
           .order('id', { ascending: true })
 
         const firstInvoice = invoices?.[0]
-        const paymentId =
-          firstInvoice?.meta?.payment_id || searchParams.get('id') || enrollmentId
 
         if (enrollment.status === 'enrolled' || firstInvoice?.status === 'paid') {
           setStatusTransaction('APPROVED')
         } else {
-          const transactionStatus = await resolveTransactionStatus(
-            typeof paymentId === 'string' ? paymentId : null
-          )
-          setStatusTransaction(transactionStatus.status)
+          const enrollmentNumeric = Number(enrollmentId)
+          const status = await reconcilePayment({
+            enrollmentId: Number.isInteger(enrollmentNumeric) ? enrollmentNumeric : undefined,
+          })
+          setStatusTransaction(status)
         }
       } catch (err) {
         console.error('Error al procesar confirmación de pago:', err)
@@ -221,8 +233,8 @@ function CheckoutContent() {
     invoiceIdParam,
     supabase,
     processInvoicePaymentConfirmation,
-    resolveTransactionStatus,
-    searchParams,
+    reconcilePayment,
+    wompiTransactionId,
   ])
 
   const isApproved =

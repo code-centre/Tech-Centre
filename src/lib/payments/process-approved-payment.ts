@@ -21,51 +21,33 @@ interface EnrollmentRow {
 }
 
 /**
- * Marks invoice/enrollment as paid after verified Wompi webhook.
+ * Marks invoice/enrollment as paid after a verified Wompi approval.
  * Uses service role because webhooks have no user session.
  */
 export async function processApprovedWompiPayment(params: {
-  paymentLinkId?: string;
-  transactionId?: string;
+  paymentLinkId?: string | null;
+  transactionId?: string | null;
+  invoiceId?: number | null;
 }): Promise<{ ok: boolean; message: string }> {
   const supabase = createServiceRoleClient();
-  const { paymentLinkId, transactionId } = params;
+  const paymentLinkId = params.paymentLinkId?.trim() || undefined;
+  const transactionId = params.transactionId?.trim() || undefined;
+  const invoiceId =
+    typeof params.invoiceId === 'number' && params.invoiceId > 0
+      ? params.invoiceId
+      : undefined;
 
-  if (!paymentLinkId && !transactionId) {
+  if (!paymentLinkId && !transactionId && !invoiceId) {
     return { ok: false, message: 'Missing payment reference' };
   }
 
-  let invoices: InvoiceRow[] | null = null;
+  const invoices = await findInvoicesForPayment(supabase, {
+    paymentLinkId,
+    transactionId,
+    invoiceId,
+  });
 
-  if (paymentLinkId) {
-    const { data, error } = await supabase
-      .from('invoices')
-      .select('id, enrollment_id, status, amount, meta')
-      .contains('meta', { payment_id: paymentLinkId });
-
-    if (error) {
-      console.error('Webhook invoice lookup error:', error);
-      return { ok: false, message: error.message };
-    }
-
-    invoices = (data ?? []) as InvoiceRow[];
-  }
-
-  if ((!invoices || invoices.length === 0) && transactionId) {
-    const { data, error } = await supabase
-      .from('invoices')
-      .select('id, enrollment_id, status, amount, meta')
-      .contains('meta', { transaction_id: transactionId });
-
-    if (error) {
-      console.error('Webhook invoice lookup by transaction error:', error);
-      return { ok: false, message: error.message };
-    }
-
-    invoices = (data ?? []) as InvoiceRow[];
-  }
-
-  if (!invoices || invoices.length === 0) {
+  if (!invoices.length) {
     return { ok: false, message: 'Invoice not found for payment reference' };
   }
 
@@ -84,6 +66,7 @@ export async function processApprovedWompiPayment(params: {
         meta: {
           ...(invoice.meta ?? {}),
           ...(transactionId ? { transaction_id: transactionId } : {}),
+          ...(paymentLinkId ? { payment_id: paymentLinkId } : {}),
         },
       })
       .eq('id', invoice.id)
@@ -150,4 +133,71 @@ export async function processApprovedWompiPayment(params: {
   }
 
   return { ok: true, message: 'Payment processed' };
+}
+
+async function findInvoicesForPayment(
+  supabase: ReturnType<typeof createServiceRoleClient>,
+  refs: {
+    paymentLinkId?: string;
+    transactionId?: string;
+    invoiceId?: number;
+  },
+): Promise<InvoiceRow[]> {
+  const found = new Map<number, InvoiceRow>();
+
+  const addRows = (rows: InvoiceRow[] | null | undefined) => {
+    for (const row of rows ?? []) {
+      found.set(row.id, row);
+    }
+  };
+
+  if (refs.invoiceId) {
+    const { data, error } = await supabase
+      .from('invoices')
+      .select('id, enrollment_id, status, amount, meta')
+      .eq('id', refs.invoiceId);
+    if (error) {
+      console.error('Invoice lookup by id error:', error);
+    } else {
+      addRows((data ?? []) as InvoiceRow[]);
+    }
+  }
+
+  if (refs.paymentLinkId) {
+    const { data, error } = await supabase
+      .from('invoices')
+      .select('id, enrollment_id, status, amount, meta')
+      .contains('meta', { payment_id: refs.paymentLinkId });
+    if (error) {
+      console.error('Webhook invoice lookup error:', error);
+    } else {
+      addRows((data ?? []) as InvoiceRow[]);
+    }
+
+    if (found.size === 0) {
+      const { data: textRows, error: textError } = await supabase
+        .from('invoices')
+        .select('id, enrollment_id, status, amount, meta')
+        .filter('meta->>payment_id', 'eq', refs.paymentLinkId);
+      if (textError) {
+        console.error('Invoice lookup by payment_id text error:', textError);
+      } else {
+        addRows((textRows ?? []) as InvoiceRow[]);
+      }
+    }
+  }
+
+  if (refs.transactionId && found.size === 0) {
+    const { data, error } = await supabase
+      .from('invoices')
+      .select('id, enrollment_id, status, amount, meta')
+      .contains('meta', { transaction_id: refs.transactionId });
+    if (error) {
+      console.error('Webhook invoice lookup by transaction error:', error);
+    } else {
+      addRows((data ?? []) as InvoiceRow[]);
+    }
+  }
+
+  return [...found.values()];
 }

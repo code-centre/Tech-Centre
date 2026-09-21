@@ -108,6 +108,7 @@ export async function POST(
       name: invoice.label,
       description: 'Pago de factura',
       redirectUrl,
+      sku: `invoice-${invoice.id}`,
     });
 
     const updatedMeta: Record<string, unknown> = {
@@ -117,13 +118,16 @@ export async function POST(
       payment_id: paymentLink.id,
     };
 
-    // Supabase infers 'never' for invoices.update() - table exists, types may be out of sync
     const { error: updateError } = await (supabase.from('invoices') as unknown as { update: (data: { meta: unknown }) => { eq: (col: string, val: number) => Promise<{ error: { message?: string } | null }> } })
       .update({ meta: updatedMeta })
       .eq('id', invoice.id);
 
     if (updateError) {
       console.error('Error al guardar payment_id en factura:', updateError);
+      return NextResponse.json(
+        { error: 'No se pudo registrar el link de pago. Intenta de nuevo.' },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({ url: paymentLink.url });

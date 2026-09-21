@@ -21,6 +21,15 @@ export interface PaymentProvider {
    */
   getTransactionStatus(transactionId: string): Promise<TransactionStatus>;
 
+  fetchTransaction?(transactionId: string): Promise<Record<string, unknown>>;
+
+  findApprovedTransactionForPaymentLink?(
+    paymentLinkId?: string,
+    invoiceId?: number,
+  ): Promise<TransactionStatus | null>;
+
+  listRecentApprovedTransactions?(days?: number): Promise<TransactionStatus[]>;
+
   /**
    * Nombre del proveedor (para logging y debugging)
    */
