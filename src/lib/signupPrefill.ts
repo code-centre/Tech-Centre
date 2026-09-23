@@ -17,20 +17,6 @@ function clip(value: string | null | undefined, max: number): string {
   return (value ?? "").trim().slice(0, max);
 }
 
-export function signupPrefillFromInscripcion(input: {
-  nombre: string;
-  email: string;
-  telefono: string;
-}): SignupPrefill {
-  const { firstName, lastName } = splitFullName(input.nombre);
-  return {
-    firstName: clip(firstName, 80),
-    lastName: clip(lastName, 80),
-    email: clip(input.email, 254),
-    phone: clip(input.telefono, 20),
-  };
-}
-
 export function signupPrefillFromSearchParams(params: {
   email?: string;
   firstName?: string;
@@ -46,13 +32,4 @@ export function signupPrefillFromSearchParams(params: {
     email: clip(params.email, 254),
     phone: clip(params.phone, 20) || clip(params.telefono, 20),
   };
-}
-
-export function signupPrefillQuery(prefill: SignupPrefill): string {
-  const params = new URLSearchParams();
-  if (prefill.firstName) params.set("firstName", prefill.firstName);
-  if (prefill.lastName) params.set("lastName", prefill.lastName);
-  if (prefill.email) params.set("email", prefill.email);
-  if (prefill.phone) params.set("phone", prefill.phone);
-  return params.toString();
 }

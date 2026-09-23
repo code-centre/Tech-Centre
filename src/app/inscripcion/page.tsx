@@ -2,7 +2,29 @@ import type { Metadata } from "next";
 import { Check } from "lucide-react";
 import PageHero from "@/components/landing/PageHero";
 import Reveal from "@/components/landing/Reveal";
-import InscripcionForm from "./InscripcionForm";
+import { createClient } from "@/lib/supabase/server";
+import InscripcionForm, { type InscripcionAccount } from "./InscripcionForm";
+
+async function getAccount(): Promise<InscripcionAccount | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("first_name, last_name, phone")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const row = profile as { first_name: string | null; last_name: string | null; phone: string | null } | null;
+  return {
+    nombre: `${row?.first_name ?? ""} ${row?.last_name ?? ""}`.trim(),
+    email: user.email ?? "",
+    telefono: row?.phone ?? "",
+  };
+}
 
 export const metadata: Metadata = {
   title: "Inscripción · Empieza tu camino en Tech Centre",
@@ -17,7 +39,9 @@ const reassurance = [
   "Programa de empleabilidad incluido",
 ];
 
-export default function InscripcionPage() {
+export default async function InscripcionPage() {
+  const account = await getAccount();
+
   return (
     <div className="landing-v2">
       <PageHero
@@ -49,7 +73,7 @@ export default function InscripcionPage() {
             </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <InscripcionForm />
+            <InscripcionForm account={account} />
           </Reveal>
         </div>
       </section>
